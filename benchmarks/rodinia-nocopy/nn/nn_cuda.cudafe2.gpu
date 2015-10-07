@@ -1,0 +1,58 @@
+# 22 "nn_cuda.cu"
+struct latLong;
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 22 "nn_cuda.cu"
+struct latLong {
+# 24 "nn_cuda.cu"
+float lat;
+# 25 "nn_cuda.cu"
+float lng;};
+# 26 "nn_cuda.cu"
+typedef struct latLong LatLong;
+# 45 "nn_cuda.cu"
+__global__ __var_used__ extern void _Z6euclidP7latLongPfiff(LatLong *, float *, int, float, float);
+#include "common_functions.h"
+# 45 "nn_cuda.cu"
+__global__ __var_used__ void _Z6euclidP7latLongPfiff(
+# 45 "nn_cuda.cu"
+LatLong *d_locations, 
+# 45 "nn_cuda.cu"
+float *d_distances, 
+# 45 "nn_cuda.cu"
+int numRecords, 
+# 45 "nn_cuda.cu"
+float lat, 
+# 45 "nn_cuda.cu"
+float lng){
+# 45 "nn_cuda.cu"
+{
+# 46 "nn_cuda.cu"
+{
+# 47 "nn_cuda.cu"
+ int __cuda_local_var_22155_6_non_const_globalId;
+# 48 "nn_cuda.cu"
+ LatLong *__cuda_local_var_22156_14_non_const_latLong;
+# 47 "nn_cuda.cu"
+__cuda_local_var_22155_6_non_const_globalId = ((int)(((blockIdx.x) * (blockDim.x)) + (threadIdx.x)));
+# 48 "nn_cuda.cu"
+__cuda_local_var_22156_14_non_const_latLong = (d_locations + __cuda_local_var_22155_6_non_const_globalId);
+# 49 "nn_cuda.cu"
+if (__cuda_local_var_22155_6_non_const_globalId < numRecords)
+# 49 "nn_cuda.cu"
+{
+# 49 "nn_cuda.cu"
+ float __T210;
+# 50 "nn_cuda.cu"
+ float *__cuda_local_var_22158_16_non_const_dist;
+# 50 "nn_cuda.cu"
+__cuda_local_var_22158_16_non_const_dist = (d_distances + __cuda_local_var_22155_6_non_const_globalId);
+# 51 "nn_cuda.cu"
+(*__cuda_local_var_22158_16_non_const_dist) = ((float)((__T210 = (((lat - (__cuda_local_var_22156_14_non_const_latLong->lat)) * (lat - (__cuda_local_var_22156_14_non_const_latLong->lat))) + ((lng - (__cuda_local_var_22156_14_non_const_latLong->lng)) * (lng - (__cuda_local_var_22156_14_non_const_latLong->lng))))) , (sqrtf(((double)__T210)))));
+# 52 "nn_cuda.cu"
+}
+# 53 "nn_cuda.cu"
+} 
+# 53 "nn_cuda.cu"
+}}

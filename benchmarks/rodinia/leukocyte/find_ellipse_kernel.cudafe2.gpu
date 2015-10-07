@@ -1,0 +1,242 @@
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+#if !defined(__CUDABE__)
+# 76 "/home/bachelor/deicide218/cuda-4.2/include/texture_fetch_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) float4 __ftexfetchi(__texture_type__, int4);
+#endif
+# 32 "find_ellipse_kernel.cu"
+__global__ __var_used__ extern void _Z12GICOV_kerneliPf(int, float *);
+# 146 "find_ellipse_kernel.cu"
+__global__ __var_used__ extern void _Z13dilate_kerneliiiiPf(int, int, int, int, float *);
+# 21 "find_ellipse_kernel.cu"
+__loc_sc__(__constant__,,) float c_sin_angle[150];
+# 22 "find_ellipse_kernel.cu"
+__loc_sc__(__constant__,,) float c_cos_angle[150];
+# 23 "find_ellipse_kernel.cu"
+__loc_sc__(__constant__,,) int c_tX[1050];
+# 24 "find_ellipse_kernel.cu"
+__loc_sc__(__constant__,,) int c_tY[1050];
+# 27 "find_ellipse_kernel.cu"
+__loc_sc__(__text__,,) __texture_type__ t_grad_x;
+# 28 "find_ellipse_kernel.cu"
+__loc_sc__(__text__,,) __texture_type__ t_grad_y;
+# 137 "find_ellipse_kernel.cu"
+__loc_sc__(__constant__,,) float c_strel[625];
+# 140 "find_ellipse_kernel.cu"
+__loc_sc__(__text__,,) __texture_type__ t_img;
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 32 "find_ellipse_kernel.cu"
+__global__ __var_used__ void _Z12GICOV_kerneliPf(
+# 32 "find_ellipse_kernel.cu"
+int grad_m, 
+# 32 "find_ellipse_kernel.cu"
+float *gicov){
+# 32 "find_ellipse_kernel.cu"
+{
+# 32 "find_ellipse_kernel.cu"
+{
+# 33 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16329_6_non_const_i;
+# 33 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16329_9_non_const_j;
+# 33 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16329_12_non_const_k;
+# 33 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16329_15_non_const_n;
+# 33 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16329_18_non_const_x;
+# 33 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16329_21_non_const_y;
+# 40 "find_ellipse_kernel.cu"
+ float __cuda_local_var_16336_8_non_const_max_GICOV;
+# 36 "find_ellipse_kernel.cu"
+__cuda_local_var_16329_6_non_const_i = ((int)(((blockIdx.x) + 20U) + 2U));
+# 37 "find_ellipse_kernel.cu"
+__cuda_local_var_16329_9_non_const_j = ((int)(((threadIdx.x) + 20U) + 2U));
+# 40 "find_ellipse_kernel.cu"
+__cuda_local_var_16336_8_non_const_max_GICOV = (0.0F);
+# 43 "find_ellipse_kernel.cu"
+for (__cuda_local_var_16329_12_non_const_k = 0; (__cuda_local_var_16329_12_non_const_k < 7); __cuda_local_var_16329_12_non_const_k++)
+# 43 "find_ellipse_kernel.cu"
+{
+# 46 "find_ellipse_kernel.cu"
+ float __cuda_local_var_16342_9_non_const_sum;
+# 46 "find_ellipse_kernel.cu"
+ float __cuda_local_var_16342_20_non_const_M2;
+# 46 "find_ellipse_kernel.cu"
+ float __cuda_local_var_16342_30_non_const_mean;
+# 72 "find_ellipse_kernel.cu"
+ float __cuda_local_var_16368_9_non_const_var;
+# 46 "find_ellipse_kernel.cu"
+__cuda_local_var_16342_9_non_const_sum = (0.0F);
+# 46 "find_ellipse_kernel.cu"
+__cuda_local_var_16342_20_non_const_M2 = (0.0F);
+# 46 "find_ellipse_kernel.cu"
+__cuda_local_var_16342_30_non_const_mean = (0.0F);
+# 49 "find_ellipse_kernel.cu"
+for (__cuda_local_var_16329_15_non_const_n = 0; (__cuda_local_var_16329_15_non_const_n < 150); __cuda_local_var_16329_15_non_const_n++)
+# 49 "find_ellipse_kernel.cu"
+{
+# 49 "find_ellipse_kernel.cu"
+ __texture_type__ __T28;
+# 50 "find_ellipse_kernel.cu"
+ int4 __T29;
+# 51 "find_ellipse_kernel.cu"
+ float4 __T210;
+# 52 "find_ellipse_kernel.cu"
+ __texture_type__ __T211;
+# 53 "find_ellipse_kernel.cu"
+ int4 __T212;
+# 54 "find_ellipse_kernel.cu"
+ float4 __T213;
+# 55 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16351_8_non_const_addr;
+# 56 "find_ellipse_kernel.cu"
+ float __cuda_local_var_16352_10_non_const_p;
+# 63 "find_ellipse_kernel.cu"
+ float __cuda_local_var_16359_10_non_const_delta;
+# 51 "find_ellipse_kernel.cu"
+__cuda_local_var_16329_21_non_const_y = (__cuda_local_var_16329_9_non_const_j + ((c_tY)[((__cuda_local_var_16329_12_non_const_k * 150) + __cuda_local_var_16329_15_non_const_n)]));
+# 52 "find_ellipse_kernel.cu"
+__cuda_local_var_16329_18_non_const_x = (__cuda_local_var_16329_6_non_const_i + ((c_tX)[((__cuda_local_var_16329_12_non_const_k * 150) + __cuda_local_var_16329_15_non_const_n)]));
+# 55 "find_ellipse_kernel.cu"
+__cuda_local_var_16351_8_non_const_addr = ((__cuda_local_var_16329_18_non_const_x * grad_m) + __cuda_local_var_16329_21_non_const_y);
+# 56 "find_ellipse_kernel.cu"
+__cuda_local_var_16352_10_non_const_p = ((((__T28 = t_grad_x) , ((__T210 = (__ftexfetchi(__T28, ((((((__T29.x) = __cuda_local_var_16351_8_non_const_addr) , ((void)((__T29.y) = 0))) , ((void)((__T29.z) = 0))) , ((void)((__T29.w) = 0))) , __T29)))) , (__T210.x))) * ((c_cos_angle)[__cuda_local_var_16329_15_non_const_n])) + (((__T211 = t_grad_y) , ((__T213 = (__ftexfetchi(__T211, ((((((__T212.x) = __cuda_local_var_16351_8_non_const_addr) , ((void)((__T212.y) = 0))) , ((void)((__T212.z) = 0))) , ((void)((__T212.w) = 0))) , __T212)))) , (__T213.x))) * ((c_sin_angle)[__cuda_local_var_16329_15_non_const_n])));
+# 60 "find_ellipse_kernel.cu"
+__cuda_local_var_16342_9_non_const_sum += __cuda_local_var_16352_10_non_const_p;
+# 63 "find_ellipse_kernel.cu"
+__cuda_local_var_16359_10_non_const_delta = (__cuda_local_var_16352_10_non_const_p - __cuda_local_var_16342_30_non_const_mean);
+# 64 "find_ellipse_kernel.cu"
+__cuda_local_var_16342_30_non_const_mean = (__cuda_local_var_16342_30_non_const_mean + ((float)(fdividef(((double)__cuda_local_var_16359_10_non_const_delta), ((double)((float)(__cuda_local_var_16329_15_non_const_n + 1)))))));
+# 65 "find_ellipse_kernel.cu"
+__cuda_local_var_16342_20_non_const_M2 = (__cuda_local_var_16342_20_non_const_M2 + (__cuda_local_var_16359_10_non_const_delta * (__cuda_local_var_16352_10_non_const_p - __cuda_local_var_16342_30_non_const_mean)));
+# 66 "find_ellipse_kernel.cu"
+}
+# 69 "find_ellipse_kernel.cu"
+__cuda_local_var_16342_30_non_const_mean = ((float)(fdividef(((double)__cuda_local_var_16342_9_non_const_sum), (150.0))));
+# 72 "find_ellipse_kernel.cu"
+__cuda_local_var_16368_9_non_const_var = ((float)(fdividef(((double)__cuda_local_var_16342_20_non_const_M2), (149.0))));
+# 75 "find_ellipse_kernel.cu"
+if (((float)(fdividef(((double)(__cuda_local_var_16342_30_non_const_mean * __cuda_local_var_16342_30_non_const_mean)), ((double)__cuda_local_var_16368_9_non_const_var)))) > __cuda_local_var_16336_8_non_const_max_GICOV)
+# 75 "find_ellipse_kernel.cu"
+{
+# 75 "find_ellipse_kernel.cu"
+__cuda_local_var_16336_8_non_const_max_GICOV = ((float)(fdividef(((double)(__cuda_local_var_16342_30_non_const_mean * __cuda_local_var_16342_30_non_const_mean)), ((double)__cuda_local_var_16368_9_non_const_var))));
+# 75 "find_ellipse_kernel.cu"
+}
+# 76 "find_ellipse_kernel.cu"
+}
+# 79 "find_ellipse_kernel.cu"
+(gicov[((__cuda_local_var_16329_6_non_const_i * grad_m) + __cuda_local_var_16329_9_non_const_j)]) = __cuda_local_var_16336_8_non_const_max_GICOV;
+# 80 "find_ellipse_kernel.cu"
+} 
+# 80 "find_ellipse_kernel.cu"
+}}
+# 146 "find_ellipse_kernel.cu"
+__global__ __var_used__ void _Z13dilate_kerneliiiiPf(
+# 146 "find_ellipse_kernel.cu"
+int img_m, 
+# 146 "find_ellipse_kernel.cu"
+int img_n, 
+# 146 "find_ellipse_kernel.cu"
+int strel_m, 
+# 146 "find_ellipse_kernel.cu"
+int strel_n, 
+# 146 "find_ellipse_kernel.cu"
+float *dilated){
+# 146 "find_ellipse_kernel.cu"
+{
+# 146 "find_ellipse_kernel.cu"
+{
+# 148 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16444_6_non_const_el_center_i;
+# 149 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16445_6_non_const_el_center_j;
+# 152 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16448_6_non_const_thread_id;
+# 153 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16449_6_non_const_i;
+# 154 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16450_6_non_const_j;
+# 157 "find_ellipse_kernel.cu"
+ float __cuda_local_var_16453_8_non_const_max;
+# 160 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16456_6_non_const_el_i;
+# 160 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16456_12_non_const_el_j;
+# 160 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16456_18_non_const_x;
+# 160 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16456_21_non_const_y;
+# 148 "find_ellipse_kernel.cu"
+__cuda_local_var_16444_6_non_const_el_center_i = (strel_m / 2);
+# 149 "find_ellipse_kernel.cu"
+__cuda_local_var_16445_6_non_const_el_center_j = (strel_n / 2);
+# 152 "find_ellipse_kernel.cu"
+__cuda_local_var_16448_6_non_const_thread_id = ((int)(((blockIdx.x) * (blockDim.x)) + (threadIdx.x)));
+# 153 "find_ellipse_kernel.cu"
+__cuda_local_var_16449_6_non_const_i = (__cuda_local_var_16448_6_non_const_thread_id % img_m);
+# 154 "find_ellipse_kernel.cu"
+__cuda_local_var_16450_6_non_const_j = (__cuda_local_var_16448_6_non_const_thread_id / img_m);
+# 157 "find_ellipse_kernel.cu"
+__cuda_local_var_16453_8_non_const_max = (0.0F);
+# 161 "find_ellipse_kernel.cu"
+for (__cuda_local_var_16456_6_non_const_el_i = 0; (__cuda_local_var_16456_6_non_const_el_i < strel_m); __cuda_local_var_16456_6_non_const_el_i++)
+# 161 "find_ellipse_kernel.cu"
+{
+# 162 "find_ellipse_kernel.cu"
+__cuda_local_var_16456_21_non_const_y = ((__cuda_local_var_16449_6_non_const_i - __cuda_local_var_16444_6_non_const_el_center_i) + __cuda_local_var_16456_6_non_const_el_i);
+# 164 "find_ellipse_kernel.cu"
+if ((__cuda_local_var_16456_21_non_const_y >= 0) && (__cuda_local_var_16456_21_non_const_y < img_m))
+# 164 "find_ellipse_kernel.cu"
+{
+# 166 "find_ellipse_kernel.cu"
+for (__cuda_local_var_16456_12_non_const_el_j = 0; (__cuda_local_var_16456_12_non_const_el_j < strel_n); __cuda_local_var_16456_12_non_const_el_j++)
+# 166 "find_ellipse_kernel.cu"
+{
+# 167 "find_ellipse_kernel.cu"
+__cuda_local_var_16456_18_non_const_x = ((__cuda_local_var_16450_6_non_const_j - __cuda_local_var_16445_6_non_const_el_center_j) + __cuda_local_var_16456_12_non_const_el_j);
+# 170 "find_ellipse_kernel.cu"
+if (((__cuda_local_var_16456_18_non_const_x >= 0) && (__cuda_local_var_16456_18_non_const_x < img_n)) && (((c_strel)[((__cuda_local_var_16456_6_non_const_el_i * strel_n) + __cuda_local_var_16456_12_non_const_el_j)]) != (0.0F)))
+# 172 "find_ellipse_kernel.cu"
+{
+# 172 "find_ellipse_kernel.cu"
+ __texture_type__ __T214;
+# 173 "find_ellipse_kernel.cu"
+ int4 __T215;
+# 174 "find_ellipse_kernel.cu"
+ float4 __T216;
+# 174 "find_ellipse_kernel.cu"
+ int __cuda_local_var_16470_11_non_const_addr;
+# 175 "find_ellipse_kernel.cu"
+ float __cuda_local_var_16471_13_non_const_temp;
+# 174 "find_ellipse_kernel.cu"
+__cuda_local_var_16470_11_non_const_addr = ((__cuda_local_var_16456_18_non_const_x * img_m) + __cuda_local_var_16456_21_non_const_y);
+# 175 "find_ellipse_kernel.cu"
+__cuda_local_var_16471_13_non_const_temp = ((__T214 = t_img) , ((__T216 = (__ftexfetchi(__T214, ((((((__T215.x) = __cuda_local_var_16470_11_non_const_addr) , ((void)((__T215.y) = 0))) , ((void)((__T215.z) = 0))) , ((void)((__T215.w) = 0))) , __T215)))) , (__T216.x)));
+# 176 "find_ellipse_kernel.cu"
+if (__cuda_local_var_16471_13_non_const_temp > __cuda_local_var_16453_8_non_const_max)
+# 176 "find_ellipse_kernel.cu"
+{
+# 176 "find_ellipse_kernel.cu"
+__cuda_local_var_16453_8_non_const_max = __cuda_local_var_16471_13_non_const_temp;
+# 176 "find_ellipse_kernel.cu"
+}
+# 177 "find_ellipse_kernel.cu"
+}
+# 178 "find_ellipse_kernel.cu"
+}
+# 179 "find_ellipse_kernel.cu"
+}
+# 180 "find_ellipse_kernel.cu"
+}
+# 183 "find_ellipse_kernel.cu"
+(dilated[((__cuda_local_var_16449_6_non_const_i * img_n) + __cuda_local_var_16450_6_non_const_j)]) = __cuda_local_var_16453_8_non_const_max;
+# 184 "find_ellipse_kernel.cu"
+} 
+# 184 "find_ellipse_kernel.cu"
+}}

@@ -1,0 +1,152 @@
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 34 "./kmeans_cuda_kernel.cu"
+__global__ __var_used__ extern void _Z14invert_mappingPfS_ii(float *, float *, int, int);
+# 58 "./kmeans_cuda_kernel.cu"
+__global__ __var_used__ extern void _Z11kmeansPointPfiiiPiS_S_S0_(float *, int, int, int, int *, float *, float *, int *);
+#include "common_functions.h"
+# 34 "./kmeans_cuda_kernel.cu"
+__global__ __var_used__ void _Z14invert_mappingPfS_ii(
+# 34 "./kmeans_cuda_kernel.cu"
+float *input, 
+# 35 "./kmeans_cuda_kernel.cu"
+float *output, 
+# 36 "./kmeans_cuda_kernel.cu"
+int npoints, 
+# 37 "./kmeans_cuda_kernel.cu"
+int nfeatures){
+# 37 "./kmeans_cuda_kernel.cu"
+{
+# 38 "./kmeans_cuda_kernel.cu"
+{
+# 39 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17527_6_non_const_point_id;
+# 40 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17528_6_non_const_i;
+# 39 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17527_6_non_const_point_id = ((int)((threadIdx.x) + ((blockDim.x) * (blockIdx.x))));
+# 42 "./kmeans_cuda_kernel.cu"
+if (__cuda_local_var_17527_6_non_const_point_id < npoints)
+# 42 "./kmeans_cuda_kernel.cu"
+{
+# 43 "./kmeans_cuda_kernel.cu"
+for (__cuda_local_var_17528_6_non_const_i = 0; (__cuda_local_var_17528_6_non_const_i < nfeatures); __cuda_local_var_17528_6_non_const_i++)
+# 43 "./kmeans_cuda_kernel.cu"
+{
+# 44 "./kmeans_cuda_kernel.cu"
+(output[(__cuda_local_var_17527_6_non_const_point_id + (npoints * __cuda_local_var_17528_6_non_const_i))]) = (input[((__cuda_local_var_17527_6_non_const_point_id * nfeatures) + __cuda_local_var_17528_6_non_const_i)]);
+# 44 "./kmeans_cuda_kernel.cu"
+}
+# 45 "./kmeans_cuda_kernel.cu"
+}
+# 46 "./kmeans_cuda_kernel.cu"
+return;
+# 47 "./kmeans_cuda_kernel.cu"
+}
+# 47 "./kmeans_cuda_kernel.cu"
+}}
+# 58 "./kmeans_cuda_kernel.cu"
+__global__ __var_used__ void _Z11kmeansPointPfiiiPiS_S_S0_(
+# 58 "./kmeans_cuda_kernel.cu"
+float *features, 
+# 59 "./kmeans_cuda_kernel.cu"
+int nfeatures, 
+# 60 "./kmeans_cuda_kernel.cu"
+int npoints, 
+# 61 "./kmeans_cuda_kernel.cu"
+int nclusters, 
+# 62 "./kmeans_cuda_kernel.cu"
+int *membership, 
+# 63 "./kmeans_cuda_kernel.cu"
+float *clusters, 
+# 64 "./kmeans_cuda_kernel.cu"
+float *block_clusters, 
+# 65 "./kmeans_cuda_kernel.cu"
+int *block_deltas){
+# 65 "./kmeans_cuda_kernel.cu"
+{
+# 66 "./kmeans_cuda_kernel.cu"
+{
+# 69 "./kmeans_cuda_kernel.cu"
+ unsigned __cuda_local_var_17549_21_non_const_block_id;
+# 71 "./kmeans_cuda_kernel.cu"
+ unsigned __cuda_local_var_17551_21_non_const_point_id;
+# 73 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17553_6_non_const_index;
+# 69 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17549_21_non_const_block_id = (((gridDim.x) * (blockIdx.y)) + (blockIdx.x));
+# 71 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17551_21_non_const_point_id = (((__cuda_local_var_17549_21_non_const_block_id * (blockDim.x)) * (blockDim.y)) + (threadIdx.x));
+# 73 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17553_6_non_const_index = (-1);
+# 75 "./kmeans_cuda_kernel.cu"
+if (__cuda_local_var_17551_21_non_const_point_id < ((unsigned)npoints))
+# 76 "./kmeans_cuda_kernel.cu"
+{
+# 77 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17557_7_non_const_i;
+# 77 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17557_10_non_const_j;
+# 78 "./kmeans_cuda_kernel.cu"
+ float __cuda_local_var_17558_9_non_const_min_dist;
+# 79 "./kmeans_cuda_kernel.cu"
+ float __cuda_local_var_17559_9_non_const_dist;
+# 78 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17558_9_non_const_min_dist = (3.402823466e+38F);
+# 82 "./kmeans_cuda_kernel.cu"
+for (__cuda_local_var_17557_7_non_const_i = 0; (__cuda_local_var_17557_7_non_const_i < nclusters); __cuda_local_var_17557_7_non_const_i++)
+# 82 "./kmeans_cuda_kernel.cu"
+{
+# 83 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17563_8_non_const_cluster_base_index;
+# 84 "./kmeans_cuda_kernel.cu"
+ float __cuda_local_var_17564_10_non_const_ans;
+# 83 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17563_8_non_const_cluster_base_index = (__cuda_local_var_17557_7_non_const_i * nfeatures);
+# 84 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17564_10_non_const_ans = (0.0F);
+# 86 "./kmeans_cuda_kernel.cu"
+for (__cuda_local_var_17557_10_non_const_j = 0; (__cuda_local_var_17557_10_non_const_j < nfeatures); __cuda_local_var_17557_10_non_const_j++)
+# 87 "./kmeans_cuda_kernel.cu"
+{
+# 88 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17568_9_non_const_addr;
+# 89 "./kmeans_cuda_kernel.cu"
+ float __cuda_local_var_17569_11_non_const_diff;
+# 88 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17568_9_non_const_addr = ((int)(__cuda_local_var_17551_21_non_const_point_id + ((unsigned)(__cuda_local_var_17557_10_non_const_j * npoints))));
+# 89 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17569_11_non_const_diff = ((features[__cuda_local_var_17568_9_non_const_addr]) - (clusters[(__cuda_local_var_17563_8_non_const_cluster_base_index + __cuda_local_var_17557_10_non_const_j)]));
+# 93 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17564_10_non_const_ans += (__cuda_local_var_17569_11_non_const_diff * __cuda_local_var_17569_11_non_const_diff);
+# 94 "./kmeans_cuda_kernel.cu"
+}
+# 95 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17559_9_non_const_dist = __cuda_local_var_17564_10_non_const_ans;
+# 99 "./kmeans_cuda_kernel.cu"
+if (__cuda_local_var_17559_9_non_const_dist < __cuda_local_var_17558_9_non_const_min_dist)
+# 99 "./kmeans_cuda_kernel.cu"
+{
+# 100 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17558_9_non_const_min_dist = __cuda_local_var_17559_9_non_const_dist;
+# 101 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17553_6_non_const_index = __cuda_local_var_17557_7_non_const_i;
+# 102 "./kmeans_cuda_kernel.cu"
+}
+# 103 "./kmeans_cuda_kernel.cu"
+}
+# 104 "./kmeans_cuda_kernel.cu"
+}
+# 114 "./kmeans_cuda_kernel.cu"
+if (__cuda_local_var_17551_21_non_const_point_id < ((unsigned)npoints))
+# 115 "./kmeans_cuda_kernel.cu"
+{
+# 123 "./kmeans_cuda_kernel.cu"
+(membership[__cuda_local_var_17551_21_non_const_point_id]) = __cuda_local_var_17553_6_non_const_index;
+# 124 "./kmeans_cuda_kernel.cu"
+}
+# 186 "./kmeans_cuda_kernel.cu"
+} 
+# 186 "./kmeans_cuda_kernel.cu"
+}}

@@ -1,0 +1,4833 @@
+typedef char __nv_bool;
+# 1017 "/home/bachelor/deicide218/cuda-4.2/include/driver_types.h"
+struct CUstream_st;
+# 206 "/usr/include/libio.h" 3
+enum __codecvt_result {
+# 208 "/usr/include/libio.h" 3
+__codecvt_ok,
+# 209 "/usr/include/libio.h" 3
+__codecvt_partial,
+# 210 "/usr/include/libio.h" 3
+__codecvt_error,
+# 211 "/usr/include/libio.h" 3
+__codecvt_noconv};
+# 203 "/usr/include/math.h" 3
+enum _ZUt_ {
+# 204 "/usr/include/math.h" 3
+FP_NAN,
+# 206 "/usr/include/math.h" 3
+FP_INFINITE,
+# 208 "/usr/include/math.h" 3
+FP_ZERO,
+# 210 "/usr/include/math.h" 3
+FP_SUBNORMAL,
+# 212 "/usr/include/math.h" 3
+FP_NORMAL};
+# 296 "/usr/include/math.h" 3
+enum _LIB_VERSION_TYPE {
+# 297 "/usr/include/math.h" 3
+_IEEE_ = (-1),
+# 298 "/usr/include/math.h" 3
+_SVID_,
+# 299 "/usr/include/math.h" 3
+_XOPEN_,
+# 300 "/usr/include/math.h" 3
+_POSIX_,
+# 301 "/usr/include/math.h" 3
+_ISOC_};
+# 47 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/omp.h" 3
+enum omp_sched_t {
+# 49 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/omp.h" 3
+omp_sched_static = 1,
+# 50 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/omp.h" 3
+omp_sched_dynamic,
+# 51 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/omp.h" 3
+omp_sched_guided,
+# 52 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/omp.h" 3
+omp_sched_auto};
+# 195 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUipcMem_flags_enum {
+# 196 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS = 1};
+# 204 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUctx_flags_enum {
+# 205 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CTX_SCHED_AUTO,
+# 206 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CTX_SCHED_SPIN,
+# 207 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CTX_SCHED_YIELD,
+# 208 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CTX_SCHED_BLOCKING_SYNC = 4,
+# 209 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CTX_BLOCKING_SYNC = 4,
+# 212 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CTX_SCHED_MASK = 7,
+# 213 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CTX_MAP_HOST,
+# 214 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CTX_LMEM_RESIZE_TO_MAX = 16,
+# 215 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CTX_FLAGS_MASK = 31};
+# 221 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUevent_flags_enum {
+# 222 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_EVENT_DEFAULT,
+# 223 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_EVENT_BLOCKING_SYNC,
+# 224 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_EVENT_DISABLE_TIMING,
+# 225 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_EVENT_INTERPROCESS = 4};
+# 231 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUarray_format_enum {
+# 232 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_AD_FORMAT_UNSIGNED_INT8 = 1,
+# 233 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_AD_FORMAT_UNSIGNED_INT16,
+# 234 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_AD_FORMAT_UNSIGNED_INT32,
+# 235 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_AD_FORMAT_SIGNED_INT8 = 8,
+# 236 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_AD_FORMAT_SIGNED_INT16,
+# 237 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_AD_FORMAT_SIGNED_INT32,
+# 238 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_AD_FORMAT_HALF = 16,
+# 239 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_AD_FORMAT_FLOAT = 32};
+# 245 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUaddress_mode_enum {
+# 246 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TR_ADDRESS_MODE_WRAP,
+# 247 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TR_ADDRESS_MODE_CLAMP,
+# 248 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TR_ADDRESS_MODE_MIRROR,
+# 249 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TR_ADDRESS_MODE_BORDER};
+# 255 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUfilter_mode_enum {
+# 256 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TR_FILTER_MODE_POINT,
+# 257 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TR_FILTER_MODE_LINEAR};
+# 263 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUdevice_attribute_enum {
+# 264 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK = 1,
+# 265 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X,
+# 266 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y,
+# 267 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Z,
+# 268 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_X,
+# 269 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y,
+# 270 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z,
+# 271 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK,
+# 272 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK = 8,
+# 273 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_TOTAL_CONSTANT_MEMORY,
+# 274 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_WARP_SIZE,
+# 275 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_PITCH,
+# 276 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK,
+# 277 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK = 12,
+# 278 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_CLOCK_RATE,
+# 279 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT,
+# 280 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_GPU_OVERLAP,
+# 281 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT,
+# 282 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT,
+# 283 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_INTEGRATED,
+# 284 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_CAN_MAP_HOST_MEMORY,
+# 285 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_COMPUTE_MODE,
+# 286 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH,
+# 287 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH,
+# 288 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT,
+# 289 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH,
+# 290 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT,
+# 291 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH,
+# 292 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH,
+# 293 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT,
+# 294 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS,
+# 295 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH = 27,
+# 296 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT,
+# 297 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES,
+# 298 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_SURFACE_ALIGNMENT,
+# 299 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS,
+# 300 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_ECC_ENABLED,
+# 301 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_PCI_BUS_ID,
+# 302 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_PCI_DEVICE_ID,
+# 303 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_TCC_DRIVER,
+# 304 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE,
+# 305 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH,
+# 306 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_L2_CACHE_SIZE,
+# 307 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR,
+# 308 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT,
+# 309 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING,
+# 310 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_WIDTH,
+# 311 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_LAYERS,
+# 312 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_CAN_TEX2D_GATHER,
+# 313 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_WIDTH,
+# 314 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_HEIGHT,
+# 315 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH_ALTERNATE,
+# 316 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT_ALTERNATE,
+# 317 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH_ALTERNATE,
+# 318 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_PCI_DOMAIN_ID,
+# 319 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT,
+# 320 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_WIDTH,
+# 321 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_WIDTH,
+# 322 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_LAYERS,
+# 323 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_WIDTH,
+# 324 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_WIDTH,
+# 325 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_HEIGHT,
+# 326 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_WIDTH,
+# 327 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_HEIGHT,
+# 328 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_DEPTH,
+# 329 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_WIDTH,
+# 330 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_LAYERS,
+# 331 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_WIDTH,
+# 332 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_HEIGHT,
+# 333 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_LAYERS,
+# 334 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_WIDTH,
+# 335 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_WIDTH,
+# 336 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_LAYERS,
+# 337 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH,
+# 338 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH,
+# 339 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT,
+# 340 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH};
+# 362 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUpointer_attribute_enum {
+# 363 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_POINTER_ATTRIBUTE_CONTEXT = 1,
+# 364 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+# 365 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_POINTER_ATTRIBUTE_DEVICE_POINTER,
+# 366 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_POINTER_ATTRIBUTE_HOST_POINTER};
+# 372 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUfunction_attribute_enum {
+# 378 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK,
+# 385 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES,
+# 391 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES,
+# 396 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES,
+# 401 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_ATTRIBUTE_NUM_REGS,
+# 410 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_ATTRIBUTE_PTX_VERSION,
+# 419 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_ATTRIBUTE_BINARY_VERSION,
+# 421 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_ATTRIBUTE_MAX};
+# 427 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUfunc_cache_enum {
+# 428 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_CACHE_PREFER_NONE,
+# 429 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_CACHE_PREFER_SHARED,
+# 430 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_CACHE_PREFER_L1,
+# 431 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_FUNC_CACHE_PREFER_EQUAL};
+# 437 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUsharedconfig_enum {
+# 438 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_SHARED_MEM_CONFIG_DEFAULT_BANK_SIZE,
+# 439 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE,
+# 440 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE};
+# 446 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUmemorytype_enum {
+# 447 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_MEMORYTYPE_HOST = 1,
+# 448 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_MEMORYTYPE_DEVICE,
+# 449 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_MEMORYTYPE_ARRAY,
+# 450 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_MEMORYTYPE_UNIFIED};
+# 456 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUcomputemode_enum {
+# 457 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_COMPUTEMODE_DEFAULT,
+# 458 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_COMPUTEMODE_EXCLUSIVE,
+# 459 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_COMPUTEMODE_PROHIBITED,
+# 460 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_COMPUTEMODE_EXCLUSIVE_PROCESS};
+# 466 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUjit_option_enum {
+# 472 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_MAX_REGISTERS,
+# 485 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_THREADS_PER_BLOCK,
+# 492 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_WALL_TIME,
+# 500 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_INFO_LOG_BUFFER,
+# 508 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,
+# 516 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_ERROR_LOG_BUFFER,
+# 524 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,
+# 531 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_OPTIMIZATION_LEVEL,
+# 538 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_TARGET_FROM_CUCONTEXT,
+# 544 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_TARGET,
+# 551 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_JIT_FALLBACK_STRATEGY};
+# 558 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUjit_target_enum {
+# 560 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TARGET_COMPUTE_10,
+# 561 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TARGET_COMPUTE_11,
+# 562 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TARGET_COMPUTE_12,
+# 563 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TARGET_COMPUTE_13,
+# 564 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TARGET_COMPUTE_20,
+# 565 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TARGET_COMPUTE_21,
+# 566 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_TARGET_COMPUTE_30};
+# 572 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUjit_fallback_enum {
+# 574 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_PREFER_PTX,
+# 576 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_PREFER_BINARY};
+# 583 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUgraphicsRegisterFlags_enum {
+# 584 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_GRAPHICS_REGISTER_FLAGS_NONE,
+# 585 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY,
+# 586 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD,
+# 587 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_GRAPHICS_REGISTER_FLAGS_SURFACE_LDST = 4,
+# 588 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_GRAPHICS_REGISTER_FLAGS_TEXTURE_GATHER = 8};
+# 594 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUgraphicsMapResourceFlags_enum {
+# 595 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_GRAPHICS_MAP_RESOURCE_FLAGS_NONE,
+# 596 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_GRAPHICS_MAP_RESOURCE_FLAGS_READ_ONLY,
+# 597 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_GRAPHICS_MAP_RESOURCE_FLAGS_WRITE_DISCARD};
+# 603 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUarray_cubemap_face_enum {
+# 604 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CUBEMAP_FACE_POSITIVE_X,
+# 605 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CUBEMAP_FACE_NEGATIVE_X,
+# 606 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CUBEMAP_FACE_POSITIVE_Y,
+# 607 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CUBEMAP_FACE_NEGATIVE_Y,
+# 608 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CUBEMAP_FACE_POSITIVE_Z,
+# 609 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_CUBEMAP_FACE_NEGATIVE_Z};
+# 615 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum CUlimit_enum {
+# 616 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_LIMIT_STACK_SIZE,
+# 617 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_LIMIT_PRINTF_FIFO_SIZE,
+# 618 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CU_LIMIT_MALLOC_HEAP_SIZE};
+# 624 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+enum cudaError_enum {
+# 630 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_SUCCESS,
+# 636 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_INVALID_VALUE,
+# 642 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_OUT_OF_MEMORY,
+# 648 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_NOT_INITIALIZED,
+# 653 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_DEINITIALIZED,
+# 659 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_PROFILER_DISABLED,
+# 664 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_PROFILER_NOT_INITIALIZED,
+# 669 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_PROFILER_ALREADY_STARTED,
+# 674 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_PROFILER_ALREADY_STOPPED,
+# 679 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_NO_DEVICE = 100,
+# 685 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_INVALID_DEVICE,
+# 692 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_INVALID_IMAGE = 200,
+# 702 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_INVALID_CONTEXT,
+# 711 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_CONTEXT_ALREADY_CURRENT,
+# 716 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_MAP_FAILED = 205,
+# 721 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_UNMAP_FAILED,
+# 727 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_ARRAY_IS_MAPPED,
+# 732 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_ALREADY_MAPPED,
+# 740 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_NO_BINARY_FOR_GPU,
+# 745 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_ALREADY_ACQUIRED,
+# 750 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_NOT_MAPPED,
+# 756 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_NOT_MAPPED_AS_ARRAY,
+# 762 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_NOT_MAPPED_AS_POINTER,
+# 768 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_ECC_UNCORRECTABLE,
+# 774 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_UNSUPPORTED_LIMIT,
+# 781 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_CONTEXT_ALREADY_IN_USE,
+# 786 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_INVALID_SOURCE = 300,
+# 791 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_FILE_NOT_FOUND,
+# 796 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND,
+# 801 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_SHARED_OBJECT_INIT_FAILED,
+# 806 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_OPERATING_SYSTEM,
+# 813 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_INVALID_HANDLE = 400,
+# 820 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_NOT_FOUND = 500,
+# 829 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_NOT_READY = 600,
+# 840 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_LAUNCH_FAILED = 700,
+# 851 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_LAUNCH_OUT_OF_RESOURCES,
+# 862 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_LAUNCH_TIMEOUT,
+# 868 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING,
+# 875 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_PEER_ACCESS_ALREADY_ENABLED,
+# 882 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_PEER_ACCESS_NOT_ENABLED,
+# 888 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_PRIMARY_CONTEXT_ACTIVE = 708,
+# 895 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_CONTEXT_IS_DESTROYED,
+# 903 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_ASSERT,
+# 910 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_TOO_MANY_PEERS,
+# 916 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_HOST_MEMORY_ALREADY_REGISTERED,
+# 922 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_HOST_MEMORY_NOT_REGISTERED,
+# 927 "/home/bachelor/deicide218/cuda-4.2/include/cuda.h"
+CUDA_ERROR_UNKNOWN = 999};
+# 124 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt9__is_voidIvEUt_E {
+# 124 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt9__is_voidIvE7__valueE = 1};
+# 144 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIbEUt_E {
+# 144 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIbE7__valueE = 1};
+# 151 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIcEUt_E {
+# 151 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIcE7__valueE = 1};
+# 158 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIaEUt_E {
+# 158 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIaE7__valueE = 1};
+# 165 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIhEUt_E {
+# 165 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIhE7__valueE = 1};
+# 173 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIwEUt_E {
+# 173 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIwE7__valueE = 1};
+# 197 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIsEUt_E {
+# 197 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIsE7__valueE = 1};
+# 204 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerItEUt_E {
+# 204 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerItE7__valueE = 1};
+# 211 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIiEUt_E {
+# 211 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIiE7__valueE = 1};
+# 218 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIjEUt_E {
+# 218 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIjE7__valueE = 1};
+# 225 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIlEUt_E {
+# 225 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIlE7__valueE = 1};
+# 232 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerImEUt_E {
+# 232 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerImE7__valueE = 1};
+# 239 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIxEUt_E {
+# 239 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIxE7__valueE = 1};
+# 246 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIyEUt_E {
+# 246 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIyE7__valueE = 1};
+# 264 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt13__is_floatingIfEUt_E {
+# 264 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt13__is_floatingIfE7__valueE = 1};
+# 271 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt13__is_floatingIdEUt_E {
+# 271 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt13__is_floatingIdE7__valueE = 1};
+# 278 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt13__is_floatingIeEUt_E {
+# 278 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt13__is_floatingIeE7__valueE = 1};
+# 354 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt9__is_charIcEUt_E {
+# 354 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt9__is_charIcE7__valueE = 1};
+# 362 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt9__is_charIwEUt_E {
+# 362 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt9__is_charIwE7__valueE = 1};
+# 377 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt9__is_byteIcEUt_E {
+# 377 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt9__is_byteIcE7__valueE = 1};
+# 384 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt9__is_byteIaEUt_E {
+# 384 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt9__is_byteIaE7__valueE = 1};
+# 391 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt9__is_byteIhEUt_E {
+# 391 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt9__is_byteIhE7__valueE = 1};
+# 134 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+enum _ZNSt12__is_integerIdEUt_E {
+# 134 "/usr/include/c++/4.4/bits/cpp_type_traits.h" 3
+_ZNSt12__is_integerIdE7__valueE};
+# 64 "/usr/include/x86_64-linux-gnu/bits/mathinline.h" 3
+union _ZZ10__signbitlEUt_;
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 64 "/usr/include/x86_64-linux-gnu/bits/mathinline.h" 3
+union _ZZ10__signbitlEUt_ {
+# 64 "/usr/include/x86_64-linux-gnu/bits/mathinline.h" 3
+long double __l;
+# 64 "/usr/include/x86_64-linux-gnu/bits/mathinline.h" 3
+int __i[3];};
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 103 "/home/bachelor/deicide218/cuda-4.2/include/common_functions.h"
+___device__(extern  __no_sc__) __attribute__((__malloc__)) void *malloc(size_t);
+# 104 "/home/bachelor/deicide218/cuda-4.2/include/common_functions.h"
+___device__(extern  __no_sc__) void free(void *);
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+# 345 "/home/bachelor/deicide218/cuda-4.2/include/math_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) double sqrt(double);
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+# 38 "/usr/include/x86_64-linux-gnu/bits/mathinline.h" 3
+ __device_builtin__ ___device__(extern  __no_sc__) __inline__ __attribute__((__const__)) int __signbitf(float);
+#endif
+#if !defined(__CUDABE__)
+# 50 "/usr/include/x86_64-linux-gnu/bits/mathinline.h" 3
+ __device_builtin__ ___device__(extern  __no_sc__) __inline__ __attribute__((__const__)) int __signbit(double);
+#endif
+#if !defined(__CUDABE__)
+# 62 "/usr/include/x86_64-linux-gnu/bits/mathinline.h" 3
+ __device_builtin__ ___device__(extern  __no_sc__) __inline__ __attribute__((__const__)) int __signbitl(long double);
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 34 "./kmeans_cuda_kernel.cu"
+__global__ __var_used__ extern void _Z14invert_mappingPfS_ii(float *, float *, int, int);
+# 58 "./kmeans_cuda_kernel.cu"
+__global__ __var_used__ extern void _Z11kmeansPointPfiiiPiS_S_S0_(float *, int, int, int, int *, float *, float *, int *);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 34 "./kmeans_cuda_kernel.cu"
+__global__ __var_used__ void _Z14invert_mappingPfS_ii(
+# 34 "./kmeans_cuda_kernel.cu"
+float *input, 
+# 35 "./kmeans_cuda_kernel.cu"
+float *output, 
+# 36 "./kmeans_cuda_kernel.cu"
+int npoints, 
+# 37 "./kmeans_cuda_kernel.cu"
+int nfeatures){
+# 38 "./kmeans_cuda_kernel.cu"
+{
+# 39 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17527_6_non_const_point_id;
+# 40 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17528_6_non_const_i;
+# 39 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17527_6_non_const_point_id = ((int)((threadIdx.x) + ((blockDim.x) * (blockIdx.x))));
+# 42 "./kmeans_cuda_kernel.cu"
+if (__cuda_local_var_17527_6_non_const_point_id < npoints)
+# 42 "./kmeans_cuda_kernel.cu"
+{
+# 43 "./kmeans_cuda_kernel.cu"
+for (__cuda_local_var_17528_6_non_const_i = 0; (__cuda_local_var_17528_6_non_const_i < nfeatures); __cuda_local_var_17528_6_non_const_i++) {
+# 44 "./kmeans_cuda_kernel.cu"
+(output[(__cuda_local_var_17527_6_non_const_point_id + (npoints * __cuda_local_var_17528_6_non_const_i))]) = (input[((__cuda_local_var_17527_6_non_const_point_id * nfeatures) + __cuda_local_var_17528_6_non_const_i)]); }
+# 45 "./kmeans_cuda_kernel.cu"
+}
+# 46 "./kmeans_cuda_kernel.cu"
+return;
+# 47 "./kmeans_cuda_kernel.cu"
+}}
+# 58 "./kmeans_cuda_kernel.cu"
+__global__ __var_used__ void _Z11kmeansPointPfiiiPiS_S_S0_(
+# 58 "./kmeans_cuda_kernel.cu"
+float *features, 
+# 59 "./kmeans_cuda_kernel.cu"
+int nfeatures, 
+# 60 "./kmeans_cuda_kernel.cu"
+int npoints, 
+# 61 "./kmeans_cuda_kernel.cu"
+int nclusters, 
+# 62 "./kmeans_cuda_kernel.cu"
+int *membership, 
+# 63 "./kmeans_cuda_kernel.cu"
+float *clusters, 
+# 64 "./kmeans_cuda_kernel.cu"
+float *block_clusters, 
+# 65 "./kmeans_cuda_kernel.cu"
+int *block_deltas){
+# 66 "./kmeans_cuda_kernel.cu"
+{
+# 69 "./kmeans_cuda_kernel.cu"
+ unsigned __cuda_local_var_17549_21_non_const_block_id;
+# 71 "./kmeans_cuda_kernel.cu"
+ unsigned __cuda_local_var_17551_21_non_const_point_id;
+# 73 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17553_6_non_const_index;
+# 69 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17549_21_non_const_block_id = (((gridDim.x) * (blockIdx.y)) + (blockIdx.x));
+# 71 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17551_21_non_const_point_id = (((__cuda_local_var_17549_21_non_const_block_id * (blockDim.x)) * (blockDim.y)) + (threadIdx.x));
+# 73 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17553_6_non_const_index = (-1);
+# 75 "./kmeans_cuda_kernel.cu"
+if (__cuda_local_var_17551_21_non_const_point_id < ((unsigned)npoints))
+# 76 "./kmeans_cuda_kernel.cu"
+{
+# 77 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17557_7_non_const_i;
+# 77 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17557_10_non_const_j;
+# 78 "./kmeans_cuda_kernel.cu"
+ float __cuda_local_var_17558_9_non_const_min_dist;
+# 79 "./kmeans_cuda_kernel.cu"
+ float __cuda_local_var_17559_9_non_const_dist;
+# 78 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17558_9_non_const_min_dist = (3.402823466e+38F);
+# 82 "./kmeans_cuda_kernel.cu"
+for (__cuda_local_var_17557_7_non_const_i = 0; (__cuda_local_var_17557_7_non_const_i < nclusters); __cuda_local_var_17557_7_non_const_i++)
+# 82 "./kmeans_cuda_kernel.cu"
+{
+# 83 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17563_8_non_const_cluster_base_index;
+# 84 "./kmeans_cuda_kernel.cu"
+ float __cuda_local_var_17564_10_non_const_ans;
+# 83 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17563_8_non_const_cluster_base_index = (__cuda_local_var_17557_7_non_const_i * nfeatures);
+# 84 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17564_10_non_const_ans = (0.0F);
+# 86 "./kmeans_cuda_kernel.cu"
+for (__cuda_local_var_17557_10_non_const_j = 0; (__cuda_local_var_17557_10_non_const_j < nfeatures); __cuda_local_var_17557_10_non_const_j++)
+# 87 "./kmeans_cuda_kernel.cu"
+{
+# 88 "./kmeans_cuda_kernel.cu"
+ int __cuda_local_var_17568_9_non_const_addr;
+# 89 "./kmeans_cuda_kernel.cu"
+ float __cuda_local_var_17569_11_non_const_diff;
+# 88 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17568_9_non_const_addr = ((int)(__cuda_local_var_17551_21_non_const_point_id + ((unsigned)(__cuda_local_var_17557_10_non_const_j * npoints))));
+# 89 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17569_11_non_const_diff = ((features[__cuda_local_var_17568_9_non_const_addr]) - (clusters[(__cuda_local_var_17563_8_non_const_cluster_base_index + __cuda_local_var_17557_10_non_const_j)]));
+# 93 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17564_10_non_const_ans += (__cuda_local_var_17569_11_non_const_diff * __cuda_local_var_17569_11_non_const_diff);
+# 94 "./kmeans_cuda_kernel.cu"
+}
+# 95 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17559_9_non_const_dist = __cuda_local_var_17564_10_non_const_ans;
+# 99 "./kmeans_cuda_kernel.cu"
+if (__cuda_local_var_17559_9_non_const_dist < __cuda_local_var_17558_9_non_const_min_dist)
+# 99 "./kmeans_cuda_kernel.cu"
+{
+# 100 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17558_9_non_const_min_dist = __cuda_local_var_17559_9_non_const_dist;
+# 101 "./kmeans_cuda_kernel.cu"
+__cuda_local_var_17553_6_non_const_index = __cuda_local_var_17557_7_non_const_i;
+# 102 "./kmeans_cuda_kernel.cu"
+}
+# 103 "./kmeans_cuda_kernel.cu"
+}
+# 104 "./kmeans_cuda_kernel.cu"
+}
+# 114 "./kmeans_cuda_kernel.cu"
+if (__cuda_local_var_17551_21_non_const_point_id < ((unsigned)npoints))
+# 115 "./kmeans_cuda_kernel.cu"
+{
+# 123 "./kmeans_cuda_kernel.cu"
+(membership[__cuda_local_var_17551_21_non_const_point_id]) = __cuda_local_var_17553_6_non_const_index;
+# 124 "./kmeans_cuda_kernel.cu"
+} 
+# 186 "./kmeans_cuda_kernel.cu"
+}}

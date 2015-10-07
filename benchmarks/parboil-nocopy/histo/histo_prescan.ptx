@@ -1,0 +1,264 @@
+	.version 2.2
+	.target sm_20
+	// compiled with /home/bachelor/deicide218/cuda-3.2/open64/lib//be
+	// nvopencc 3.2 built on 2010-11-03
+
+	//-----------------------------------------------------------
+	// Compiling histo_prescan.cpp3.i (/tmp/ccBI#.uCFJkk)
+	//-----------------------------------------------------------
+
+	//-----------------------------------------------------------
+	// Options:
+	//-----------------------------------------------------------
+	//  Target:ptx, ISA:sm_20, Endian:little, Pointer Size:64
+	//  -O3	(Optimization level)
+	//  -g0	(Debug level)
+	//  -m2	(Report advisories)
+	//-----------------------------------------------------------
+
+	.file	1	"<command-line>"
+	.file	2	"histo_prescan.cudafe2.gpu"
+	.file	3	"/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h"
+	.file	4	"/home/bachelor/deicide218/cuda-3.2/bin/../include/crt/device_runtime.h"
+	.file	5	"/home/bachelor/deicide218/cuda-3.2/bin/../include/host_defines.h"
+	.file	6	"/home/bachelor/deicide218/cuda-3.2/bin/../include/builtin_types.h"
+	.file	7	"/home/bachelor/deicide218/cuda-3.2/bin/../include/device_types.h"
+	.file	8	"/home/bachelor/deicide218/cuda-3.2/bin/../include/driver_types.h"
+	.file	9	"/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_types.h"
+	.file	10	"/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_types.h"
+	.file	11	"/home/bachelor/deicide218/cuda-3.2/bin/../include/vector_types.h"
+	.file	12	"/home/bachelor/deicide218/cuda-3.2/bin/../include/device_launch_parameters.h"
+	.file	13	"/home/bachelor/deicide218/cuda-3.2/bin/../include/crt/storage_class.h"
+	.file	14	"/usr/include/x86_64-linux-gnu/bits/types.h"
+	.file	15	"/usr/include/time.h"
+	.file	16	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+	.file	17	"/home/bachelor/deicide218/cuda-3.2/bin/../include/common_functions.h"
+	.file	18	"/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+	.file	19	"/home/bachelor/deicide218/cuda-3.2/bin/../include/math_constants.h"
+	.file	20	"/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+	.file	21	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_12_atomic_functions.h"
+	.file	22	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+	.file	23	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_atomic_functions.h"
+	.file	24	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+	.file	25	"/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+	.file	26	"/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+	.file	27	"/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions_dbl_ptx3.h"
+	.file	28	"histo_prescan.cu"
+
+
+	.entry _Z20histo_prescan_kernelPjiS_ (
+		.param .u64 __cudaparm__Z20histo_prescan_kernelPjiS__input,
+		.param .s32 __cudaparm__Z20histo_prescan_kernelPjiS__size,
+		.param .u64 __cudaparm__Z20histo_prescan_kernelPjiS__minmax)
+	{
+	.reg .u32 %r<39>;
+	.reg .u64 %rd<25>;
+	.reg .f32 %f<56>;
+	.reg .pred %p<12>;
+	.shared .align 8 .b8 __cuda___cuda_local_var_35000_35_non_const_Avg24[2048];
+	.shared .align 8 .b8 __cuda___cuda_local_var_35001_35_non_const_StdDev2072[2048];
+	.loc	28	15	0
+$LDWbegin__Z20histo_prescan_kernelPjiS_:
+	.loc	28	26	0
+	ld.param.u32 	%r1, [__cudaparm__Z20histo_prescan_kernelPjiS__size];
+	mov.u32 	%r2, %nctaid.x;
+	div.u32 	%r3, %r1, %r2;
+	mov.u32 	%r4, %ctaid.x;
+	mul.lo.u32 	%r5, %r4, %r3;
+	mov.u32 	%r6, %tid.x;
+	add.u32 	%r7, %r5, %r6;
+	mov.s32 	%r8, %r7;
+	shr.s32 	%r9, %r3, 31;
+	mov.s32 	%r10, 7;
+	and.b32 	%r11, %r9, %r10;
+	add.s32 	%r12, %r11, %r3;
+	shr.s32 	%r13, %r12, 3;
+	add.u32 	%r14, %r13, %r5;
+	setp.gt.s32 	%p1, %r14, %r7;
+	@!%p1 bra 	$Lt_0_14082;
+	cvt.s64.s32 	%rd1, %r7;
+	mov.u32 	%r15, %ntid.x;
+	cvt.s64.u32 	%rd2, %r15;
+	mul.wide.s32 	%rd3, %r7, 4;
+	mul.wide.u32 	%rd4, %r15, 4;
+	ld.param.u64 	%rd5, [__cudaparm__Z20histo_prescan_kernelPjiS__input];
+	add.u64 	%rd6, %rd5, %rd3;
+	mov.u32 	%r16, 0;
+	mov.f32 	%f1, 0f00000000;     	// 0
+$Lt_0_8450:
+ //<loop> Loop body line 26, nesting depth: 1, estimated iterations: unknown
+	.loc	28	28	0
+	ld.global.u32 	%r17, [%rd6+0];
+	cvt.rn.f32.u32 	%f2, %r17;
+	add.f32 	%f1, %f2, %f1;
+	.loc	28	29	0
+	add.u32 	%r16, %r16, 1;
+	add.u32 	%r8, %r8, %r15;
+	add.u64 	%rd6, %rd6, %rd4;
+	setp.lt.s32 	%p2, %r8, %r14;
+	@%p2 bra 	$Lt_0_8450;
+	bra.uni 	$Lt_0_7938;
+$Lt_0_14082:
+	mov.u32 	%r16, 0;
+	mov.f32 	%f1, 0f00000000;     	// 0
+$Lt_0_7938:
+	.loc	28	32	0
+	mov.u64 	%rd7, __cuda___cuda_local_var_35000_35_non_const_Avg24;
+	.loc	28	33	0
+	cvt.rn.f32.u32 	%f3, %r16;
+	div.rn.f32 	%f4, %f1, %f3;
+	cvt.u64.u32 	%rd8, %r6;
+	mul.wide.u32 	%rd9, %r6, 4;
+	add.u64 	%rd10, %rd9, %rd7;
+	st.shared.f32 	[%rd10+0], %f4;
+	.loc	28	37	0
+	mov.s32 	%r18, %r7;
+	@!%p1 bra 	$Lt_0_14338;
+	cvt.s64.s32 	%rd11, %r7;
+	mov.u32 	%r15, %ntid.x;
+	cvt.s64.u32 	%rd12, %r15;
+	mul.wide.s32 	%rd13, %r7, 4;
+	mul.wide.u32 	%rd4, %r15, 4;
+	ld.param.u64 	%rd14, [__cudaparm__Z20histo_prescan_kernelPjiS__input];
+	add.u64 	%rd15, %rd14, %rd13;
+	mov.f32 	%f5, 0f00000000;     	// 0
+$Lt_0_9474:
+ //<loop> Loop body line 37, nesting depth: 1, estimated iterations: unknown
+	.loc	28	39	0
+	ld.global.u32 	%r19, [%rd15+0];
+	cvt.rn.f32.u32 	%f6, %r19;
+	sub.f32 	%f7, %f6, %f4;
+	fma.rn.f32 	%f5, %f7, %f7, %f5;
+	add.u32 	%r18, %r18, %r15;
+	add.u64 	%rd15, %rd15, %rd4;
+	setp.lt.s32 	%p3, %r18, %r14;
+	@%p3 bra 	$Lt_0_9474;
+	bra.uni 	$Lt_0_8962;
+$Lt_0_14338:
+	mov.f32 	%f5, 0f00000000;     	// 0
+$Lt_0_8962:
+	.loc	28	42	0
+	mov.u64 	%rd16, __cuda___cuda_local_var_35001_35_non_const_StdDev2072;
+	.loc	28	43	0
+	add.u64 	%rd17, %rd9, %rd16;
+	div.rn.f32 	%f8, %f5, %f3;
+	sqrt.rn.f32 	%f9, %f8;
+	st.shared.f32 	[%rd17+0], %f9;
+	mov.s32 	%r20, 256;
+$Lt_0_10498:
+ //<loop> Loop body line 43, nesting depth: 1, estimated iterations: unknown
+	.loc	28	56	0
+	bar.sync 	0;
+	setp.le.u32 	%p4, %r20, %r6;
+	@%p4 bra 	$Lt_0_10754;
+ //<loop> Part of loop body line 43, head labeled $Lt_0_10498
+	.loc	28	57	0
+	add.u32 	%r21, %r20, %r6;
+	cvt.u64.u32 	%rd18, %r21;
+	mul.wide.u32 	%rd19, %r21, 4;
+	ld.shared.f32 	%f10, [%rd10+0];
+	add.u64 	%rd20, %rd19, %rd7;
+	ld.shared.f32 	%f11, [%rd20+0];
+	add.f32 	%f12, %f10, %f11;
+	st.shared.f32 	[%rd10+0], %f12;
+	ld.shared.f32 	%f13, [%rd17+0];
+	add.u64 	%rd21, %rd19, %rd16;
+	ld.shared.f32 	%f14, [%rd21+0];
+	add.f32 	%f15, %f13, %f14;
+	st.shared.f32 	[%rd17+0], %f15;
+$Lt_0_10754:
+ //<loop> Part of loop body line 43, head labeled $Lt_0_10498
+	.loc	28	55	0
+	shr.s32 	%r20, %r20, 1;
+	mov.u32 	%r22, 31;
+	setp.gt.s32 	%p5, %r20, %r22;
+	@%p5 bra 	$Lt_0_10498;
+	mov.u32 	%r23, 15;
+	setp.gt.u32 	%p6, %r6, %r23;
+	@%p6 bra 	$Lt_0_11522;
+	.loc	28	61	0
+	ld.shared.f32 	%f16, [%rd10+0];
+	ld.shared.f32 	%f17, [%rd10+64];
+	add.f32 	%f18, %f16, %f17;
+	st.shared.f32 	[%rd10+0], %f18;
+	ld.shared.f32 	%f19, [%rd17+0];
+	ld.shared.f32 	%f20, [%rd17+64];
+	add.f32 	%f21, %f19, %f20;
+	st.shared.f32 	[%rd17+0], %f21;
+$Lt_0_11522:
+	mov.u32 	%r24, 7;
+	setp.gt.u32 	%p7, %r6, %r24;
+	@%p7 bra 	$Lt_0_12034;
+	.loc	28	64	0
+	ld.shared.f32 	%f22, [%rd10+0];
+	ld.shared.f32 	%f23, [%rd10+32];
+	add.f32 	%f24, %f22, %f23;
+	st.shared.f32 	[%rd10+0], %f24;
+	ld.shared.f32 	%f25, [%rd17+0];
+	ld.shared.f32 	%f26, [%rd17+32];
+	add.f32 	%f27, %f25, %f26;
+	st.shared.f32 	[%rd17+0], %f27;
+$Lt_0_12034:
+	mov.u32 	%r25, 3;
+	setp.gt.u32 	%p8, %r6, %r25;
+	@%p8 bra 	$Lt_0_12546;
+	.loc	28	67	0
+	ld.shared.f32 	%f28, [%rd10+0];
+	ld.shared.f32 	%f29, [%rd10+16];
+	add.f32 	%f30, %f28, %f29;
+	st.shared.f32 	[%rd10+0], %f30;
+	ld.shared.f32 	%f31, [%rd17+0];
+	ld.shared.f32 	%f32, [%rd17+16];
+	add.f32 	%f33, %f31, %f32;
+	st.shared.f32 	[%rd17+0], %f33;
+$Lt_0_12546:
+	mov.u32 	%r26, 1;
+	setp.gt.u32 	%p9, %r6, %r26;
+	@%p9 bra 	$Lt_0_13058;
+	.loc	28	70	0
+	ld.shared.f32 	%f34, [%rd10+0];
+	ld.shared.f32 	%f35, [%rd10+8];
+	add.f32 	%f36, %f34, %f35;
+	st.shared.f32 	[%rd10+0], %f36;
+	ld.shared.f32 	%f37, [%rd17+0];
+	ld.shared.f32 	%f38, [%rd17+8];
+	add.f32 	%f39, %f37, %f38;
+	st.shared.f32 	[%rd17+0], %f39;
+$Lt_0_13058:
+	mov.u32 	%r27, 0;
+	setp.ne.u32 	%p10, %r6, %r27;
+	@%p10 bra 	$Lt_0_13570;
+	ld.shared.v2.f32 	{%f40,%f41}, [__cuda___cuda_local_var_35000_35_non_const_Avg24+0];
+	.loc	20	531	0
+	add.f32 	%f42, %f40, %f41;
+	mov.f32 	%f43, 0f3b000000;    	// 0.00195312
+	mul.f32 	%f44, %f42, %f43;
+	ld.shared.v2.f32 	{%f45,%f46}, [__cuda___cuda_local_var_35001_35_non_const_StdDev2072+0];
+	add.f32 	%f47, %f45, %f46;
+	mov.f32 	%f48, 0f3b000000;    	// 0.00195312
+	mul.f32 	%f49, %f47, %f48;
+	.loc	16	144	0
+	ld.param.u64 	%rd22, [__cudaparm__Z20histo_prescan_kernelPjiS__minmax];
+	mov.f32 	%f50, 0f41200000;    	// 10
+	mul.f32 	%f51, %f49, %f50;
+	sub.f32 	%f52, %f44, %f51;
+	cvt.rzi.u32.f32 	%r28, %f52;
+	mov.u32 	%r29, -1431655765;
+	mul.hi.u32 	%r30, %r28, %r29;
+	shr.u32 	%r31, %r30, 14;
+	atom.global.min.u32 	%r32, [%rd22], %r31;
+	.loc	16	154	0
+	add.u64 	%rd23, %rd22, 4;
+	mov.f32 	%f53, 0f41200000;    	// 10
+	fma.rn.f32 	%f54, %f49, %f53, %f44;
+	cvt.rzi.u32.f32 	%r33, %f54;
+	mov.u32 	%r34, -1431655765;
+	mul.hi.u32 	%r35, %r33, %r34;
+	shr.u32 	%r36, %r35, 14;
+	atom.global.max.u32 	%r37, [%rd23], %r36;
+$Lt_0_13570:
+	.loc	28	85	0
+	exit;
+$LDWend__Z20histo_prescan_kernelPjiS_:
+	} // _Z20histo_prescan_kernelPjiS_
+

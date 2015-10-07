@@ -1,0 +1,1655 @@
+# 118 "./common.cuh"
+struct __T10;
+# 115 "./common.cuh"
+union __T11;
+# 114 "./common.cuh"
+struct TextureAddress;
+# 179 "./common.cuh"
+struct MatchInfo;
+# 189 "./common.cuh"
+struct Alignment;
+# 79 "./mummergpu.h"
+struct MatchCoord;
+# 153 "./mummergpu_kernel.cuh"
+struct __T12;
+# 150 "./mummergpu_kernel.cuh"
+union __T13;
+# 147 "./mummergpu_kernel.cuh"
+struct _MatchCoord;
+# 170 "./mummergpu_kernel.cuh"
+struct __T14;
+# 181 "./mummergpu_kernel.cuh"
+struct __T15;
+# 168 "./mummergpu_kernel.cuh"
+union __T16;
+# 164 "./mummergpu_kernel.cuh"
+union __T17;
+# 161 "./mummergpu_kernel.cuh"
+struct _PixelOfChildren;
+# 200 "./mummergpu_kernel.cuh"
+struct __T18;
+# 211 "./mummergpu_kernel.cuh"
+struct __T19;
+# 198 "./mummergpu_kernel.cuh"
+union __T110;
+# 194 "./mummergpu_kernel.cuh"
+union __T111;
+# 191 "./mummergpu_kernel.cuh"
+struct _PixelOfChildrenNoData;
+# 221 "./mummergpu_kernel.cuh"
+struct _PixelOfChildrenNoDataBasesOnly;
+# 239 "./mummergpu_kernel.cuh"
+struct __T112;
+# 236 "./mummergpu_kernel.cuh"
+union __T113;
+# 233 "./mummergpu_kernel.cuh"
+struct _PixelOfNode;
+# 253 "./mummergpu_kernel.cuh"
+struct _PixelOfNodeNoData;
+# 1 "mummergpu.cudafe1.gpu"
+typedef char __nv_bool;
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 118 "./common.cuh"
+struct __T10 {
+# 123 "./common.cuh"
+unsigned x;};
+# 115 "./common.cuh"
+union __T11 {
+# 116 "./common.cuh"
+unsigned data;
+# 118 "./common.cuh"
+# 118 "./common.cuh"
+struct  {
+# 123 "./common.cuh"
+unsigned x;};};
+# 114 "./common.cuh"
+struct TextureAddress {
+# 115 "./common.cuh"
+# 115 "./common.cuh"
+union  {
+# 116 "./common.cuh"
+unsigned data;
+# 118 "./common.cuh"
+# 118 "./common.cuh"
+struct  {
+# 123 "./common.cuh"
+unsigned x;};};};
+# 179 "./common.cuh"
+struct MatchInfo {
+# 181 "./common.cuh"
+unsigned resultsoffset;
+# 182 "./common.cuh"
+unsigned queryid;
+# 183 "./common.cuh"
+struct TextureAddress matchnode;
+# 184 "./common.cuh"
+unsigned numLeaves;
+# 185 "./common.cuh"
+unsigned short edgematch;
+# 186 "./common.cuh"
+unsigned short qrystartpos;};
+# 187 "./common.cuh"
+typedef struct MatchInfo MatchInfo;
+# 189 "./common.cuh"
+struct Alignment {
+# 191 "./common.cuh"
+int left_in_ref;
+# 192 "./common.cuh"
+unsigned short matchlen;
+# 192 "./common.cuh"
+char __nv_no_debug_dummy_end_padding_0[2];};
+# 193 "./common.cuh"
+typedef struct Alignment Alignment;
+# 153 "./mummergpu_kernel.cuh"
+struct __T12 {
+# 154 "./mummergpu_kernel.cuh"
+int node;
+# 155 "./mummergpu_kernel.cuh"
+int edge_match_length;};
+# 150 "./mummergpu_kernel.cuh"
+union __T13 {
+# 151 "./mummergpu_kernel.cuh"
+int2 data;
+# 153 "./mummergpu_kernel.cuh"
+# 153 "./mummergpu_kernel.cuh"
+struct  {
+# 154 "./mummergpu_kernel.cuh"
+int node;
+# 155 "./mummergpu_kernel.cuh"
+int edge_match_length;};};
+# 147 "./mummergpu_kernel.cuh"
+struct _MatchCoord {
+# 150 "./mummergpu_kernel.cuh"
+# 150 "./mummergpu_kernel.cuh"
+union  {
+# 151 "./mummergpu_kernel.cuh"
+int2 data;
+# 153 "./mummergpu_kernel.cuh"
+# 153 "./mummergpu_kernel.cuh"
+struct  {
+# 154 "./mummergpu_kernel.cuh"
+int node;
+# 155 "./mummergpu_kernel.cuh"
+int edge_match_length;};};} __align__(8) ;
+# 170 "./mummergpu_kernel.cuh"
+struct __T14 {
+# 171 "./mummergpu_kernel.cuh"
+uchar3 a;
+# 172 "./mummergpu_kernel.cuh"
+uchar3 c;
+# 173 "./mummergpu_kernel.cuh"
+uchar3 g;
+# 174 "./mummergpu_kernel.cuh"
+uchar3 t;
+# 175 "./mummergpu_kernel.cuh"
+uchar3 d;
+# 177 "./mummergpu_kernel.cuh"
+char leafchar;};
+# 181 "./mummergpu_kernel.cuh"
+struct __T15 {
+# 182 "./mummergpu_kernel.cuh"
+uchar3 leafid;
+# 183 "./mummergpu_kernel.cuh"
+unsigned char pad[12];
+# 184 "./mummergpu_kernel.cuh"
+char leafchar0;};
+# 168 "./mummergpu_kernel.cuh"
+union __T16 {
+# 170 "./mummergpu_kernel.cuh"
+# 170 "./mummergpu_kernel.cuh"
+struct  {
+# 171 "./mummergpu_kernel.cuh"
+uchar3 a;
+# 172 "./mummergpu_kernel.cuh"
+uchar3 c;
+# 173 "./mummergpu_kernel.cuh"
+uchar3 g;
+# 174 "./mummergpu_kernel.cuh"
+uchar3 t;
+# 175 "./mummergpu_kernel.cuh"
+uchar3 d;
+# 177 "./mummergpu_kernel.cuh"
+char leafchar;};
+# 181 "./mummergpu_kernel.cuh"
+# 181 "./mummergpu_kernel.cuh"
+struct  {
+# 182 "./mummergpu_kernel.cuh"
+uchar3 leafid;
+# 183 "./mummergpu_kernel.cuh"
+unsigned char pad[12];
+# 184 "./mummergpu_kernel.cuh"
+char leafchar0;};};
+# 164 "./mummergpu_kernel.cuh"
+union __T17 {
+# 165 "./mummergpu_kernel.cuh"
+uint4 data;
+# 168 "./mummergpu_kernel.cuh"
+# 168 "./mummergpu_kernel.cuh"
+union  {
+# 170 "./mummergpu_kernel.cuh"
+# 170 "./mummergpu_kernel.cuh"
+struct  {
+# 171 "./mummergpu_kernel.cuh"
+uchar3 a;
+# 172 "./mummergpu_kernel.cuh"
+uchar3 c;
+# 173 "./mummergpu_kernel.cuh"
+uchar3 g;
+# 174 "./mummergpu_kernel.cuh"
+uchar3 t;
+# 175 "./mummergpu_kernel.cuh"
+uchar3 d;
+# 177 "./mummergpu_kernel.cuh"
+char leafchar;};
+# 181 "./mummergpu_kernel.cuh"
+# 181 "./mummergpu_kernel.cuh"
+struct  {
+# 182 "./mummergpu_kernel.cuh"
+uchar3 leafid;
+# 183 "./mummergpu_kernel.cuh"
+unsigned char pad[12];
+# 184 "./mummergpu_kernel.cuh"
+char leafchar0;};};};
+# 161 "./mummergpu_kernel.cuh"
+struct _PixelOfChildren {
+# 164 "./mummergpu_kernel.cuh"
+# 164 "./mummergpu_kernel.cuh"
+union  {
+# 165 "./mummergpu_kernel.cuh"
+uint4 data;
+# 168 "./mummergpu_kernel.cuh"
+# 168 "./mummergpu_kernel.cuh"
+union  {
+# 170 "./mummergpu_kernel.cuh"
+# 170 "./mummergpu_kernel.cuh"
+struct  {
+# 171 "./mummergpu_kernel.cuh"
+uchar3 a;
+# 172 "./mummergpu_kernel.cuh"
+uchar3 c;
+# 173 "./mummergpu_kernel.cuh"
+uchar3 g;
+# 174 "./mummergpu_kernel.cuh"
+uchar3 t;
+# 175 "./mummergpu_kernel.cuh"
+uchar3 d;
+# 177 "./mummergpu_kernel.cuh"
+char leafchar;};
+# 181 "./mummergpu_kernel.cuh"
+# 181 "./mummergpu_kernel.cuh"
+struct  {
+# 182 "./mummergpu_kernel.cuh"
+uchar3 leafid;
+# 183 "./mummergpu_kernel.cuh"
+unsigned char pad[12];
+# 184 "./mummergpu_kernel.cuh"
+char leafchar0;};};};};
+# 200 "./mummergpu_kernel.cuh"
+struct __T18 {
+# 201 "./mummergpu_kernel.cuh"
+uchar3 a;
+# 202 "./mummergpu_kernel.cuh"
+uchar3 c;
+# 203 "./mummergpu_kernel.cuh"
+uchar3 g;
+# 204 "./mummergpu_kernel.cuh"
+uchar3 t;
+# 205 "./mummergpu_kernel.cuh"
+uchar3 d;
+# 207 "./mummergpu_kernel.cuh"
+char leafchar;};
+# 211 "./mummergpu_kernel.cuh"
+struct __T19 {
+# 212 "./mummergpu_kernel.cuh"
+uchar3 leafid;
+# 213 "./mummergpu_kernel.cuh"
+unsigned char pad[12];
+# 214 "./mummergpu_kernel.cuh"
+char leafchar0;};
+# 198 "./mummergpu_kernel.cuh"
+union __T110 {
+# 200 "./mummergpu_kernel.cuh"
+# 200 "./mummergpu_kernel.cuh"
+struct  {
+# 201 "./mummergpu_kernel.cuh"
+uchar3 a;
+# 202 "./mummergpu_kernel.cuh"
+uchar3 c;
+# 203 "./mummergpu_kernel.cuh"
+uchar3 g;
+# 204 "./mummergpu_kernel.cuh"
+uchar3 t;
+# 205 "./mummergpu_kernel.cuh"
+uchar3 d;
+# 207 "./mummergpu_kernel.cuh"
+char leafchar;};
+# 211 "./mummergpu_kernel.cuh"
+# 211 "./mummergpu_kernel.cuh"
+struct  {
+# 212 "./mummergpu_kernel.cuh"
+uchar3 leafid;
+# 213 "./mummergpu_kernel.cuh"
+unsigned char pad[12];
+# 214 "./mummergpu_kernel.cuh"
+char leafchar0;};};
+# 194 "./mummergpu_kernel.cuh"
+union __T111 {
+# 195 "./mummergpu_kernel.cuh"
+uint4 data;
+# 198 "./mummergpu_kernel.cuh"
+# 198 "./mummergpu_kernel.cuh"
+union  {
+# 200 "./mummergpu_kernel.cuh"
+# 200 "./mummergpu_kernel.cuh"
+struct  {
+# 201 "./mummergpu_kernel.cuh"
+uchar3 a;
+# 202 "./mummergpu_kernel.cuh"
+uchar3 c;
+# 203 "./mummergpu_kernel.cuh"
+uchar3 g;
+# 204 "./mummergpu_kernel.cuh"
+uchar3 t;
+# 205 "./mummergpu_kernel.cuh"
+uchar3 d;
+# 207 "./mummergpu_kernel.cuh"
+char leafchar;};
+# 211 "./mummergpu_kernel.cuh"
+# 211 "./mummergpu_kernel.cuh"
+struct  {
+# 212 "./mummergpu_kernel.cuh"
+uchar3 leafid;
+# 213 "./mummergpu_kernel.cuh"
+unsigned char pad[12];
+# 214 "./mummergpu_kernel.cuh"
+char leafchar0;};};};
+# 191 "./mummergpu_kernel.cuh"
+struct _PixelOfChildrenNoData {
+# 194 "./mummergpu_kernel.cuh"
+# 194 "./mummergpu_kernel.cuh"
+union  {
+# 195 "./mummergpu_kernel.cuh"
+uint4 data;
+# 198 "./mummergpu_kernel.cuh"
+# 198 "./mummergpu_kernel.cuh"
+union  {
+# 200 "./mummergpu_kernel.cuh"
+# 200 "./mummergpu_kernel.cuh"
+struct  {
+# 201 "./mummergpu_kernel.cuh"
+uchar3 a;
+# 202 "./mummergpu_kernel.cuh"
+uchar3 c;
+# 203 "./mummergpu_kernel.cuh"
+uchar3 g;
+# 204 "./mummergpu_kernel.cuh"
+uchar3 t;
+# 205 "./mummergpu_kernel.cuh"
+uchar3 d;
+# 207 "./mummergpu_kernel.cuh"
+char leafchar;};
+# 211 "./mummergpu_kernel.cuh"
+# 211 "./mummergpu_kernel.cuh"
+struct  {
+# 212 "./mummergpu_kernel.cuh"
+uchar3 leafid;
+# 213 "./mummergpu_kernel.cuh"
+unsigned char pad[12];
+# 214 "./mummergpu_kernel.cuh"
+char leafchar0;};};};};
+# 221 "./mummergpu_kernel.cuh"
+struct _PixelOfChildrenNoDataBasesOnly {
+# 223 "./mummergpu_kernel.cuh"
+uchar3 a;
+# 224 "./mummergpu_kernel.cuh"
+uchar3 c;
+# 225 "./mummergpu_kernel.cuh"
+uchar3 g;
+# 226 "./mummergpu_kernel.cuh"
+uchar3 t;
+# 227 "./mummergpu_kernel.cuh"
+uchar3 d;
+# 229 "./mummergpu_kernel.cuh"
+char leafchar;};
+# 239 "./mummergpu_kernel.cuh"
+struct __T112 {
+# 240 "./mummergpu_kernel.cuh"
+uchar3 parent;
+# 241 "./mummergpu_kernel.cuh"
+uchar3 suffix;
+# 243 "./mummergpu_kernel.cuh"
+uchar3 start;
+# 244 "./mummergpu_kernel.cuh"
+uchar3 end;
+# 245 "./mummergpu_kernel.cuh"
+uchar3 depth;
+# 247 "./mummergpu_kernel.cuh"
+unsigned char pad;};
+# 236 "./mummergpu_kernel.cuh"
+union __T113 {
+# 237 "./mummergpu_kernel.cuh"
+uint4 data;
+# 239 "./mummergpu_kernel.cuh"
+# 239 "./mummergpu_kernel.cuh"
+struct  {
+# 240 "./mummergpu_kernel.cuh"
+uchar3 parent;
+# 241 "./mummergpu_kernel.cuh"
+uchar3 suffix;
+# 243 "./mummergpu_kernel.cuh"
+uchar3 start;
+# 244 "./mummergpu_kernel.cuh"
+uchar3 end;
+# 245 "./mummergpu_kernel.cuh"
+uchar3 depth;
+# 247 "./mummergpu_kernel.cuh"
+unsigned char pad;};};
+# 233 "./mummergpu_kernel.cuh"
+struct _PixelOfNode {
+# 236 "./mummergpu_kernel.cuh"
+# 236 "./mummergpu_kernel.cuh"
+union  {
+# 237 "./mummergpu_kernel.cuh"
+uint4 data;
+# 239 "./mummergpu_kernel.cuh"
+# 239 "./mummergpu_kernel.cuh"
+struct  {
+# 240 "./mummergpu_kernel.cuh"
+uchar3 parent;
+# 241 "./mummergpu_kernel.cuh"
+uchar3 suffix;
+# 243 "./mummergpu_kernel.cuh"
+uchar3 start;
+# 244 "./mummergpu_kernel.cuh"
+uchar3 end;
+# 245 "./mummergpu_kernel.cuh"
+uchar3 depth;
+# 247 "./mummergpu_kernel.cuh"
+unsigned char pad;};};};
+# 253 "./mummergpu_kernel.cuh"
+struct _PixelOfNodeNoData {
+# 255 "./mummergpu_kernel.cuh"
+uchar3 parent;
+# 256 "./mummergpu_kernel.cuh"
+uchar3 suffix;
+# 258 "./mummergpu_kernel.cuh"
+uchar3 start;
+# 259 "./mummergpu_kernel.cuh"
+uchar3 end;
+# 260 "./mummergpu_kernel.cuh"
+uchar3 depth;
+# 262 "./mummergpu_kernel.cuh"
+unsigned char pad;};
+#if !defined(__CUDABE__)
+# 189 "/home/bachelor/deicide218/cuda-4.2/include/math_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) int min(int, int);
+#endif
+#if !defined(__CUDABE__)
+# 225 "/home/bachelor/deicide218/cuda-4.2/include/math_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) int max(int, int);
+#endif
+#if !defined(__CUDABE__)
+# 195 "/home/bachelor/deicide218/cuda-4.2/include/device_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) unsigned __umul24(unsigned, unsigned);
+#endif
+# 285 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) int _Z7addr2idj(unsigned);
+# 311 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) struct TextureAddress id2addr(int);
+# 350 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) void _Z14arrayToAddress6uchar3Rj(uchar3, unsigned *);
+# 393 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) char _Z2rcc(char);
+# 410 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) uint4 _Z7getNodejbP12_PixelOfNode(unsigned, __nv_bool, struct _PixelOfNode *);
+# 447 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) struct _PixelOfNodeNoData _Z13getNodeNoDatajbP12_PixelOfNode(unsigned, __nv_bool, struct _PixelOfNode *);
+# 490 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) uint4 _Z11getChildrenjbP16_PixelOfChildren(unsigned, __nv_bool, struct _PixelOfChildren *);
+# 527 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) struct _PixelOfChildrenNoData _Z17getChildrenNoDatajbP16_PixelOfChildren(unsigned, __nv_bool, struct _PixelOfChildren *);
+# 564 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) struct _PixelOfChildrenNoDataBasesOnly _Z26getChildrenNoDataBasesOnlyjbP16_PixelOfChildren(unsigned, __nv_bool, struct _PixelOfChildren *);
+# 806 "./mummergpu_kernel.cuh"
+___device__(extern  __no_sc__) void _Z10set_resultjP11_MatchCoordiiii(unsigned, struct _MatchCoord *, int, int, int, int);
+# 848 "./mummergpu_kernel.cuh"
+__global__ __var_used__ extern void _Z15mummergpuKernelPvPcP12_PixelOfNodeP16_PixelOfChildrenS0_PKiS6_ii(void *, char *, struct _PixelOfNode *, struct _PixelOfChildren *, char *, const int *, const int *, const int, const int);
+# 1037 "./mummergpu_kernel.cuh"
+__global__ __var_used__ extern void _Z17mummergpuRCKernelP10MatchCoordPcPKiS3_ii(struct MatchCoord *, char *, const int *, const int *, const int, const int);
+# 1213 "./mummergpu_kernel.cuh"
+__global__ __var_used__ extern void _Z11printKernelP9MatchInfoiP9AlignmentPcP12_PixelOfNodeP16_PixelOfChildrenPKiS9_iiiii(MatchInfo *, int, Alignment *, char *, struct _PixelOfNode *, struct _PixelOfChildren *, const int *, const int *, const int, const int, const int, const int, const int);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 285 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) int _Z7addr2idj(
+# 285 "./mummergpu_kernel.cuh"
+unsigned addr){
+# 285 "./mummergpu_kernel.cuh"
+{
+# 286 "./mummergpu_kernel.cuh"
+{
+# 307 "./mummergpu_kernel.cuh"
+return (int)addr;
+# 309 "./mummergpu_kernel.cuh"
+}
+# 309 "./mummergpu_kernel.cuh"
+}}
+# 311 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) struct TextureAddress id2addr(
+# 311 "./mummergpu_kernel.cuh"
+int id){
+# 311 "./mummergpu_kernel.cuh"
+{
+# 312 "./mummergpu_kernel.cuh"
+{
+# 313 "./mummergpu_kernel.cuh"
+ struct TextureAddress __cuda_local_var_19817_21_non_const_retval;
+# 338 "./mummergpu_kernel.cuh"
+(__cuda_local_var_19817_21_non_const_retval.x) = ((unsigned)id);
+# 340 "./mummergpu_kernel.cuh"
+return __cuda_local_var_19817_21_non_const_retval;
+# 341 "./mummergpu_kernel.cuh"
+}
+# 341 "./mummergpu_kernel.cuh"
+}}
+# 350 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) void _Z14arrayToAddress6uchar3Rj(
+# 350 "./mummergpu_kernel.cuh"
+uchar3 arr, 
+# 350 "./mummergpu_kernel.cuh"
+unsigned *addr){
+# 350 "./mummergpu_kernel.cuh"
+{
+# 351 "./mummergpu_kernel.cuh"
+{
+# 355 "./mummergpu_kernel.cuh"
+(*addr) = ((unsigned)((((int)(arr.x)) | (((int)(arr.y)) << 8)) | (((int)(arr.z)) << 16)));
+# 357 "./mummergpu_kernel.cuh"
+} 
+# 357 "./mummergpu_kernel.cuh"
+}}
+# 393 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) char _Z2rcc(
+# 393 "./mummergpu_kernel.cuh"
+char c){
+# 393 "./mummergpu_kernel.cuh"
+{
+# 394 "./mummergpu_kernel.cuh"
+{
+# 395 "./mummergpu_kernel.cuh"
+switch ((int)c)
+# 396 "./mummergpu_kernel.cuh"
+{
+# 397 "./mummergpu_kernel.cuh"
+case 65:
+# 397 "./mummergpu_kernel.cuh"
+return ((char)84);
+# 398 "./mummergpu_kernel.cuh"
+case 67:
+# 398 "./mummergpu_kernel.cuh"
+return ((char)71);
+# 399 "./mummergpu_kernel.cuh"
+case 71:
+# 399 "./mummergpu_kernel.cuh"
+return ((char)67);
+# 400 "./mummergpu_kernel.cuh"
+case 84:
+# 400 "./mummergpu_kernel.cuh"
+return ((char)65);
+# 401 "./mummergpu_kernel.cuh"
+case 113:
+# 401 "./mummergpu_kernel.cuh"
+return ((char)0);
+# 402 "./mummergpu_kernel.cuh"
+default:
+# 402 "./mummergpu_kernel.cuh"
+return c;
+# 403 "./mummergpu_kernel.cuh"
+}
+# 403 "./mummergpu_kernel.cuh"
+;
+# 404 "./mummergpu_kernel.cuh"
+}
+# 404 "./mummergpu_kernel.cuh"
+}}
+# 410 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) uint4 _Z7getNodejbP12_PixelOfNode(
+# 410 "./mummergpu_kernel.cuh"
+unsigned cur, 
+# 411 "./mummergpu_kernel.cuh"
+__nv_bool use_two_level, 
+# 413 "./mummergpu_kernel.cuh"
+struct _PixelOfNode *nodes){
+# 413 "./mummergpu_kernel.cuh"
+{
+# 419 "./mummergpu_kernel.cuh"
+{
+# 442 "./mummergpu_kernel.cuh"
+return (nodes + cur)->data;
+# 445 "./mummergpu_kernel.cuh"
+}
+# 445 "./mummergpu_kernel.cuh"
+}}
+# 447 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) struct _PixelOfNodeNoData _Z13getNodeNoDatajbP12_PixelOfNode(
+# 447 "./mummergpu_kernel.cuh"
+unsigned cur, 
+# 448 "./mummergpu_kernel.cuh"
+__nv_bool use_two_level, 
+# 450 "./mummergpu_kernel.cuh"
+struct _PixelOfNode *nodes){
+# 450 "./mummergpu_kernel.cuh"
+{
+# 456 "./mummergpu_kernel.cuh"
+{
+# 479 "./mummergpu_kernel.cuh"
+return *((struct _PixelOfNodeNoData *)(nodes + cur));
+# 482 "./mummergpu_kernel.cuh"
+}
+# 482 "./mummergpu_kernel.cuh"
+}}
+# 490 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) uint4 _Z11getChildrenjbP16_PixelOfChildren(
+# 490 "./mummergpu_kernel.cuh"
+unsigned cur, 
+# 491 "./mummergpu_kernel.cuh"
+__nv_bool use_two_level, 
+# 493 "./mummergpu_kernel.cuh"
+struct _PixelOfChildren *childrenarr){
+# 493 "./mummergpu_kernel.cuh"
+{
+# 499 "./mummergpu_kernel.cuh"
+{
+# 520 "./mummergpu_kernel.cuh"
+return (childrenarr + cur)->data;
+# 523 "./mummergpu_kernel.cuh"
+}
+# 523 "./mummergpu_kernel.cuh"
+}}
+# 527 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) struct _PixelOfChildrenNoData _Z17getChildrenNoDatajbP16_PixelOfChildren(
+# 527 "./mummergpu_kernel.cuh"
+unsigned cur, 
+# 528 "./mummergpu_kernel.cuh"
+__nv_bool use_two_level, 
+# 530 "./mummergpu_kernel.cuh"
+struct _PixelOfChildren *childrenarr){
+# 530 "./mummergpu_kernel.cuh"
+{
+# 536 "./mummergpu_kernel.cuh"
+{
+# 557 "./mummergpu_kernel.cuh"
+return *((struct _PixelOfChildrenNoData *)(childrenarr + cur));
+# 560 "./mummergpu_kernel.cuh"
+}
+# 560 "./mummergpu_kernel.cuh"
+}}
+# 564 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) struct _PixelOfChildrenNoDataBasesOnly _Z26getChildrenNoDataBasesOnlyjbP16_PixelOfChildren(
+# 564 "./mummergpu_kernel.cuh"
+unsigned cur, 
+# 565 "./mummergpu_kernel.cuh"
+__nv_bool use_two_level, 
+# 567 "./mummergpu_kernel.cuh"
+struct _PixelOfChildren *childrenarr){
+# 567 "./mummergpu_kernel.cuh"
+{
+# 573 "./mummergpu_kernel.cuh"
+{
+# 594 "./mummergpu_kernel.cuh"
+return *((struct _PixelOfChildrenNoDataBasesOnly *)(childrenarr + cur));
+# 597 "./mummergpu_kernel.cuh"
+}
+# 597 "./mummergpu_kernel.cuh"
+}}
+# 806 "./mummergpu_kernel.cuh"
+___device__( __no_sc__) void _Z10set_resultjP11_MatchCoordiiii(
+# 806 "./mummergpu_kernel.cuh"
+unsigned cur, 
+# 807 "./mummergpu_kernel.cuh"
+struct _MatchCoord *result, 
+# 808 "./mummergpu_kernel.cuh"
+int edge_match_length, 
+# 809 "./mummergpu_kernel.cuh"
+int qry_match_len, 
+# 810 "./mummergpu_kernel.cuh"
+int min_match_len, 
+# 811 "./mummergpu_kernel.cuh"
+int rc){
+# 811 "./mummergpu_kernel.cuh"
+{
+# 821 "./mummergpu_kernel.cuh"
+{
+# 822 "./mummergpu_kernel.cuh"
+if (qry_match_len > min_match_len)
+# 823 "./mummergpu_kernel.cuh"
+{
+# 823 "./mummergpu_kernel.cuh"
+ int __T20;
+# 824 "./mummergpu_kernel.cuh"
+ int2 __T21;
+# 824 "./mummergpu_kernel.cuh"
+edge_match_length |= rc;
+# 825 "./mummergpu_kernel.cuh"
+(result->data) = ((__T20 = ((int)cur)) , ((((__T21.x) = __T20) , ((void)((__T21.y) = edge_match_length))) , __T21));
+# 834 "./mummergpu_kernel.cuh"
+}
+# 836 "./mummergpu_kernel.cuh"
+else 
+# 836 "./mummergpu_kernel.cuh"
+{
+# 837 "./mummergpu_kernel.cuh"
+do
+# 837 "./mummergpu_kernel.cuh"
+{
+# 837 "./mummergpu_kernel.cuh"
+} while (0);
+# 838 "./mummergpu_kernel.cuh"
+}
+# 839 "./mummergpu_kernel.cuh"
+} 
+# 839 "./mummergpu_kernel.cuh"
+}}
+# 848 "./mummergpu_kernel.cuh"
+__global__ __var_used__ void _Z15mummergpuKernelPvPcP12_PixelOfNodeP16_PixelOfChildrenS0_PKiS6_ii(
+# 848 "./mummergpu_kernel.cuh"
+void *match_coords, 
+# 857 "./mummergpu_kernel.cuh"
+char *__val_param(queries), 
+# 862 "./mummergpu_kernel.cuh"
+struct _PixelOfNode *nodes, 
+# 866 "./mummergpu_kernel.cuh"
+struct _PixelOfChildren *childrenarr, 
+# 870 "./mummergpu_kernel.cuh"
+char *ref, 
+# 872 "./mummergpu_kernel.cuh"
+const int *queryAddrs, 
+# 873 "./mummergpu_kernel.cuh"
+const int *queryLengths, 
+# 874 "./mummergpu_kernel.cuh"
+const int numQueries, 
+# 875 "./mummergpu_kernel.cuh"
+const int min_match_len){__copy_param(char *queries,__val_param(queries));
+# 875 "./mummergpu_kernel.cuh"
+{
+# 875 "./mummergpu_kernel.cuh"
+;
+# 881 "./mummergpu_kernel.cuh"
+{
+# 882 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20015_9_non_const_qryid;
+# 891 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20024_9_non_const_qlen;
+# 892 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20025_9_non_const_qryAddr;
+# 895 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20028_15_non_const_cur;
+# 898 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20031_9_non_const_mustmatch;
+# 899 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20032_9_non_const_qry_match_len;
+# 901 "./mummergpu_kernel.cuh"
+ struct _MatchCoord *__cuda_local_var_20034_19_non_const_result;
+# 905 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20038_9_non_const_last;
+# 882 "./mummergpu_kernel.cuh"
+__cuda_local_var_20015_9_non_const_qryid = ((int)((__umul24((blockIdx.x), (blockDim.x))) + (threadIdx.x)));
+# 883 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20015_9_non_const_qryid >= numQueries)
+# 883 "./mummergpu_kernel.cuh"
+{
+# 883 "./mummergpu_kernel.cuh"
+return;
+# 883 "./mummergpu_kernel.cuh"
+}
+# 884 "./mummergpu_kernel.cuh"
+do
+# 884 "./mummergpu_kernel.cuh"
+{
+# 884 "./mummergpu_kernel.cuh"
+} while (0);
+# 886 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20015_9_non_const_qryid == 0)
+# 887 "./mummergpu_kernel.cuh"
+{
+# 888 "./mummergpu_kernel.cuh"
+;
+# 889 "./mummergpu_kernel.cuh"
+}
+# 891 "./mummergpu_kernel.cuh"
+__cuda_local_var_20024_9_non_const_qlen = (queryLengths[__cuda_local_var_20015_9_non_const_qryid]);
+# 892 "./mummergpu_kernel.cuh"
+__cuda_local_var_20025_9_non_const_qryAddr = (queryAddrs[__cuda_local_var_20015_9_non_const_qryid]);
+# 895 "./mummergpu_kernel.cuh"
+__cuda_local_var_20028_15_non_const_cur = 0U;
+# 898 "./mummergpu_kernel.cuh"
+__cuda_local_var_20031_9_non_const_mustmatch = 0;
+# 899 "./mummergpu_kernel.cuh"
+__cuda_local_var_20032_9_non_const_qry_match_len = 0;
+# 901 "./mummergpu_kernel.cuh"
+__cuda_local_var_20034_19_non_const_result = ((((struct _MatchCoord *)match_coords) + __cuda_local_var_20025_9_non_const_qryAddr) - (__umul24(((unsigned)__cuda_local_var_20015_9_non_const_qryid), ((unsigned)(min_match_len + 1)))));
+# 903 "./mummergpu_kernel.cuh"
+queries += __cuda_local_var_20025_9_non_const_qryAddr;
+# 905 "./mummergpu_kernel.cuh"
+__cuda_local_var_20038_9_non_const_last = (__cuda_local_var_20024_9_non_const_qlen - min_match_len);
+# 905 "./mummergpu_kernel.cuh"
+{
+# 906 "./mummergpu_kernel.cuh"
+ int qrystart;
+# 906 "./mummergpu_kernel.cuh"
+qrystart = 0;
+# 906 "./mummergpu_kernel.cuh"
+for (; (qrystart <= __cuda_local_var_20038_9_non_const_last); (qrystart++) , ((void)(__cuda_local_var_20034_19_non_const_result += 1)))
+# 910 "./mummergpu_kernel.cuh"
+{
+# 912 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20045_16_non_const_node_start;
+# 913 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20046_22_non_const_prev;
+# 923 "./mummergpu_kernel.cuh"
+ char __cuda_local_var_20056_14_non_const_c;
+# 928 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20061_13_non_const_refpos;
+# 915 "./mummergpu_kernel.cuh"
+if ((__cuda_local_var_20028_15_non_const_cur == 0U) || (__cuda_local_var_20032_9_non_const_qry_match_len < 1))
+# 916 "./mummergpu_kernel.cuh"
+{
+# 918 "./mummergpu_kernel.cuh"
+__cuda_local_var_20028_15_non_const_cur = 1U;
+# 919 "./mummergpu_kernel.cuh"
+__cuda_local_var_20032_9_non_const_qry_match_len = 1;
+# 920 "./mummergpu_kernel.cuh"
+__cuda_local_var_20031_9_non_const_mustmatch = 0;
+# 921 "./mummergpu_kernel.cuh"
+}
+# 923 "./mummergpu_kernel.cuh"
+__cuda_local_var_20056_14_non_const_c = (queries[(qrystart + __cuda_local_var_20032_9_non_const_qry_match_len)]);
+# 925 "./mummergpu_kernel.cuh"
+do
+# 925 "./mummergpu_kernel.cuh"
+{
+# 925 "./mummergpu_kernel.cuh"
+} while (0);
+# 928 "./mummergpu_kernel.cuh"
+__cuda_local_var_20061_13_non_const_refpos = 0;
+# 929 "./mummergpu_kernel.cuh"
+while (((int)__cuda_local_var_20056_14_non_const_c) != 0)
+# 930 "./mummergpu_kernel.cuh"
+{
+# 930 "./mummergpu_kernel.cuh"
+ uchar3 __T216;
+# 933 "./mummergpu_kernel.cuh"
+ struct _PixelOfChildren __cuda_local_var_20066_21_non_const_children;
+# 936 "./mummergpu_kernel.cuh"
+ uchar3 __cuda_local_var_20069_11_non_const_next;
+# 961 "./mummergpu_kernel.cuh"
+ struct _PixelOfNode __cuda_local_var_20094_17_non_const_node;
+# 964 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20097_17_non_const_node_end;
+# 931 "./mummergpu_kernel.cuh"
+do
+# 931 "./mummergpu_kernel.cuh"
+{
+# 931 "./mummergpu_kernel.cuh"
+} while (0);
+# 934 "./mummergpu_kernel.cuh"
+(__cuda_local_var_20066_21_non_const_children.data) = (_Z11getChildrenjbP16_PixelOfChildren(__cuda_local_var_20028_15_non_const_cur, ((__nv_bool)0), childrenarr));
+# 935 "./mummergpu_kernel.cuh"
+__cuda_local_var_20046_22_non_const_prev = __cuda_local_var_20028_15_non_const_cur;
+# 937 "./mummergpu_kernel.cuh"
+switch ((int)__cuda_local_var_20056_14_non_const_c)
+# 938 "./mummergpu_kernel.cuh"
+{
+# 939 "./mummergpu_kernel.cuh"
+case 65:
+# 939 "./mummergpu_kernel.cuh"
+__cuda_local_var_20069_11_non_const_next = (__cuda_local_var_20066_21_non_const_children.a);
+# 939 "./mummergpu_kernel.cuh"
+goto __T217;
+# 940 "./mummergpu_kernel.cuh"
+case 67:
+# 940 "./mummergpu_kernel.cuh"
+__cuda_local_var_20069_11_non_const_next = (__cuda_local_var_20066_21_non_const_children.c);
+# 940 "./mummergpu_kernel.cuh"
+goto __T217;
+# 941 "./mummergpu_kernel.cuh"
+case 71:
+# 941 "./mummergpu_kernel.cuh"
+__cuda_local_var_20069_11_non_const_next = (__cuda_local_var_20066_21_non_const_children.g);
+# 941 "./mummergpu_kernel.cuh"
+goto __T217;
+# 942 "./mummergpu_kernel.cuh"
+case 84:
+# 942 "./mummergpu_kernel.cuh"
+__cuda_local_var_20069_11_non_const_next = (__cuda_local_var_20066_21_non_const_children.t);
+# 942 "./mummergpu_kernel.cuh"
+goto __T217;
+# 943 "./mummergpu_kernel.cuh"
+default:
+# 943 "./mummergpu_kernel.cuh"
+__cuda_local_var_20069_11_non_const_next = (((((__T216.x) = ((unsigned char)0U)) , ((void)((__T216.y) = ((unsigned char)0U)))) , ((void)((__T216.z) = ((unsigned char)0U)))) , __T216);
+# 943 "./mummergpu_kernel.cuh"
+goto __T217;
+# 944 "./mummergpu_kernel.cuh"
+}
+# 944 "./mummergpu_kernel.cuh"
+__T217:;
+# 944 "./mummergpu_kernel.cuh"
+;
+# 944 "./mummergpu_kernel.cuh"
+;
+# 946 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj(__cuda_local_var_20069_11_non_const_next, (&__cuda_local_var_20028_15_non_const_cur));
+# 948 "./mummergpu_kernel.cuh"
+do
+# 948 "./mummergpu_kernel.cuh"
+{
+# 948 "./mummergpu_kernel.cuh"
+} while (0);
+# 951 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20028_15_non_const_cur == 0U)
+# 951 "./mummergpu_kernel.cuh"
+{
+# 952 "./mummergpu_kernel.cuh"
+do
+# 952 "./mummergpu_kernel.cuh"
+{
+# 952 "./mummergpu_kernel.cuh"
+} while (0);
+# 953 "./mummergpu_kernel.cuh"
+_Z10set_resultjP11_MatchCoordiiii(__cuda_local_var_20046_22_non_const_prev, __cuda_local_var_20034_19_non_const_result, 0, __cuda_local_var_20032_9_non_const_qry_match_len, min_match_len, 0);
+# 955 "./mummergpu_kernel.cuh"
+__cuda_local_var_20032_9_non_const_qry_match_len -= 1;
+# 956 "./mummergpu_kernel.cuh"
+__cuda_local_var_20031_9_non_const_mustmatch = 0;
+# 958 "./mummergpu_kernel.cuh"
+goto NEXT_SUBSTRING;
+# 959 "./mummergpu_kernel.cuh"
+}
+# 962 "./mummergpu_kernel.cuh"
+(__cuda_local_var_20094_17_non_const_node.data) = (_Z7getNodejbP12_PixelOfNode(__cuda_local_var_20028_15_non_const_cur, ((__nv_bool)1), nodes));
+# 963 "./mummergpu_kernel.cuh"
+__cuda_local_var_20045_16_non_const_node_start = ((unsigned)((((int)((__cuda_local_var_20094_17_non_const_node.start).x)) | (((int)((__cuda_local_var_20094_17_non_const_node.start).y)) << 8)) | (((int)((__cuda_local_var_20094_17_non_const_node.start).z)) << 16)));
+# 964 "./mummergpu_kernel.cuh"
+__cuda_local_var_20097_17_non_const_node_end = ((unsigned)((((int)((__cuda_local_var_20094_17_non_const_node.end).x)) | (((int)((__cuda_local_var_20094_17_non_const_node.end).y)) << 8)) | (((int)((__cuda_local_var_20094_17_non_const_node.end).z)) << 16)));
+# 966 "./mummergpu_kernel.cuh"
+do
+# 966 "./mummergpu_kernel.cuh"
+{
+# 966 "./mummergpu_kernel.cuh"
+} while (0);
+# 967 "./mummergpu_kernel.cuh"
+{
+# 968 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20101_21_non_const_edgelen;
+# 969 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20102_21_non_const_edge_matchlen;
+# 970 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20103_21_non_const_past_node_end;
+# 971 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20104_21_non_const_dist_to_edge_end;
+# 968 "./mummergpu_kernel.cuh"
+__cuda_local_var_20101_21_non_const_edgelen = ((int)((__cuda_local_var_20097_17_non_const_node_end - __cuda_local_var_20045_16_non_const_node_start) + 1U));
+# 969 "./mummergpu_kernel.cuh"
+__cuda_local_var_20102_21_non_const_edge_matchlen = ((int)(__cuda_local_var_20045_16_non_const_node_start + ((unsigned)__cuda_local_var_20031_9_non_const_mustmatch)));
+# 970 "./mummergpu_kernel.cuh"
+__cuda_local_var_20103_21_non_const_past_node_end = ((int)(__cuda_local_var_20097_17_non_const_node_end + 1U));
+# 971 "./mummergpu_kernel.cuh"
+__cuda_local_var_20104_21_non_const_dist_to_edge_end = (__cuda_local_var_20031_9_non_const_mustmatch - __cuda_local_var_20101_21_non_const_edgelen);
+# 972 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20031_9_non_const_mustmatch)
+# 972 "./mummergpu_kernel.cuh"
+{
+# 973 "./mummergpu_kernel.cuh"
+__cuda_local_var_20061_13_non_const_refpos = (min(__cuda_local_var_20102_21_non_const_edge_matchlen, __cuda_local_var_20103_21_non_const_past_node_end));
+# 974 "./mummergpu_kernel.cuh"
+__cuda_local_var_20032_9_non_const_qry_match_len += (min(__cuda_local_var_20101_21_non_const_edgelen, __cuda_local_var_20031_9_non_const_mustmatch));
+# 975 "./mummergpu_kernel.cuh"
+__cuda_local_var_20031_9_non_const_mustmatch = (max(__cuda_local_var_20104_21_non_const_dist_to_edge_end, 0));
+# 976 "./mummergpu_kernel.cuh"
+}
+# 977 "./mummergpu_kernel.cuh"
+else 
+# 977 "./mummergpu_kernel.cuh"
+{
+# 979 "./mummergpu_kernel.cuh"
+__cuda_local_var_20032_9_non_const_qry_match_len++;
+# 980 "./mummergpu_kernel.cuh"
+__cuda_local_var_20061_13_non_const_refpos = ((int)(__cuda_local_var_20045_16_non_const_node_start + 1U));
+# 981 "./mummergpu_kernel.cuh"
+}
+# 982 "./mummergpu_kernel.cuh"
+}
+# 984 "./mummergpu_kernel.cuh"
+__cuda_local_var_20056_14_non_const_c = (queries[(qrystart + __cuda_local_var_20032_9_non_const_qry_match_len)]);
+# 986 "./mummergpu_kernel.cuh"
+while ((((unsigned)__cuda_local_var_20061_13_non_const_refpos) <= __cuda_local_var_20097_17_non_const_node_end) && (((int)__cuda_local_var_20056_14_non_const_c) != 0))
+# 987 "./mummergpu_kernel.cuh"
+{
+# 988 "./mummergpu_kernel.cuh"
+ char __cuda_local_var_20121_22_non_const_r;
+# 988 "./mummergpu_kernel.cuh"
+__cuda_local_var_20121_22_non_const_r = (ref[__cuda_local_var_20061_13_non_const_refpos]);
+# 990 "./mummergpu_kernel.cuh"
+do
+# 990 "./mummergpu_kernel.cuh"
+{
+# 990 "./mummergpu_kernel.cuh"
+} while (0);
+# 992 "./mummergpu_kernel.cuh"
+if (((int)__cuda_local_var_20121_22_non_const_r) != ((int)__cuda_local_var_20056_14_non_const_c))
+# 993 "./mummergpu_kernel.cuh"
+{
+# 995 "./mummergpu_kernel.cuh"
+do
+# 995 "./mummergpu_kernel.cuh"
+{
+# 995 "./mummergpu_kernel.cuh"
+} while (0);
+# 996 "./mummergpu_kernel.cuh"
+goto RECORD_RESULT;
+# 997 "./mummergpu_kernel.cuh"
+}
+# 999 "./mummergpu_kernel.cuh"
+__cuda_local_var_20032_9_non_const_qry_match_len++;
+# 1000 "./mummergpu_kernel.cuh"
+__cuda_local_var_20061_13_non_const_refpos++;
+# 1002 "./mummergpu_kernel.cuh"
+__cuda_local_var_20056_14_non_const_c = (queries[(qrystart + __cuda_local_var_20032_9_non_const_qry_match_len)]);
+# 1003 "./mummergpu_kernel.cuh"
+}
+# 1004 "./mummergpu_kernel.cuh"
+}
+# 1006 "./mummergpu_kernel.cuh"
+do
+# 1006 "./mummergpu_kernel.cuh"
+{
+# 1006 "./mummergpu_kernel.cuh"
+} while (0);
+# 1008 "./mummergpu_kernel.cuh"
+RECORD_RESULT:;
+# 1008 "./mummergpu_kernel.cuh"
+;
+# 1009 "./mummergpu_kernel.cuh"
+{
+# 1012 "./mummergpu_kernel.cuh"
+_Z10set_resultjP11_MatchCoordiiii(__cuda_local_var_20028_15_non_const_cur, __cuda_local_var_20034_19_non_const_result, ((int)(((unsigned)__cuda_local_var_20061_13_non_const_refpos) - __cuda_local_var_20045_16_non_const_node_start)), __cuda_local_var_20032_9_non_const_qry_match_len, min_match_len, 0);
+# 1015 "./mummergpu_kernel.cuh"
+__cuda_local_var_20031_9_non_const_mustmatch = ((int)(((unsigned)__cuda_local_var_20061_13_non_const_refpos) - __cuda_local_var_20045_16_non_const_node_start));
+# 1016 "./mummergpu_kernel.cuh"
+__cuda_local_var_20032_9_non_const_qry_match_len -= (__cuda_local_var_20031_9_non_const_mustmatch + 1);
+# 1017 "./mummergpu_kernel.cuh"
+}
+# 1018 "./mummergpu_kernel.cuh"
+NEXT_SUBSTRING:;
+# 1018 "./mummergpu_kernel.cuh"
+;
+# 1019 "./mummergpu_kernel.cuh"
+{
+# 1020 "./mummergpu_kernel.cuh"
+ struct _PixelOfNode __cuda_local_var_20153_17_non_const_node;
+# 1021 "./mummergpu_kernel.cuh"
+(__cuda_local_var_20153_17_non_const_node.data) = (_Z7getNodejbP12_PixelOfNode(__cuda_local_var_20046_22_non_const_prev, ((__nv_bool)0), nodes));
+# 1022 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20153_17_non_const_node.suffix), (&__cuda_local_var_20028_15_non_const_cur));
+# 1023 "./mummergpu_kernel.cuh"
+}
+# 1026 "./mummergpu_kernel.cuh"
+do
+# 1026 "./mummergpu_kernel.cuh"
+{
+# 1026 "./mummergpu_kernel.cuh"
+} while (0);
+# 1027 "./mummergpu_kernel.cuh"
+}
+# 1027 "./mummergpu_kernel.cuh"
+}
+# 1029 "./mummergpu_kernel.cuh"
+return;
+# 1030 "./mummergpu_kernel.cuh"
+}
+# 1030 "./mummergpu_kernel.cuh"
+}}
+# 1037 "./mummergpu_kernel.cuh"
+__global__ __var_used__ void _Z17mummergpuRCKernelP10MatchCoordPcPKiS3_ii(
+# 1037 "./mummergpu_kernel.cuh"
+struct MatchCoord *match_coords, 
+# 1038 "./mummergpu_kernel.cuh"
+char *queries, 
+# 1039 "./mummergpu_kernel.cuh"
+const int *queryAddrs, 
+# 1040 "./mummergpu_kernel.cuh"
+const int *queryLengths, 
+# 1041 "./mummergpu_kernel.cuh"
+const int numQueries, 
+# 1042 "./mummergpu_kernel.cuh"
+const int min_match_len){
+# 1042 "./mummergpu_kernel.cuh"
+{
+# 1043 "./mummergpu_kernel.cuh"
+{
+# 1209 "./mummergpu_kernel.cuh"
+return;
+# 1210 "./mummergpu_kernel.cuh"
+}
+# 1210 "./mummergpu_kernel.cuh"
+}}
+# 1213 "./mummergpu_kernel.cuh"
+__global__ __var_used__ void _Z11printKernelP9MatchInfoiP9AlignmentPcP12_PixelOfNodeP16_PixelOfChildrenPKiS9_iiiii(
+# 1213 "./mummergpu_kernel.cuh"
+MatchInfo *matches, 
+# 1214 "./mummergpu_kernel.cuh"
+int totalMatches, 
+# 1215 "./mummergpu_kernel.cuh"
+Alignment *alignments, 
+# 1220 "./mummergpu_kernel.cuh"
+char *__val_param(queries), 
+# 1225 "./mummergpu_kernel.cuh"
+struct _PixelOfNode *nodes, 
+# 1229 "./mummergpu_kernel.cuh"
+struct _PixelOfChildren *childrenarr, 
+# 1231 "./mummergpu_kernel.cuh"
+const int *queryAddrs, 
+# 1232 "./mummergpu_kernel.cuh"
+const int *queryLengths, 
+# 1233 "./mummergpu_kernel.cuh"
+const int page_begin, 
+# 1234 "./mummergpu_kernel.cuh"
+const int page_end, 
+# 1235 "./mummergpu_kernel.cuh"
+const int page_shadow_left, 
+# 1236 "./mummergpu_kernel.cuh"
+const int page_shadow_right, 
+# 1237 "./mummergpu_kernel.cuh"
+const int min_match_length){__copy_param(char *queries,__val_param(queries));
+# 1237 "./mummergpu_kernel.cuh"
+{
+# 1237 "./mummergpu_kernel.cuh"
+;
+# 1244 "./mummergpu_kernel.cuh"
+{
+# 1245 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20214_7_non_const_matchid;
+# 1250 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20219_7_non_const_qryAddr;
+# 1258 "./mummergpu_kernel.cuh"
+ char __cuda_local_var_20227_8_non_const_queryflankingbase;
+# 1261 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20230_16_non_const_matchaddr;
+# 1262 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20231_16_non_const_cur;
+# 1263 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20232_16_non_const_printParent;
+# 1265 "./mummergpu_kernel.cuh"
+ struct _PixelOfNodeNoData __cuda_local_var_20234_22_non_const_node;
+# 1281 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20250_16_non_const_badParent;
+# 1286 "./mummergpu_kernel.cuh"
+ char __cuda_local_var_20255_8_non_const_curchild;
+# 1287 "./mummergpu_kernel.cuh"
+ __nv_bool __cuda_local_var_20256_8_non_const_forceToParent;
+# 1291 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20260_7_non_const_matchlen;
+# 1292 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20261_7_non_const_depthToGoldenPath;
+# 1294 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20263_7_non_const_matchnum;
+# 1245 "./mummergpu_kernel.cuh"
+__cuda_local_var_20214_7_non_const_matchid = ((int)((__umul24((blockIdx.x), (blockDim.x))) + (threadIdx.x)));
+# 1246 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20214_7_non_const_matchid >= totalMatches)
+# 1246 "./mummergpu_kernel.cuh"
+{
+# 1246 "./mummergpu_kernel.cuh"
+return;
+# 1246 "./mummergpu_kernel.cuh"
+}
+# 1248 "./mummergpu_kernel.cuh"
+do
+# 1248 "./mummergpu_kernel.cuh"
+{
+# 1248 "./mummergpu_kernel.cuh"
+} while (0);
+# 1250 "./mummergpu_kernel.cuh"
+__cuda_local_var_20219_7_non_const_qryAddr = (queryAddrs[((matches[__cuda_local_var_20214_7_non_const_matchid]).queryid)]);
+# 1252 "./mummergpu_kernel.cuh"
+queries += __cuda_local_var_20219_7_non_const_qryAddr;
+# 1255 "./mummergpu_kernel.cuh"
+do
+# 1255 "./mummergpu_kernel.cuh"
+{
+# 1255 "./mummergpu_kernel.cuh"
+} while (0);
+# 1258 "./mummergpu_kernel.cuh"
+__cuda_local_var_20227_8_non_const_queryflankingbase = (queries[((matches[__cuda_local_var_20214_7_non_const_matchid]).qrystartpos)]);
+# 1261 "./mummergpu_kernel.cuh"
+__cuda_local_var_20230_16_non_const_matchaddr = (((matches[__cuda_local_var_20214_7_non_const_matchid]).matchnode).data);
+# 1262 "./mummergpu_kernel.cuh"
+__cuda_local_var_20231_16_non_const_cur = __cuda_local_var_20230_16_non_const_matchaddr;
+# 1263 "./mummergpu_kernel.cuh"
+__cuda_local_var_20232_16_non_const_printParent = __cuda_local_var_20231_16_non_const_cur;
+# 1266 "./mummergpu_kernel.cuh"
+__cuda_local_var_20234_22_non_const_node = (_Z13getNodeNoDatajbP12_PixelOfNode(__cuda_local_var_20231_16_non_const_cur, ((__nv_bool)1), nodes));
+# 1268 "./mummergpu_kernel.cuh"
+do
+# 1268 "./mummergpu_kernel.cuh"
+{
+# 1268 "./mummergpu_kernel.cuh"
+} while (0);
+# 1270 "./mummergpu_kernel.cuh"
+while (((((int)((__cuda_local_var_20234_22_non_const_node.depth).x)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).y)) << 8)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).z)) << 16)) > min_match_length)
+# 1271 "./mummergpu_kernel.cuh"
+{
+# 1272 "./mummergpu_kernel.cuh"
+__cuda_local_var_20232_16_non_const_printParent = __cuda_local_var_20231_16_non_const_cur;
+# 1273 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20234_22_non_const_node.parent), (&__cuda_local_var_20231_16_non_const_cur));
+# 1274 "./mummergpu_kernel.cuh"
+__cuda_local_var_20234_22_non_const_node = (_Z13getNodeNoDatajbP12_PixelOfNode(__cuda_local_var_20231_16_non_const_cur, ((__nv_bool)1), nodes));
+# 1276 "./mummergpu_kernel.cuh"
+do
+# 1276 "./mummergpu_kernel.cuh"
+{
+# 1276 "./mummergpu_kernel.cuh"
+} while (0);
+# 1277 "./mummergpu_kernel.cuh"
+}
+# 1281 "./mummergpu_kernel.cuh"
+__cuda_local_var_20250_16_non_const_badParent = __cuda_local_var_20231_16_non_const_cur;
+# 1282 "./mummergpu_kernel.cuh"
+__cuda_local_var_20231_16_non_const_cur = __cuda_local_var_20232_16_non_const_printParent;
+# 1284 "./mummergpu_kernel.cuh"
+do
+# 1284 "./mummergpu_kernel.cuh"
+{
+# 1284 "./mummergpu_kernel.cuh"
+} while (0);
+# 1286 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)65);
+# 1287 "./mummergpu_kernel.cuh"
+__cuda_local_var_20256_8_non_const_forceToParent = ((__nv_bool)0);
+# 1289 "./mummergpu_kernel.cuh"
+__cuda_local_var_20234_22_non_const_node = (_Z13getNodeNoDatajbP12_PixelOfNode(__cuda_local_var_20232_16_non_const_printParent, ((__nv_bool)1), nodes));
+# 1291 "./mummergpu_kernel.cuh"
+__cuda_local_var_20260_7_non_const_matchlen = (((((int)((__cuda_local_var_20234_22_non_const_node.depth).x)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).y)) << 8)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).z)) << 16)) - 1);
+# 1292 "./mummergpu_kernel.cuh"
+__cuda_local_var_20261_7_non_const_depthToGoldenPath = 0;
+# 1294 "./mummergpu_kernel.cuh"
+__cuda_local_var_20263_7_non_const_matchnum = ((int)((matches[__cuda_local_var_20214_7_non_const_matchid]).resultsoffset));
+# 1297 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20232_16_non_const_printParent == __cuda_local_var_20230_16_non_const_matchaddr)
+# 1298 "./mummergpu_kernel.cuh"
+{
+# 1299 "./mummergpu_kernel.cuh"
+if (((int)((matches[__cuda_local_var_20214_7_non_const_matchid]).edgematch)) > 0)
+# 1300 "./mummergpu_kernel.cuh"
+{
+# 1301 "./mummergpu_kernel.cuh"
+__cuda_local_var_20234_22_non_const_node = (_Z13getNodeNoDatajbP12_PixelOfNode(__cuda_local_var_20250_16_non_const_badParent, ((__nv_bool)1), nodes));
+# 1302 "./mummergpu_kernel.cuh"
+__cuda_local_var_20260_7_non_const_matchlen = ((((((int)((__cuda_local_var_20234_22_non_const_node.depth).x)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).y)) << 8)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).z)) << 16)) - 1) + ((int)((matches[__cuda_local_var_20214_7_non_const_matchid]).edgematch)));
+# 1303 "./mummergpu_kernel.cuh"
+}
+# 1305 "./mummergpu_kernel.cuh"
+__cuda_local_var_20261_7_non_const_depthToGoldenPath = 1;
+# 1306 "./mummergpu_kernel.cuh"
+}
+# 1310 "./mummergpu_kernel.cuh"
+while (__cuda_local_var_20231_16_non_const_cur != __cuda_local_var_20250_16_non_const_badParent)
+# 1311 "./mummergpu_kernel.cuh"
+{
+# 1312 "./mummergpu_kernel.cuh"
+ struct _PixelOfChildrenNoData __cuda_local_var_20281_28_non_const_children123;
+# 1314 "./mummergpu_kernel.cuh"
+ char __cuda_local_var_20283_10_non_const_isLeaf;
+# 1313 "./mummergpu_kernel.cuh"
+__cuda_local_var_20281_28_non_const_children123 = (_Z17getChildrenNoDatajbP16_PixelOfChildren(__cuda_local_var_20231_16_non_const_cur, ((__nv_bool)1), childrenarr));
+# 1314 "./mummergpu_kernel.cuh"
+__cuda_local_var_20283_10_non_const_isLeaf = (__cuda_local_var_20281_28_non_const_children123.leafchar);
+# 1316 "./mummergpu_kernel.cuh"
+do
+# 1316 "./mummergpu_kernel.cuh"
+{
+# 1316 "./mummergpu_kernel.cuh"
+} while (0);
+# 1319 "./mummergpu_kernel.cuh"
+if ((__cuda_local_var_20283_10_non_const_isLeaf) || (__cuda_local_var_20256_8_non_const_forceToParent))
+# 1320 "./mummergpu_kernel.cuh"
+{
+# 1352 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20321_20_non_const_myParent;
+# 1355 "./mummergpu_kernel.cuh"
+ struct _PixelOfChildrenNoData __cuda_local_var_20324_30_non_const_pchildren;
+# 1358 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20327_20_non_const_pa;
+# 1358 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20327_24_non_const_pc;
+# 1358 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20327_28_non_const_pg;
+# 1358 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20327_32_non_const_pt;
+# 1322 "./mummergpu_kernel.cuh"
+if ((__cuda_local_var_20283_10_non_const_isLeaf) && (((int)__cuda_local_var_20283_10_non_const_isLeaf) != ((int)__cuda_local_var_20227_8_non_const_queryflankingbase)))
+# 1323 "./mummergpu_kernel.cuh"
+{
+# 1324 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20293_13_non_const_leafid;
+# 1325 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20294_13_non_const_left_in_ref;
+# 1326 "./mummergpu_kernel.cuh"
+ int __cuda_local_var_20295_13_non_const_right_in_ref;
+# 1324 "./mummergpu_kernel.cuh"
+__cuda_local_var_20293_13_non_const_leafid = ((((int)((__cuda_local_var_20281_28_non_const_children123.leafid).x)) | (((int)((__cuda_local_var_20281_28_non_const_children123.leafid).y)) << 8)) | (((int)((__cuda_local_var_20281_28_non_const_children123.leafid).z)) << 16));
+# 1325 "./mummergpu_kernel.cuh"
+__cuda_local_var_20294_13_non_const_left_in_ref = ((__cuda_local_var_20293_13_non_const_leafid - 1) + page_begin);
+# 1326 "./mummergpu_kernel.cuh"
+__cuda_local_var_20295_13_non_const_right_in_ref = (__cuda_local_var_20294_13_non_const_left_in_ref + __cuda_local_var_20260_7_non_const_matchlen);
+# 1328 "./mummergpu_kernel.cuh"
+if (((__cuda_local_var_20294_13_non_const_left_in_ref != page_begin) || (page_shadow_left == (-1))) && ((__cuda_local_var_20295_13_non_const_right_in_ref != page_end) || (page_shadow_right == (-1))))
+# 1330 "./mummergpu_kernel.cuh"
+{
+# 1331 "./mummergpu_kernel.cuh"
+if (!((__cuda_local_var_20294_13_non_const_left_in_ref > page_begin) && (__cuda_local_var_20295_13_non_const_right_in_ref < page_shadow_left)))
+# 1332 "./mummergpu_kernel.cuh"
+{
+# 1334 "./mummergpu_kernel.cuh"
+do
+# 1334 "./mummergpu_kernel.cuh"
+{
+# 1334 "./mummergpu_kernel.cuh"
+} while (0);
+# 1339 "./mummergpu_kernel.cuh"
+((alignments[__cuda_local_var_20263_7_non_const_matchnum]).left_in_ref) = __cuda_local_var_20294_13_non_const_left_in_ref;
+# 1340 "./mummergpu_kernel.cuh"
+((alignments[__cuda_local_var_20263_7_non_const_matchnum]).matchlen) = ((unsigned short)__cuda_local_var_20260_7_non_const_matchlen);
+# 1341 "./mummergpu_kernel.cuh"
+__cuda_local_var_20263_7_non_const_matchnum++;
+# 1342 "./mummergpu_kernel.cuh"
+}
+# 1343 "./mummergpu_kernel.cuh"
+}
+# 1344 "./mummergpu_kernel.cuh"
+}
+# 1346 "./mummergpu_kernel.cuh"
+__cuda_local_var_20256_8_non_const_forceToParent = ((__nv_bool)0);
+# 1350 "./mummergpu_kernel.cuh"
+__cuda_local_var_20234_22_non_const_node = (_Z13getNodeNoDatajbP12_PixelOfNode(__cuda_local_var_20231_16_non_const_cur, ((__nv_bool)1), nodes));
+# 1353 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20234_22_non_const_node.parent), (&__cuda_local_var_20321_20_non_const_myParent));
+# 1356 "./mummergpu_kernel.cuh"
+__cuda_local_var_20324_30_non_const_pchildren = (_Z17getChildrenNoDatajbP16_PixelOfChildren(__cuda_local_var_20321_20_non_const_myParent, ((__nv_bool)1), childrenarr));
+# 1359 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20324_30_non_const_pchildren.a), (&__cuda_local_var_20327_20_non_const_pa));
+# 1360 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20324_30_non_const_pchildren.c), (&__cuda_local_var_20327_24_non_const_pc));
+# 1361 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20324_30_non_const_pchildren.g), (&__cuda_local_var_20327_28_non_const_pg));
+# 1362 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20324_30_non_const_pchildren.t), (&__cuda_local_var_20327_32_non_const_pt));
+# 1364 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20327_20_non_const_pa == __cuda_local_var_20231_16_non_const_cur)
+# 1364 "./mummergpu_kernel.cuh"
+{
+# 1364 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)67);
+# 1364 "./mummergpu_kernel.cuh"
+}
+# 1364 "./mummergpu_kernel.cuh"
+else 
+# 1364 "./mummergpu_kernel.cuh"
+{
+# 1365 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20327_24_non_const_pc == __cuda_local_var_20231_16_non_const_cur)
+# 1365 "./mummergpu_kernel.cuh"
+{
+# 1365 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)71);
+# 1365 "./mummergpu_kernel.cuh"
+}
+# 1365 "./mummergpu_kernel.cuh"
+else 
+# 1365 "./mummergpu_kernel.cuh"
+{
+# 1366 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20327_28_non_const_pg == __cuda_local_var_20231_16_non_const_cur)
+# 1366 "./mummergpu_kernel.cuh"
+{
+# 1366 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)84);
+# 1366 "./mummergpu_kernel.cuh"
+}
+# 1366 "./mummergpu_kernel.cuh"
+else 
+# 1366 "./mummergpu_kernel.cuh"
+{
+# 1367 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20327_32_non_const_pt == __cuda_local_var_20231_16_non_const_cur)
+# 1367 "./mummergpu_kernel.cuh"
+{
+# 1367 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)36);
+# 1367 "./mummergpu_kernel.cuh"
+}
+# 1369 "./mummergpu_kernel.cuh"
+else 
+# 1369 "./mummergpu_kernel.cuh"
+{
+# 1370 "./mummergpu_kernel.cuh"
+__cuda_local_var_20256_8_non_const_forceToParent = ((__nv_bool)1);
+# 1371 "./mummergpu_kernel.cuh"
+}
+# 1371 "./mummergpu_kernel.cuh"
+}
+# 1371 "./mummergpu_kernel.cuh"
+}
+# 1371 "./mummergpu_kernel.cuh"
+}
+# 1373 "./mummergpu_kernel.cuh"
+__cuda_local_var_20231_16_non_const_cur = __cuda_local_var_20321_20_non_const_myParent;
+# 1375 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20261_7_non_const_depthToGoldenPath)
+# 1375 "./mummergpu_kernel.cuh"
+{
+# 1375 "./mummergpu_kernel.cuh"
+__cuda_local_var_20261_7_non_const_depthToGoldenPath--;
+# 1375 "./mummergpu_kernel.cuh"
+}
+# 1377 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20261_7_non_const_depthToGoldenPath == 0)
+# 1378 "./mummergpu_kernel.cuh"
+{
+# 1379 "./mummergpu_kernel.cuh"
+__cuda_local_var_20234_22_non_const_node = (_Z13getNodeNoDatajbP12_PixelOfNode(__cuda_local_var_20231_16_non_const_cur, ((__nv_bool)1), nodes));
+# 1380 "./mummergpu_kernel.cuh"
+__cuda_local_var_20260_7_non_const_matchlen = (((((int)((__cuda_local_var_20234_22_non_const_node.depth).x)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).y)) << 8)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).z)) << 16)) - 1);
+# 1381 "./mummergpu_kernel.cuh"
+}
+# 1382 "./mummergpu_kernel.cuh"
+}
+# 1384 "./mummergpu_kernel.cuh"
+else 
+# 1384 "./mummergpu_kernel.cuh"
+{
+# 1386 "./mummergpu_kernel.cuh"
+ struct _PixelOfChildrenNoDataBasesOnly __cuda_local_var_20355_39_non_const_children456;
+# 1389 "./mummergpu_kernel.cuh"
+ char __cuda_local_var_20358_12_non_const_goldenChild;
+# 1387 "./mummergpu_kernel.cuh"
+__cuda_local_var_20355_39_non_const_children456 = (_Z26getChildrenNoDataBasesOnlyjbP16_PixelOfChildren(__cuda_local_var_20231_16_non_const_cur, ((__nv_bool)1), childrenarr));
+# 1389 "./mummergpu_kernel.cuh"
+__cuda_local_var_20358_12_non_const_goldenChild = ((char)0);
+# 1391 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20261_7_non_const_depthToGoldenPath == 0)
+# 1392 "./mummergpu_kernel.cuh"
+{
+# 1395 "./mummergpu_kernel.cuh"
+__cuda_local_var_20358_12_non_const_goldenChild = (queries[((((int)((matches[__cuda_local_var_20214_7_non_const_matchid]).qrystartpos)) + __cuda_local_var_20260_7_non_const_matchlen) + 1)]);
+# 1396 "./mummergpu_kernel.cuh"
+}
+# 1398 "./mummergpu_kernel.cuh"
+do
+# 1399 "./mummergpu_kernel.cuh"
+{
+# 1400 "./mummergpu_kernel.cuh"
+if (((int)__cuda_local_var_20255_8_non_const_curchild) == 65)
+# 1401 "./mummergpu_kernel.cuh"
+{
+# 1402 "./mummergpu_kernel.cuh"
+if ((((__cuda_local_var_20355_39_non_const_children456.a).x) || ((__cuda_local_var_20355_39_non_const_children456.a).y)) || ((__cuda_local_var_20355_39_non_const_children456.a).z))
+# 1403 "./mummergpu_kernel.cuh"
+{
+# 1404 "./mummergpu_kernel.cuh"
+do
+# 1404 "./mummergpu_kernel.cuh"
+{
+# 1404 "./mummergpu_kernel.cuh"
+} while (0);
+# 1405 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20355_39_non_const_children456.a), (&__cuda_local_var_20231_16_non_const_cur));
+# 1406 "./mummergpu_kernel.cuh"
+goto __T218;
+# 1407 "./mummergpu_kernel.cuh"
+}
+# 1409 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)67);
+# 1410 "./mummergpu_kernel.cuh"
+}
+# 1412 "./mummergpu_kernel.cuh"
+if (((int)__cuda_local_var_20255_8_non_const_curchild) == 67)
+# 1413 "./mummergpu_kernel.cuh"
+{
+# 1414 "./mummergpu_kernel.cuh"
+if ((((__cuda_local_var_20355_39_non_const_children456.c).x) || ((__cuda_local_var_20355_39_non_const_children456.c).y)) || ((__cuda_local_var_20355_39_non_const_children456.c).z))
+# 1415 "./mummergpu_kernel.cuh"
+{
+# 1416 "./mummergpu_kernel.cuh"
+do
+# 1416 "./mummergpu_kernel.cuh"
+{
+# 1416 "./mummergpu_kernel.cuh"
+} while (0);
+# 1417 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20355_39_non_const_children456.c), (&__cuda_local_var_20231_16_non_const_cur));
+# 1418 "./mummergpu_kernel.cuh"
+goto __T218;
+# 1419 "./mummergpu_kernel.cuh"
+}
+# 1420 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)71);
+# 1421 "./mummergpu_kernel.cuh"
+}
+# 1423 "./mummergpu_kernel.cuh"
+if (((int)__cuda_local_var_20255_8_non_const_curchild) == 71)
+# 1424 "./mummergpu_kernel.cuh"
+{
+# 1425 "./mummergpu_kernel.cuh"
+if ((((__cuda_local_var_20355_39_non_const_children456.g).x) || ((__cuda_local_var_20355_39_non_const_children456.g).y)) || ((__cuda_local_var_20355_39_non_const_children456.g).z))
+# 1426 "./mummergpu_kernel.cuh"
+{
+# 1427 "./mummergpu_kernel.cuh"
+do
+# 1427 "./mummergpu_kernel.cuh"
+{
+# 1427 "./mummergpu_kernel.cuh"
+} while (0);
+# 1428 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20355_39_non_const_children456.g), (&__cuda_local_var_20231_16_non_const_cur));
+# 1429 "./mummergpu_kernel.cuh"
+goto __T218;
+# 1430 "./mummergpu_kernel.cuh"
+}
+# 1431 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)84);
+# 1432 "./mummergpu_kernel.cuh"
+}
+# 1434 "./mummergpu_kernel.cuh"
+if (((int)__cuda_local_var_20255_8_non_const_curchild) == 84)
+# 1435 "./mummergpu_kernel.cuh"
+{
+# 1436 "./mummergpu_kernel.cuh"
+if ((((__cuda_local_var_20355_39_non_const_children456.t).x) || ((__cuda_local_var_20355_39_non_const_children456.t).y)) || ((__cuda_local_var_20355_39_non_const_children456.t).z))
+# 1437 "./mummergpu_kernel.cuh"
+{
+# 1438 "./mummergpu_kernel.cuh"
+do
+# 1438 "./mummergpu_kernel.cuh"
+{
+# 1438 "./mummergpu_kernel.cuh"
+} while (0);
+# 1439 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20355_39_non_const_children456.t), (&__cuda_local_var_20231_16_non_const_cur));
+# 1440 "./mummergpu_kernel.cuh"
+goto __T218;
+# 1441 "./mummergpu_kernel.cuh"
+}
+# 1442 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)36);
+# 1443 "./mummergpu_kernel.cuh"
+}
+# 1445 "./mummergpu_kernel.cuh"
+if (((int)__cuda_local_var_20255_8_non_const_curchild) == 36)
+# 1446 "./mummergpu_kernel.cuh"
+{
+# 1447 "./mummergpu_kernel.cuh"
+if ((((__cuda_local_var_20355_39_non_const_children456.d).x) || ((__cuda_local_var_20355_39_non_const_children456.d).y)) || ((__cuda_local_var_20355_39_non_const_children456.d).z))
+# 1448 "./mummergpu_kernel.cuh"
+{
+# 1449 "./mummergpu_kernel.cuh"
+do
+# 1449 "./mummergpu_kernel.cuh"
+{
+# 1449 "./mummergpu_kernel.cuh"
+} while (0);
+# 1450 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20355_39_non_const_children456.d), (&__cuda_local_var_20231_16_non_const_cur));
+# 1451 "./mummergpu_kernel.cuh"
+goto __T218;
+# 1452 "./mummergpu_kernel.cuh"
+}
+# 1453 "./mummergpu_kernel.cuh"
+}
+# 1456 "./mummergpu_kernel.cuh"
+__cuda_local_var_20256_8_non_const_forceToParent = ((__nv_bool)1);
+# 1457 "./mummergpu_kernel.cuh"
+} while (0);
+# 1457 "./mummergpu_kernel.cuh"
+__T218:;
+# 1457 "./mummergpu_kernel.cuh"
+;
+# 1460 "./mummergpu_kernel.cuh"
+if (!(__cuda_local_var_20256_8_non_const_forceToParent))
+# 1461 "./mummergpu_kernel.cuh"
+{
+# 1462 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20261_7_non_const_depthToGoldenPath == 0)
+# 1463 "./mummergpu_kernel.cuh"
+{
+# 1464 "./mummergpu_kernel.cuh"
+if (((int)__cuda_local_var_20255_8_non_const_curchild) == ((int)__cuda_local_var_20358_12_non_const_goldenChild))
+# 1465 "./mummergpu_kernel.cuh"
+{
+# 1466 "./mummergpu_kernel.cuh"
+__cuda_local_var_20234_22_non_const_node = (_Z13getNodeNoDatajbP12_PixelOfNode(__cuda_local_var_20231_16_non_const_cur, ((__nv_bool)1), nodes));
+# 1467 "./mummergpu_kernel.cuh"
+__cuda_local_var_20260_7_non_const_matchlen = (((((int)((__cuda_local_var_20234_22_non_const_node.depth).x)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).y)) << 8)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).z)) << 16)) - 1);
+# 1469 "./mummergpu_kernel.cuh"
+if (__cuda_local_var_20231_16_non_const_cur == __cuda_local_var_20230_16_non_const_matchaddr)
+# 1470 "./mummergpu_kernel.cuh"
+{
+# 1472 "./mummergpu_kernel.cuh"
+__cuda_local_var_20261_7_non_const_depthToGoldenPath = 1;
+# 1474 "./mummergpu_kernel.cuh"
+if (((int)((matches[__cuda_local_var_20214_7_non_const_matchid]).edgematch)) > 0)
+# 1475 "./mummergpu_kernel.cuh"
+{
+# 1476 "./mummergpu_kernel.cuh"
+ unsigned __cuda_local_var_20445_18_non_const_par;
+# 1477 "./mummergpu_kernel.cuh"
+_Z14arrayToAddress6uchar3Rj((__cuda_local_var_20234_22_non_const_node.parent), (&__cuda_local_var_20445_18_non_const_par));
+# 1479 "./mummergpu_kernel.cuh"
+__cuda_local_var_20234_22_non_const_node = (_Z13getNodeNoDatajbP12_PixelOfNode(__cuda_local_var_20445_18_non_const_par, ((__nv_bool)1), nodes));
+# 1480 "./mummergpu_kernel.cuh"
+__cuda_local_var_20260_7_non_const_matchlen = ((((((int)((__cuda_local_var_20234_22_non_const_node.depth).x)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).y)) << 8)) | (((int)((__cuda_local_var_20234_22_non_const_node.depth).z)) << 16)) - 1) + ((int)((matches[__cuda_local_var_20214_7_non_const_matchid]).edgematch)));
+# 1481 "./mummergpu_kernel.cuh"
+}
+# 1482 "./mummergpu_kernel.cuh"
+}
+# 1483 "./mummergpu_kernel.cuh"
+}
+# 1485 "./mummergpu_kernel.cuh"
+else 
+# 1485 "./mummergpu_kernel.cuh"
+{
+# 1486 "./mummergpu_kernel.cuh"
+__cuda_local_var_20261_7_non_const_depthToGoldenPath = 1;
+# 1487 "./mummergpu_kernel.cuh"
+}
+# 1488 "./mummergpu_kernel.cuh"
+}
+# 1490 "./mummergpu_kernel.cuh"
+else 
+# 1490 "./mummergpu_kernel.cuh"
+{
+# 1491 "./mummergpu_kernel.cuh"
+__cuda_local_var_20261_7_non_const_depthToGoldenPath++;
+# 1492 "./mummergpu_kernel.cuh"
+}
+# 1494 "./mummergpu_kernel.cuh"
+__cuda_local_var_20255_8_non_const_curchild = ((char)65);
+# 1495 "./mummergpu_kernel.cuh"
+}
+# 1496 "./mummergpu_kernel.cuh"
+}
+# 1497 "./mummergpu_kernel.cuh"
+}
+# 1498 "./mummergpu_kernel.cuh"
+} 
+# 1498 "./mummergpu_kernel.cuh"
+}}

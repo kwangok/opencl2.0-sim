@@ -1,0 +1,120 @@
+# 39 "bfs.cu"
+struct Node;
+# 1 "bfs.cudafe1.gpu"
+typedef char __nv_bool;
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 39 "bfs.cu"
+struct Node {
+# 41 "bfs.cu"
+int starting;
+# 42 "bfs.cu"
+int no_of_edges;};
+# 22 "./kernel.cu"
+__global__ __var_used__ extern void _Z6KernelP4NodePiPbS2_S2_S1_i(struct Node *, int *, __nv_bool *, __nv_bool *, __nv_bool *, int *, int);
+# 22 "./kernel2.cu"
+__global__ __var_used__ extern void _Z7Kernel2PbS_S_S_i(__nv_bool *, __nv_bool *, __nv_bool *, __nv_bool *, int);
+#include "common_functions.h"
+# 22 "./kernel.cu"
+__global__ __var_used__ void _Z6KernelP4NodePiPbS2_S2_S1_i(
+# 22 "./kernel.cu"
+struct Node *g_graph_nodes, 
+# 22 "./kernel.cu"
+int *g_graph_edges, 
+# 22 "./kernel.cu"
+__nv_bool *g_graph_mask, 
+# 22 "./kernel.cu"
+__nv_bool *g_updating_graph_mask, 
+# 22 "./kernel.cu"
+__nv_bool *g_graph_visited, 
+# 22 "./kernel.cu"
+int *g_cost, 
+# 22 "./kernel.cu"
+int no_of_nodes){
+# 22 "./kernel.cu"
+{
+# 23 "./kernel.cu"
+{
+# 24 "./kernel.cu"
+ int __cuda_local_var_17497_6_non_const_tid;
+# 24 "./kernel.cu"
+__cuda_local_var_17497_6_non_const_tid = ((int)(((blockIdx.x) * 512U) + (threadIdx.x)));
+# 25 "./kernel.cu"
+if ((__cuda_local_var_17497_6_non_const_tid < no_of_nodes) && (g_graph_mask[__cuda_local_var_17497_6_non_const_tid]))
+# 26 "./kernel.cu"
+{
+# 27 "./kernel.cu"
+(g_graph_mask[__cuda_local_var_17497_6_non_const_tid]) = ((__nv_bool)0);
+# 27 "./kernel.cu"
+{
+# 28 "./kernel.cu"
+ int i;
+# 28 "./kernel.cu"
+i = ((g_graph_nodes[__cuda_local_var_17497_6_non_const_tid]).starting);
+# 28 "./kernel.cu"
+for (; (i < (((g_graph_nodes[__cuda_local_var_17497_6_non_const_tid]).no_of_edges) + ((g_graph_nodes[__cuda_local_var_17497_6_non_const_tid]).starting))); i++)
+# 29 "./kernel.cu"
+{
+# 30 "./kernel.cu"
+ int __cuda_local_var_17503_8_non_const_id;
+# 30 "./kernel.cu"
+__cuda_local_var_17503_8_non_const_id = (g_graph_edges[i]);
+# 31 "./kernel.cu"
+if (!(g_graph_visited[__cuda_local_var_17503_8_non_const_id]))
+# 32 "./kernel.cu"
+{
+# 33 "./kernel.cu"
+(g_cost[__cuda_local_var_17503_8_non_const_id]) = ((g_cost[__cuda_local_var_17497_6_non_const_tid]) + 1);
+# 34 "./kernel.cu"
+(g_updating_graph_mask[__cuda_local_var_17503_8_non_const_id]) = ((__nv_bool)1);
+# 35 "./kernel.cu"
+}
+# 36 "./kernel.cu"
+}
+# 36 "./kernel.cu"
+}
+# 37 "./kernel.cu"
+}
+# 38 "./kernel.cu"
+} 
+# 38 "./kernel.cu"
+}}
+# 22 "./kernel2.cu"
+__global__ __var_used__ void _Z7Kernel2PbS_S_S_i(
+# 22 "./kernel2.cu"
+__nv_bool *g_graph_mask, 
+# 22 "./kernel2.cu"
+__nv_bool *g_updating_graph_mask, 
+# 22 "./kernel2.cu"
+__nv_bool *g_graph_visited, 
+# 22 "./kernel2.cu"
+__nv_bool *g_over, 
+# 22 "./kernel2.cu"
+int no_of_nodes){
+# 22 "./kernel2.cu"
+{
+# 23 "./kernel2.cu"
+{
+# 24 "./kernel2.cu"
+ int __cuda_local_var_17518_6_non_const_tid;
+# 24 "./kernel2.cu"
+__cuda_local_var_17518_6_non_const_tid = ((int)(((blockIdx.x) * 512U) + (threadIdx.x)));
+# 25 "./kernel2.cu"
+if ((__cuda_local_var_17518_6_non_const_tid < no_of_nodes) && (g_updating_graph_mask[__cuda_local_var_17518_6_non_const_tid]))
+# 26 "./kernel2.cu"
+{
+# 28 "./kernel2.cu"
+(g_graph_mask[__cuda_local_var_17518_6_non_const_tid]) = ((__nv_bool)1);
+# 29 "./kernel2.cu"
+(g_graph_visited[__cuda_local_var_17518_6_non_const_tid]) = ((__nv_bool)1);
+# 30 "./kernel2.cu"
+(*g_over) = ((__nv_bool)1);
+# 31 "./kernel2.cu"
+(g_updating_graph_mask[__cuda_local_var_17518_6_non_const_tid]) = ((__nv_bool)0);
+# 32 "./kernel2.cu"
+}
+# 33 "./kernel2.cu"
+} 
+# 33 "./kernel2.cu"
+}}

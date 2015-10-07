@@ -1,0 +1,3505 @@
+# 22 "./common.cu"
+struct __T10;
+# 18 "./common.cu"
+union __T11;
+# 15 "./common.cu"
+struct TextureAddress;
+# 36 "./common.cu"
+struct __T12;
+# 33 "./common.cu"
+union __T13;
+# 30 "./common.cu"
+struct PixelOfNode;
+# 49 "./common.cu"
+union __T14;
+# 46 "./common.cu"
+struct PixelOfChildren;
+# 68 "./mummergpu.h"
+struct MatchCoord;
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.5/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 145 "/usr/include/bits/types.h" 3
+typedef long __clock_t;
+# 60 "/usr/include/time.h" 3
+typedef __clock_t clock_t;
+# 22 "./common.cu"
+struct __T10 {
+# 23 "./common.cu"
+unsigned short x;
+# 24 "./common.cu"
+unsigned short y;};
+# 18 "./common.cu"
+union __T11 {
+# 19 "./common.cu"
+unsigned data;
+# 22 "./common.cu"
+# 22 "./common.cu"
+struct  {
+# 23 "./common.cu"
+unsigned short x;
+# 24 "./common.cu"
+unsigned short y;};};
+# 15 "./common.cu"
+struct TextureAddress {
+# 18 "./common.cu"
+# 18 "./common.cu"
+union  {
+# 19 "./common.cu"
+unsigned data;
+# 22 "./common.cu"
+# 22 "./common.cu"
+struct  {
+# 23 "./common.cu"
+unsigned short x;
+# 24 "./common.cu"
+unsigned short y;};};};
+# 36 "./common.cu"
+struct __T12 {
+# 37 "./common.cu"
+int start;
+# 38 "./common.cu"
+int end;
+# 39 "./common.cu"
+struct TextureAddress childD;
+# 40 "./common.cu"
+struct TextureAddress suffix;};
+# 33 "./common.cu"
+union __T13 {
+# 34 "./common.cu"
+uint4 data;
+# 36 "./common.cu"
+# 36 "./common.cu"
+struct  {
+# 37 "./common.cu"
+int start;
+# 38 "./common.cu"
+int end;
+# 39 "./common.cu"
+struct TextureAddress childD;
+# 40 "./common.cu"
+struct TextureAddress suffix;};};
+# 30 "./common.cu"
+struct PixelOfNode {
+# 33 "./common.cu"
+# 33 "./common.cu"
+union  {
+# 34 "./common.cu"
+uint4 data;
+# 36 "./common.cu"
+# 36 "./common.cu"
+struct  {
+# 37 "./common.cu"
+int start;
+# 38 "./common.cu"
+int end;
+# 39 "./common.cu"
+struct TextureAddress childD;
+# 40 "./common.cu"
+struct TextureAddress suffix;};};};
+# 49 "./common.cu"
+union __T14 {
+# 50 "./common.cu"
+uint4 data;
+# 51 "./common.cu"
+struct TextureAddress children[4];};
+# 46 "./common.cu"
+struct PixelOfChildren {
+# 49 "./common.cu"
+# 49 "./common.cu"
+union  {
+# 50 "./common.cu"
+uint4 data;
+# 51 "./common.cu"
+struct TextureAddress children[4];};};
+# 68 "./mummergpu.h"
+struct MatchCoord {
+# 70 "./mummergpu.h"
+unsigned node;
+# 71 "./mummergpu.h"
+short edge_match_length;__pad__(volatile char __dummy[2];)};
+#if !defined(__CUDABE__)
+# 61 "/home/bachelor/deicide218/cuda-3.2/bin/../include/common_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void *memcpy(void *__restrict__, const void *__restrict__, size_t);
+#endif
+#if !defined(__CUDABE__)
+# 59 "/home/bachelor/deicide218/cuda-3.2/bin/../include/common_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void *memset(void *, int, size_t);
+#endif
+#if !defined(__CUDABE__)
+# 183 "/usr/include/time.h" 3
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) clock_t clock(void);
+#endif
+#if !defined(__CUDABE__)
+# 74 "/home/bachelor/deicide218/cuda-3.2/bin/../include/common_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int printf(const char *__restrict__, ...);
+#endif
+#if !defined(__CUDABE__)
+# 66 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) abs(int);
+#endif
+#if !defined(__CUDABE__)
+# 68 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long __attribute__((__const__)) labs(long);
+#endif
+#if !defined(__CUDABE__)
+# 70 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __attribute__((__const__)) llabs(long long);
+#endif
+#if !defined(__CUDABE__)
+# 72 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __attribute__((__const__)) fabs(double);
+#endif
+#if !defined(__CUDABE__)
+# 74 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __attribute__((__const__)) fabsf(float);
+#endif
+#if !defined(__CUDABE__)
+# 77 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int min(int, int);
+#endif
+#if !defined(__CUDABE__)
+# 79 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned umin(unsigned, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 81 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long llmin(long long, long long);
+#endif
+#if !defined(__CUDABE__)
+# 83 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long ullmin(unsigned long long, unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 85 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float fminf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 87 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double fmin(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 90 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int max(int, int);
+#endif
+#if !defined(__CUDABE__)
+# 92 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned umax(unsigned, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 94 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long llmax(long long, long long);
+#endif
+#if !defined(__CUDABE__)
+# 96 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long ullmax(unsigned long long, unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 98 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float fmaxf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 100 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double fmax(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 103 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double sin(double);
+#endif
+#if !defined(__CUDABE__)
+# 105 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float sinf(float);
+#endif
+#if !defined(__CUDABE__)
+# 108 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double cos(double);
+#endif
+#if !defined(__CUDABE__)
+# 110 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float cosf(float);
+#endif
+#if !defined(__CUDABE__)
+# 113 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void sincos(double, double *, double *);
+#endif
+#if !defined(__CUDABE__)
+# 115 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void sincosf(float, float *, float *);
+#endif
+#if !defined(__CUDABE__)
+# 118 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double tan(double);
+#endif
+#if !defined(__CUDABE__)
+# 120 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float tanf(float);
+#endif
+#if !defined(__CUDABE__)
+# 123 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double sqrt(double);
+#endif
+#if !defined(__CUDABE__)
+# 125 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float sqrtf(float);
+#endif
+#if !defined(__CUDABE__)
+# 128 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double rsqrt(double);
+#endif
+#if !defined(__CUDABE__)
+# 130 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float rsqrtf(float);
+#endif
+#if !defined(__CUDABE__)
+# 133 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double exp2(double);
+#endif
+#if !defined(__CUDABE__)
+# 135 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float exp2f(float);
+#endif
+#if !defined(__CUDABE__)
+# 138 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double exp10(double);
+#endif
+#if !defined(__CUDABE__)
+# 140 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float exp10f(float);
+#endif
+#if !defined(__CUDABE__)
+# 143 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double expm1(double);
+#endif
+#if !defined(__CUDABE__)
+# 145 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float expm1f(float);
+#endif
+#if !defined(__CUDABE__)
+# 148 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double log2(double);
+#endif
+#if !defined(__CUDABE__)
+# 150 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float log2f(float);
+#endif
+#if !defined(__CUDABE__)
+# 153 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double log10(double);
+#endif
+#if !defined(__CUDABE__)
+# 155 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float log10f(float);
+#endif
+#if !defined(__CUDABE__)
+# 158 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double log(double);
+#endif
+#if !defined(__CUDABE__)
+# 160 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float logf(float);
+#endif
+#if !defined(__CUDABE__)
+# 163 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double log1p(double);
+#endif
+#if !defined(__CUDABE__)
+# 165 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float log1pf(float);
+#endif
+#if !defined(__CUDABE__)
+# 168 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __attribute__((__const__)) floor(double);
+#endif
+#if !defined(__CUDABE__)
+# 170 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __attribute__((__const__)) floorf(float);
+#endif
+#if !defined(__CUDABE__)
+# 173 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double exp(double);
+#endif
+#if !defined(__CUDABE__)
+# 175 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float expf(float);
+#endif
+#if !defined(__CUDABE__)
+# 178 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double cosh(double);
+#endif
+#if !defined(__CUDABE__)
+# 180 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float coshf(float);
+#endif
+#if !defined(__CUDABE__)
+# 183 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double sinh(double);
+#endif
+#if !defined(__CUDABE__)
+# 185 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float sinhf(float);
+#endif
+#if !defined(__CUDABE__)
+# 188 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double tanh(double);
+#endif
+#if !defined(__CUDABE__)
+# 190 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float tanhf(float);
+#endif
+#if !defined(__CUDABE__)
+# 193 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double acosh(double);
+#endif
+#if !defined(__CUDABE__)
+# 195 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float acoshf(float);
+#endif
+#if !defined(__CUDABE__)
+# 198 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double asinh(double);
+#endif
+#if !defined(__CUDABE__)
+# 200 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float asinhf(float);
+#endif
+#if !defined(__CUDABE__)
+# 203 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double atanh(double);
+#endif
+#if !defined(__CUDABE__)
+# 205 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float atanhf(float);
+#endif
+#if !defined(__CUDABE__)
+# 208 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double ldexp(double, int);
+#endif
+#if !defined(__CUDABE__)
+# 210 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float ldexpf(float, int);
+#endif
+#if !defined(__CUDABE__)
+# 213 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double logb(double);
+#endif
+#if !defined(__CUDABE__)
+# 215 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float logbf(float);
+#endif
+#if !defined(__CUDABE__)
+# 218 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int ilogb(double);
+#endif
+#if !defined(__CUDABE__)
+# 220 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int ilogbf(float);
+#endif
+#if !defined(__CUDABE__)
+# 223 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double scalbn(double, int);
+#endif
+#if !defined(__CUDABE__)
+# 225 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float scalbnf(float, int);
+#endif
+#if !defined(__CUDABE__)
+# 228 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double scalbln(double, long);
+#endif
+#if !defined(__CUDABE__)
+# 230 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float scalblnf(float, long);
+#endif
+#if !defined(__CUDABE__)
+# 233 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double frexp(double, int *);
+#endif
+#if !defined(__CUDABE__)
+# 235 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float frexpf(float, int *);
+#endif
+#if !defined(__CUDABE__)
+# 238 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __attribute__((__const__)) round(double);
+#endif
+#if !defined(__CUDABE__)
+# 240 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __attribute__((__const__)) roundf(float);
+#endif
+#if !defined(__CUDABE__)
+# 243 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long lround(double);
+#endif
+#if !defined(__CUDABE__)
+# 245 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long lroundf(float);
+#endif
+#if !defined(__CUDABE__)
+# 248 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long llround(double);
+#endif
+#if !defined(__CUDABE__)
+# 250 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long llroundf(float);
+#endif
+#if !defined(__CUDABE__)
+# 253 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double rint(double);
+#endif
+#if !defined(__CUDABE__)
+# 255 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float rintf(float);
+#endif
+#if !defined(__CUDABE__)
+# 258 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long lrint(double);
+#endif
+#if !defined(__CUDABE__)
+# 260 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long lrintf(float);
+#endif
+#if !defined(__CUDABE__)
+# 263 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long llrint(double);
+#endif
+#if !defined(__CUDABE__)
+# 265 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long llrintf(float);
+#endif
+#if !defined(__CUDABE__)
+# 268 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double nearbyint(double);
+#endif
+#if !defined(__CUDABE__)
+# 270 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float nearbyintf(float);
+#endif
+#if !defined(__CUDABE__)
+# 273 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __attribute__((__const__)) ceil(double);
+#endif
+#if !defined(__CUDABE__)
+# 275 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __attribute__((__const__)) ceilf(float);
+#endif
+#if !defined(__CUDABE__)
+# 278 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __attribute__((__const__)) trunc(double);
+#endif
+#if !defined(__CUDABE__)
+# 280 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __attribute__((__const__)) truncf(float);
+#endif
+#if !defined(__CUDABE__)
+# 283 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double fdim(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 285 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float fdimf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 288 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double atan2(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 290 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float atan2f(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 293 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double atan(double);
+#endif
+#if !defined(__CUDABE__)
+# 295 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float atanf(float);
+#endif
+#if !defined(__CUDABE__)
+# 298 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double asin(double);
+#endif
+#if !defined(__CUDABE__)
+# 300 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float asinf(float);
+#endif
+#if !defined(__CUDABE__)
+# 303 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double acos(double);
+#endif
+#if !defined(__CUDABE__)
+# 305 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float acosf(float);
+#endif
+#if !defined(__CUDABE__)
+# 308 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double hypot(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 310 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float hypotf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 313 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double cbrt(double);
+#endif
+#if !defined(__CUDABE__)
+# 315 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float cbrtf(float);
+#endif
+#if !defined(__CUDABE__)
+# 318 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double rcbrt(double);
+#endif
+#if !defined(__CUDABE__)
+# 320 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float rcbrtf(float);
+#endif
+#if !defined(__CUDABE__)
+# 323 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double sinpi(double);
+#endif
+#if !defined(__CUDABE__)
+# 325 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float sinpif(float);
+#endif
+#if !defined(__CUDABE__)
+# 328 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double pow(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 330 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float powf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 333 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double modf(double, double *);
+#endif
+#if !defined(__CUDABE__)
+# 335 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float modff(float, float *);
+#endif
+#if !defined(__CUDABE__)
+# 338 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double fmod(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 340 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float fmodf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 343 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double remainder(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 345 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float remainderf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 348 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double remquo(double, double, int *);
+#endif
+#if !defined(__CUDABE__)
+# 350 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float remquof(float, float, int *);
+#endif
+#if !defined(__CUDABE__)
+# 353 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double erf(double);
+#endif
+#if !defined(__CUDABE__)
+# 355 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float erff(float);
+#endif
+#if !defined(__CUDABE__)
+# 358 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double erfinv(double);
+#endif
+#if !defined(__CUDABE__)
+# 360 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float erfinvf(float);
+#endif
+#if !defined(__CUDABE__)
+# 363 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double erfc(double);
+#endif
+#if !defined(__CUDABE__)
+# 365 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float erfcf(float);
+#endif
+#if !defined(__CUDABE__)
+# 368 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double erfcinv(double);
+#endif
+#if !defined(__CUDABE__)
+# 370 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float erfcinvf(float);
+#endif
+#if !defined(__CUDABE__)
+# 373 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double lgamma(double);
+#endif
+#if !defined(__CUDABE__)
+# 375 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float lgammaf(float);
+#endif
+#if !defined(__CUDABE__)
+# 378 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double tgamma(double);
+#endif
+#if !defined(__CUDABE__)
+# 380 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float tgammaf(float);
+#endif
+#if !defined(__CUDABE__)
+# 383 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __attribute__((__const__)) copysign(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 385 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __attribute__((__const__)) copysignf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 388 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __attribute__((__const__)) nextafter(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 390 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __attribute__((__const__)) nextafterf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 393 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __attribute__((__const__)) nan(const char *);
+#endif
+#if !defined(__CUDABE__)
+# 395 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __attribute__((__const__)) nanf(const char *);
+#endif
+#if !defined(__CUDABE__)
+# 398 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) __isinf(double);
+#endif
+#if !defined(__CUDABE__)
+# 400 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) __isinff(float);
+#endif
+#if !defined(__CUDABE__)
+# 403 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) __isnan(double);
+#endif
+#if !defined(__CUDABE__)
+# 405 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) __isnanf(float);
+#endif
+#if !defined(__CUDABE__)
+# 419 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) __finite(double);
+#endif
+#if !defined(__CUDABE__)
+# 421 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) __finitef(float);
+#endif
+#if !defined(__CUDABE__)
+# 431 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double fma(double, double, double);
+#endif
+#if !defined(__CUDABE__)
+# 433 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float fmaf(float, float, float);
+#endif
+#if !defined(__CUDABE__)
+# 443 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) __isinfl(long double);
+#endif
+#if !defined(__CUDABE__)
+# 445 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) __isnanl(long double);
+#endif
+#if !defined(__CUDABE__)
+# 455 "/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __attribute__((__const__)) __finitel(long double);
+#endif
+#if !defined(__CUDABE__)
+# 113 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __cosf(float);
+#endif
+#if !defined(__CUDABE__)
+# 110 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __sinf(float);
+#endif
+#if !defined(__CUDABE__)
+# 116 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __tanf(float);
+#endif
+#if !defined(__CUDABE__)
+# 119 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __sincosf(float, float *, float *);
+#endif
+#if !defined(__CUDABE__)
+# 122 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __expf(float);
+#endif
+#if !defined(__CUDABE__)
+# 134 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __logf(float);
+#endif
+#if !defined(__CUDABE__)
+# 131 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __log10f(float);
+#endif
+#if !defined(__CUDABE__)
+# 125 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __exp10f(float);
+#endif
+#if !defined(__CUDABE__)
+# 128 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __log2f(float);
+#endif
+#if !defined(__CUDABE__)
+# 137 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __powf(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 38 "/usr/include/bits/mathinline.h" 3
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) __inline__ int __attribute__((__const__)) __signbitf(float);
+#endif
+#if !defined(__CUDABE__)
+# 50 "/usr/include/bits/mathinline.h" 3
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) __inline__ int __attribute__((__const__)) __signbit(double);
+#endif
+#if !defined(__CUDABE__)
+# 62 "/usr/include/bits/mathinline.h" 3
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) __inline__ int __attribute__((__const__)) __signbitl(long double);
+#endif
+#if !defined(__CUDABE__)
+# 61 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __mulhi(int, int);
+#endif
+#if !defined(__CUDABE__)
+# 63 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __umulhi(unsigned, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 66 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __mul64hi(long long, long long);
+#endif
+#if !defined(__CUDABE__)
+# 68 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __umul64hi(unsigned long long, unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 71 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __int_as_float(int);
+#endif
+#if !defined(__CUDABE__)
+# 73 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __float_as_int(float);
+#endif
+#if !defined(__CUDABE__)
+# 76 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __syncthreads(void);
+#endif
+#if !defined(__CUDABE__)
+# 78 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __prof_trigger(int);
+#endif
+#if !defined(__CUDABE__)
+# 80 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __threadfence(void);
+#endif
+#if !defined(__CUDABE__)
+# 82 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __threadfence_block(void);
+#endif
+#if !defined(__CUDABE__)
+# 84 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __trap(void);
+#endif
+#if !defined(__CUDABE__)
+# 86 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __brkpt(int);
+#endif
+#if !defined(__CUDABE__)
+# 89 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __saturatef(float);
+#endif
+#if !defined(__CUDABE__)
+# 92 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __sad(int, int, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 94 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __usad(unsigned, unsigned, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 97 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __mul24(int, int);
+#endif
+#if !defined(__CUDABE__)
+# 99 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __umul24(unsigned, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 102 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float fdividef(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 104 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fdividef(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 107 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double fdivide(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 140 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __float2int_rn(float);
+#endif
+#if !defined(__CUDABE__)
+# 142 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __float2int_rz(float);
+#endif
+#if !defined(__CUDABE__)
+# 144 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __float2int_ru(float);
+#endif
+#if !defined(__CUDABE__)
+# 146 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __float2int_rd(float);
+#endif
+#if !defined(__CUDABE__)
+# 149 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __float2uint_rn(float);
+#endif
+#if !defined(__CUDABE__)
+# 151 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __float2uint_rz(float);
+#endif
+#if !defined(__CUDABE__)
+# 153 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __float2uint_ru(float);
+#endif
+#if !defined(__CUDABE__)
+# 155 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __float2uint_rd(float);
+#endif
+#if !defined(__CUDABE__)
+# 158 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __int2float_rn(int);
+#endif
+#if !defined(__CUDABE__)
+# 160 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __int2float_rz(int);
+#endif
+#if !defined(__CUDABE__)
+# 162 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __int2float_ru(int);
+#endif
+#if !defined(__CUDABE__)
+# 164 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __int2float_rd(int);
+#endif
+#if !defined(__CUDABE__)
+# 167 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __uint2float_rn(unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 169 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __uint2float_rz(unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 171 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __uint2float_ru(unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 173 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __uint2float_rd(unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 176 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __float2ll_rn(float);
+#endif
+#if !defined(__CUDABE__)
+# 178 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __float2ll_rz(float);
+#endif
+#if !defined(__CUDABE__)
+# 180 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __float2ll_ru(float);
+#endif
+#if !defined(__CUDABE__)
+# 182 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __float2ll_rd(float);
+#endif
+#if !defined(__CUDABE__)
+# 185 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __float2ull_rn(float);
+#endif
+#if !defined(__CUDABE__)
+# 187 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __float2ull_rz(float);
+#endif
+#if !defined(__CUDABE__)
+# 189 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __float2ull_ru(float);
+#endif
+#if !defined(__CUDABE__)
+# 191 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __float2ull_rd(float);
+#endif
+#if !defined(__CUDABE__)
+# 194 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __ll2float_rn(long long);
+#endif
+#if !defined(__CUDABE__)
+# 196 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __ll2float_rz(long long);
+#endif
+#if !defined(__CUDABE__)
+# 198 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __ll2float_ru(long long);
+#endif
+#if !defined(__CUDABE__)
+# 200 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __ll2float_rd(long long);
+#endif
+#if !defined(__CUDABE__)
+# 203 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __ull2float_rn(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 205 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __ull2float_rz(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 207 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __ull2float_ru(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 209 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __ull2float_rd(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 212 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned short __float2half_rn(float);
+#endif
+#if !defined(__CUDABE__)
+# 214 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __half2float(unsigned short);
+#endif
+#if !defined(__CUDABE__)
+# 217 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fadd_rn(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 219 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fadd_rz(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 221 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fadd_ru(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 223 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fadd_rd(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 226 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmul_rn(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 228 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmul_rz(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 230 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmul_ru(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 232 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmul_rd(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 235 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmaf_rn(float, float, float);
+#endif
+#if !defined(__CUDABE__)
+# 237 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmaf_rz(float, float, float);
+#endif
+#if !defined(__CUDABE__)
+# 239 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmaf_ru(float, float, float);
+#endif
+#if !defined(__CUDABE__)
+# 241 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmaf_rd(float, float, float);
+#endif
+#if !defined(__CUDABE__)
+# 244 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __frcp_rn(float);
+#endif
+#if !defined(__CUDABE__)
+# 246 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __frcp_rz(float);
+#endif
+#if !defined(__CUDABE__)
+# 248 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __frcp_ru(float);
+#endif
+#if !defined(__CUDABE__)
+# 250 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __frcp_rd(float);
+#endif
+#if !defined(__CUDABE__)
+# 253 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fsqrt_rn(float);
+#endif
+#if !defined(__CUDABE__)
+# 255 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fsqrt_rz(float);
+#endif
+#if !defined(__CUDABE__)
+# 257 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fsqrt_ru(float);
+#endif
+#if !defined(__CUDABE__)
+# 259 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fsqrt_rd(float);
+#endif
+#if !defined(__CUDABE__)
+# 262 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fdiv_rn(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 264 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fdiv_rz(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 266 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fdiv_ru(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 268 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fdiv_rd(float, float);
+#endif
+#if !defined(__CUDABE__)
+# 271 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __clz(int);
+#endif
+#if !defined(__CUDABE__)
+# 273 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __ffs(int);
+#endif
+#if !defined(__CUDABE__)
+# 275 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __popc(unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 277 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __brev(unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 280 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __clzll(long long);
+#endif
+#if !defined(__CUDABE__)
+# 282 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __ffsll(long long);
+#endif
+#if !defined(__CUDABE__)
+# 284 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __popcll(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 286 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __brevll(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 289 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __byte_perm(unsigned, unsigned, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 294 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __double2int_rz(double);
+#endif
+#if !defined(__CUDABE__)
+# 297 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __double2uint_rz(double);
+#endif
+#if !defined(__CUDABE__)
+# 300 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __double2ll_rz(double);
+#endif
+#if !defined(__CUDABE__)
+# 303 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __double2ull_rz(double);
+#endif
+#if !defined(__CUDABE__)
+# 306 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __pm0(void);
+#endif
+#if !defined(__CUDABE__)
+# 308 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __pm1(void);
+#endif
+#if !defined(__CUDABE__)
+# 310 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __pm2(void);
+#endif
+#if !defined(__CUDABE__)
+# 312 "/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __pm3(void);
+#endif
+#if !defined(__CUDABE__)
+# 56 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __iAtomicAdd(int *, int);
+#endif
+#if !defined(__CUDABE__)
+# 58 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicAdd(unsigned *, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 60 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __iAtomicExch(int *, int);
+#endif
+#if !defined(__CUDABE__)
+# 62 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicExch(unsigned *, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 64 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fAtomicExch(float *, float);
+#endif
+#if !defined(__CUDABE__)
+# 66 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __iAtomicMin(int *, int);
+#endif
+#if !defined(__CUDABE__)
+# 68 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicMin(unsigned *, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 70 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __iAtomicMax(int *, int);
+#endif
+#if !defined(__CUDABE__)
+# 72 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicMax(unsigned *, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 74 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicInc(unsigned *, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 76 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicDec(unsigned *, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 78 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __iAtomicAnd(int *, int);
+#endif
+#if !defined(__CUDABE__)
+# 80 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicAnd(unsigned *, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 82 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __iAtomicOr(int *, int);
+#endif
+#if !defined(__CUDABE__)
+# 84 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicOr(unsigned *, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 86 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __iAtomicXor(int *, int);
+#endif
+#if !defined(__CUDABE__)
+# 88 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicXor(unsigned *, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 90 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __iAtomicCAS(int *, int, int);
+#endif
+#if !defined(__CUDABE__)
+# 92 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __uAtomicCAS(unsigned *, unsigned, unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 56 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_12_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __ullAtomicAdd(unsigned long long *, unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 58 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_12_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __ullAtomicExch(unsigned long long *, unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 60 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_12_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __ullAtomicCAS(unsigned long long *, unsigned long long, unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 63 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_12_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __any(int);
+#endif
+#if !defined(__CUDABE__)
+# 65 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_12_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __all(int);
+#endif
+#if !defined(__CUDABE__)
+# 63 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __double_as_longlong(double);
+#endif
+#if !defined(__CUDABE__)
+# 65 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __longlong_as_double(long long);
+#endif
+#if !defined(__CUDABE__)
+# 68 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __fma_rn(double, double, double);
+#endif
+#if !defined(__CUDABE__)
+# 70 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __fma_rz(double, double, double);
+#endif
+#if !defined(__CUDABE__)
+# 72 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __fma_ru(double, double, double);
+#endif
+#if !defined(__CUDABE__)
+# 74 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __fma_rd(double, double, double);
+#endif
+#if !defined(__CUDABE__)
+# 77 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dadd_rn(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 79 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dadd_rz(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 81 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dadd_ru(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 83 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dadd_rd(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 86 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dmul_rn(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 88 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dmul_rz(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 90 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dmul_ru(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 92 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dmul_rd(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 95 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __double2float_rn(double);
+#endif
+#if !defined(__CUDABE__)
+# 97 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __double2float_rz(double);
+#endif
+#if !defined(__CUDABE__)
+# 99 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __double2float_ru(double);
+#endif
+#if !defined(__CUDABE__)
+# 101 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __double2float_rd(double);
+#endif
+#if !defined(__CUDABE__)
+# 104 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __double2int_rn(double);
+#endif
+#if !defined(__CUDABE__)
+# 106 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __double2int_ru(double);
+#endif
+#if !defined(__CUDABE__)
+# 108 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __double2int_rd(double);
+#endif
+#if !defined(__CUDABE__)
+# 111 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __double2uint_rn(double);
+#endif
+#if !defined(__CUDABE__)
+# 113 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __double2uint_ru(double);
+#endif
+#if !defined(__CUDABE__)
+# 115 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __double2uint_rd(double);
+#endif
+#if !defined(__CUDABE__)
+# 118 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __double2ll_rn(double);
+#endif
+#if !defined(__CUDABE__)
+# 120 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __double2ll_ru(double);
+#endif
+#if !defined(__CUDABE__)
+# 122 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long __double2ll_rd(double);
+#endif
+#if !defined(__CUDABE__)
+# 125 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __double2ull_rn(double);
+#endif
+#if !defined(__CUDABE__)
+# 127 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __double2ull_ru(double);
+#endif
+#if !defined(__CUDABE__)
+# 129 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned long long __double2ull_rd(double);
+#endif
+#if !defined(__CUDABE__)
+# 132 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __int2double_rn(int);
+#endif
+#if !defined(__CUDABE__)
+# 135 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __uint2double_rn(unsigned);
+#endif
+#if !defined(__CUDABE__)
+# 138 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ll2double_rn(long long);
+#endif
+#if !defined(__CUDABE__)
+# 140 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ll2double_rz(long long);
+#endif
+#if !defined(__CUDABE__)
+# 142 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ll2double_ru(long long);
+#endif
+#if !defined(__CUDABE__)
+# 144 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ll2double_rd(long long);
+#endif
+#if !defined(__CUDABE__)
+# 147 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ull2double_rn(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 149 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ull2double_rz(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 151 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ull2double_ru(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 153 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ull2double_rd(unsigned long long);
+#endif
+#if !defined(__CUDABE__)
+# 156 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __double2hiint(double);
+#endif
+#if !defined(__CUDABE__)
+# 158 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __double2loint(double);
+#endif
+#if !defined(__CUDABE__)
+# 160 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __hiloint2double(int, int);
+#endif
+#if !defined(__CUDABE__)
+# 56 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_atomic_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fAtomicAdd(float *, float);
+#endif
+#if !defined(__CUDABE__)
+# 57 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __threadfence_system(void);
+#endif
+#if !defined(__CUDABE__)
+# 60 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ddiv_rn(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 62 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ddiv_rz(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 64 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ddiv_ru(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 66 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __ddiv_rd(double, double);
+#endif
+#if !defined(__CUDABE__)
+# 69 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __drcp_rn(double);
+#endif
+#if !defined(__CUDABE__)
+# 71 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __drcp_rz(double);
+#endif
+#if !defined(__CUDABE__)
+# 73 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __drcp_ru(double);
+#endif
+#if !defined(__CUDABE__)
+# 75 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __drcp_rd(double);
+#endif
+#if !defined(__CUDABE__)
+# 78 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dsqrt_rn(double);
+#endif
+#if !defined(__CUDABE__)
+# 80 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dsqrt_rz(double);
+#endif
+#if !defined(__CUDABE__)
+# 82 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dsqrt_ru(double);
+#endif
+#if !defined(__CUDABE__)
+# 84 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __dsqrt_rd(double);
+#endif
+#if !defined(__CUDABE__)
+# 87 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) unsigned __ballot(int);
+#endif
+#if !defined(__CUDABE__)
+# 89 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __syncthreads_count(int);
+#endif
+#if !defined(__CUDABE__)
+# 91 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __syncthreads_and(int);
+#endif
+#if !defined(__CUDABE__)
+# 93 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int __syncthreads_or(int);
+#endif
+#if !defined(__CUDABE__)
+# 96 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) long long clock64(void);
+#endif
+#if !defined(__CUDABE__)
+# 105 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmaf_ieee_rn(float, float, float);
+#endif
+#if !defined(__CUDABE__)
+# 107 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmaf_ieee_rz(float, float, float);
+#endif
+#if !defined(__CUDABE__)
+# 109 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmaf_ieee_ru(float, float, float);
+#endif
+#if !defined(__CUDABE__)
+# 111 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float __fmaf_ieee_rd(float, float, float);
+#endif
+#if !defined(__CUDABE__)
+# 114 "/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) double __rcp64h(double);
+#endif
+#if !defined(__CUDABE__)
+# 61 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uchar1 __surf1Dreadc1(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 63 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uchar2 __surf1Dreadc2(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 65 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uchar4 __surf1Dreadc4(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 67 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ushort1 __surf1Dreads1(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 69 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ushort2 __surf1Dreads2(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 71 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ushort4 __surf1Dreads4(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 73 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uint1 __surf1Dreadu1(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 75 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uint2 __surf1Dreadu2(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 77 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uint4 __surf1Dreadu4(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 79 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ulonglong1 __surf1Dreadl1(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 81 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ulonglong2 __surf1Dreadl2(__surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 421 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uchar1 __surf2Dreadc1(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 423 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uchar2 __surf2Dreadc2(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 425 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uchar4 __surf2Dreadc4(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 427 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ushort1 __surf2Dreads1(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 429 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ushort2 __surf2Dreads2(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 431 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ushort4 __surf2Dreads4(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 433 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uint1 __surf2Dreadu1(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 435 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uint2 __surf2Dreadu2(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 437 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uint4 __surf2Dreadu4(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 439 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ulonglong1 __surf2Dreadl1(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 441 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) ulonglong2 __surf2Dreadl2(__surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 781 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwritec1(uchar1, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 783 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwritec2(uchar2, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 785 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwritec4(uchar4, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 787 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwrites1(ushort1, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 789 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwrites2(ushort2, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 791 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwrites4(ushort4, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 793 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwriteu1(uint1, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 795 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwriteu2(uint2, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 797 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwriteu4(uint4, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 799 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwritel1(ulonglong1, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 801 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf1Dwritel2(ulonglong2, __surface_type__, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1074 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwritec1(uchar1, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1076 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwritec2(uchar2, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1078 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwritec4(uchar4, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1080 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwrites1(ushort1, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1082 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwrites2(ushort2, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1084 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwrites4(ushort4, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1086 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwriteu1(uint1, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1088 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwriteu2(uint2, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1090 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwriteu4(uint4, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1092 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwritel1(ulonglong1, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 1094 "/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) void __surf2Dwritel2(ulonglong2, __surface_type__, int, int, enum cudaSurfaceBoundaryMode);
+#endif
+#if !defined(__CUDABE__)
+# 61 "/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uint4 __utexfetchi(__texture_type__, int4);
+#endif
+#if !defined(__CUDABE__)
+# 63 "/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int4 __itexfetchi(__texture_type__, int4);
+#endif
+#if !defined(__CUDABE__)
+# 65 "/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float4 __ftexfetchi(__texture_type__, int4);
+#endif
+#if !defined(__CUDABE__)
+# 68 "/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uint4 __utexfetch(__texture_type__, float4, int);
+#endif
+#if !defined(__CUDABE__)
+# 70 "/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int4 __itexfetch(__texture_type__, float4, int);
+#endif
+#if !defined(__CUDABE__)
+# 72 "/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float4 __ftexfetch(__texture_type__, float4, int);
+#endif
+#if !defined(__CUDABE__)
+# 1930 "/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) int4 __itex2Dgather(__texture_type__, float2, int);
+#endif
+#if !defined(__CUDABE__)
+# 1932 "/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) uint4 __utex2Dgather(__texture_type__, float2, int);
+#endif
+#if !defined(__CUDABE__)
+# 1934 "/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+/*DEVICE_BUILTIN*/___device__(extern  __no_sc__) float4 __ftex2Dgather(__texture_type__, float2, int);
+#endif
+# 21 "./mummergpu_kernel.cu"
+___device__(extern  __no_sc__) void _Z10set_resultRK14TextureAddressP10MatchCoordiiii(const struct TextureAddress *, struct MatchCoord *, int, int, int, int);
+# 41 "./mummergpu_kernel.cu"
+___device__(extern  __no_sc__) char _Z6getRefi(int);
+# 50 "./mummergpu_kernel.cu"
+___device__(extern  __no_sc__) char _Z2rcc(char);
+# 62 "./mummergpu_kernel.cu"
+__global__ __var_used__ extern void _Z15mummergpuKernelP10MatchCoordPcPKiS3_ii(struct MatchCoord *, char *, const int *, const int *, const int, const int);
+# 229 "./mummergpu_kernel.cu"
+__global__ __var_used__ extern void _Z17mummergpuRCKernelP10MatchCoordPcPKiS3_ii(struct MatchCoord *, char *, const int *, const int *, const int, const int);
+# 16 "./mummergpu_kernel.cu"
+__loc_sc__(__text__,,) __texture_type__ nodetex;
+# 17 "./mummergpu_kernel.cu"
+__loc_sc__(__text__,,) __texture_type__ childrentex;
+# 19 "./mummergpu_kernel.cu"
+__loc_sc__(__text__,,) __texture_type__ reftex;
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 21 "./mummergpu_kernel.cu"
+___device__( __no_sc__) void _Z10set_resultRK14TextureAddressP10MatchCoordiiii(
+# 21 "./mummergpu_kernel.cu"
+const struct TextureAddress *cur, 
+# 22 "./mummergpu_kernel.cu"
+struct MatchCoord *result, 
+# 23 "./mummergpu_kernel.cu"
+int edge_match_length, 
+# 24 "./mummergpu_kernel.cu"
+int qry_match_len, 
+# 25 "./mummergpu_kernel.cu"
+int min_match_len, 
+# 26 "./mummergpu_kernel.cu"
+int rc)
+# 27 "./mummergpu_kernel.cu"
+{
+# 28 "./mummergpu_kernel.cu"
+if (qry_match_len > min_match_len)
+# 29 "./mummergpu_kernel.cu"
+{
+# 30 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32359_9_non_const_blocky;
+# 31 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32360_9_non_const_bigy;
+# 32 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32361_9_non_const_bigx;
+# 33 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32362_9_non_const_nodeid;
+# 30 "./mummergpu_kernel.cu"
+__cuda_local_var_32359_9_non_const_blocky = (((int)(cur->y)) & 31);
+# 31 "./mummergpu_kernel.cu"
+__cuda_local_var_32360_9_non_const_bigy = (((int)(cur->y)) >> 5);
+# 32 "./mummergpu_kernel.cu"
+__cuda_local_var_32361_9_non_const_bigx = ((((int)(cur->x)) << 5) + __cuda_local_var_32359_9_non_const_blocky);
+# 33 "./mummergpu_kernel.cu"
+__cuda_local_var_32362_9_non_const_nodeid = (__cuda_local_var_32361_9_non_const_bigx + (__cuda_local_var_32360_9_non_const_bigy << 17));
+# 35 "./mummergpu_kernel.cu"
+edge_match_length |= rc;
+# 36 "./mummergpu_kernel.cu"
+(result->node) = ((unsigned)__cuda_local_var_32362_9_non_const_nodeid);
+# 37 "./mummergpu_kernel.cu"
+(result->edge_match_length) = ((short)edge_match_length);
+# 38 "./mummergpu_kernel.cu"
+} 
+# 39 "./mummergpu_kernel.cu"
+}
+# 41 "./mummergpu_kernel.cu"
+___device__( __no_sc__) char _Z6getRefi(
+# 41 "./mummergpu_kernel.cu"
+int refpos)
+# 42 "./mummergpu_kernel.cu"
+{
+# 42 "./mummergpu_kernel.cu"
+ __texture_type__ __T22;
+# 43 "./mummergpu_kernel.cu"
+ float __T23;
+# 44 "./mummergpu_kernel.cu"
+ float __T24;
+# 45 "./mummergpu_kernel.cu"
+ float4 __T25;
+# 46 "./mummergpu_kernel.cu"
+ uint4 __T26;
+# 43 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32372_7_non_const_bigx;
+# 44 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32373_7_non_const_bigy;
+# 45 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32374_7_non_const_y;
+# 46 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32375_7_non_const_x;
+# 43 "./mummergpu_kernel.cu"
+__cuda_local_var_32372_7_non_const_bigx = (refpos & 262143);
+# 44 "./mummergpu_kernel.cu"
+__cuda_local_var_32373_7_non_const_bigy = (refpos >> 18);
+# 45 "./mummergpu_kernel.cu"
+__cuda_local_var_32374_7_non_const_y = ((__cuda_local_var_32373_7_non_const_bigy << 2) + (__cuda_local_var_32372_7_non_const_bigx & 3));
+# 46 "./mummergpu_kernel.cu"
+__cuda_local_var_32375_7_non_const_x = (__cuda_local_var_32372_7_non_const_bigx >> 2);
+# 47 "./mummergpu_kernel.cu"
+return (((__T22 = reftex) , ((void)(__T23 = ((float)__cuda_local_var_32375_7_non_const_x)))) , ((void)(__T24 = ((float)__cuda_local_var_32374_7_non_const_y)))) , ((__T26 = (__utexfetch(__T22, ((((((__T25.x) = __T23) , ((void)((__T25.y) = __T24))) , ((void)((__T25.z) = (0.0F)))) , ((void)((__T25.w) = (0.0F)))) , __T25), 2))) , ((char)(__T26.x)));
+# 48 "./mummergpu_kernel.cu"
+}
+# 50 "./mummergpu_kernel.cu"
+___device__( __no_sc__) char _Z2rcc(
+# 50 "./mummergpu_kernel.cu"
+char c)
+# 51 "./mummergpu_kernel.cu"
+{
+# 52 "./mummergpu_kernel.cu"
+switch ((int)c)
+# 53 "./mummergpu_kernel.cu"
+{
+# 54 "./mummergpu_kernel.cu"
+case 65:
+# 54 "./mummergpu_kernel.cu"
+return ((char)84);
+# 55 "./mummergpu_kernel.cu"
+case 67:
+# 55 "./mummergpu_kernel.cu"
+return ((char)71);
+# 56 "./mummergpu_kernel.cu"
+case 71:
+# 56 "./mummergpu_kernel.cu"
+return ((char)67);
+# 57 "./mummergpu_kernel.cu"
+case 84:
+# 57 "./mummergpu_kernel.cu"
+return ((char)65);
+# 58 "./mummergpu_kernel.cu"
+case 113:
+# 58 "./mummergpu_kernel.cu"
+return ((char)0);
+# 59 "./mummergpu_kernel.cu"
+default:
+# 59 "./mummergpu_kernel.cu"
+return c;
+# 60 "./mummergpu_kernel.cu"
+}
+# 60 "./mummergpu_kernel.cu"
+;
+# 61 "./mummergpu_kernel.cu"
+}
+# 62 "./mummergpu_kernel.cu"
+__global__ __var_used__ void _Z15mummergpuKernelP10MatchCoordPcPKiS3_ii(
+# 68 "./mummergpu_kernel.cu"
+struct MatchCoord *match_coords, 
+# 69 "./mummergpu_kernel.cu"
+char *__val_param(queries), 
+# 70 "./mummergpu_kernel.cu"
+const int *queryAddrs, 
+# 71 "./mummergpu_kernel.cu"
+const int *queryLengths, 
+# 72 "./mummergpu_kernel.cu"
+const int numQueries, 
+# 73 "./mummergpu_kernel.cu"
+const int min_match_len){__copy_param(char *queries,__val_param(queries));
+# 73 "./mummergpu_kernel.cu"
+{
+# 73 "./mummergpu_kernel.cu"
+;
+# 74 "./mummergpu_kernel.cu"
+{
+# 75 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32404_8_non_const_qryid;
+# 79 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32408_8_non_const_qlen;
+# 82 "./mummergpu_kernel.cu"
+ struct TextureAddress __cuda_local_var_32411_19_non_const_cur;
+# 85 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32414_8_non_const_mustmatch;
+# 86 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32415_8_non_const_qry_match_len;
+# 88 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32417_8_non_const_qryAddr;
+# 89 "./mummergpu_kernel.cu"
+ struct MatchCoord *__cuda_local_var_32418_17_non_const_result;
+# 92 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32421_8_non_const_last;
+# 75 "./mummergpu_kernel.cu"
+__cuda_local_var_32404_8_non_const_qryid = ((int)((__umul24((blockIdx.x), (blockDim.x))) + (threadIdx.x)));
+# 76 "./mummergpu_kernel.cu"
+if (__cuda_local_var_32404_8_non_const_qryid >= numQueries)
+# 76 "./mummergpu_kernel.cu"
+{
+# 76 "./mummergpu_kernel.cu"
+return;
+# 76 "./mummergpu_kernel.cu"
+}
+# 77 "./mummergpu_kernel.cu"
+do
+# 77 "./mummergpu_kernel.cu"
+{
+# 77 "./mummergpu_kernel.cu"
+} while (0);
+# 79 "./mummergpu_kernel.cu"
+__cuda_local_var_32408_8_non_const_qlen = (queryLengths[__cuda_local_var_32404_8_non_const_qryid]);
+# 83 "./mummergpu_kernel.cu"
+(__cuda_local_var_32411_19_non_const_cur.data) = 0U;
+# 85 "./mummergpu_kernel.cu"
+__cuda_local_var_32414_8_non_const_mustmatch = 0;
+# 86 "./mummergpu_kernel.cu"
+__cuda_local_var_32415_8_non_const_qry_match_len = 0;
+# 88 "./mummergpu_kernel.cu"
+__cuda_local_var_32417_8_non_const_qryAddr = (queryAddrs[__cuda_local_var_32404_8_non_const_qryid]);
+# 89 "./mummergpu_kernel.cu"
+__cuda_local_var_32418_17_non_const_result = ((match_coords + __cuda_local_var_32417_8_non_const_qryAddr) - (__umul24(((unsigned)__cuda_local_var_32404_8_non_const_qryid), ((unsigned)(min_match_len + 1)))));
+# 90 "./mummergpu_kernel.cu"
+queries += __cuda_local_var_32417_8_non_const_qryAddr;
+# 92 "./mummergpu_kernel.cu"
+__cuda_local_var_32421_8_non_const_last = (__cuda_local_var_32408_8_non_const_qlen - min_match_len);
+# 92 "./mummergpu_kernel.cu"
+{
+# 94 "./mummergpu_kernel.cu"
+ int qrystart;
+# 94 "./mummergpu_kernel.cu"
+qrystart = 0;
+# 94 "./mummergpu_kernel.cu"
+for (; (qrystart <= __cuda_local_var_32421_8_non_const_last); ((qrystart++) , ((void)(__cuda_local_var_32418_17_non_const_result++))) , ((void)(queries++)))
+# 97 "./mummergpu_kernel.cu"
+{
+# 97 "./mummergpu_kernel.cu"
+ __texture_type__ __T218;
+# 98 "./mummergpu_kernel.cu"
+ float __T219;
+# 99 "./mummergpu_kernel.cu"
+ float __T220;
+# 100 "./mummergpu_kernel.cu"
+ float4 __T221;
+# 101 "./mummergpu_kernel.cu"
+ unsigned __T222;
+# 102 "./mummergpu_kernel.cu"
+ unsigned __T223;
+# 103 "./mummergpu_kernel.cu"
+ unsigned __T224;
+# 104 "./mummergpu_kernel.cu"
+ unsigned __T225;
+# 105 "./mummergpu_kernel.cu"
+ uint4 __T226;
+# 106 "./mummergpu_kernel.cu"
+ uint4 __T227;
+# 100 "./mummergpu_kernel.cu"
+ struct PixelOfNode __cuda_local_var_32429_16_non_const_node;
+# 101 "./mummergpu_kernel.cu"
+ struct TextureAddress __cuda_local_var_32430_22_non_const_prev;
+# 111 "./mummergpu_kernel.cu"
+ char __cuda_local_var_32440_9_non_const_c;
+# 115 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32444_8_non_const_refpos;
+# 98 "./mummergpu_kernel.cu"
+do
+# 98 "./mummergpu_kernel.cu"
+{
+# 98 "./mummergpu_kernel.cu"
+} while (0);
+# 103 "./mummergpu_kernel.cu"
+if (((__cuda_local_var_32411_19_non_const_cur.data) == 0U) || (__cuda_local_var_32415_8_non_const_qry_match_len < 1))
+# 104 "./mummergpu_kernel.cu"
+{
+# 106 "./mummergpu_kernel.cu"
+(__cuda_local_var_32411_19_non_const_cur.x) = ((unsigned short)0U);
+# 106 "./mummergpu_kernel.cu"
+(__cuda_local_var_32411_19_non_const_cur.y) = ((unsigned short)1U);
+# 107 "./mummergpu_kernel.cu"
+__cuda_local_var_32415_8_non_const_qry_match_len = 1;
+# 108 "./mummergpu_kernel.cu"
+__cuda_local_var_32414_8_non_const_mustmatch = 0;
+# 109 "./mummergpu_kernel.cu"
+}
+# 111 "./mummergpu_kernel.cu"
+__cuda_local_var_32440_9_non_const_c = (queries[__cuda_local_var_32415_8_non_const_qry_match_len]);
+# 113 "./mummergpu_kernel.cu"
+do
+# 113 "./mummergpu_kernel.cu"
+{
+# 113 "./mummergpu_kernel.cu"
+} while (0);
+# 115 "./mummergpu_kernel.cu"
+__cuda_local_var_32444_8_non_const_refpos = 0;
+# 116 "./mummergpu_kernel.cu"
+while (((int)__cuda_local_var_32440_9_non_const_c) != 0)
+# 117 "./mummergpu_kernel.cu"
+{
+# 117 "./mummergpu_kernel.cu"
+ __texture_type__ __T228;
+# 118 "./mummergpu_kernel.cu"
+ float __T229;
+# 119 "./mummergpu_kernel.cu"
+ float __T230;
+# 120 "./mummergpu_kernel.cu"
+ float4 __T231;
+# 121 "./mummergpu_kernel.cu"
+ unsigned __T232;
+# 122 "./mummergpu_kernel.cu"
+ unsigned __T233;
+# 123 "./mummergpu_kernel.cu"
+ unsigned __T234;
+# 124 "./mummergpu_kernel.cu"
+ unsigned __T235;
+# 125 "./mummergpu_kernel.cu"
+ uint4 __T236;
+# 126 "./mummergpu_kernel.cu"
+ uint4 __T237;
+# 120 "./mummergpu_kernel.cu"
+ struct PixelOfChildren __cuda_local_var_32449_23_non_const_children;
+# 118 "./mummergpu_kernel.cu"
+do
+# 118 "./mummergpu_kernel.cu"
+{
+# 118 "./mummergpu_kernel.cu"
+} while (0);
+# 121 "./mummergpu_kernel.cu"
+(__cuda_local_var_32449_23_non_const_children.data) = ((((__T228 = childrentex) , ((void)(__T229 = ((float)(__cuda_local_var_32411_19_non_const_cur.x))))) , ((void)(__T230 = ((float)(__cuda_local_var_32411_19_non_const_cur.y))))) , ((__T237 = (__utexfetch(__T228, ((((((__T231.x) = __T229) , ((void)((__T231.y) = __T230))) , ((void)((__T231.z) = (0.0F)))) , ((void)((__T231.w) = (0.0F)))) , __T231), 2))) , (((((__T232 = (__T237.x)) , ((void)(__T233 = (__T237.y)))) , ((void)(__T234 = (__T237.z)))) , ((void)(__T235 = (__T237.w)))) , ((((((__T236.x) = __T232) , ((void)((__T236.y) = __T233))) , ((void)((__T236.z) = __T234))) , ((void)((__T236.w) = __T235))) , __T236))));
+# 122 "./mummergpu_kernel.cu"
+__cuda_local_var_32430_22_non_const_prev = __cuda_local_var_32411_19_non_const_cur;
+# 124 "./mummergpu_kernel.cu"
+switch ((int)__cuda_local_var_32440_9_non_const_c)
+# 125 "./mummergpu_kernel.cu"
+{
+# 126 "./mummergpu_kernel.cu"
+case 65:
+# 126 "./mummergpu_kernel.cu"
+__cuda_local_var_32411_19_non_const_cur = (((__cuda_local_var_32449_23_non_const_children.children))[0]);
+# 126 "./mummergpu_kernel.cu"
+goto __T238;
+# 127 "./mummergpu_kernel.cu"
+case 67:
+# 127 "./mummergpu_kernel.cu"
+__cuda_local_var_32411_19_non_const_cur = (((__cuda_local_var_32449_23_non_const_children.children))[1]);
+# 127 "./mummergpu_kernel.cu"
+goto __T238;
+# 128 "./mummergpu_kernel.cu"
+case 71:
+# 128 "./mummergpu_kernel.cu"
+__cuda_local_var_32411_19_non_const_cur = (((__cuda_local_var_32449_23_non_const_children.children))[2]);
+# 128 "./mummergpu_kernel.cu"
+goto __T238;
+# 129 "./mummergpu_kernel.cu"
+case 84:
+# 129 "./mummergpu_kernel.cu"
+__cuda_local_var_32411_19_non_const_cur = (((__cuda_local_var_32449_23_non_const_children.children))[3]);
+# 129 "./mummergpu_kernel.cu"
+goto __T238;
+# 130 "./mummergpu_kernel.cu"
+default:
+# 130 "./mummergpu_kernel.cu"
+(__cuda_local_var_32411_19_non_const_cur.data) = 0U;
+# 130 "./mummergpu_kernel.cu"
+goto __T238;
+# 131 "./mummergpu_kernel.cu"
+}
+# 131 "./mummergpu_kernel.cu"
+__T238:;
+# 131 "./mummergpu_kernel.cu"
+;
+# 131 "./mummergpu_kernel.cu"
+;
+# 133 "./mummergpu_kernel.cu"
+do
+# 133 "./mummergpu_kernel.cu"
+{
+# 133 "./mummergpu_kernel.cu"
+} while (0);
+# 136 "./mummergpu_kernel.cu"
+if ((__cuda_local_var_32411_19_non_const_cur.data) == 0U)
+# 137 "./mummergpu_kernel.cu"
+{
+# 138 "./mummergpu_kernel.cu"
+do
+# 138 "./mummergpu_kernel.cu"
+{
+# 138 "./mummergpu_kernel.cu"
+} while (0);
+# 139 "./mummergpu_kernel.cu"
+_Z10set_resultRK14TextureAddressP10MatchCoordiiii(((const struct TextureAddress *)(&__cuda_local_var_32430_22_non_const_prev)), __cuda_local_var_32418_17_non_const_result, 0, __cuda_local_var_32415_8_non_const_qry_match_len, min_match_len, 0);
+# 142 "./mummergpu_kernel.cu"
+__cuda_local_var_32415_8_non_const_qry_match_len -= 1;
+# 143 "./mummergpu_kernel.cu"
+__cuda_local_var_32414_8_non_const_mustmatch = 0;
+# 145 "./mummergpu_kernel.cu"
+goto NEXT_SUBSTRING;
+# 146 "./mummergpu_kernel.cu"
+}
+# 148 "./mummergpu_kernel.cu"
+{
+# 148 "./mummergpu_kernel.cu"
+ __texture_type__ __T239;
+# 149 "./mummergpu_kernel.cu"
+ float __T240;
+# 150 "./mummergpu_kernel.cu"
+ float __T241;
+# 151 "./mummergpu_kernel.cu"
+ float4 __T242;
+# 152 "./mummergpu_kernel.cu"
+ unsigned __T243;
+# 153 "./mummergpu_kernel.cu"
+ unsigned __T244;
+# 154 "./mummergpu_kernel.cu"
+ unsigned __T245;
+# 155 "./mummergpu_kernel.cu"
+ unsigned __T246;
+# 156 "./mummergpu_kernel.cu"
+ uint4 __T247;
+# 157 "./mummergpu_kernel.cu"
+ uint4 __T248;
+# 149 "./mummergpu_kernel.cu"
+ unsigned short __cuda_local_var_32478_27_non_const_xval;
+# 150 "./mummergpu_kernel.cu"
+ unsigned short __cuda_local_var_32479_27_non_const_yval;
+# 149 "./mummergpu_kernel.cu"
+__cuda_local_var_32478_27_non_const_xval = ((unsigned short)((__cuda_local_var_32411_19_non_const_cur.data) & 65535U));
+# 150 "./mummergpu_kernel.cu"
+__cuda_local_var_32479_27_non_const_yval = ((unsigned short)(((__cuda_local_var_32411_19_non_const_cur.data) & 4294901760U) >> 16));
+# 151 "./mummergpu_kernel.cu"
+(__cuda_local_var_32429_16_non_const_node.data) = ((((__T239 = nodetex) , ((void)(__T240 = ((float)__cuda_local_var_32478_27_non_const_xval)))) , ((void)(__T241 = ((float)__cuda_local_var_32479_27_non_const_yval)))) , ((__T248 = (__utexfetch(__T239, ((((((__T242.x) = __T240) , ((void)((__T242.y) = __T241))) , ((void)((__T242.z) = (0.0F)))) , ((void)((__T242.w) = (0.0F)))) , __T242), 2))) , (((((__T243 = (__T248.x)) , ((void)(__T244 = (__T248.y)))) , ((void)(__T245 = (__T248.z)))) , ((void)(__T246 = (__T248.w)))) , ((((((__T247.x) = __T243) , ((void)((__T247.y) = __T244))) , ((void)((__T247.z) = __T245))) , ((void)((__T247.w) = __T246))) , __T247))));
+# 152 "./mummergpu_kernel.cu"
+}
+# 154 "./mummergpu_kernel.cu"
+do
+# 154 "./mummergpu_kernel.cu"
+{
+# 154 "./mummergpu_kernel.cu"
+} while (0);
+# 156 "./mummergpu_kernel.cu"
+if (__cuda_local_var_32414_8_non_const_mustmatch)
+# 157 "./mummergpu_kernel.cu"
+{
+# 158 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32487_16_non_const_edgelen;
+# 158 "./mummergpu_kernel.cu"
+__cuda_local_var_32487_16_non_const_edgelen = (((__cuda_local_var_32429_16_non_const_node.end) - (__cuda_local_var_32429_16_non_const_node.start)) + 1);
+# 159 "./mummergpu_kernel.cu"
+if (__cuda_local_var_32414_8_non_const_mustmatch >= __cuda_local_var_32487_16_non_const_edgelen)
+# 160 "./mummergpu_kernel.cu"
+{
+# 161 "./mummergpu_kernel.cu"
+do
+# 161 "./mummergpu_kernel.cu"
+{
+# 161 "./mummergpu_kernel.cu"
+} while (0);
+# 163 "./mummergpu_kernel.cu"
+__cuda_local_var_32444_8_non_const_refpos = ((__cuda_local_var_32429_16_non_const_node.end) + 1);
+# 164 "./mummergpu_kernel.cu"
+__cuda_local_var_32415_8_non_const_qry_match_len += __cuda_local_var_32487_16_non_const_edgelen;
+# 165 "./mummergpu_kernel.cu"
+__cuda_local_var_32414_8_non_const_mustmatch -= __cuda_local_var_32487_16_non_const_edgelen;
+# 166 "./mummergpu_kernel.cu"
+}
+# 168 "./mummergpu_kernel.cu"
+else 
+# 168 "./mummergpu_kernel.cu"
+{
+# 169 "./mummergpu_kernel.cu"
+do
+# 169 "./mummergpu_kernel.cu"
+{
+# 169 "./mummergpu_kernel.cu"
+} while (0);
+# 172 "./mummergpu_kernel.cu"
+__cuda_local_var_32415_8_non_const_qry_match_len += __cuda_local_var_32414_8_non_const_mustmatch;
+# 173 "./mummergpu_kernel.cu"
+__cuda_local_var_32444_8_non_const_refpos = ((__cuda_local_var_32429_16_non_const_node.start) + __cuda_local_var_32414_8_non_const_mustmatch);
+# 174 "./mummergpu_kernel.cu"
+__cuda_local_var_32414_8_non_const_mustmatch = 0;
+# 175 "./mummergpu_kernel.cu"
+}
+# 176 "./mummergpu_kernel.cu"
+}
+# 178 "./mummergpu_kernel.cu"
+else 
+# 178 "./mummergpu_kernel.cu"
+{
+# 180 "./mummergpu_kernel.cu"
+__cuda_local_var_32415_8_non_const_qry_match_len++;
+# 181 "./mummergpu_kernel.cu"
+__cuda_local_var_32444_8_non_const_refpos = ((__cuda_local_var_32429_16_non_const_node.start) + 1);
+# 182 "./mummergpu_kernel.cu"
+}
+# 184 "./mummergpu_kernel.cu"
+__cuda_local_var_32440_9_non_const_c = (queries[__cuda_local_var_32415_8_non_const_qry_match_len]);
+# 186 "./mummergpu_kernel.cu"
+while ((__cuda_local_var_32444_8_non_const_refpos <= (__cuda_local_var_32429_16_non_const_node.end)) && (((int)__cuda_local_var_32440_9_non_const_c) != 0))
+# 187 "./mummergpu_kernel.cu"
+{
+# 188 "./mummergpu_kernel.cu"
+ char __cuda_local_var_32517_18_non_const_r;
+# 188 "./mummergpu_kernel.cu"
+__cuda_local_var_32517_18_non_const_r = (_Z6getRefi(__cuda_local_var_32444_8_non_const_refpos));
+# 190 "./mummergpu_kernel.cu"
+do
+# 190 "./mummergpu_kernel.cu"
+{
+# 190 "./mummergpu_kernel.cu"
+} while (0);
+# 192 "./mummergpu_kernel.cu"
+if (((int)__cuda_local_var_32517_18_non_const_r) != ((int)__cuda_local_var_32440_9_non_const_c))
+# 193 "./mummergpu_kernel.cu"
+{
+# 195 "./mummergpu_kernel.cu"
+do
+# 195 "./mummergpu_kernel.cu"
+{
+# 195 "./mummergpu_kernel.cu"
+} while (0);
+# 196 "./mummergpu_kernel.cu"
+goto RECORD_RESULT;
+# 197 "./mummergpu_kernel.cu"
+}
+# 199 "./mummergpu_kernel.cu"
+__cuda_local_var_32415_8_non_const_qry_match_len++;
+# 200 "./mummergpu_kernel.cu"
+__cuda_local_var_32444_8_non_const_refpos++;
+# 201 "./mummergpu_kernel.cu"
+__cuda_local_var_32440_9_non_const_c = (queries[__cuda_local_var_32415_8_non_const_qry_match_len]);
+# 202 "./mummergpu_kernel.cu"
+}
+# 203 "./mummergpu_kernel.cu"
+}
+# 205 "./mummergpu_kernel.cu"
+do
+# 205 "./mummergpu_kernel.cu"
+{
+# 205 "./mummergpu_kernel.cu"
+} while (0);
+# 207 "./mummergpu_kernel.cu"
+RECORD_RESULT:;
+# 207 "./mummergpu_kernel.cu"
+;
+# 209 "./mummergpu_kernel.cu"
+_Z10set_resultRK14TextureAddressP10MatchCoordiiii(((const struct TextureAddress *)(&__cuda_local_var_32411_19_non_const_cur)), __cuda_local_var_32418_17_non_const_result, (__cuda_local_var_32444_8_non_const_refpos - (__cuda_local_var_32429_16_non_const_node.start)), __cuda_local_var_32415_8_non_const_qry_match_len, min_match_len, 0);
+# 212 "./mummergpu_kernel.cu"
+__cuda_local_var_32414_8_non_const_mustmatch = (__cuda_local_var_32444_8_non_const_refpos - (__cuda_local_var_32429_16_non_const_node.start));
+# 213 "./mummergpu_kernel.cu"
+__cuda_local_var_32415_8_non_const_qry_match_len -= (__cuda_local_var_32414_8_non_const_mustmatch + 1);
+# 215 "./mummergpu_kernel.cu"
+NEXT_SUBSTRING:;
+# 215 "./mummergpu_kernel.cu"
+;
+# 217 "./mummergpu_kernel.cu"
+(__cuda_local_var_32429_16_non_const_node.data) = ((((__T218 = nodetex) , ((void)(__T219 = ((float)(__cuda_local_var_32430_22_non_const_prev.x))))) , ((void)(__T220 = ((float)(__cuda_local_var_32430_22_non_const_prev.y))))) , ((__T227 = (__utexfetch(__T218, ((((((__T221.x) = __T219) , ((void)((__T221.y) = __T220))) , ((void)((__T221.z) = (0.0F)))) , ((void)((__T221.w) = (0.0F)))) , __T221), 2))) , (((((__T222 = (__T227.x)) , ((void)(__T223 = (__T227.y)))) , ((void)(__T224 = (__T227.z)))) , ((void)(__T225 = (__T227.w)))) , ((((((__T226.x) = __T222) , ((void)((__T226.y) = __T223))) , ((void)((__T226.z) = __T224))) , ((void)((__T226.w) = __T225))) , __T226))));
+# 218 "./mummergpu_kernel.cu"
+__cuda_local_var_32411_19_non_const_cur = (__cuda_local_var_32429_16_non_const_node.suffix);
+# 220 "./mummergpu_kernel.cu"
+do
+# 220 "./mummergpu_kernel.cu"
+{
+# 220 "./mummergpu_kernel.cu"
+} while (0);
+# 223 "./mummergpu_kernel.cu"
+do
+# 223 "./mummergpu_kernel.cu"
+{
+# 223 "./mummergpu_kernel.cu"
+} while (0);
+# 224 "./mummergpu_kernel.cu"
+}
+# 224 "./mummergpu_kernel.cu"
+}
+# 226 "./mummergpu_kernel.cu"
+return;
+# 228 "./mummergpu_kernel.cu"
+}
+# 228 "./mummergpu_kernel.cu"
+}}
+# 229 "./mummergpu_kernel.cu"
+__global__ __var_used__ void _Z17mummergpuRCKernelP10MatchCoordPcPKiS3_ii(
+# 236 "./mummergpu_kernel.cu"
+struct MatchCoord *match_coords, 
+# 237 "./mummergpu_kernel.cu"
+char *__val_param(queries), 
+# 238 "./mummergpu_kernel.cu"
+const int *queryAddrs, 
+# 239 "./mummergpu_kernel.cu"
+const int *queryLengths, 
+# 240 "./mummergpu_kernel.cu"
+const int numQueries, 
+# 241 "./mummergpu_kernel.cu"
+const int min_match_len){__copy_param(char *queries,__val_param(queries));
+# 241 "./mummergpu_kernel.cu"
+{
+# 241 "./mummergpu_kernel.cu"
+;
+# 242 "./mummergpu_kernel.cu"
+{
+# 244 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32573_8_non_const_qryid;
+# 246 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32575_8_non_const_qlen;
+# 254 "./mummergpu_kernel.cu"
+ struct TextureAddress __cuda_local_var_32583_19_non_const_cur;
+# 256 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32585_8_non_const_mustmatch;
+# 257 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32586_8_non_const_qry_match_len;
+# 259 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32588_8_non_const_qryAddr;
+# 260 "./mummergpu_kernel.cu"
+ struct MatchCoord *__cuda_local_var_32589_17_non_const_result;
+# 244 "./mummergpu_kernel.cu"
+__cuda_local_var_32573_8_non_const_qryid = ((int)((__umul24((blockIdx.x), (blockDim.x))) + (threadIdx.x)));
+# 245 "./mummergpu_kernel.cu"
+if (__cuda_local_var_32573_8_non_const_qryid >= numQueries)
+# 245 "./mummergpu_kernel.cu"
+{
+# 245 "./mummergpu_kernel.cu"
+return;
+# 245 "./mummergpu_kernel.cu"
+}
+# 246 "./mummergpu_kernel.cu"
+__cuda_local_var_32575_8_non_const_qlen = (queryLengths[__cuda_local_var_32573_8_non_const_qryid]);
+# 248 "./mummergpu_kernel.cu"
+do
+# 248 "./mummergpu_kernel.cu"
+{
+# 248 "./mummergpu_kernel.cu"
+} while (0);
+# 250 "./mummergpu_kernel.cu"
+queries++;
+# 256 "./mummergpu_kernel.cu"
+__cuda_local_var_32585_8_non_const_mustmatch = 0;
+# 257 "./mummergpu_kernel.cu"
+__cuda_local_var_32586_8_non_const_qry_match_len = 0;
+# 259 "./mummergpu_kernel.cu"
+__cuda_local_var_32588_8_non_const_qryAddr = (queryAddrs[__cuda_local_var_32573_8_non_const_qryid]);
+# 260 "./mummergpu_kernel.cu"
+__cuda_local_var_32589_17_non_const_result = ((match_coords + __cuda_local_var_32588_8_non_const_qryAddr) - (__umul24(((unsigned)__cuda_local_var_32573_8_non_const_qryid), ((unsigned)(min_match_len + 1)))));
+# 261 "./mummergpu_kernel.cu"
+queries += __cuda_local_var_32588_8_non_const_qryAddr;
+# 261 "./mummergpu_kernel.cu"
+{
+# 263 "./mummergpu_kernel.cu"
+ int qrystart;
+# 263 "./mummergpu_kernel.cu"
+qrystart = __cuda_local_var_32575_8_non_const_qlen;
+# 263 "./mummergpu_kernel.cu"
+for (; (qrystart >= min_match_len); (qrystart--) , ((void)(__cuda_local_var_32589_17_non_const_result++)))
+# 266 "./mummergpu_kernel.cu"
+{
+# 266 "./mummergpu_kernel.cu"
+ __texture_type__ __T249;
+# 267 "./mummergpu_kernel.cu"
+ float __T250;
+# 268 "./mummergpu_kernel.cu"
+ float __T251;
+# 269 "./mummergpu_kernel.cu"
+ float4 __T252;
+# 270 "./mummergpu_kernel.cu"
+ unsigned __T253;
+# 271 "./mummergpu_kernel.cu"
+ unsigned __T254;
+# 272 "./mummergpu_kernel.cu"
+ unsigned __T255;
+# 273 "./mummergpu_kernel.cu"
+ unsigned __T256;
+# 274 "./mummergpu_kernel.cu"
+ uint4 __T257;
+# 275 "./mummergpu_kernel.cu"
+ uint4 __T258;
+# 275 "./mummergpu_kernel.cu"
+ struct PixelOfNode __cuda_local_var_32597_16_non_const_node;
+# 276 "./mummergpu_kernel.cu"
+ struct TextureAddress __cuda_local_var_32598_22_non_const_prev;
+# 286 "./mummergpu_kernel.cu"
+ char __cuda_local_var_32608_9_non_const_c;
+# 290 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32612_8_non_const_refpos;
+# 278 "./mummergpu_kernel.cu"
+if (((__cuda_local_var_32583_19_non_const_cur.data) == 0U) || (__cuda_local_var_32586_8_non_const_qry_match_len < 1))
+# 279 "./mummergpu_kernel.cu"
+{
+# 281 "./mummergpu_kernel.cu"
+(__cuda_local_var_32583_19_non_const_cur.x) = ((unsigned short)0U);
+# 281 "./mummergpu_kernel.cu"
+(__cuda_local_var_32583_19_non_const_cur.y) = ((unsigned short)1U);
+# 282 "./mummergpu_kernel.cu"
+__cuda_local_var_32586_8_non_const_qry_match_len = 1;
+# 283 "./mummergpu_kernel.cu"
+__cuda_local_var_32585_8_non_const_mustmatch = 0;
+# 284 "./mummergpu_kernel.cu"
+}
+# 286 "./mummergpu_kernel.cu"
+__cuda_local_var_32608_9_non_const_c = (_Z2rcc((queries[(qrystart - __cuda_local_var_32586_8_non_const_qry_match_len)])));
+# 288 "./mummergpu_kernel.cu"
+do
+# 288 "./mummergpu_kernel.cu"
+{
+# 288 "./mummergpu_kernel.cu"
+} while (0);
+# 290 "./mummergpu_kernel.cu"
+__cuda_local_var_32612_8_non_const_refpos = 0;
+# 291 "./mummergpu_kernel.cu"
+while (((int)__cuda_local_var_32608_9_non_const_c) != 0)
+# 292 "./mummergpu_kernel.cu"
+{
+# 292 "./mummergpu_kernel.cu"
+ __texture_type__ __T259;
+# 293 "./mummergpu_kernel.cu"
+ float __T260;
+# 294 "./mummergpu_kernel.cu"
+ float __T261;
+# 295 "./mummergpu_kernel.cu"
+ float4 __T262;
+# 296 "./mummergpu_kernel.cu"
+ unsigned __T263;
+# 297 "./mummergpu_kernel.cu"
+ unsigned __T264;
+# 298 "./mummergpu_kernel.cu"
+ unsigned __T265;
+# 299 "./mummergpu_kernel.cu"
+ unsigned __T266;
+# 300 "./mummergpu_kernel.cu"
+ uint4 __T267;
+# 301 "./mummergpu_kernel.cu"
+ uint4 __T268;
+# 295 "./mummergpu_kernel.cu"
+ struct PixelOfChildren __cuda_local_var_32617_23_non_const_children;
+# 293 "./mummergpu_kernel.cu"
+do
+# 293 "./mummergpu_kernel.cu"
+{
+# 293 "./mummergpu_kernel.cu"
+} while (0);
+# 296 "./mummergpu_kernel.cu"
+(__cuda_local_var_32617_23_non_const_children.data) = ((((__T259 = childrentex) , ((void)(__T260 = ((float)(__cuda_local_var_32583_19_non_const_cur.x))))) , ((void)(__T261 = ((float)(__cuda_local_var_32583_19_non_const_cur.y))))) , ((__T268 = (__utexfetch(__T259, ((((((__T262.x) = __T260) , ((void)((__T262.y) = __T261))) , ((void)((__T262.z) = (0.0F)))) , ((void)((__T262.w) = (0.0F)))) , __T262), 2))) , (((((__T263 = (__T268.x)) , ((void)(__T264 = (__T268.y)))) , ((void)(__T265 = (__T268.z)))) , ((void)(__T266 = (__T268.w)))) , ((((((__T267.x) = __T263) , ((void)((__T267.y) = __T264))) , ((void)((__T267.z) = __T265))) , ((void)((__T267.w) = __T266))) , __T267))));
+# 297 "./mummergpu_kernel.cu"
+__cuda_local_var_32598_22_non_const_prev = __cuda_local_var_32583_19_non_const_cur;
+# 299 "./mummergpu_kernel.cu"
+switch ((int)__cuda_local_var_32608_9_non_const_c)
+# 300 "./mummergpu_kernel.cu"
+{
+# 301 "./mummergpu_kernel.cu"
+case 65:
+# 301 "./mummergpu_kernel.cu"
+__cuda_local_var_32583_19_non_const_cur = (((__cuda_local_var_32617_23_non_const_children.children))[0]);
+# 301 "./mummergpu_kernel.cu"
+goto __T269;
+# 302 "./mummergpu_kernel.cu"
+case 67:
+# 302 "./mummergpu_kernel.cu"
+__cuda_local_var_32583_19_non_const_cur = (((__cuda_local_var_32617_23_non_const_children.children))[1]);
+# 302 "./mummergpu_kernel.cu"
+goto __T269;
+# 303 "./mummergpu_kernel.cu"
+case 71:
+# 303 "./mummergpu_kernel.cu"
+__cuda_local_var_32583_19_non_const_cur = (((__cuda_local_var_32617_23_non_const_children.children))[2]);
+# 303 "./mummergpu_kernel.cu"
+goto __T269;
+# 304 "./mummergpu_kernel.cu"
+case 84:
+# 304 "./mummergpu_kernel.cu"
+__cuda_local_var_32583_19_non_const_cur = (((__cuda_local_var_32617_23_non_const_children.children))[3]);
+# 304 "./mummergpu_kernel.cu"
+goto __T269;
+# 305 "./mummergpu_kernel.cu"
+default:
+# 305 "./mummergpu_kernel.cu"
+(__cuda_local_var_32583_19_non_const_cur.data) = 0U;
+# 305 "./mummergpu_kernel.cu"
+goto __T269;
+# 306 "./mummergpu_kernel.cu"
+}
+# 306 "./mummergpu_kernel.cu"
+__T269:;
+# 306 "./mummergpu_kernel.cu"
+;
+# 306 "./mummergpu_kernel.cu"
+;
+# 308 "./mummergpu_kernel.cu"
+do
+# 308 "./mummergpu_kernel.cu"
+{
+# 308 "./mummergpu_kernel.cu"
+} while (0);
+# 311 "./mummergpu_kernel.cu"
+if ((__cuda_local_var_32583_19_non_const_cur.data) == 0U)
+# 312 "./mummergpu_kernel.cu"
+{
+# 313 "./mummergpu_kernel.cu"
+do
+# 313 "./mummergpu_kernel.cu"
+{
+# 313 "./mummergpu_kernel.cu"
+} while (0);
+# 314 "./mummergpu_kernel.cu"
+_Z10set_resultRK14TextureAddressP10MatchCoordiiii(((const struct TextureAddress *)(&__cuda_local_var_32598_22_non_const_prev)), __cuda_local_var_32589_17_non_const_result, 0, __cuda_local_var_32586_8_non_const_qry_match_len, min_match_len, 32768);
+# 317 "./mummergpu_kernel.cu"
+__cuda_local_var_32586_8_non_const_qry_match_len -= 1;
+# 318 "./mummergpu_kernel.cu"
+__cuda_local_var_32585_8_non_const_mustmatch = 0;
+# 320 "./mummergpu_kernel.cu"
+goto NEXT_SUBSTRING;
+# 321 "./mummergpu_kernel.cu"
+}
+# 323 "./mummergpu_kernel.cu"
+{
+# 323 "./mummergpu_kernel.cu"
+ __texture_type__ __T270;
+# 324 "./mummergpu_kernel.cu"
+ float __T271;
+# 325 "./mummergpu_kernel.cu"
+ float __T272;
+# 326 "./mummergpu_kernel.cu"
+ float4 __T273;
+# 327 "./mummergpu_kernel.cu"
+ unsigned __T274;
+# 328 "./mummergpu_kernel.cu"
+ unsigned __T275;
+# 329 "./mummergpu_kernel.cu"
+ unsigned __T276;
+# 330 "./mummergpu_kernel.cu"
+ unsigned __T277;
+# 331 "./mummergpu_kernel.cu"
+ uint4 __T278;
+# 332 "./mummergpu_kernel.cu"
+ uint4 __T279;
+# 324 "./mummergpu_kernel.cu"
+ unsigned short __cuda_local_var_32646_27_non_const_xval;
+# 325 "./mummergpu_kernel.cu"
+ unsigned short __cuda_local_var_32647_27_non_const_yval;
+# 324 "./mummergpu_kernel.cu"
+__cuda_local_var_32646_27_non_const_xval = ((unsigned short)((__cuda_local_var_32583_19_non_const_cur.data) & 65535U));
+# 325 "./mummergpu_kernel.cu"
+__cuda_local_var_32647_27_non_const_yval = ((unsigned short)(((__cuda_local_var_32583_19_non_const_cur.data) & 4294901760U) >> 16));
+# 326 "./mummergpu_kernel.cu"
+(__cuda_local_var_32597_16_non_const_node.data) = ((((__T270 = nodetex) , ((void)(__T271 = ((float)__cuda_local_var_32646_27_non_const_xval)))) , ((void)(__T272 = ((float)__cuda_local_var_32647_27_non_const_yval)))) , ((__T279 = (__utexfetch(__T270, ((((((__T273.x) = __T271) , ((void)((__T273.y) = __T272))) , ((void)((__T273.z) = (0.0F)))) , ((void)((__T273.w) = (0.0F)))) , __T273), 2))) , (((((__T274 = (__T279.x)) , ((void)(__T275 = (__T279.y)))) , ((void)(__T276 = (__T279.z)))) , ((void)(__T277 = (__T279.w)))) , ((((((__T278.x) = __T274) , ((void)((__T278.y) = __T275))) , ((void)((__T278.z) = __T276))) , ((void)((__T278.w) = __T277))) , __T278))));
+# 327 "./mummergpu_kernel.cu"
+}
+# 329 "./mummergpu_kernel.cu"
+do
+# 329 "./mummergpu_kernel.cu"
+{
+# 329 "./mummergpu_kernel.cu"
+} while (0);
+# 331 "./mummergpu_kernel.cu"
+if (__cuda_local_var_32585_8_non_const_mustmatch)
+# 332 "./mummergpu_kernel.cu"
+{
+# 333 "./mummergpu_kernel.cu"
+ int __cuda_local_var_32655_16_non_const_edgelen;
+# 333 "./mummergpu_kernel.cu"
+__cuda_local_var_32655_16_non_const_edgelen = (((__cuda_local_var_32597_16_non_const_node.end) - (__cuda_local_var_32597_16_non_const_node.start)) + 1);
+# 334 "./mummergpu_kernel.cu"
+if (__cuda_local_var_32585_8_non_const_mustmatch >= __cuda_local_var_32655_16_non_const_edgelen)
+# 335 "./mummergpu_kernel.cu"
+{
+# 336 "./mummergpu_kernel.cu"
+do
+# 336 "./mummergpu_kernel.cu"
+{
+# 336 "./mummergpu_kernel.cu"
+} while (0);
+# 338 "./mummergpu_kernel.cu"
+__cuda_local_var_32612_8_non_const_refpos = ((__cuda_local_var_32597_16_non_const_node.end) + 1);
+# 339 "./mummergpu_kernel.cu"
+__cuda_local_var_32586_8_non_const_qry_match_len += __cuda_local_var_32655_16_non_const_edgelen;
+# 340 "./mummergpu_kernel.cu"
+__cuda_local_var_32585_8_non_const_mustmatch -= __cuda_local_var_32655_16_non_const_edgelen;
+# 341 "./mummergpu_kernel.cu"
+}
+# 343 "./mummergpu_kernel.cu"
+else 
+# 343 "./mummergpu_kernel.cu"
+{
+# 344 "./mummergpu_kernel.cu"
+do
+# 344 "./mummergpu_kernel.cu"
+{
+# 344 "./mummergpu_kernel.cu"
+} while (0);
+# 347 "./mummergpu_kernel.cu"
+__cuda_local_var_32586_8_non_const_qry_match_len += __cuda_local_var_32585_8_non_const_mustmatch;
+# 348 "./mummergpu_kernel.cu"
+__cuda_local_var_32612_8_non_const_refpos = ((__cuda_local_var_32597_16_non_const_node.start) + __cuda_local_var_32585_8_non_const_mustmatch);
+# 349 "./mummergpu_kernel.cu"
+__cuda_local_var_32585_8_non_const_mustmatch = 0;
+# 350 "./mummergpu_kernel.cu"
+}
+# 351 "./mummergpu_kernel.cu"
+}
+# 353 "./mummergpu_kernel.cu"
+else 
+# 353 "./mummergpu_kernel.cu"
+{
+# 355 "./mummergpu_kernel.cu"
+__cuda_local_var_32586_8_non_const_qry_match_len++;
+# 356 "./mummergpu_kernel.cu"
+__cuda_local_var_32612_8_non_const_refpos = ((__cuda_local_var_32597_16_non_const_node.start) + 1);
+# 357 "./mummergpu_kernel.cu"
+}
+# 359 "./mummergpu_kernel.cu"
+__cuda_local_var_32608_9_non_const_c = (_Z2rcc((queries[(qrystart - __cuda_local_var_32586_8_non_const_qry_match_len)])));
+# 361 "./mummergpu_kernel.cu"
+while ((__cuda_local_var_32612_8_non_const_refpos <= (__cuda_local_var_32597_16_non_const_node.end)) && (((int)__cuda_local_var_32608_9_non_const_c) != 0))
+# 362 "./mummergpu_kernel.cu"
+{
+# 363 "./mummergpu_kernel.cu"
+ char __cuda_local_var_32685_18_non_const_r;
+# 363 "./mummergpu_kernel.cu"
+__cuda_local_var_32685_18_non_const_r = (_Z6getRefi(__cuda_local_var_32612_8_non_const_refpos));
+# 365 "./mummergpu_kernel.cu"
+do
+# 365 "./mummergpu_kernel.cu"
+{
+# 365 "./mummergpu_kernel.cu"
+} while (0);
+# 367 "./mummergpu_kernel.cu"
+if (((int)__cuda_local_var_32685_18_non_const_r) != ((int)__cuda_local_var_32608_9_non_const_c))
+# 368 "./mummergpu_kernel.cu"
+{
+# 370 "./mummergpu_kernel.cu"
+do
+# 370 "./mummergpu_kernel.cu"
+{
+# 370 "./mummergpu_kernel.cu"
+} while (0);
+# 371 "./mummergpu_kernel.cu"
+goto RECORD_RESULT;
+# 372 "./mummergpu_kernel.cu"
+}
+# 374 "./mummergpu_kernel.cu"
+__cuda_local_var_32586_8_non_const_qry_match_len++;
+# 375 "./mummergpu_kernel.cu"
+__cuda_local_var_32612_8_non_const_refpos++;
+# 376 "./mummergpu_kernel.cu"
+__cuda_local_var_32608_9_non_const_c = (_Z2rcc((queries[(qrystart - __cuda_local_var_32586_8_non_const_qry_match_len)])));
+# 377 "./mummergpu_kernel.cu"
+}
+# 378 "./mummergpu_kernel.cu"
+}
+# 380 "./mummergpu_kernel.cu"
+do
+# 380 "./mummergpu_kernel.cu"
+{
+# 380 "./mummergpu_kernel.cu"
+} while (0);
+# 382 "./mummergpu_kernel.cu"
+RECORD_RESULT:;
+# 382 "./mummergpu_kernel.cu"
+;
+# 384 "./mummergpu_kernel.cu"
+_Z10set_resultRK14TextureAddressP10MatchCoordiiii(((const struct TextureAddress *)(&__cuda_local_var_32583_19_non_const_cur)), __cuda_local_var_32589_17_non_const_result, (__cuda_local_var_32612_8_non_const_refpos - (__cuda_local_var_32597_16_non_const_node.start)), __cuda_local_var_32586_8_non_const_qry_match_len, min_match_len, 32768);
+# 387 "./mummergpu_kernel.cu"
+__cuda_local_var_32585_8_non_const_mustmatch = (__cuda_local_var_32612_8_non_const_refpos - (__cuda_local_var_32597_16_non_const_node.start));
+# 388 "./mummergpu_kernel.cu"
+__cuda_local_var_32586_8_non_const_qry_match_len -= (__cuda_local_var_32585_8_non_const_mustmatch + 1);
+# 390 "./mummergpu_kernel.cu"
+NEXT_SUBSTRING:;
+# 390 "./mummergpu_kernel.cu"
+;
+# 392 "./mummergpu_kernel.cu"
+(__cuda_local_var_32597_16_non_const_node.data) = ((((__T249 = nodetex) , ((void)(__T250 = ((float)(__cuda_local_var_32598_22_non_const_prev.x))))) , ((void)(__T251 = ((float)(__cuda_local_var_32598_22_non_const_prev.y))))) , ((__T258 = (__utexfetch(__T249, ((((((__T252.x) = __T250) , ((void)((__T252.y) = __T251))) , ((void)((__T252.z) = (0.0F)))) , ((void)((__T252.w) = (0.0F)))) , __T252), 2))) , (((((__T253 = (__T258.x)) , ((void)(__T254 = (__T258.y)))) , ((void)(__T255 = (__T258.z)))) , ((void)(__T256 = (__T258.w)))) , ((((((__T257.x) = __T253) , ((void)((__T257.y) = __T254))) , ((void)((__T257.z) = __T255))) , ((void)((__T257.w) = __T256))) , __T257))));
+# 393 "./mummergpu_kernel.cu"
+__cuda_local_var_32583_19_non_const_cur = (__cuda_local_var_32597_16_non_const_node.suffix);
+# 395 "./mummergpu_kernel.cu"
+do
+# 395 "./mummergpu_kernel.cu"
+{
+# 395 "./mummergpu_kernel.cu"
+} while (0);
+# 398 "./mummergpu_kernel.cu"
+do
+# 398 "./mummergpu_kernel.cu"
+{
+# 398 "./mummergpu_kernel.cu"
+} while (0);
+# 399 "./mummergpu_kernel.cu"
+}
+# 399 "./mummergpu_kernel.cu"
+}
+# 401 "./mummergpu_kernel.cu"
+return;
+# 402 "./mummergpu_kernel.cu"
+}
+# 402 "./mummergpu_kernel.cu"
+}}

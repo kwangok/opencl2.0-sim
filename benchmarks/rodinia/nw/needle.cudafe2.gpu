@@ -1,0 +1,414 @@
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+#if !defined(__CUDABE__)
+# 131 "/home/bachelor/deicide218/cuda-4.2/include/device_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) void __syncthreads(void);
+#endif
+# 9 "./needle_kernel.cu"
+___device__(extern  __no_sc__) int _Z7maximumiii(int, int, int);
+# 27 "./needle_kernel.cu"
+__global__ __var_used__ extern void _Z20needle_cuda_shared_1PiS_S_iiii(int *, int *, int *, int, int, int, int);
+# 109 "./needle_kernel.cu"
+__global__ __var_used__ extern void _Z20needle_cuda_shared_2PiS_S_iiii(int *, int *, int *, int, int, int, int);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 9 "./needle_kernel.cu"
+___device__( __no_sc__) int _Z7maximumiii(
+# 9 "./needle_kernel.cu"
+int a, 
+# 10 "./needle_kernel.cu"
+int b, 
+# 11 "./needle_kernel.cu"
+int c){
+# 11 "./needle_kernel.cu"
+{
+# 11 "./needle_kernel.cu"
+{
+# 13 "./needle_kernel.cu"
+ int __cuda_local_var_17543_5_non_const_k;
+# 14 "./needle_kernel.cu"
+if (a <= b)
+# 14 "./needle_kernel.cu"
+{
+# 15 "./needle_kernel.cu"
+__cuda_local_var_17543_5_non_const_k = b;
+# 15 "./needle_kernel.cu"
+}
+# 15 "./needle_kernel.cu"
+else 
+# 15 "./needle_kernel.cu"
+{
+# 17 "./needle_kernel.cu"
+__cuda_local_var_17543_5_non_const_k = a;
+# 17 "./needle_kernel.cu"
+}
+# 19 "./needle_kernel.cu"
+if (__cuda_local_var_17543_5_non_const_k <= c)
+# 19 "./needle_kernel.cu"
+{
+# 20 "./needle_kernel.cu"
+return c;
+# 20 "./needle_kernel.cu"
+}
+# 20 "./needle_kernel.cu"
+else 
+# 20 "./needle_kernel.cu"
+{
+# 22 "./needle_kernel.cu"
+return __cuda_local_var_17543_5_non_const_k;
+# 22 "./needle_kernel.cu"
+}
+# 24 "./needle_kernel.cu"
+}
+# 24 "./needle_kernel.cu"
+}}
+# 27 "./needle_kernel.cu"
+__global__ __var_used__ void _Z20needle_cuda_shared_1PiS_S_iiii(
+# 27 "./needle_kernel.cu"
+int *referrence, 
+# 28 "./needle_kernel.cu"
+int *matrix_cuda, 
+# 29 "./needle_kernel.cu"
+int *matrix_cuda_out, 
+# 30 "./needle_kernel.cu"
+int cols, 
+# 31 "./needle_kernel.cu"
+int penalty, 
+# 32 "./needle_kernel.cu"
+int i, 
+# 33 "./needle_kernel.cu"
+int block_width){
+# 33 "./needle_kernel.cu"
+{
+# 34 "./needle_kernel.cu"
+{
+# 35 "./needle_kernel.cu"
+ int __cuda_local_var_17565_7_non_const_bx;
+# 36 "./needle_kernel.cu"
+ int __cuda_local_var_17566_7_non_const_tx;
+# 38 "./needle_kernel.cu"
+ int __cuda_local_var_17568_7_non_const_b_index_x;
+# 39 "./needle_kernel.cu"
+ int __cuda_local_var_17569_7_non_const_b_index_y;
+# 41 "./needle_kernel.cu"
+ int __cuda_local_var_17571_7_non_const_index;
+# 42 "./needle_kernel.cu"
+ int __cuda_local_var_17572_7_non_const_index_n;
+# 43 "./needle_kernel.cu"
+ int __cuda_local_var_17573_7_non_const_index_w;
+# 44 "./needle_kernel.cu"
+ int __cuda_local_var_17574_7_non_const_index_nw;
+# 46 "./needle_kernel.cu"
+__loc_sc__(__shared__,, ) int __cuda_local_var_17576_31_non_const_temp[17][17];
+# 47 "./needle_kernel.cu"
+__loc_sc__(__shared__,, ) int __cuda_local_var_17577_31_non_const_ref[16][16];
+# 35 "./needle_kernel.cu"
+__cuda_local_var_17565_7_non_const_bx = ((int)(blockIdx.x));
+# 36 "./needle_kernel.cu"
+__cuda_local_var_17566_7_non_const_tx = ((int)(threadIdx.x));
+# 38 "./needle_kernel.cu"
+__cuda_local_var_17568_7_non_const_b_index_x = __cuda_local_var_17565_7_non_const_bx;
+# 39 "./needle_kernel.cu"
+__cuda_local_var_17569_7_non_const_b_index_y = ((i - 1) - __cuda_local_var_17565_7_non_const_bx);
+# 41 "./needle_kernel.cu"
+__cuda_local_var_17571_7_non_const_index = (((((cols * 16) * __cuda_local_var_17569_7_non_const_b_index_y) + (16 * __cuda_local_var_17568_7_non_const_b_index_x)) + __cuda_local_var_17566_7_non_const_tx) + (cols + 1));
+# 42 "./needle_kernel.cu"
+__cuda_local_var_17572_7_non_const_index_n = (((((cols * 16) * __cuda_local_var_17569_7_non_const_b_index_y) + (16 * __cuda_local_var_17568_7_non_const_b_index_x)) + __cuda_local_var_17566_7_non_const_tx) + 1);
+# 43 "./needle_kernel.cu"
+__cuda_local_var_17573_7_non_const_index_w = ((((cols * 16) * __cuda_local_var_17569_7_non_const_b_index_y) + (16 * __cuda_local_var_17568_7_non_const_b_index_x)) + cols);
+# 44 "./needle_kernel.cu"
+__cuda_local_var_17574_7_non_const_index_nw = (((cols * 16) * __cuda_local_var_17569_7_non_const_b_index_y) + (16 * __cuda_local_var_17568_7_non_const_b_index_x));
+# 49 "./needle_kernel.cu"
+if (__cuda_local_var_17566_7_non_const_tx == 0)
+# 49 "./needle_kernel.cu"
+{
+# 50 "./needle_kernel.cu"
+((((__cuda_local_var_17576_31_non_const_temp)[__cuda_local_var_17566_7_non_const_tx]))[0]) = (matrix_cuda[__cuda_local_var_17574_7_non_const_index_nw]);
+# 50 "./needle_kernel.cu"
+}
+# 50 "./needle_kernel.cu"
+{
+# 53 "./needle_kernel.cu"
+ int ty;
+# 53 "./needle_kernel.cu"
+ty = 0;
+# 53 "./needle_kernel.cu"
+for (; (ty < 16); ty++)
+# 53 "./needle_kernel.cu"
+{
+# 54 "./needle_kernel.cu"
+((((__cuda_local_var_17577_31_non_const_ref)[ty]))[__cuda_local_var_17566_7_non_const_tx]) = (referrence[(__cuda_local_var_17571_7_non_const_index + (cols * ty))]);
+# 54 "./needle_kernel.cu"
+}
+# 54 "./needle_kernel.cu"
+}
+# 56 "./needle_kernel.cu"
+__syncthreads();
+# 58 "./needle_kernel.cu"
+((((__cuda_local_var_17576_31_non_const_temp)[(__cuda_local_var_17566_7_non_const_tx + 1)]))[0]) = (matrix_cuda[(__cuda_local_var_17573_7_non_const_index_w + (cols * __cuda_local_var_17566_7_non_const_tx))]);
+# 60 "./needle_kernel.cu"
+__syncthreads();
+# 62 "./needle_kernel.cu"
+((((__cuda_local_var_17576_31_non_const_temp)[0]))[(__cuda_local_var_17566_7_non_const_tx + 1)]) = (matrix_cuda[__cuda_local_var_17572_7_non_const_index_n]);
+# 64 "./needle_kernel.cu"
+__syncthreads();
+# 64 "./needle_kernel.cu"
+{
+# 67 "./needle_kernel.cu"
+ int m;
+# 67 "./needle_kernel.cu"
+m = 0;
+# 67 "./needle_kernel.cu"
+for (; (m < 16); m++)
+# 67 "./needle_kernel.cu"
+{
+# 69 "./needle_kernel.cu"
+if (__cuda_local_var_17566_7_non_const_tx <= m)
+# 69 "./needle_kernel.cu"
+{
+# 71 "./needle_kernel.cu"
+ int __cuda_local_var_17601_9_non_const_t_index_x;
+# 72 "./needle_kernel.cu"
+ int __cuda_local_var_17602_9_non_const_t_index_y;
+# 71 "./needle_kernel.cu"
+__cuda_local_var_17601_9_non_const_t_index_x = (__cuda_local_var_17566_7_non_const_tx + 1);
+# 72 "./needle_kernel.cu"
+__cuda_local_var_17602_9_non_const_t_index_y = ((m - __cuda_local_var_17566_7_non_const_tx) + 1);
+# 74 "./needle_kernel.cu"
+((((__cuda_local_var_17576_31_non_const_temp)[__cuda_local_var_17602_9_non_const_t_index_y]))[__cuda_local_var_17601_9_non_const_t_index_x]) = (_Z7maximumiii((((((__cuda_local_var_17576_31_non_const_temp)[(__cuda_local_var_17602_9_non_const_t_index_y - 1)]))[(__cuda_local_var_17601_9_non_const_t_index_x - 1)]) + ((((__cuda_local_var_17577_31_non_const_ref)[(__cuda_local_var_17602_9_non_const_t_index_y - 1)]))[(__cuda_local_var_17601_9_non_const_t_index_x - 1)])), (((((__cuda_local_var_17576_31_non_const_temp)[__cuda_local_var_17602_9_non_const_t_index_y]))[(__cuda_local_var_17601_9_non_const_t_index_x - 1)]) - penalty), (((((__cuda_local_var_17576_31_non_const_temp)[(__cuda_local_var_17602_9_non_const_t_index_y - 1)]))[__cuda_local_var_17601_9_non_const_t_index_x]) - penalty)));
+# 80 "./needle_kernel.cu"
+}
+# 82 "./needle_kernel.cu"
+__syncthreads();
+# 84 "./needle_kernel.cu"
+}
+# 84 "./needle_kernel.cu"
+}
+# 84 "./needle_kernel.cu"
+{
+# 86 "./needle_kernel.cu"
+ int m;
+# 86 "./needle_kernel.cu"
+m = 14;
+# 86 "./needle_kernel.cu"
+for (; (m >= 0); m--)
+# 86 "./needle_kernel.cu"
+{
+# 88 "./needle_kernel.cu"
+if (__cuda_local_var_17566_7_non_const_tx <= m)
+# 88 "./needle_kernel.cu"
+{
+# 90 "./needle_kernel.cu"
+ int __cuda_local_var_17620_9_non_const_t_index_x;
+# 91 "./needle_kernel.cu"
+ int __cuda_local_var_17621_9_non_const_t_index_y;
+# 90 "./needle_kernel.cu"
+__cuda_local_var_17620_9_non_const_t_index_x = ((__cuda_local_var_17566_7_non_const_tx + 16) - m);
+# 91 "./needle_kernel.cu"
+__cuda_local_var_17621_9_non_const_t_index_y = (16 - __cuda_local_var_17566_7_non_const_tx);
+# 93 "./needle_kernel.cu"
+((((__cuda_local_var_17576_31_non_const_temp)[__cuda_local_var_17621_9_non_const_t_index_y]))[__cuda_local_var_17620_9_non_const_t_index_x]) = (_Z7maximumiii((((((__cuda_local_var_17576_31_non_const_temp)[(__cuda_local_var_17621_9_non_const_t_index_y - 1)]))[(__cuda_local_var_17620_9_non_const_t_index_x - 1)]) + ((((__cuda_local_var_17577_31_non_const_ref)[(__cuda_local_var_17621_9_non_const_t_index_y - 1)]))[(__cuda_local_var_17620_9_non_const_t_index_x - 1)])), (((((__cuda_local_var_17576_31_non_const_temp)[__cuda_local_var_17621_9_non_const_t_index_y]))[(__cuda_local_var_17620_9_non_const_t_index_x - 1)]) - penalty), (((((__cuda_local_var_17576_31_non_const_temp)[(__cuda_local_var_17621_9_non_const_t_index_y - 1)]))[__cuda_local_var_17620_9_non_const_t_index_x]) - penalty)));
+# 97 "./needle_kernel.cu"
+}
+# 99 "./needle_kernel.cu"
+__syncthreads();
+# 100 "./needle_kernel.cu"
+}
+# 100 "./needle_kernel.cu"
+}
+# 100 "./needle_kernel.cu"
+{
+# 102 "./needle_kernel.cu"
+ int ty;
+# 102 "./needle_kernel.cu"
+ty = 0;
+# 102 "./needle_kernel.cu"
+for (; (ty < 16); ty++)
+# 102 "./needle_kernel.cu"
+{
+# 103 "./needle_kernel.cu"
+(matrix_cuda[(__cuda_local_var_17571_7_non_const_index + (ty * cols))]) = ((((__cuda_local_var_17576_31_non_const_temp)[(ty + 1)]))[(__cuda_local_var_17566_7_non_const_tx + 1)]);
+# 103 "./needle_kernel.cu"
+}
+# 103 "./needle_kernel.cu"
+}
+# 105 "./needle_kernel.cu"
+} 
+# 105 "./needle_kernel.cu"
+}}
+# 109 "./needle_kernel.cu"
+__global__ __var_used__ void _Z20needle_cuda_shared_2PiS_S_iiii(
+# 109 "./needle_kernel.cu"
+int *referrence, 
+# 110 "./needle_kernel.cu"
+int *matrix_cuda, 
+# 111 "./needle_kernel.cu"
+int *matrix_cuda_out, 
+# 113 "./needle_kernel.cu"
+int cols, 
+# 114 "./needle_kernel.cu"
+int penalty, 
+# 115 "./needle_kernel.cu"
+int i, 
+# 116 "./needle_kernel.cu"
+int block_width){
+# 116 "./needle_kernel.cu"
+{
+# 117 "./needle_kernel.cu"
+{
+# 119 "./needle_kernel.cu"
+ int __cuda_local_var_17649_7_non_const_bx;
+# 120 "./needle_kernel.cu"
+ int __cuda_local_var_17650_7_non_const_tx;
+# 122 "./needle_kernel.cu"
+ int __cuda_local_var_17652_7_non_const_b_index_x;
+# 123 "./needle_kernel.cu"
+ int __cuda_local_var_17653_7_non_const_b_index_y;
+# 125 "./needle_kernel.cu"
+ int __cuda_local_var_17655_7_non_const_index;
+# 126 "./needle_kernel.cu"
+ int __cuda_local_var_17656_7_non_const_index_n;
+# 127 "./needle_kernel.cu"
+ int __cuda_local_var_17657_7_non_const_index_w;
+# 128 "./needle_kernel.cu"
+ int __cuda_local_var_17658_9_non_const_index_nw;
+# 130 "./needle_kernel.cu"
+__loc_sc__(__shared__,, ) int __cuda_local_var_17660_31_non_const_temp[17][17];
+# 131 "./needle_kernel.cu"
+__loc_sc__(__shared__,, ) int __cuda_local_var_17661_31_non_const_ref[16][16];
+# 119 "./needle_kernel.cu"
+__cuda_local_var_17649_7_non_const_bx = ((int)(blockIdx.x));
+# 120 "./needle_kernel.cu"
+__cuda_local_var_17650_7_non_const_tx = ((int)(threadIdx.x));
+# 122 "./needle_kernel.cu"
+__cuda_local_var_17652_7_non_const_b_index_x = ((__cuda_local_var_17649_7_non_const_bx + block_width) - i);
+# 123 "./needle_kernel.cu"
+__cuda_local_var_17653_7_non_const_b_index_y = ((block_width - __cuda_local_var_17649_7_non_const_bx) - 1);
+# 125 "./needle_kernel.cu"
+__cuda_local_var_17655_7_non_const_index = (((((cols * 16) * __cuda_local_var_17653_7_non_const_b_index_y) + (16 * __cuda_local_var_17652_7_non_const_b_index_x)) + __cuda_local_var_17650_7_non_const_tx) + (cols + 1));
+# 126 "./needle_kernel.cu"
+__cuda_local_var_17656_7_non_const_index_n = (((((cols * 16) * __cuda_local_var_17653_7_non_const_b_index_y) + (16 * __cuda_local_var_17652_7_non_const_b_index_x)) + __cuda_local_var_17650_7_non_const_tx) + 1);
+# 127 "./needle_kernel.cu"
+__cuda_local_var_17657_7_non_const_index_w = ((((cols * 16) * __cuda_local_var_17653_7_non_const_b_index_y) + (16 * __cuda_local_var_17652_7_non_const_b_index_x)) + cols);
+# 128 "./needle_kernel.cu"
+__cuda_local_var_17658_9_non_const_index_nw = (((cols * 16) * __cuda_local_var_17653_7_non_const_b_index_y) + (16 * __cuda_local_var_17652_7_non_const_b_index_x));
+# 128 "./needle_kernel.cu"
+{
+# 133 "./needle_kernel.cu"
+ int ty;
+# 133 "./needle_kernel.cu"
+ty = 0;
+# 133 "./needle_kernel.cu"
+for (; (ty < 16); ty++)
+# 133 "./needle_kernel.cu"
+{
+# 134 "./needle_kernel.cu"
+((((__cuda_local_var_17661_31_non_const_ref)[ty]))[__cuda_local_var_17650_7_non_const_tx]) = (referrence[(__cuda_local_var_17655_7_non_const_index + (cols * ty))]);
+# 134 "./needle_kernel.cu"
+}
+# 134 "./needle_kernel.cu"
+}
+# 136 "./needle_kernel.cu"
+__syncthreads();
+# 138 "./needle_kernel.cu"
+if (__cuda_local_var_17650_7_non_const_tx == 0)
+# 138 "./needle_kernel.cu"
+{
+# 139 "./needle_kernel.cu"
+((((__cuda_local_var_17660_31_non_const_temp)[__cuda_local_var_17650_7_non_const_tx]))[0]) = (matrix_cuda[__cuda_local_var_17658_9_non_const_index_nw]);
+# 139 "./needle_kernel.cu"
+}
+# 142 "./needle_kernel.cu"
+((((__cuda_local_var_17660_31_non_const_temp)[(__cuda_local_var_17650_7_non_const_tx + 1)]))[0]) = (matrix_cuda[(__cuda_local_var_17657_7_non_const_index_w + (cols * __cuda_local_var_17650_7_non_const_tx))]);
+# 144 "./needle_kernel.cu"
+__syncthreads();
+# 146 "./needle_kernel.cu"
+((((__cuda_local_var_17660_31_non_const_temp)[0]))[(__cuda_local_var_17650_7_non_const_tx + 1)]) = (matrix_cuda[__cuda_local_var_17656_7_non_const_index_n]);
+# 148 "./needle_kernel.cu"
+__syncthreads();
+# 148 "./needle_kernel.cu"
+{
+# 151 "./needle_kernel.cu"
+ int m;
+# 151 "./needle_kernel.cu"
+m = 0;
+# 151 "./needle_kernel.cu"
+for (; (m < 16); m++)
+# 151 "./needle_kernel.cu"
+{
+# 153 "./needle_kernel.cu"
+if (__cuda_local_var_17650_7_non_const_tx <= m)
+# 153 "./needle_kernel.cu"
+{
+# 155 "./needle_kernel.cu"
+ int __cuda_local_var_17685_9_non_const_t_index_x;
+# 156 "./needle_kernel.cu"
+ int __cuda_local_var_17686_9_non_const_t_index_y;
+# 155 "./needle_kernel.cu"
+__cuda_local_var_17685_9_non_const_t_index_x = (__cuda_local_var_17650_7_non_const_tx + 1);
+# 156 "./needle_kernel.cu"
+__cuda_local_var_17686_9_non_const_t_index_y = ((m - __cuda_local_var_17650_7_non_const_tx) + 1);
+# 158 "./needle_kernel.cu"
+((((__cuda_local_var_17660_31_non_const_temp)[__cuda_local_var_17686_9_non_const_t_index_y]))[__cuda_local_var_17685_9_non_const_t_index_x]) = (_Z7maximumiii((((((__cuda_local_var_17660_31_non_const_temp)[(__cuda_local_var_17686_9_non_const_t_index_y - 1)]))[(__cuda_local_var_17685_9_non_const_t_index_x - 1)]) + ((((__cuda_local_var_17661_31_non_const_ref)[(__cuda_local_var_17686_9_non_const_t_index_y - 1)]))[(__cuda_local_var_17685_9_non_const_t_index_x - 1)])), (((((__cuda_local_var_17660_31_non_const_temp)[__cuda_local_var_17686_9_non_const_t_index_y]))[(__cuda_local_var_17685_9_non_const_t_index_x - 1)]) - penalty), (((((__cuda_local_var_17660_31_non_const_temp)[(__cuda_local_var_17686_9_non_const_t_index_y - 1)]))[__cuda_local_var_17685_9_non_const_t_index_x]) - penalty)));
+# 162 "./needle_kernel.cu"
+}
+# 164 "./needle_kernel.cu"
+__syncthreads();
+# 166 "./needle_kernel.cu"
+}
+# 166 "./needle_kernel.cu"
+}
+# 166 "./needle_kernel.cu"
+{
+# 169 "./needle_kernel.cu"
+ int m;
+# 169 "./needle_kernel.cu"
+m = 14;
+# 169 "./needle_kernel.cu"
+for (; (m >= 0); m--)
+# 169 "./needle_kernel.cu"
+{
+# 171 "./needle_kernel.cu"
+if (__cuda_local_var_17650_7_non_const_tx <= m)
+# 171 "./needle_kernel.cu"
+{
+# 173 "./needle_kernel.cu"
+ int __cuda_local_var_17703_9_non_const_t_index_x;
+# 174 "./needle_kernel.cu"
+ int __cuda_local_var_17704_9_non_const_t_index_y;
+# 173 "./needle_kernel.cu"
+__cuda_local_var_17703_9_non_const_t_index_x = ((__cuda_local_var_17650_7_non_const_tx + 16) - m);
+# 174 "./needle_kernel.cu"
+__cuda_local_var_17704_9_non_const_t_index_y = (16 - __cuda_local_var_17650_7_non_const_tx);
+# 176 "./needle_kernel.cu"
+((((__cuda_local_var_17660_31_non_const_temp)[__cuda_local_var_17704_9_non_const_t_index_y]))[__cuda_local_var_17703_9_non_const_t_index_x]) = (_Z7maximumiii((((((__cuda_local_var_17660_31_non_const_temp)[(__cuda_local_var_17704_9_non_const_t_index_y - 1)]))[(__cuda_local_var_17703_9_non_const_t_index_x - 1)]) + ((((__cuda_local_var_17661_31_non_const_ref)[(__cuda_local_var_17704_9_non_const_t_index_y - 1)]))[(__cuda_local_var_17703_9_non_const_t_index_x - 1)])), (((((__cuda_local_var_17660_31_non_const_temp)[__cuda_local_var_17704_9_non_const_t_index_y]))[(__cuda_local_var_17703_9_non_const_t_index_x - 1)]) - penalty), (((((__cuda_local_var_17660_31_non_const_temp)[(__cuda_local_var_17704_9_non_const_t_index_y - 1)]))[__cuda_local_var_17703_9_non_const_t_index_x]) - penalty)));
+# 181 "./needle_kernel.cu"
+}
+# 183 "./needle_kernel.cu"
+__syncthreads();
+# 184 "./needle_kernel.cu"
+}
+# 184 "./needle_kernel.cu"
+}
+# 184 "./needle_kernel.cu"
+{
+# 187 "./needle_kernel.cu"
+ int ty;
+# 187 "./needle_kernel.cu"
+ty = 0;
+# 187 "./needle_kernel.cu"
+for (; (ty < 16); ty++)
+# 187 "./needle_kernel.cu"
+{
+# 188 "./needle_kernel.cu"
+(matrix_cuda[(__cuda_local_var_17655_7_non_const_index + (ty * cols))]) = ((((__cuda_local_var_17660_31_non_const_temp)[(ty + 1)]))[(__cuda_local_var_17650_7_non_const_tx + 1)]);
+# 188 "./needle_kernel.cu"
+}
+# 188 "./needle_kernel.cu"
+}
+# 190 "./needle_kernel.cu"
+} 
+# 190 "./needle_kernel.cu"
+}}

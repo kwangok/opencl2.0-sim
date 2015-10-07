@@ -1,0 +1,1726 @@
+# 21 "define.c"
+struct params_common_change;
+# 38 "define.c"
+struct params_common;
+# 270 "define.c"
+struct params_unique;
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 21 "define.c"
+struct params_common_change {
+# 27 "define.c"
+float *d_frame;
+# 28 "define.c"
+int frame_no;
+# 28 "define.c"
+char __nv_no_debug_dummy_end_padding_0[4];};
+# 30 "define.c"
+typedef struct params_common_change params_common_change;
+# 38 "define.c"
+struct params_common {
+# 48 "define.c"
+int sSize;
+# 49 "define.c"
+int tSize;
+# 50 "define.c"
+int maxMove;
+# 51 "define.c"
+float alpha;
+# 57 "define.c"
+int no_frames;
+# 58 "define.c"
+int frame_rows;
+# 59 "define.c"
+int frame_cols;
+# 60 "define.c"
+int frame_elem;
+# 61 "define.c"
+int frame_mem;
+# 67 "define.c"
+int endoPoints;
+# 68 "define.c"
+int endo_mem;
+# 70 "define.c"
+int *endoRow;
+# 71 "define.c"
+int *endoCol;
+# 72 "define.c"
+int *tEndoRowLoc;
+# 73 "define.c"
+int *tEndoColLoc;
+# 75 "define.c"
+int *d_endoRow;
+# 76 "define.c"
+int *d_endoCol;
+# 77 "define.c"
+int *d_tEndoRowLoc;
+# 78 "define.c"
+int *d_tEndoColLoc;
+# 80 "define.c"
+float *d_endoT;
+# 85 "define.c"
+int epiPoints;
+# 86 "define.c"
+int epi_mem;
+# 88 "define.c"
+int *epiRow;
+# 89 "define.c"
+int *epiCol;
+# 90 "define.c"
+int *tEpiRowLoc;
+# 91 "define.c"
+int *tEpiColLoc;
+# 93 "define.c"
+int *d_epiRow;
+# 94 "define.c"
+int *d_epiCol;
+# 95 "define.c"
+int *d_tEpiRowLoc;
+# 96 "define.c"
+int *d_tEpiColLoc;
+# 98 "define.c"
+float *d_epiT;
+# 104 "define.c"
+int allPoints;
+# 110 "define.c"
+int in_rows;
+# 111 "define.c"
+int in_cols;
+# 112 "define.c"
+int in_elem;
+# 113 "define.c"
+int in_mem;
+# 119 "define.c"
+int in2_rows;
+# 120 "define.c"
+int in2_cols;
+# 121 "define.c"
+int in2_elem;
+# 122 "define.c"
+int in2_mem;
+# 128 "define.c"
+int conv_rows;
+# 129 "define.c"
+int conv_cols;
+# 130 "define.c"
+int conv_elem;
+# 131 "define.c"
+int conv_mem;
+# 132 "define.c"
+int ioffset;
+# 133 "define.c"
+int joffset;
+# 143 "define.c"
+int in2_pad_add_rows;
+# 144 "define.c"
+int in2_pad_add_cols;
+# 145 "define.c"
+int in2_pad_cumv_rows;
+# 146 "define.c"
+int in2_pad_cumv_cols;
+# 147 "define.c"
+int in2_pad_cumv_elem;
+# 148 "define.c"
+int in2_pad_cumv_mem;
+# 154 "define.c"
+int in2_pad_cumv_sel_rows;
+# 155 "define.c"
+int in2_pad_cumv_sel_cols;
+# 156 "define.c"
+int in2_pad_cumv_sel_elem;
+# 157 "define.c"
+int in2_pad_cumv_sel_mem;
+# 158 "define.c"
+int in2_pad_cumv_sel_rowlow;
+# 159 "define.c"
+int in2_pad_cumv_sel_rowhig;
+# 160 "define.c"
+int in2_pad_cumv_sel_collow;
+# 161 "define.c"
+int in2_pad_cumv_sel_colhig;
+# 167 "define.c"
+int in2_pad_cumv_sel2_rowlow;
+# 168 "define.c"
+int in2_pad_cumv_sel2_rowhig;
+# 169 "define.c"
+int in2_pad_cumv_sel2_collow;
+# 170 "define.c"
+int in2_pad_cumv_sel2_colhig;
+# 171 "define.c"
+int in2_sub_cumh_rows;
+# 172 "define.c"
+int in2_sub_cumh_cols;
+# 173 "define.c"
+int in2_sub_cumh_elem;
+# 174 "define.c"
+int in2_sub_cumh_mem;
+# 180 "define.c"
+int in2_sub_cumh_sel_rows;
+# 181 "define.c"
+int in2_sub_cumh_sel_cols;
+# 182 "define.c"
+int in2_sub_cumh_sel_elem;
+# 183 "define.c"
+int in2_sub_cumh_sel_mem;
+# 184 "define.c"
+int in2_sub_cumh_sel_rowlow;
+# 185 "define.c"
+int in2_sub_cumh_sel_rowhig;
+# 186 "define.c"
+int in2_sub_cumh_sel_collow;
+# 187 "define.c"
+int in2_sub_cumh_sel_colhig;
+# 193 "define.c"
+int in2_sub_cumh_sel2_rowlow;
+# 194 "define.c"
+int in2_sub_cumh_sel2_rowhig;
+# 195 "define.c"
+int in2_sub_cumh_sel2_collow;
+# 196 "define.c"
+int in2_sub_cumh_sel2_colhig;
+# 197 "define.c"
+int in2_sub2_rows;
+# 198 "define.c"
+int in2_sub2_cols;
+# 199 "define.c"
+int in2_sub2_elem;
+# 200 "define.c"
+int in2_sub2_mem;
+# 210 "define.c"
+int in2_sqr_rows;
+# 211 "define.c"
+int in2_sqr_cols;
+# 212 "define.c"
+int in2_sqr_elem;
+# 213 "define.c"
+int in2_sqr_mem;
+# 219 "define.c"
+int in2_sqr_sub2_rows;
+# 220 "define.c"
+int in2_sqr_sub2_cols;
+# 221 "define.c"
+int in2_sqr_sub2_elem;
+# 222 "define.c"
+int in2_sqr_sub2_mem;
+# 228 "define.c"
+int in_sqr_rows;
+# 229 "define.c"
+int in_sqr_cols;
+# 230 "define.c"
+int in_sqr_elem;
+# 231 "define.c"
+int in_sqr_mem;
+# 237 "define.c"
+int tMask_rows;
+# 238 "define.c"
+int tMask_cols;
+# 239 "define.c"
+int tMask_elem;
+# 240 "define.c"
+int tMask_mem;
+# 246 "define.c"
+int mask_rows;
+# 247 "define.c"
+int mask_cols;
+# 248 "define.c"
+int mask_elem;
+# 249 "define.c"
+int mask_mem;
+# 255 "define.c"
+int mask_conv_rows;
+# 256 "define.c"
+int mask_conv_cols;
+# 257 "define.c"
+int mask_conv_elem;
+# 258 "define.c"
+int mask_conv_mem;
+# 259 "define.c"
+int mask_conv_ioffset;
+# 260 "define.c"
+int mask_conv_joffset;
+# 260 "define.c"
+char __nv_no_debug_dummy_end_padding_0[4];};
+# 262 "define.c"
+typedef struct params_common params_common;
+# 270 "define.c"
+struct params_unique {
+# 276 "define.c"
+int *d_Row;
+# 277 "define.c"
+int *d_Col;
+# 278 "define.c"
+int *d_tRowLoc;
+# 279 "define.c"
+int *d_tColLoc;
+# 280 "define.c"
+float *d_T;
+# 286 "define.c"
+int point_no;
+# 292 "define.c"
+int in_pointer;
+# 298 "define.c"
+float *d_in2;
+# 304 "define.c"
+float *d_conv;
+# 305 "define.c"
+float *d_in_mod;
+# 315 "define.c"
+float *d_in2_pad_cumv;
+# 321 "define.c"
+float *d_in2_pad_cumv_sel;
+# 327 "define.c"
+float *d_in2_sub_cumh;
+# 333 "define.c"
+float *d_in2_sub_cumh_sel;
+# 339 "define.c"
+float *d_in2_sub2;
+# 349 "define.c"
+float *d_in2_sqr;
+# 355 "define.c"
+float *d_in2_sqr_sub2;
+# 361 "define.c"
+float *d_in_sqr;
+# 367 "define.c"
+float *d_tMask;
+# 373 "define.c"
+float *d_mask;
+# 379 "define.c"
+float *d_mask_conv;};
+# 381 "define.c"
+typedef struct params_unique params_unique;
+#if !defined(__CUDABE__)
+# 131 "/home/bachelor/deicide218/cuda-4.2/include/device_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) void __syncthreads(void);
+#endif
+# 7 "kernel.cu"
+__global__ __var_used__ extern void _Z6kernelv(void);
+# 35 "main.cu"
+__loc_sc__(__constant__,,) params_common_change d_common_change;
+# 38 "main.cu"
+__loc_sc__(__constant__,,) params_common d_common;
+# 41 "main.cu"
+__loc_sc__(__constant__,,) params_unique d_unique[51];
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 7 "kernel.cu"
+__global__ __var_used__ void _Z6kernelv(void){
+# 7 "kernel.cu"
+{
+# 7 "kernel.cu"
+{
+# 7 "kernel.cu"
+ float __T21;
+# 13 "kernel.cu"
+ float *__cuda_local_var_20037_9_non_const_d_in;
+# 14 "kernel.cu"
+ int __cuda_local_var_20038_6_non_const_rot_row;
+# 15 "kernel.cu"
+ int __cuda_local_var_20039_6_non_const_rot_col;
+# 16 "kernel.cu"
+ int __cuda_local_var_20040_6_non_const_in2_rowlow;
+# 17 "kernel.cu"
+ int __cuda_local_var_20041_6_non_const_in2_collow;
+# 18 "kernel.cu"
+ int __cuda_local_var_20042_6_non_const_ic;
+# 19 "kernel.cu"
+ int __cuda_local_var_20043_6_non_const_jc;
+# 20 "kernel.cu"
+ int __cuda_local_var_20044_6_non_const_jp1;
+# 21 "kernel.cu"
+ int __cuda_local_var_20045_6_non_const_ja1;
+# 21 "kernel.cu"
+ int __cuda_local_var_20045_11_non_const_ja2;
+# 22 "kernel.cu"
+ int __cuda_local_var_20046_6_non_const_ip1;
+# 23 "kernel.cu"
+ int __cuda_local_var_20047_6_non_const_ia1;
+# 23 "kernel.cu"
+ int __cuda_local_var_20047_11_non_const_ia2;
+# 24 "kernel.cu"
+ int __cuda_local_var_20048_6_non_const_ja;
+# 24 "kernel.cu"
+ int __cuda_local_var_20048_10_non_const_jb;
+# 25 "kernel.cu"
+ int __cuda_local_var_20049_6_non_const_ia;
+# 25 "kernel.cu"
+ int __cuda_local_var_20049_10_non_const_ib;
+# 26 "kernel.cu"
+ float __cuda_local_var_20050_8_non_const_s;
+# 27 "kernel.cu"
+ int __cuda_local_var_20051_6_non_const_i;
+# 28 "kernel.cu"
+ int __cuda_local_var_20052_6_non_const_j;
+# 29 "kernel.cu"
+ int __cuda_local_var_20053_6_non_const_row;
+# 30 "kernel.cu"
+ int __cuda_local_var_20054_6_non_const_col;
+# 31 "kernel.cu"
+ int __cuda_local_var_20055_6_non_const_ori_row;
+# 32 "kernel.cu"
+ int __cuda_local_var_20056_6_non_const_ori_col;
+# 33 "kernel.cu"
+ int __cuda_local_var_20057_6_non_const_position;
+# 34 "kernel.cu"
+ float __cuda_local_var_20058_8_non_const_sum;
+# 35 "kernel.cu"
+ int __cuda_local_var_20059_6_non_const_pos_ori;
+# 36 "kernel.cu"
+ float __cuda_local_var_20060_8_non_const_temp;
+# 37 "kernel.cu"
+ float __cuda_local_var_20061_8_non_const_temp2;
+# 38 "kernel.cu"
+ int __cuda_local_var_20062_6_non_const_location;
+# 39 "kernel.cu"
+ int __cuda_local_var_20063_6_non_const_cent;
+# 40 "kernel.cu"
+ int __cuda_local_var_20064_6_non_const_tMask_row;
+# 41 "kernel.cu"
+ int __cuda_local_var_20065_6_non_const_tMask_col;
+# 42 "kernel.cu"
+ float __cuda_local_var_20066_8_non_const_largest_value_current;
+# 43 "kernel.cu"
+ float __cuda_local_var_20067_8_non_const_largest_value;
+# 44 "kernel.cu"
+ int __cuda_local_var_20068_6_non_const_largest_coordinate_current;
+# 45 "kernel.cu"
+ int __cuda_local_var_20069_6_non_const_largest_coordinate;
+# 46 "kernel.cu"
+ float __cuda_local_var_20070_8_non_const_fin_max_val;
+# 47 "kernel.cu"
+ int __cuda_local_var_20071_6_non_const_fin_max_coo;
+# 48 "kernel.cu"
+ int __cuda_local_var_20072_6_non_const_largest_row;
+# 49 "kernel.cu"
+ int __cuda_local_var_20073_6_non_const_largest_col;
+# 50 "kernel.cu"
+ int __cuda_local_var_20074_6_non_const_offset_row;
+# 51 "kernel.cu"
+ int __cuda_local_var_20075_6_non_const_offset_col;
+# 52 "kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_20076_32_non_const_in_partial_sum[51];
+# 53 "kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_20077_32_non_const_in_sqr_partial_sum[51];
+# 54 "kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_20078_32_non_const_in_final_sum;
+# 55 "kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_20079_32_non_const_in_sqr_final_sum;
+# 56 "kernel.cu"
+ float __cuda_local_var_20080_8_non_const_mean;
+# 57 "kernel.cu"
+ float __cuda_local_var_20081_8_non_const_mean_sqr;
+# 58 "kernel.cu"
+ float __cuda_local_var_20082_8_non_const_variance;
+# 59 "kernel.cu"
+ float __cuda_local_var_20083_8_non_const_deviation;
+# 60 "kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_20084_32_non_const_denomT;
+# 61 "kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_20085_32_non_const_par_max_val[131];
+# 62 "kernel.cu"
+__loc_sc__(__shared__,, ) int __cuda_local_var_20086_30_non_const_par_max_coo[131];
+# 63 "kernel.cu"
+ int __cuda_local_var_20087_6_non_const_pointer;
+# 64 "kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_20088_32_non_const_d_in_mod_temp[2601];
+# 65 "kernel.cu"
+ int __cuda_local_var_20089_6_non_const_ori_pointer;
+# 66 "kernel.cu"
+ int __cuda_local_var_20090_6_non_const_loc_pointer;
+# 72 "kernel.cu"
+ int __cuda_local_var_20096_6_non_const_bx;
+# 73 "kernel.cu"
+ int __cuda_local_var_20097_6_non_const_tx;
+# 74 "kernel.cu"
+ int __cuda_local_var_20098_6_non_const_ei_new;
+# 42 "kernel.cu"
+__cuda_local_var_20066_8_non_const_largest_value_current = (0.0F);
+# 43 "kernel.cu"
+__cuda_local_var_20067_8_non_const_largest_value = (0.0F);
+# 44 "kernel.cu"
+__cuda_local_var_20068_6_non_const_largest_coordinate_current = 0;
+# 45 "kernel.cu"
+__cuda_local_var_20069_6_non_const_largest_coordinate = 0;
+# 46 "kernel.cu"
+__cuda_local_var_20070_8_non_const_fin_max_val = (0.0F);
+# 47 "kernel.cu"
+__cuda_local_var_20071_6_non_const_fin_max_coo = 0;
+# 72 "kernel.cu"
+__cuda_local_var_20096_6_non_const_bx = ((int)(blockIdx.x));
+# 73 "kernel.cu"
+__cuda_local_var_20097_6_non_const_tx = ((int)(threadIdx.x));
+# 83 "kernel.cu"
+if ((d_common_change.frame_no) == 0)
+# 83 "kernel.cu"
+{
+# 90 "kernel.cu"
+__cuda_local_var_20037_9_non_const_d_in = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_T) + (((d_unique)[__cuda_local_var_20096_6_non_const_bx]).in_pointer));
+# 97 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 98 "kernel.cu"
+if (__cuda_local_var_20098_6_non_const_ei_new == 0)
+# 98 "kernel.cu"
+{
+# 101 "kernel.cu"
+__cuda_local_var_20087_6_non_const_pointer = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no) * (d_common.no_frames)) + (d_common_change.frame_no));
+# 102 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tRowLoc)[__cuda_local_var_20087_6_non_const_pointer]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Row)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]);
+# 103 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tColLoc)[__cuda_local_var_20087_6_non_const_pointer]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Col)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]);
+# 105 "kernel.cu"
+}
+# 112 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 113 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in_elem))
+# 113 "kernel.cu"
+{
+# 116 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in_rows)) - 1);
+# 117 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in_rows)) + 1) - 1);
+# 118 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in_rows)) == 0)
+# 118 "kernel.cu"
+{
+# 119 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in_rows) - 1);
+# 120 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 121 "kernel.cu"
+}
+# 124 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = (((((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Row)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) - 25) + __cuda_local_var_20053_6_non_const_row) - 1);
+# 125 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = (((((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Col)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) - 25) + __cuda_local_var_20054_6_non_const_col) - 1);
+# 126 "kernel.cu"
+__cuda_local_var_20089_6_non_const_ori_pointer = ((__cuda_local_var_20056_6_non_const_ori_col * (d_common.frame_rows)) + __cuda_local_var_20055_6_non_const_ori_row);
+# 129 "kernel.cu"
+(__cuda_local_var_20037_9_non_const_d_in[((__cuda_local_var_20054_6_non_const_col * (d_common.in_rows)) + __cuda_local_var_20053_6_non_const_row)]) = ((d_common_change.d_frame)[__cuda_local_var_20089_6_non_const_ori_pointer]);
+# 132 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 134 "kernel.cu"
+}
+# 136 "kernel.cu"
+}
+# 145 "kernel.cu"
+if ((d_common_change.frame_no) != 0)
+# 145 "kernel.cu"
+{
+# 151 "kernel.cu"
+__cuda_local_var_20040_6_non_const_in2_rowlow = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Row)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) - (d_common.sSize));
+# 152 "kernel.cu"
+__cuda_local_var_20041_6_non_const_in2_collow = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Col)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) - (d_common.sSize));
+# 155 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 156 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_elem))
+# 156 "kernel.cu"
+{
+# 159 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_rows)) - 1);
+# 160 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_rows)) + 1) - 1);
+# 161 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_rows)) == 0)
+# 161 "kernel.cu"
+{
+# 162 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_rows) - 1);
+# 163 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 164 "kernel.cu"
+}
+# 167 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = ((__cuda_local_var_20053_6_non_const_row + __cuda_local_var_20040_6_non_const_in2_rowlow) - 1);
+# 168 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = ((__cuda_local_var_20054_6_non_const_col + __cuda_local_var_20041_6_non_const_in2_collow) - 1);
+# 169 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2)[__cuda_local_var_20098_6_non_const_ei_new]) = ((d_common_change.d_frame)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.frame_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 172 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 174 "kernel.cu"
+}
+# 180 "kernel.cu"
+__syncthreads();
+# 191 "kernel.cu"
+__cuda_local_var_20037_9_non_const_d_in = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_T) + (((d_unique)[__cuda_local_var_20096_6_non_const_bx]).in_pointer));
+# 194 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 195 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in_elem))
+# 195 "kernel.cu"
+{
+# 198 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in_rows)) - 1);
+# 199 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in_rows)) + 1) - 1);
+# 200 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in_rows)) == 0)
+# 200 "kernel.cu"
+{
+# 201 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in_rows) - 1);
+# 202 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 203 "kernel.cu"
+}
+# 206 "kernel.cu"
+__cuda_local_var_20038_6_non_const_rot_row = (((d_common.in_rows) - 1) - __cuda_local_var_20053_6_non_const_row);
+# 207 "kernel.cu"
+__cuda_local_var_20039_6_non_const_rot_col = (((d_common.in_rows) - 1) - __cuda_local_var_20054_6_non_const_col);
+# 208 "kernel.cu"
+((__cuda_local_var_20088_32_non_const_d_in_mod_temp)[__cuda_local_var_20098_6_non_const_ei_new]) = (__cuda_local_var_20037_9_non_const_d_in[((__cuda_local_var_20039_6_non_const_rot_col * (d_common.in_rows)) + __cuda_local_var_20038_6_non_const_rot_row)]);
+# 211 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 213 "kernel.cu"
+}
+# 219 "kernel.cu"
+__syncthreads();
+# 226 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 227 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.conv_elem))
+# 227 "kernel.cu"
+{
+# 230 "kernel.cu"
+__cuda_local_var_20042_6_non_const_ic = ((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.conv_rows));
+# 231 "kernel.cu"
+__cuda_local_var_20043_6_non_const_jc = (((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.conv_rows)) + 1);
+# 232 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.conv_rows)) == 0)
+# 232 "kernel.cu"
+{
+# 233 "kernel.cu"
+__cuda_local_var_20042_6_non_const_ic = (d_common.conv_rows);
+# 234 "kernel.cu"
+__cuda_local_var_20043_6_non_const_jc = (__cuda_local_var_20043_6_non_const_jc - 1);
+# 235 "kernel.cu"
+}
+# 238 "kernel.cu"
+__cuda_local_var_20052_6_non_const_j = (__cuda_local_var_20043_6_non_const_jc + (d_common.joffset));
+# 239 "kernel.cu"
+__cuda_local_var_20044_6_non_const_jp1 = (__cuda_local_var_20052_6_non_const_j + 1);
+# 240 "kernel.cu"
+if ((d_common.in2_cols) < __cuda_local_var_20044_6_non_const_jp1)
+# 240 "kernel.cu"
+{
+# 241 "kernel.cu"
+__cuda_local_var_20045_6_non_const_ja1 = (__cuda_local_var_20044_6_non_const_jp1 - (d_common.in2_cols));
+# 242 "kernel.cu"
+}
+# 243 "kernel.cu"
+else 
+# 243 "kernel.cu"
+{
+# 244 "kernel.cu"
+__cuda_local_var_20045_6_non_const_ja1 = 1;
+# 245 "kernel.cu"
+}
+# 246 "kernel.cu"
+if ((d_common.in_cols) < __cuda_local_var_20052_6_non_const_j)
+# 246 "kernel.cu"
+{
+# 247 "kernel.cu"
+__cuda_local_var_20045_11_non_const_ja2 = (d_common.in_cols);
+# 248 "kernel.cu"
+}
+# 249 "kernel.cu"
+else 
+# 249 "kernel.cu"
+{
+# 250 "kernel.cu"
+__cuda_local_var_20045_11_non_const_ja2 = __cuda_local_var_20052_6_non_const_j;
+# 251 "kernel.cu"
+}
+# 253 "kernel.cu"
+__cuda_local_var_20051_6_non_const_i = (__cuda_local_var_20042_6_non_const_ic + (d_common.ioffset));
+# 254 "kernel.cu"
+__cuda_local_var_20046_6_non_const_ip1 = (__cuda_local_var_20051_6_non_const_i + 1);
+# 256 "kernel.cu"
+if ((d_common.in2_rows) < __cuda_local_var_20046_6_non_const_ip1)
+# 256 "kernel.cu"
+{
+# 257 "kernel.cu"
+__cuda_local_var_20047_6_non_const_ia1 = (__cuda_local_var_20046_6_non_const_ip1 - (d_common.in2_rows));
+# 258 "kernel.cu"
+}
+# 259 "kernel.cu"
+else 
+# 259 "kernel.cu"
+{
+# 260 "kernel.cu"
+__cuda_local_var_20047_6_non_const_ia1 = 1;
+# 261 "kernel.cu"
+}
+# 262 "kernel.cu"
+if ((d_common.in_rows) < __cuda_local_var_20051_6_non_const_i)
+# 262 "kernel.cu"
+{
+# 263 "kernel.cu"
+__cuda_local_var_20047_11_non_const_ia2 = (d_common.in_rows);
+# 264 "kernel.cu"
+}
+# 265 "kernel.cu"
+else 
+# 265 "kernel.cu"
+{
+# 266 "kernel.cu"
+__cuda_local_var_20047_11_non_const_ia2 = __cuda_local_var_20051_6_non_const_i;
+# 267 "kernel.cu"
+}
+# 269 "kernel.cu"
+__cuda_local_var_20050_8_non_const_s = (0.0F);
+# 271 "kernel.cu"
+for (__cuda_local_var_20048_6_non_const_ja = __cuda_local_var_20045_6_non_const_ja1; (__cuda_local_var_20048_6_non_const_ja <= __cuda_local_var_20045_11_non_const_ja2); __cuda_local_var_20048_6_non_const_ja++)
+# 271 "kernel.cu"
+{
+# 272 "kernel.cu"
+__cuda_local_var_20048_10_non_const_jb = (__cuda_local_var_20044_6_non_const_jp1 - __cuda_local_var_20048_6_non_const_ja);
+# 273 "kernel.cu"
+for (__cuda_local_var_20049_6_non_const_ia = __cuda_local_var_20047_6_non_const_ia1; (__cuda_local_var_20049_6_non_const_ia <= __cuda_local_var_20047_11_non_const_ia2); __cuda_local_var_20049_6_non_const_ia++)
+# 273 "kernel.cu"
+{
+# 274 "kernel.cu"
+__cuda_local_var_20049_10_non_const_ib = (__cuda_local_var_20046_6_non_const_ip1 - __cuda_local_var_20049_6_non_const_ia);
+# 275 "kernel.cu"
+__cuda_local_var_20050_8_non_const_s = (__cuda_local_var_20050_8_non_const_s + (((__cuda_local_var_20088_32_non_const_d_in_mod_temp)[((((d_common.in_rows) * (__cuda_local_var_20048_6_non_const_ja - 1)) + __cuda_local_var_20049_6_non_const_ia) - 1)]) * ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2)[((((d_common.in2_rows) * (__cuda_local_var_20048_10_non_const_jb - 1)) + __cuda_local_var_20049_10_non_const_ib) - 1)])));
+# 276 "kernel.cu"
+}
+# 277 "kernel.cu"
+}
+# 280 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_conv)[__cuda_local_var_20098_6_non_const_ei_new]) = __cuda_local_var_20050_8_non_const_s;
+# 283 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 285 "kernel.cu"
+}
+# 291 "kernel.cu"
+__syncthreads();
+# 306 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 307 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_pad_cumv_elem))
+# 307 "kernel.cu"
+{
+# 310 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_pad_cumv_rows)) - 1);
+# 311 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_pad_cumv_rows)) + 1) - 1);
+# 312 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_pad_cumv_rows)) == 0)
+# 312 "kernel.cu"
+{
+# 313 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_pad_cumv_rows) - 1);
+# 314 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 315 "kernel.cu"
+}
+# 318 "kernel.cu"
+if ((((__cuda_local_var_20053_6_non_const_row > ((d_common.in2_pad_add_rows) - 1)) && (__cuda_local_var_20053_6_non_const_row < ((d_common.in2_pad_add_rows) + (d_common.in2_rows)))) && (__cuda_local_var_20054_6_non_const_col > ((d_common.in2_pad_add_cols) - 1))) && (__cuda_local_var_20054_6_non_const_col < ((d_common.in2_pad_add_cols) + (d_common.in2_cols))))
+# 321 "kernel.cu"
+{
+# 322 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = (__cuda_local_var_20053_6_non_const_row - (d_common.in2_pad_add_rows));
+# 323 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = (__cuda_local_var_20054_6_non_const_col - (d_common.in2_pad_add_cols));
+# 324 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 325 "kernel.cu"
+}
+# 326 "kernel.cu"
+else 
+# 326 "kernel.cu"
+{
+# 327 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20098_6_non_const_ei_new]) = (0.0F);
+# 328 "kernel.cu"
+}
+# 331 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 333 "kernel.cu"
+}
+# 339 "kernel.cu"
+__syncthreads();
+# 346 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 347 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_pad_cumv_cols))
+# 347 "kernel.cu"
+{
+# 350 "kernel.cu"
+__cuda_local_var_20059_6_non_const_pos_ori = (__cuda_local_var_20098_6_non_const_ei_new * (d_common.in2_pad_cumv_rows));
+# 353 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = (0.0F);
+# 356 "kernel.cu"
+for (__cuda_local_var_20057_6_non_const_position = __cuda_local_var_20059_6_non_const_pos_ori; (__cuda_local_var_20057_6_non_const_position < (__cuda_local_var_20059_6_non_const_pos_ori + (d_common.in2_pad_cumv_rows))); __cuda_local_var_20057_6_non_const_position = (__cuda_local_var_20057_6_non_const_position + 1))
+# 356 "kernel.cu"
+{
+# 357 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20057_6_non_const_position]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20057_6_non_const_position]) + __cuda_local_var_20058_8_non_const_sum);
+# 358 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20057_6_non_const_position]);
+# 359 "kernel.cu"
+}
+# 362 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 364 "kernel.cu"
+}
+# 370 "kernel.cu"
+__syncthreads();
+# 377 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 378 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_pad_cumv_sel_elem))
+# 378 "kernel.cu"
+{
+# 381 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_pad_cumv_sel_rows)) - 1);
+# 382 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_pad_cumv_sel_rows)) + 1) - 1);
+# 383 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_pad_cumv_sel_rows)) == 0)
+# 383 "kernel.cu"
+{
+# 384 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_pad_cumv_sel_rows) - 1);
+# 385 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 386 "kernel.cu"
+}
+# 389 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = ((__cuda_local_var_20053_6_non_const_row + (d_common.in2_pad_cumv_sel_rowlow)) - 1);
+# 390 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = ((__cuda_local_var_20054_6_non_const_col + (d_common.in2_pad_cumv_sel_collow)) - 1);
+# 391 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv_sel)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_pad_cumv_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 394 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 396 "kernel.cu"
+}
+# 402 "kernel.cu"
+__syncthreads();
+# 413 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 414 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub_cumh_elem))
+# 414 "kernel.cu"
+{
+# 417 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub_cumh_rows)) - 1);
+# 418 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_sub_cumh_rows)) + 1) - 1);
+# 419 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub_cumh_rows)) == 0)
+# 419 "kernel.cu"
+{
+# 420 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_sub_cumh_rows) - 1);
+# 421 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 422 "kernel.cu"
+}
+# 425 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = ((__cuda_local_var_20053_6_non_const_row + (d_common.in2_pad_cumv_sel2_rowlow)) - 1);
+# 426 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = ((__cuda_local_var_20054_6_non_const_col + (d_common.in2_pad_cumv_sel2_collow)) - 1);
+# 427 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_pad_cumv_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 430 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 432 "kernel.cu"
+}
+# 438 "kernel.cu"
+__syncthreads();
+# 445 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 446 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub_cumh_elem))
+# 446 "kernel.cu"
+{
+# 449 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20098_6_non_const_ei_new]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv_sel)[__cuda_local_var_20098_6_non_const_ei_new]) - ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20098_6_non_const_ei_new]));
+# 452 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 454 "kernel.cu"
+}
+# 460 "kernel.cu"
+__syncthreads();
+# 467 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 468 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub_cumh_rows))
+# 468 "kernel.cu"
+{
+# 471 "kernel.cu"
+__cuda_local_var_20059_6_non_const_pos_ori = __cuda_local_var_20098_6_non_const_ei_new;
+# 474 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = (0.0F);
+# 477 "kernel.cu"
+for (__cuda_local_var_20057_6_non_const_position = __cuda_local_var_20059_6_non_const_pos_ori; (__cuda_local_var_20057_6_non_const_position < (__cuda_local_var_20059_6_non_const_pos_ori + (d_common.in2_sub_cumh_elem))); __cuda_local_var_20057_6_non_const_position = (__cuda_local_var_20057_6_non_const_position + (d_common.in2_sub_cumh_rows)))
+# 477 "kernel.cu"
+{
+# 478 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20057_6_non_const_position]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20057_6_non_const_position]) + __cuda_local_var_20058_8_non_const_sum);
+# 479 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20057_6_non_const_position]);
+# 480 "kernel.cu"
+}
+# 483 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 485 "kernel.cu"
+}
+# 491 "kernel.cu"
+__syncthreads();
+# 498 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 499 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub_cumh_sel_elem))
+# 499 "kernel.cu"
+{
+# 502 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub_cumh_sel_rows)) - 1);
+# 503 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_sub_cumh_sel_rows)) + 1) - 1);
+# 504 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub_cumh_sel_rows)) == 0)
+# 504 "kernel.cu"
+{
+# 505 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_sub_cumh_sel_rows) - 1);
+# 506 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 507 "kernel.cu"
+}
+# 510 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = ((__cuda_local_var_20053_6_non_const_row + (d_common.in2_sub_cumh_sel_rowlow)) - 1);
+# 511 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = ((__cuda_local_var_20054_6_non_const_col + (d_common.in2_sub_cumh_sel_collow)) - 1);
+# 512 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh_sel)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_sub_cumh_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 515 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 517 "kernel.cu"
+}
+# 523 "kernel.cu"
+__syncthreads();
+# 534 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 535 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub2_elem))
+# 535 "kernel.cu"
+{
+# 538 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub2_rows)) - 1);
+# 539 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_sub2_rows)) + 1) - 1);
+# 540 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub2_rows)) == 0)
+# 540 "kernel.cu"
+{
+# 541 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_sub2_rows) - 1);
+# 542 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 543 "kernel.cu"
+}
+# 546 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = ((__cuda_local_var_20053_6_non_const_row + (d_common.in2_sub_cumh_sel2_rowlow)) - 1);
+# 547 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = ((__cuda_local_var_20054_6_non_const_col + (d_common.in2_sub_cumh_sel2_collow)) - 1);
+# 548 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_sub_cumh_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 551 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 553 "kernel.cu"
+}
+# 559 "kernel.cu"
+__syncthreads();
+# 566 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 567 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub2_elem))
+# 567 "kernel.cu"
+{
+# 570 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh_sel)[__cuda_local_var_20098_6_non_const_ei_new]) - ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub2)[__cuda_local_var_20098_6_non_const_ei_new]));
+# 573 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 575 "kernel.cu"
+}
+# 581 "kernel.cu"
+__syncthreads();
+# 592 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 593 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sqr_elem))
+# 593 "kernel.cu"
+{
+# 595 "kernel.cu"
+__cuda_local_var_20060_8_non_const_temp = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2)[__cuda_local_var_20098_6_non_const_ei_new]);
+# 596 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr)[__cuda_local_var_20098_6_non_const_ei_new]) = (__cuda_local_var_20060_8_non_const_temp * __cuda_local_var_20060_8_non_const_temp);
+# 599 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 601 "kernel.cu"
+}
+# 607 "kernel.cu"
+__syncthreads();
+# 618 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 619 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_pad_cumv_elem))
+# 619 "kernel.cu"
+{
+# 622 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_pad_cumv_rows)) - 1);
+# 623 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_pad_cumv_rows)) + 1) - 1);
+# 624 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_pad_cumv_rows)) == 0)
+# 624 "kernel.cu"
+{
+# 625 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_pad_cumv_rows) - 1);
+# 626 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 627 "kernel.cu"
+}
+# 630 "kernel.cu"
+if ((((__cuda_local_var_20053_6_non_const_row > ((d_common.in2_pad_add_rows) - 1)) && (__cuda_local_var_20053_6_non_const_row < ((d_common.in2_pad_add_rows) + (d_common.in2_sqr_rows)))) && (__cuda_local_var_20054_6_non_const_col > ((d_common.in2_pad_add_cols) - 1))) && (__cuda_local_var_20054_6_non_const_col < ((d_common.in2_pad_add_cols) + (d_common.in2_sqr_cols))))
+# 633 "kernel.cu"
+{
+# 634 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = (__cuda_local_var_20053_6_non_const_row - (d_common.in2_pad_add_rows));
+# 635 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = (__cuda_local_var_20054_6_non_const_col - (d_common.in2_pad_add_cols));
+# 636 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_sqr_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 637 "kernel.cu"
+}
+# 638 "kernel.cu"
+else 
+# 638 "kernel.cu"
+{
+# 639 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20098_6_non_const_ei_new]) = (0.0F);
+# 640 "kernel.cu"
+}
+# 643 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 645 "kernel.cu"
+}
+# 651 "kernel.cu"
+__syncthreads();
+# 658 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 659 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_pad_cumv_cols))
+# 659 "kernel.cu"
+{
+# 662 "kernel.cu"
+__cuda_local_var_20059_6_non_const_pos_ori = (__cuda_local_var_20098_6_non_const_ei_new * (d_common.in2_pad_cumv_rows));
+# 665 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = (0.0F);
+# 668 "kernel.cu"
+for (__cuda_local_var_20057_6_non_const_position = __cuda_local_var_20059_6_non_const_pos_ori; (__cuda_local_var_20057_6_non_const_position < (__cuda_local_var_20059_6_non_const_pos_ori + (d_common.in2_pad_cumv_rows))); __cuda_local_var_20057_6_non_const_position = (__cuda_local_var_20057_6_non_const_position + 1))
+# 668 "kernel.cu"
+{
+# 669 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20057_6_non_const_position]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20057_6_non_const_position]) + __cuda_local_var_20058_8_non_const_sum);
+# 670 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[__cuda_local_var_20057_6_non_const_position]);
+# 671 "kernel.cu"
+}
+# 674 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 676 "kernel.cu"
+}
+# 682 "kernel.cu"
+__syncthreads();
+# 689 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 690 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_pad_cumv_sel_elem))
+# 690 "kernel.cu"
+{
+# 693 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_pad_cumv_sel_rows)) - 1);
+# 694 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_pad_cumv_sel_rows)) + 1) - 1);
+# 695 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_pad_cumv_sel_rows)) == 0)
+# 695 "kernel.cu"
+{
+# 696 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_pad_cumv_sel_rows) - 1);
+# 697 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 698 "kernel.cu"
+}
+# 701 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = ((__cuda_local_var_20053_6_non_const_row + (d_common.in2_pad_cumv_sel_rowlow)) - 1);
+# 702 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = ((__cuda_local_var_20054_6_non_const_col + (d_common.in2_pad_cumv_sel_collow)) - 1);
+# 703 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv_sel)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_pad_cumv_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 706 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 708 "kernel.cu"
+}
+# 714 "kernel.cu"
+__syncthreads();
+# 725 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 726 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub_cumh_elem))
+# 726 "kernel.cu"
+{
+# 729 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub_cumh_rows)) - 1);
+# 730 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_sub_cumh_rows)) + 1) - 1);
+# 731 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub_cumh_rows)) == 0)
+# 731 "kernel.cu"
+{
+# 732 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_sub_cumh_rows) - 1);
+# 733 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 734 "kernel.cu"
+}
+# 737 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = ((__cuda_local_var_20053_6_non_const_row + (d_common.in2_pad_cumv_sel2_rowlow)) - 1);
+# 738 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = ((__cuda_local_var_20054_6_non_const_col + (d_common.in2_pad_cumv_sel2_collow)) - 1);
+# 739 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_pad_cumv_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 742 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 744 "kernel.cu"
+}
+# 750 "kernel.cu"
+__syncthreads();
+# 757 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 758 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub_cumh_elem))
+# 758 "kernel.cu"
+{
+# 761 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20098_6_non_const_ei_new]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_pad_cumv_sel)[__cuda_local_var_20098_6_non_const_ei_new]) - ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20098_6_non_const_ei_new]));
+# 764 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 766 "kernel.cu"
+}
+# 773 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 774 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub_cumh_rows))
+# 774 "kernel.cu"
+{
+# 777 "kernel.cu"
+__cuda_local_var_20059_6_non_const_pos_ori = __cuda_local_var_20098_6_non_const_ei_new;
+# 780 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = (0.0F);
+# 783 "kernel.cu"
+for (__cuda_local_var_20057_6_non_const_position = __cuda_local_var_20059_6_non_const_pos_ori; (__cuda_local_var_20057_6_non_const_position < (__cuda_local_var_20059_6_non_const_pos_ori + (d_common.in2_sub_cumh_elem))); __cuda_local_var_20057_6_non_const_position = (__cuda_local_var_20057_6_non_const_position + (d_common.in2_sub_cumh_rows)))
+# 783 "kernel.cu"
+{
+# 784 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20057_6_non_const_position]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20057_6_non_const_position]) + __cuda_local_var_20058_8_non_const_sum);
+# 785 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[__cuda_local_var_20057_6_non_const_position]);
+# 786 "kernel.cu"
+}
+# 789 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 791 "kernel.cu"
+}
+# 797 "kernel.cu"
+__syncthreads();
+# 804 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 805 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub_cumh_sel_elem))
+# 805 "kernel.cu"
+{
+# 808 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub_cumh_sel_rows)) - 1);
+# 809 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_sub_cumh_sel_rows)) + 1) - 1);
+# 810 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub_cumh_sel_rows)) == 0)
+# 810 "kernel.cu"
+{
+# 811 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_sub_cumh_sel_rows) - 1);
+# 812 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 813 "kernel.cu"
+}
+# 816 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = ((__cuda_local_var_20053_6_non_const_row + (d_common.in2_sub_cumh_sel_rowlow)) - 1);
+# 817 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = ((__cuda_local_var_20054_6_non_const_col + (d_common.in2_sub_cumh_sel_collow)) - 1);
+# 818 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh_sel)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_sub_cumh_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 821 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 823 "kernel.cu"
+}
+# 829 "kernel.cu"
+__syncthreads();
+# 840 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 841 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub2_elem))
+# 841 "kernel.cu"
+{
+# 844 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub2_rows)) - 1);
+# 845 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in2_sub2_rows)) + 1) - 1);
+# 846 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in2_sub2_rows)) == 0)
+# 846 "kernel.cu"
+{
+# 847 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in2_sub2_rows) - 1);
+# 848 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 849 "kernel.cu"
+}
+# 852 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = ((__cuda_local_var_20053_6_non_const_row + (d_common.in2_sub_cumh_sel2_rowlow)) - 1);
+# 853 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = ((__cuda_local_var_20054_6_non_const_col + (d_common.in2_sub_cumh_sel2_collow)) - 1);
+# 854 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh)[((__cuda_local_var_20056_6_non_const_ori_col * (d_common.in2_sub_cumh_rows)) + __cuda_local_var_20055_6_non_const_ori_row)]);
+# 857 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 859 "kernel.cu"
+}
+# 865 "kernel.cu"
+__syncthreads();
+# 872 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 873 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub2_elem))
+# 873 "kernel.cu"
+{
+# 876 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub_cumh_sel)[__cuda_local_var_20098_6_non_const_ei_new]) - ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new]));
+# 879 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 881 "kernel.cu"
+}
+# 887 "kernel.cu"
+__syncthreads();
+# 898 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 899 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub2_elem))
+# 899 "kernel.cu"
+{
+# 901 "kernel.cu"
+__cuda_local_var_20060_8_non_const_temp = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub2)[__cuda_local_var_20098_6_non_const_ei_new]);
+# 902 "kernel.cu"
+__cuda_local_var_20061_8_non_const_temp2 = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) - ((float)(fdividef(((double)(__cuda_local_var_20060_8_non_const_temp * __cuda_local_var_20060_8_non_const_temp)), ((double)((float)(d_common.in_elem)))))));
+# 903 "kernel.cu"
+if (__cuda_local_var_20061_8_non_const_temp2 < (0.0F))
+# 903 "kernel.cu"
+{
+# 904 "kernel.cu"
+__cuda_local_var_20061_8_non_const_temp2 = (0.0F);
+# 905 "kernel.cu"
+}
+# 906 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) = ((float)(sqrtf(((double)__cuda_local_var_20061_8_non_const_temp2))));
+# 910 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 912 "kernel.cu"
+}
+# 918 "kernel.cu"
+__syncthreads();
+# 925 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 926 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in_sqr_elem))
+# 926 "kernel.cu"
+{
+# 928 "kernel.cu"
+__cuda_local_var_20060_8_non_const_temp = (__cuda_local_var_20037_9_non_const_d_in[__cuda_local_var_20098_6_non_const_ei_new]);
+# 929 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in_sqr)[__cuda_local_var_20098_6_non_const_ei_new]) = (__cuda_local_var_20060_8_non_const_temp * __cuda_local_var_20060_8_non_const_temp);
+# 932 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 934 "kernel.cu"
+}
+# 940 "kernel.cu"
+__syncthreads();
+# 947 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 948 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in_cols))
+# 948 "kernel.cu"
+{
+# 950 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = (0.0F);
+# 951 "kernel.cu"
+for (__cuda_local_var_20051_6_non_const_i = 0; (__cuda_local_var_20051_6_non_const_i < (d_common.in_rows)); __cuda_local_var_20051_6_non_const_i++)
+# 951 "kernel.cu"
+{
+# 953 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = (__cuda_local_var_20058_8_non_const_sum + (__cuda_local_var_20037_9_non_const_d_in[((__cuda_local_var_20098_6_non_const_ei_new * (d_common.in_rows)) + __cuda_local_var_20051_6_non_const_i)]));
+# 955 "kernel.cu"
+}
+# 956 "kernel.cu"
+((__cuda_local_var_20076_32_non_const_in_partial_sum)[__cuda_local_var_20098_6_non_const_ei_new]) = __cuda_local_var_20058_8_non_const_sum;
+# 959 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 961 "kernel.cu"
+}
+# 967 "kernel.cu"
+__syncthreads();
+# 973 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 974 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in_sqr_rows))
+# 974 "kernel.cu"
+{
+# 976 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = (0.0F);
+# 977 "kernel.cu"
+for (__cuda_local_var_20051_6_non_const_i = 0; (__cuda_local_var_20051_6_non_const_i < (d_common.in_sqr_cols)); __cuda_local_var_20051_6_non_const_i++)
+# 977 "kernel.cu"
+{
+# 979 "kernel.cu"
+__cuda_local_var_20058_8_non_const_sum = (__cuda_local_var_20058_8_non_const_sum + ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in_sqr)[(__cuda_local_var_20098_6_non_const_ei_new + ((d_common.in_sqr_rows) * __cuda_local_var_20051_6_non_const_i))]));
+# 981 "kernel.cu"
+}
+# 982 "kernel.cu"
+((__cuda_local_var_20077_32_non_const_in_sqr_partial_sum)[__cuda_local_var_20098_6_non_const_ei_new]) = __cuda_local_var_20058_8_non_const_sum;
+# 985 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 987 "kernel.cu"
+}
+# 993 "kernel.cu"
+__syncthreads();
+# 999 "kernel.cu"
+if (__cuda_local_var_20097_6_non_const_tx == 0)
+# 999 "kernel.cu"
+{
+# 1001 "kernel.cu"
+__cuda_local_var_20078_32_non_const_in_final_sum = (0.0F);
+# 1002 "kernel.cu"
+for (__cuda_local_var_20051_6_non_const_i = 0; (__cuda_local_var_20051_6_non_const_i < (d_common.in_cols)); __cuda_local_var_20051_6_non_const_i++)
+# 1002 "kernel.cu"
+{
+# 1003 "kernel.cu"
+__cuda_local_var_20078_32_non_const_in_final_sum = (__cuda_local_var_20078_32_non_const_in_final_sum + ((__cuda_local_var_20076_32_non_const_in_partial_sum)[__cuda_local_var_20051_6_non_const_i]));
+# 1004 "kernel.cu"
+}
+# 1006 "kernel.cu"
+}
+# 1006 "kernel.cu"
+else 
+# 1006 "kernel.cu"
+{
+# 1006 "kernel.cu"
+if (__cuda_local_var_20097_6_non_const_tx == 1)
+# 1006 "kernel.cu"
+{
+# 1008 "kernel.cu"
+__cuda_local_var_20079_32_non_const_in_sqr_final_sum = (0.0F);
+# 1009 "kernel.cu"
+for (__cuda_local_var_20051_6_non_const_i = 0; (__cuda_local_var_20051_6_non_const_i < (d_common.in_sqr_cols)); __cuda_local_var_20051_6_non_const_i++)
+# 1009 "kernel.cu"
+{
+# 1010 "kernel.cu"
+__cuda_local_var_20079_32_non_const_in_sqr_final_sum = (__cuda_local_var_20079_32_non_const_in_sqr_final_sum + ((__cuda_local_var_20077_32_non_const_in_sqr_partial_sum)[__cuda_local_var_20051_6_non_const_i]));
+# 1011 "kernel.cu"
+}
+# 1013 "kernel.cu"
+}
+# 1013 "kernel.cu"
+}
+# 1019 "kernel.cu"
+__syncthreads();
+# 1025 "kernel.cu"
+if (__cuda_local_var_20097_6_non_const_tx == 0)
+# 1025 "kernel.cu"
+{
+# 1025 "kernel.cu"
+ float __T22;
+# 1027 "kernel.cu"
+__cuda_local_var_20080_8_non_const_mean = ((float)(fdividef(((double)__cuda_local_var_20078_32_non_const_in_final_sum), ((double)((float)(d_common.in_elem))))));
+# 1028 "kernel.cu"
+__cuda_local_var_20081_8_non_const_mean_sqr = (__cuda_local_var_20080_8_non_const_mean * __cuda_local_var_20080_8_non_const_mean);
+# 1029 "kernel.cu"
+__cuda_local_var_20082_8_non_const_variance = (((float)(fdividef(((double)__cuda_local_var_20079_32_non_const_in_sqr_final_sum), ((double)((float)(d_common.in_elem)))))) - __cuda_local_var_20081_8_non_const_mean_sqr);
+# 1030 "kernel.cu"
+__cuda_local_var_20083_8_non_const_deviation = ((float)(sqrtf(((double)__cuda_local_var_20082_8_non_const_variance))));
+# 1032 "kernel.cu"
+__cuda_local_var_20084_32_non_const_denomT = (((float)((__T22 = ((float)((d_common.in_elem) - 1))) , (sqrtf(((double)__T22))))) * __cuda_local_var_20083_8_non_const_deviation);
+# 1034 "kernel.cu"
+}
+# 1040 "kernel.cu"
+__syncthreads();
+# 1047 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 1048 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub2_elem))
+# 1048 "kernel.cu"
+{
+# 1050 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) * __cuda_local_var_20084_32_non_const_denomT);
+# 1053 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 1055 "kernel.cu"
+}
+# 1061 "kernel.cu"
+__syncthreads();
+# 1068 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 1069 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.conv_elem))
+# 1069 "kernel.cu"
+{
+# 1071 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_conv)[__cuda_local_var_20098_6_non_const_ei_new]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_conv)[__cuda_local_var_20098_6_non_const_ei_new]) - ((float)(fdividef(((double)(((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) * __cuda_local_var_20078_32_non_const_in_final_sum)), ((double)((float)(d_common.in_elem)))))));
+# 1074 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 1076 "kernel.cu"
+}
+# 1082 "kernel.cu"
+__syncthreads();
+# 1089 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 1090 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in2_sub2_elem))
+# 1090 "kernel.cu"
+{
+# 1092 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) = ((float)(fdividef(((double)((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_conv)[__cuda_local_var_20098_6_non_const_ei_new])), ((double)((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new])))));
+# 1095 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 1097 "kernel.cu"
+}
+# 1103 "kernel.cu"
+__syncthreads();
+# 1109 "kernel.cu"
+__cuda_local_var_20063_6_non_const_cent = (((d_common.sSize) + (d_common.tSize)) + 1);
+# 1110 "kernel.cu"
+if ((d_common_change.frame_no) == 0)
+# 1110 "kernel.cu"
+{
+# 1111 "kernel.cu"
+__cuda_local_var_20064_6_non_const_tMask_row = (((__cuda_local_var_20063_6_non_const_cent + ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Row)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)])) - ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Row)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)])) - 1);
+# 1112 "kernel.cu"
+__cuda_local_var_20065_6_non_const_tMask_col = (((__cuda_local_var_20063_6_non_const_cent + ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Col)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)])) - ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Col)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)])) - 1);
+# 1113 "kernel.cu"
+}
+# 1114 "kernel.cu"
+else 
+# 1114 "kernel.cu"
+{
+# 1115 "kernel.cu"
+__cuda_local_var_20087_6_non_const_pointer = (((d_common_change.frame_no) - 1) + ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no) * (d_common.no_frames)));
+# 1116 "kernel.cu"
+__cuda_local_var_20064_6_non_const_tMask_row = (((__cuda_local_var_20063_6_non_const_cent + ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tRowLoc)[__cuda_local_var_20087_6_non_const_pointer])) - ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Row)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)])) - 1);
+# 1117 "kernel.cu"
+__cuda_local_var_20065_6_non_const_tMask_col = (((__cuda_local_var_20063_6_non_const_cent + ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tColLoc)[__cuda_local_var_20087_6_non_const_pointer])) - ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Col)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)])) - 1);
+# 1118 "kernel.cu"
+}
+# 1122 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 1123 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.tMask_elem))
+# 1123 "kernel.cu"
+{
+# 1125 "kernel.cu"
+__cuda_local_var_20062_6_non_const_location = ((__cuda_local_var_20065_6_non_const_tMask_col * (d_common.tMask_rows)) + __cuda_local_var_20064_6_non_const_tMask_row);
+# 1127 "kernel.cu"
+if (__cuda_local_var_20098_6_non_const_ei_new == __cuda_local_var_20062_6_non_const_location)
+# 1127 "kernel.cu"
+{
+# 1128 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tMask)[__cuda_local_var_20098_6_non_const_ei_new]) = (1.0F);
+# 1129 "kernel.cu"
+}
+# 1130 "kernel.cu"
+else 
+# 1130 "kernel.cu"
+{
+# 1131 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tMask)[__cuda_local_var_20098_6_non_const_ei_new]) = (0.0F);
+# 1132 "kernel.cu"
+}
+# 1135 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 1137 "kernel.cu"
+}
+# 1143 "kernel.cu"
+__syncthreads();
+# 1150 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 1151 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.mask_conv_elem))
+# 1151 "kernel.cu"
+{
+# 1154 "kernel.cu"
+__cuda_local_var_20042_6_non_const_ic = ((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.mask_conv_rows));
+# 1155 "kernel.cu"
+__cuda_local_var_20043_6_non_const_jc = (((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.mask_conv_rows)) + 1);
+# 1156 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.mask_conv_rows)) == 0)
+# 1156 "kernel.cu"
+{
+# 1157 "kernel.cu"
+__cuda_local_var_20042_6_non_const_ic = (d_common.mask_conv_rows);
+# 1158 "kernel.cu"
+__cuda_local_var_20043_6_non_const_jc = (__cuda_local_var_20043_6_non_const_jc - 1);
+# 1159 "kernel.cu"
+}
+# 1162 "kernel.cu"
+__cuda_local_var_20052_6_non_const_j = (__cuda_local_var_20043_6_non_const_jc + (d_common.mask_conv_joffset));
+# 1163 "kernel.cu"
+__cuda_local_var_20044_6_non_const_jp1 = (__cuda_local_var_20052_6_non_const_j + 1);
+# 1164 "kernel.cu"
+if ((d_common.mask_cols) < __cuda_local_var_20044_6_non_const_jp1)
+# 1164 "kernel.cu"
+{
+# 1165 "kernel.cu"
+__cuda_local_var_20045_6_non_const_ja1 = (__cuda_local_var_20044_6_non_const_jp1 - (d_common.mask_cols));
+# 1166 "kernel.cu"
+}
+# 1167 "kernel.cu"
+else 
+# 1167 "kernel.cu"
+{
+# 1168 "kernel.cu"
+__cuda_local_var_20045_6_non_const_ja1 = 1;
+# 1169 "kernel.cu"
+}
+# 1170 "kernel.cu"
+if ((d_common.tMask_cols) < __cuda_local_var_20052_6_non_const_j)
+# 1170 "kernel.cu"
+{
+# 1171 "kernel.cu"
+__cuda_local_var_20045_11_non_const_ja2 = (d_common.tMask_cols);
+# 1172 "kernel.cu"
+}
+# 1173 "kernel.cu"
+else 
+# 1173 "kernel.cu"
+{
+# 1174 "kernel.cu"
+__cuda_local_var_20045_11_non_const_ja2 = __cuda_local_var_20052_6_non_const_j;
+# 1175 "kernel.cu"
+}
+# 1177 "kernel.cu"
+__cuda_local_var_20051_6_non_const_i = (__cuda_local_var_20042_6_non_const_ic + (d_common.mask_conv_ioffset));
+# 1178 "kernel.cu"
+__cuda_local_var_20046_6_non_const_ip1 = (__cuda_local_var_20051_6_non_const_i + 1);
+# 1180 "kernel.cu"
+if ((d_common.mask_rows) < __cuda_local_var_20046_6_non_const_ip1)
+# 1180 "kernel.cu"
+{
+# 1181 "kernel.cu"
+__cuda_local_var_20047_6_non_const_ia1 = (__cuda_local_var_20046_6_non_const_ip1 - (d_common.mask_rows));
+# 1182 "kernel.cu"
+}
+# 1183 "kernel.cu"
+else 
+# 1183 "kernel.cu"
+{
+# 1184 "kernel.cu"
+__cuda_local_var_20047_6_non_const_ia1 = 1;
+# 1185 "kernel.cu"
+}
+# 1186 "kernel.cu"
+if ((d_common.tMask_rows) < __cuda_local_var_20051_6_non_const_i)
+# 1186 "kernel.cu"
+{
+# 1187 "kernel.cu"
+__cuda_local_var_20047_11_non_const_ia2 = (d_common.tMask_rows);
+# 1188 "kernel.cu"
+}
+# 1189 "kernel.cu"
+else 
+# 1189 "kernel.cu"
+{
+# 1190 "kernel.cu"
+__cuda_local_var_20047_11_non_const_ia2 = __cuda_local_var_20051_6_non_const_i;
+# 1191 "kernel.cu"
+}
+# 1193 "kernel.cu"
+__cuda_local_var_20050_8_non_const_s = (0.0F);
+# 1195 "kernel.cu"
+for (__cuda_local_var_20048_6_non_const_ja = __cuda_local_var_20045_6_non_const_ja1; (__cuda_local_var_20048_6_non_const_ja <= __cuda_local_var_20045_11_non_const_ja2); __cuda_local_var_20048_6_non_const_ja++)
+# 1195 "kernel.cu"
+{
+# 1196 "kernel.cu"
+__cuda_local_var_20048_10_non_const_jb = (__cuda_local_var_20044_6_non_const_jp1 - __cuda_local_var_20048_6_non_const_ja);
+# 1197 "kernel.cu"
+for (__cuda_local_var_20049_6_non_const_ia = __cuda_local_var_20047_6_non_const_ia1; (__cuda_local_var_20049_6_non_const_ia <= __cuda_local_var_20047_11_non_const_ia2); __cuda_local_var_20049_6_non_const_ia++)
+# 1197 "kernel.cu"
+{
+# 1198 "kernel.cu"
+__cuda_local_var_20049_10_non_const_ib = (__cuda_local_var_20046_6_non_const_ip1 - __cuda_local_var_20049_6_non_const_ia);
+# 1199 "kernel.cu"
+__cuda_local_var_20050_8_non_const_s = (__cuda_local_var_20050_8_non_const_s + (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tMask)[((((d_common.tMask_rows) * (__cuda_local_var_20048_6_non_const_ja - 1)) + __cuda_local_var_20049_6_non_const_ia) - 1)]) * (1.0F)));
+# 1200 "kernel.cu"
+}
+# 1201 "kernel.cu"
+}
+# 1204 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_mask_conv)[__cuda_local_var_20098_6_non_const_ei_new]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_in2_sqr_sub2)[__cuda_local_var_20098_6_non_const_ei_new]) * __cuda_local_var_20050_8_non_const_s);
+# 1207 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 1209 "kernel.cu"
+}
+# 1215 "kernel.cu"
+__syncthreads();
+# 1225 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 1226 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.mask_conv_rows))
+# 1226 "kernel.cu"
+{
+# 1228 "kernel.cu"
+for (__cuda_local_var_20051_6_non_const_i = 0; (__cuda_local_var_20051_6_non_const_i < (d_common.mask_conv_cols)); __cuda_local_var_20051_6_non_const_i++)
+# 1228 "kernel.cu"
+{
+# 1229 "kernel.cu"
+__cuda_local_var_20068_6_non_const_largest_coordinate_current = ((__cuda_local_var_20098_6_non_const_ei_new * (d_common.mask_conv_rows)) + __cuda_local_var_20051_6_non_const_i);
+# 1230 "kernel.cu"
+__cuda_local_var_20066_8_non_const_largest_value_current = ((float)((__T21 = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_mask_conv)[__cuda_local_var_20068_6_non_const_largest_coordinate_current])) , (fabsf(((double)__T21)))));
+# 1231 "kernel.cu"
+if (__cuda_local_var_20066_8_non_const_largest_value_current > __cuda_local_var_20067_8_non_const_largest_value)
+# 1231 "kernel.cu"
+{
+# 1232 "kernel.cu"
+__cuda_local_var_20069_6_non_const_largest_coordinate = __cuda_local_var_20068_6_non_const_largest_coordinate_current;
+# 1233 "kernel.cu"
+__cuda_local_var_20067_8_non_const_largest_value = __cuda_local_var_20066_8_non_const_largest_value_current;
+# 1234 "kernel.cu"
+}
+# 1235 "kernel.cu"
+}
+# 1236 "kernel.cu"
+((__cuda_local_var_20086_30_non_const_par_max_coo)[__cuda_local_var_20098_6_non_const_ei_new]) = __cuda_local_var_20069_6_non_const_largest_coordinate;
+# 1237 "kernel.cu"
+((__cuda_local_var_20085_32_non_const_par_max_val)[__cuda_local_var_20098_6_non_const_ei_new]) = __cuda_local_var_20067_8_non_const_largest_value;
+# 1240 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 1242 "kernel.cu"
+}
+# 1248 "kernel.cu"
+__syncthreads();
+# 1254 "kernel.cu"
+if (__cuda_local_var_20097_6_non_const_tx == 0)
+# 1254 "kernel.cu"
+{
+# 1256 "kernel.cu"
+for (__cuda_local_var_20051_6_non_const_i = 0; (__cuda_local_var_20051_6_non_const_i < (d_common.mask_conv_rows)); __cuda_local_var_20051_6_non_const_i++)
+# 1256 "kernel.cu"
+{
+# 1257 "kernel.cu"
+if (((__cuda_local_var_20085_32_non_const_par_max_val)[__cuda_local_var_20051_6_non_const_i]) > __cuda_local_var_20070_8_non_const_fin_max_val)
+# 1257 "kernel.cu"
+{
+# 1258 "kernel.cu"
+__cuda_local_var_20070_8_non_const_fin_max_val = ((__cuda_local_var_20085_32_non_const_par_max_val)[__cuda_local_var_20051_6_non_const_i]);
+# 1259 "kernel.cu"
+__cuda_local_var_20071_6_non_const_fin_max_coo = ((__cuda_local_var_20086_30_non_const_par_max_coo)[__cuda_local_var_20051_6_non_const_i]);
+# 1260 "kernel.cu"
+}
+# 1261 "kernel.cu"
+}
+# 1264 "kernel.cu"
+__cuda_local_var_20072_6_non_const_largest_row = (((__cuda_local_var_20071_6_non_const_fin_max_coo + 1) % (d_common.mask_conv_rows)) - 1);
+# 1265 "kernel.cu"
+__cuda_local_var_20073_6_non_const_largest_col = ((__cuda_local_var_20071_6_non_const_fin_max_coo + 1) / (d_common.mask_conv_rows));
+# 1266 "kernel.cu"
+if (((__cuda_local_var_20071_6_non_const_fin_max_coo + 1) % (d_common.mask_conv_rows)) == 0)
+# 1266 "kernel.cu"
+{
+# 1267 "kernel.cu"
+__cuda_local_var_20072_6_non_const_largest_row = ((d_common.mask_conv_rows) - 1);
+# 1268 "kernel.cu"
+__cuda_local_var_20073_6_non_const_largest_col = (__cuda_local_var_20073_6_non_const_largest_col - 1);
+# 1269 "kernel.cu"
+}
+# 1272 "kernel.cu"
+__cuda_local_var_20072_6_non_const_largest_row = (__cuda_local_var_20072_6_non_const_largest_row + 1);
+# 1273 "kernel.cu"
+__cuda_local_var_20073_6_non_const_largest_col = (__cuda_local_var_20073_6_non_const_largest_col + 1);
+# 1274 "kernel.cu"
+__cuda_local_var_20074_6_non_const_offset_row = ((__cuda_local_var_20072_6_non_const_largest_row - (d_common.in_rows)) - ((d_common.sSize) - (d_common.tSize)));
+# 1275 "kernel.cu"
+__cuda_local_var_20075_6_non_const_offset_col = ((__cuda_local_var_20073_6_non_const_largest_col - (d_common.in_cols)) - ((d_common.sSize) - (d_common.tSize)));
+# 1276 "kernel.cu"
+__cuda_local_var_20087_6_non_const_pointer = ((d_common_change.frame_no) + ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no) * (d_common.no_frames)));
+# 1277 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tRowLoc)[__cuda_local_var_20087_6_non_const_pointer]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Row)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) + __cuda_local_var_20074_6_non_const_offset_row);
+# 1278 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tColLoc)[__cuda_local_var_20087_6_non_const_pointer]) = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Col)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) + __cuda_local_var_20075_6_non_const_offset_col);
+# 1280 "kernel.cu"
+}
+# 1286 "kernel.cu"
+__syncthreads();
+# 1288 "kernel.cu"
+}
+# 1299 "kernel.cu"
+if (((d_common_change.frame_no) != 0) && (((d_common_change.frame_no) % 10) == 0))
+# 1299 "kernel.cu"
+{
+# 1302 "kernel.cu"
+__cuda_local_var_20090_6_non_const_loc_pointer = (((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no) * (d_common.no_frames)) + (d_common_change.frame_no));
+# 1303 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Row)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tRowLoc)[__cuda_local_var_20090_6_non_const_loc_pointer]);
+# 1304 "kernel.cu"
+((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Col)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) = ((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_tColLoc)[__cuda_local_var_20090_6_non_const_loc_pointer]);
+# 1307 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = __cuda_local_var_20097_6_non_const_tx;
+# 1308 "kernel.cu"
+while (__cuda_local_var_20098_6_non_const_ei_new < (d_common.in_elem))
+# 1308 "kernel.cu"
+{
+# 1311 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in_rows)) - 1);
+# 1312 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = ((((__cuda_local_var_20098_6_non_const_ei_new + 1) / (d_common.in_rows)) + 1) - 1);
+# 1313 "kernel.cu"
+if (((__cuda_local_var_20098_6_non_const_ei_new + 1) % (d_common.in_rows)) == 0)
+# 1313 "kernel.cu"
+{
+# 1314 "kernel.cu"
+__cuda_local_var_20053_6_non_const_row = ((d_common.in_rows) - 1);
+# 1315 "kernel.cu"
+__cuda_local_var_20054_6_non_const_col = (__cuda_local_var_20054_6_non_const_col - 1);
+# 1316 "kernel.cu"
+}
+# 1319 "kernel.cu"
+__cuda_local_var_20055_6_non_const_ori_row = (((((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Row)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) - 25) + __cuda_local_var_20053_6_non_const_row) - 1);
+# 1320 "kernel.cu"
+__cuda_local_var_20056_6_non_const_ori_col = (((((((d_unique)[__cuda_local_var_20096_6_non_const_bx]).d_Col)[(((d_unique)[__cuda_local_var_20096_6_non_const_bx]).point_no)]) - 25) + __cuda_local_var_20054_6_non_const_col) - 1);
+# 1321 "kernel.cu"
+__cuda_local_var_20089_6_non_const_ori_pointer = ((__cuda_local_var_20056_6_non_const_ori_col * (d_common.frame_rows)) + __cuda_local_var_20055_6_non_const_ori_row);
+# 1324 "kernel.cu"
+(__cuda_local_var_20037_9_non_const_d_in[__cuda_local_var_20098_6_non_const_ei_new]) = ((float)(((double)((d_common.alpha) * (__cuda_local_var_20037_9_non_const_d_in[__cuda_local_var_20098_6_non_const_ei_new]))) + (((1.0) - ((double)(d_common.alpha))) * ((double)((d_common_change.d_frame)[__cuda_local_var_20089_6_non_const_ori_pointer])))));
+# 1327 "kernel.cu"
+__cuda_local_var_20098_6_non_const_ei_new = (__cuda_local_var_20098_6_non_const_ei_new + 512);
+# 1329 "kernel.cu"
+}
+# 1331 "kernel.cu"
+}
+# 1333 "kernel.cu"
+} 
+# 1333 "kernel.cu"
+}}

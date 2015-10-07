@@ -1,0 +1,420 @@
+	.version 2.2
+	.target sm_20
+	// compiled with /home/bachelor/deicide218/cuda-3.2/open64/lib//be
+	// nvopencc 3.2 built on 2010-11-03
+
+	//-----------------------------------------------------------
+	// Compiling main.cpp3.i (/tmp/ccBI#.bQHADq)
+	//-----------------------------------------------------------
+
+	//-----------------------------------------------------------
+	// Options:
+	//-----------------------------------------------------------
+	//  Target:ptx, ISA:sm_20, Endian:little, Pointer Size:64
+	//  -O3	(Optimization level)
+	//  -g0	(Debug level)
+	//  -m2	(Report advisories)
+	//-----------------------------------------------------------
+
+	.file	1	"<command-line>"
+	.file	2	"main.cudafe2.gpu"
+	.file	3	"/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h"
+	.file	4	"/home/bachelor/deicide218/cuda-3.2/bin/../include/crt/device_runtime.h"
+	.file	5	"/home/bachelor/deicide218/cuda-3.2/bin/../include/host_defines.h"
+	.file	6	"/home/bachelor/deicide218/cuda-3.2/bin/../include/builtin_types.h"
+	.file	7	"/home/bachelor/deicide218/cuda-3.2/bin/../include/device_types.h"
+	.file	8	"/home/bachelor/deicide218/cuda-3.2/bin/../include/driver_types.h"
+	.file	9	"/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_types.h"
+	.file	10	"/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_types.h"
+	.file	11	"/home/bachelor/deicide218/cuda-3.2/bin/../include/vector_types.h"
+	.file	12	"/home/bachelor/deicide218/cuda-3.2/bin/../include/device_launch_parameters.h"
+	.file	13	"/home/bachelor/deicide218/cuda-3.2/bin/../include/crt/storage_class.h"
+	.file	14	"/usr/include/x86_64-linux-gnu/bits/types.h"
+	.file	15	"/usr/include/time.h"
+	.file	16	"kernels.cu"
+	.file	17	"/home/bachelor/deicide218/cuda-3.2/bin/../include/common_functions.h"
+	.file	18	"/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+	.file	19	"/home/bachelor/deicide218/cuda-3.2/bin/../include/math_constants.h"
+	.file	20	"/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+	.file	21	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+	.file	22	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_12_atomic_functions.h"
+	.file	23	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+	.file	24	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_atomic_functions.h"
+	.file	25	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+	.file	26	"/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+	.file	27	"/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+	.file	28	"/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions_dbl_ptx3.h"
+
+	.extern	.shared .align 4 .b8 sh_A0[];
+
+	.entry _Z24block2D_hybrid_coarsen_xffPfS_iii (
+		.param .f32 __cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_c0,
+		.param .f32 __cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_c1,
+		.param .u64 __cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0,
+		.param .u64 __cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_Anext,
+		.param .s32 __cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_nx,
+		.param .s32 __cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_ny,
+		.param .s32 __cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_nz)
+	{
+	.reg .u32 %r<105>;
+	.reg .u64 %rd<71>;
+	.reg .f32 %f<40>;
+	.reg .pred %p<22>;
+	.loc	16	11	0
+$LDWbegin__Z24block2D_hybrid_coarsen_xffPfS_iii:
+	mov.u64 	%rd1, sh_A0;
+	.loc	16	23	0
+	mov.u32 	%r1, %tid.y;
+	mov.u32 	%r2, %ntid.x;
+	mul.lo.u32 	%r3, %r1, %r2;
+	mul.lo.u32 	%r4, %r3, 2;
+	mov.u32 	%r5, %tid.x;
+	add.u32 	%r6, %r4, %r5;
+	cvt.s64.s32 	%rd2, %r6;
+	mul.wide.s32 	%rd3, %r6, 4;
+	add.u64 	%rd4, %rd1, %rd3;
+	mov.f32 	%f1, 0f00000000;     	// 0
+	st.shared.f32 	[%rd4+0], %f1;
+	.loc	16	24	0
+	add.u32 	%r7, %r5, %r2;
+	add.u32 	%r8, %r7, %r4;
+	cvt.s64.s32 	%rd5, %r8;
+	mul.wide.s32 	%rd6, %r8, 4;
+	add.u64 	%rd7, %rd1, %rd6;
+	mov.f32 	%f2, 0f00000000;     	// 0
+	st.shared.f32 	[%rd7+0], %f2;
+	.loc	16	25	0
+	bar.sync 	0;
+	mov.u32 	%r9, %ctaid.x;
+	mul.lo.u32 	%r10, %r9, %r2;
+	mov.u32 	%r11, %ntid.y;
+	mov.u32 	%r12, %ctaid.y;
+	mul.lo.u32 	%r13, %r12, %r11;
+	mul.lo.u32 	%r14, %r10, 2;
+	add.u32 	%r15, %r13, %r1;
+	add.u32 	%r16, %r14, %r5;
+	ld.param.s32 	%r17, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_ny];
+	setp.gt.s32 	%p1, %r17, %r15;
+	ld.param.s32 	%r18, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_nx];
+	setp.gt.s32 	%p2, %r18, %r16;
+	selp.s32 	%r19, 1, 0, %p1;
+	selp.s32 	%r20, 1, 0, %p2;
+	and.b32 	%r21, %r19, %r20;
+	mov.u32 	%r22, 0;
+	setp.eq.s32 	%p3, %r21, %r22;
+	@%p3 bra 	$Lt_0_14082;
+	.loc	16	42	0
+	ld.param.u64 	%rd8, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	mul.lo.s32 	%r23, %r18, %r15;
+	add.s32 	%r24, %r16, %r23;
+	cvt.s64.s32 	%rd9, %r24;
+	mul.wide.s32 	%rd10, %r24, 4;
+	add.u64 	%rd11, %rd8, %rd10;
+	ld.global.f32 	%f3, [%rd11+0];
+	.loc	16	43	0
+	add.s32 	%r25, %r17, %r15;
+	mul.lo.s32 	%r26, %r18, %r25;
+	add.s32 	%r27, %r16, %r26;
+	cvt.s64.s32 	%rd12, %r27;
+	mul.wide.s32 	%rd13, %r27, 4;
+	add.u64 	%rd14, %rd8, %rd13;
+	ld.global.f32 	%f4, [%rd14+0];
+	st.shared.f32 	[%rd4+0], %f4;
+	bra.uni 	$Lt_0_13826;
+$Lt_0_14082:
+	mov.f32 	%f3, 0f00000000;     	// 0
+$Lt_0_13826:
+	add.u32 	%r28, %r16, %r2;
+	setp.gt.s32 	%p4, %r18, %r28;
+	selp.s32 	%r29, 1, 0, %p4;
+	and.b32 	%r30, %r19, %r29;
+	mov.u32 	%r31, 0;
+	setp.eq.s32 	%p5, %r30, %r31;
+	@%p5 bra 	$Lt_0_14594;
+	.loc	16	47	0
+	ld.param.u64 	%rd15, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	mul.lo.s32 	%r32, %r18, %r15;
+	add.s32 	%r33, %r28, %r32;
+	cvt.s64.s32 	%rd16, %r33;
+	mul.wide.s32 	%rd17, %r33, 4;
+	add.u64 	%rd18, %rd15, %rd17;
+	ld.global.f32 	%f5, [%rd18+0];
+	.loc	16	48	0
+	add.s32 	%r34, %r17, %r15;
+	mul.lo.s32 	%r35, %r18, %r34;
+	add.s32 	%r36, %r28, %r35;
+	cvt.s64.s32 	%rd19, %r36;
+	mul.wide.s32 	%rd20, %r36, 4;
+	add.u64 	%rd21, %rd15, %rd20;
+	ld.global.f32 	%f6, [%rd21+0];
+	st.shared.f32 	[%rd7+0], %f6;
+	bra.uni 	$Lt_0_14338;
+$Lt_0_14594:
+	mov.f32 	%f5, 0f00000000;     	// 0
+$Lt_0_14338:
+	.loc	16	51	0
+	bar.sync 	0;
+	ld.param.s32 	%r37, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_nz];
+	sub.s32 	%r38, %r37, 1;
+	mov.u32 	%r39, 1;
+	setp.le.s32 	%p6, %r38, %r39;
+	@%p6 bra 	$Lt_0_14850;
+	mul.lo.u32 	%r40, %r2, 2;
+	sub.u32 	%r41, %r40, 1;
+	setp.eq.u32 	%p7, %r7, %r41;
+	selp.s32 	%r42, 1, 0, %p7;
+	mov.u32 	%r43, 0;
+	setp.eq.u32 	%p8, %r1, %r43;
+	selp.s32 	%r44, 1, 0, %p8;
+	sub.u32 	%r45, %r11, 1;
+	setp.eq.u32 	%p9, %r45, %r1;
+	selp.s32 	%r46, 1, 0, %p9;
+	mov.u32 	%r47, 0;
+	setp.eq.u32 	%p10, %r5, %r47;
+	selp.s32 	%r48, 1, 0, %p10;
+	sub.s32 	%r49, %r37, 2;
+	sub.s32 	%r50, %r17, 1;
+	sub.s32 	%r51, %r18, 1;
+	setp.gt.s32 	%p11, %r50, %r15;
+	mov.s32 	%r52, 0;
+	setp.gt.s32 	%p12, %r15, %r52;
+	setp.gt.s32 	%p13, %r51, %r16;
+	mov.s32 	%r53, 0;
+	setp.gt.s32 	%p14, %r16, %r53;
+	selp.s32 	%r54, 1, 0, %p11;
+	selp.s32 	%r55, 1, 0, %p12;
+	setp.gt.s32 	%p15, %r51, %r28;
+	selp.s32 	%r56, 1, 0, %p13;
+	selp.s32 	%r57, 1, 0, %p14;
+	selp.s32 	%r58, 1, 0, %p15;
+	and.b32 	%r59, %r55, %r57;
+	and.b32 	%r60, %r55, %r58;
+	and.b32 	%r61, %r56, %r59;
+	and.b32 	%r62, %r54, %r60;
+	and.b32 	%r63, %r54, %r61;
+	mov.s32 	%r64, 1;
+	mov.f32 	%f7, 0f00000000;     	// 0
+	mov.f32 	%f8, 0f00000000;     	// 0
+	mov.s32 	%r65, %r49;
+$Lt_0_15362:
+ //<loop> Loop body line 51, nesting depth: 1, estimated iterations: unknown
+	mov.u32 	%r66, 0;
+	setp.eq.s32 	%p16, %r21, %r66;
+	@%p16 bra 	$Lt_0_15618;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	63	0
+	ld.param.u64 	%rd22, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	add.s32 	%r67, %r64, 1;
+	mul.lo.s32 	%r68, %r17, %r67;
+	add.s32 	%r69, %r15, %r68;
+	mul.lo.s32 	%r70, %r18, %r69;
+	add.s32 	%r71, %r16, %r70;
+	cvt.s64.s32 	%rd23, %r71;
+	mul.wide.s32 	%rd24, %r71, 4;
+	add.u64 	%rd25, %rd22, %rd24;
+	ld.global.f32 	%f8, [%rd25+0];
+$Lt_0_15618:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	mov.u32 	%r72, 0;
+	setp.eq.s32 	%p17, %r63, %r72;
+	@%p17 bra 	$Lt_0_16130;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	mul.lo.s32 	%r73, %r64, %r17;
+	add.s32 	%r74, %r73, %r15;
+	mul.lo.s32 	%r75, %r74, %r18;
+	add.s32 	%r76, %r16, %r75;
+	cvt.s64.s32 	%rd26, %r76;
+	mul.wide.s32 	%rd27, %r76, 4;
+	@!%p10 bra 	$Lt_0_16898;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	69	0
+	ld.param.u64 	%rd28, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	add.u64 	%rd29, %rd28, %rd27;
+	ld.global.f32 	%f9, [%rd29+-4];
+	bra.uni 	$Lt_0_16642;
+$Lt_0_16898:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	ld.shared.f32 	%f9, [%rd4+-4];
+$Lt_0_16642:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	@!%p8 bra 	$Lt_0_17410;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	71	0
+	ld.param.u64 	%rd30, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	sub.s32 	%r77, %r74, 1;
+	mul.lo.s32 	%r78, %r18, %r77;
+	add.s32 	%r79, %r16, %r78;
+	cvt.s64.s32 	%rd31, %r79;
+	mul.wide.s32 	%rd32, %r79, 4;
+	add.u64 	%rd33, %rd30, %rd32;
+	ld.global.f32 	%f10, [%rd33+0];
+	bra.uni 	$Lt_0_17154;
+$Lt_0_17410:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	sub.u32 	%r80, %r6, %r40;
+	cvt.u64.u32 	%rd34, %r80;
+	mul.wide.u32 	%rd35, %r80, 4;
+	add.u64 	%rd36, %rd1, %rd35;
+	ld.shared.f32 	%f10, [%rd36+0];
+$Lt_0_17154:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	@!%p9 bra 	$Lt_0_17922;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	73	0
+	ld.param.u64 	%rd37, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	add.s32 	%r81, %r74, 1;
+	mul.lo.s32 	%r82, %r18, %r81;
+	add.s32 	%r83, %r16, %r82;
+	cvt.s64.s32 	%rd38, %r83;
+	mul.wide.s32 	%rd39, %r83, 4;
+	add.u64 	%rd40, %rd37, %rd39;
+	ld.global.f32 	%f11, [%rd40+0];
+	bra.uni 	$Lt_0_17666;
+$Lt_0_17922:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	add.u32 	%r84, %r40, %r6;
+	cvt.u64.u32 	%rd41, %r84;
+	mul.wide.u32 	%rd42, %r84, 4;
+	add.u64 	%rd43, %rd1, %rd42;
+	ld.shared.f32 	%f11, [%rd43+0];
+$Lt_0_17666:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	75	0
+	ld.shared.f32 	%f12, [%rd4+0];
+	ld.param.f32 	%f13, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_c0];
+	mul.f32 	%f14, %f12, %f13;
+	ld.param.f32 	%f15, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_c1];
+	ld.shared.f32 	%f16, [%rd4+4];
+	add.f32 	%f17, %f16, %f9;
+	add.f32 	%f18, %f11, %f17;
+	add.f32 	%f19, %f10, %f18;
+	add.f32 	%f20, %f8, %f19;
+	add.f32 	%f21, %f3, %f20;
+	mul.f32 	%f22, %f15, %f21;
+	sub.f32 	%f23, %f22, %f14;
+	ld.param.u64 	%rd44, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_Anext];
+	add.u64 	%rd45, %rd44, %rd27;
+	st.global.f32 	[%rd45+0], %f23;
+$Lt_0_16130:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	mov.u32 	%r85, 0;
+	setp.eq.s32 	%p18, %r30, %r85;
+	@%p18 bra 	$Lt_0_18178;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	84	0
+	ld.param.u64 	%rd46, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	add.s32 	%r86, %r64, 1;
+	mul.lo.s32 	%r87, %r17, %r86;
+	add.s32 	%r88, %r15, %r87;
+	mul.lo.s32 	%r89, %r18, %r88;
+	add.s32 	%r90, %r28, %r89;
+	cvt.s64.s32 	%rd47, %r90;
+	mul.wide.s32 	%rd48, %r90, 4;
+	add.u64 	%rd49, %rd46, %rd48;
+	ld.global.f32 	%f7, [%rd49+0];
+$Lt_0_18178:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	mov.u32 	%r91, 0;
+	setp.eq.s32 	%p19, %r62, %r91;
+	@%p19 bra 	$Lt_0_18690;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	mul.lo.s32 	%r92, %r64, %r17;
+	add.s32 	%r74, %r92, %r15;
+	mul.lo.s32 	%r93, %r74, %r18;
+	add.s32 	%r94, %r28, %r93;
+	cvt.s64.s32 	%rd50, %r94;
+	mul.wide.s32 	%rd51, %r94, 4;
+	@!%p7 bra 	$Lt_0_19458;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	89	0
+	ld.param.u64 	%rd52, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	add.u64 	%rd53, %rd52, %rd51;
+	ld.global.f32 	%f24, [%rd53+4];
+	bra.uni 	$Lt_0_19202;
+$Lt_0_19458:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	ld.shared.f32 	%f24, [%rd7+4];
+$Lt_0_19202:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	@!%p8 bra 	$Lt_0_19970;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	91	0
+	ld.param.u64 	%rd54, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	sub.s32 	%r95, %r74, 1;
+	mul.lo.s32 	%r96, %r18, %r95;
+	add.s32 	%r97, %r28, %r96;
+	cvt.s64.s32 	%rd55, %r97;
+	mul.wide.s32 	%rd56, %r97, 4;
+	add.u64 	%rd57, %rd54, %rd56;
+	ld.global.f32 	%f25, [%rd57+0];
+	bra.uni 	$Lt_0_19714;
+$Lt_0_19970:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	sub.u32 	%r98, %r8, %r40;
+	cvt.u64.u32 	%rd58, %r98;
+	mul.wide.u32 	%rd59, %r98, 4;
+	add.u64 	%rd60, %rd1, %rd59;
+	ld.shared.f32 	%f25, [%rd60+0];
+$Lt_0_19714:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	@!%p9 bra 	$Lt_0_20482;
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	93	0
+	ld.param.u64 	%rd61, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_A0];
+	add.s32 	%r99, %r74, 1;
+	mul.lo.s32 	%r100, %r18, %r99;
+	add.s32 	%r101, %r28, %r100;
+	cvt.s64.s32 	%rd62, %r101;
+	mul.wide.s32 	%rd63, %r101, 4;
+	add.u64 	%rd64, %rd61, %rd63;
+	ld.global.f32 	%f26, [%rd64+0];
+	bra.uni 	$Lt_0_20226;
+$Lt_0_20482:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	add.u32 	%r102, %r40, %r8;
+	cvt.u64.u32 	%rd65, %r102;
+	mul.wide.u32 	%rd66, %r102, 4;
+	add.u64 	%rd67, %rd1, %rd66;
+	ld.shared.f32 	%f26, [%rd67+0];
+$Lt_0_20226:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	95	0
+	ld.shared.f32 	%f27, [%rd7+0];
+	ld.param.f32 	%f28, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_c0];
+	mul.f32 	%f29, %f27, %f28;
+	ld.param.f32 	%f30, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_c1];
+	ld.shared.f32 	%f31, [%rd7+-4];
+	add.f32 	%f32, %f31, %f24;
+	add.f32 	%f33, %f26, %f32;
+	add.f32 	%f34, %f25, %f33;
+	add.f32 	%f35, %f7, %f34;
+	add.f32 	%f36, %f5, %f35;
+	mul.f32 	%f37, %f30, %f36;
+	sub.f32 	%f38, %f37, %f29;
+	ld.param.u64 	%rd68, [__cudaparm__Z24block2D_hybrid_coarsen_xffPfS_iii_Anext];
+	add.u64 	%rd69, %rd68, %rd51;
+	st.global.f32 	[%rd69+0], %f38;
+$Lt_0_18690:
+ //<loop> Part of loop body line 51, head labeled $Lt_0_15362
+	.loc	16	100	0
+	bar.sync 	0;
+	.loc	16	101	0
+	ld.shared.f32 	%f3, [%rd4+0];
+	.loc	16	102	0
+	st.shared.f32 	[%rd4+0], %f8;
+	.loc	16	103	0
+	ld.shared.f32 	%f5, [%rd7+0];
+	.loc	16	104	0
+	st.shared.f32 	[%rd7+0], %f7;
+	.loc	16	105	0
+	bar.sync 	0;
+	add.s32 	%r103, %r64, 1;
+	mov.s32 	%r64, %r103;
+	setp.ne.s32 	%p20, %r38, %r103;
+	@%p20 bra 	$Lt_0_15362;
+$Lt_0_14850:
+	.loc	16	109	0
+	exit;
+$LDWend__Z24block2D_hybrid_coarsen_xffPfS_iii:
+	} // _Z24block2D_hybrid_coarsen_xffPfS_iii
+

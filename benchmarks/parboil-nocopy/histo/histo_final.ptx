@@ -1,0 +1,221 @@
+	.version 2.2
+	.target sm_20
+	// compiled with /home/bachelor/deicide218/cuda-3.2/open64/lib//be
+	// nvopencc 3.2 built on 2010-11-03
+
+	//-----------------------------------------------------------
+	// Compiling histo_final.cpp3.i (/tmp/ccBI#.ilbSUN)
+	//-----------------------------------------------------------
+
+	//-----------------------------------------------------------
+	// Options:
+	//-----------------------------------------------------------
+	//  Target:ptx, ISA:sm_20, Endian:little, Pointer Size:64
+	//  -O3	(Optimization level)
+	//  -g0	(Debug level)
+	//  -m2	(Report advisories)
+	//-----------------------------------------------------------
+
+	.file	1	"<command-line>"
+	.file	2	"histo_final.cudafe2.gpu"
+	.file	3	"/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h"
+	.file	4	"/home/bachelor/deicide218/cuda-3.2/bin/../include/crt/device_runtime.h"
+	.file	5	"/home/bachelor/deicide218/cuda-3.2/bin/../include/host_defines.h"
+	.file	6	"/home/bachelor/deicide218/cuda-3.2/bin/../include/builtin_types.h"
+	.file	7	"/home/bachelor/deicide218/cuda-3.2/bin/../include/device_types.h"
+	.file	8	"/home/bachelor/deicide218/cuda-3.2/bin/../include/driver_types.h"
+	.file	9	"/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_types.h"
+	.file	10	"/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_types.h"
+	.file	11	"/home/bachelor/deicide218/cuda-3.2/bin/../include/vector_types.h"
+	.file	12	"/home/bachelor/deicide218/cuda-3.2/bin/../include/device_launch_parameters.h"
+	.file	13	"/home/bachelor/deicide218/cuda-3.2/bin/../include/crt/storage_class.h"
+	.file	14	"/usr/include/x86_64-linux-gnu/bits/types.h"
+	.file	15	"/usr/include/time.h"
+	.file	16	"/home/bachelor/deicide218/cuda-3.2/bin/../include/texture_fetch_functions.h"
+	.file	17	"/home/bachelor/deicide218/cuda-3.2/bin/../include/common_functions.h"
+	.file	18	"/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions.h"
+	.file	19	"/home/bachelor/deicide218/cuda-3.2/bin/../include/math_constants.h"
+	.file	20	"/home/bachelor/deicide218/cuda-3.2/bin/../include/device_functions.h"
+	.file	21	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_11_atomic_functions.h"
+	.file	22	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_12_atomic_functions.h"
+	.file	23	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_13_double_functions.h"
+	.file	24	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_atomic_functions.h"
+	.file	25	"/home/bachelor/deicide218/cuda-3.2/bin/../include/sm_20_intrinsics.h"
+	.file	26	"/home/bachelor/deicide218/cuda-3.2/bin/../include/surface_functions.h"
+	.file	27	"/home/bachelor/deicide218/cuda-3.2/bin/../include/math_functions_dbl_ptx3.h"
+	.file	28	"histo_final.cu"
+
+
+	.entry _Z18histo_final_kerneljjjjPjS_S_S_ (
+		.param .u32 __cudaparm__Z18histo_final_kerneljjjjPjS_S_S__sm_range_min,
+		.param .u32 __cudaparm__Z18histo_final_kerneljjjjPjS_S_S__sm_range_max,
+		.param .u32 __cudaparm__Z18histo_final_kerneljjjjPjS_S_S__histo_height,
+		.param .u32 __cudaparm__Z18histo_final_kerneljjjjPjS_S_S__histo_width,
+		.param .u64 __cudaparm__Z18histo_final_kerneljjjjPjS_S_S__global_subhisto,
+		.param .u64 __cudaparm__Z18histo_final_kerneljjjjPjS_S_S__global_histo,
+		.param .u64 __cudaparm__Z18histo_final_kerneljjjjPjS_S_S__global_overflow,
+		.param .u64 __cudaparm__Z18histo_final_kerneljjjjPjS_S_S__final_histo)
+	{
+	.reg .u32 %r<77>;
+	.reg .u64 %rd<33>;
+	.reg .pred %p<8>;
+	.loc	28	20	0
+$LDWbegin__Z18histo_final_kerneljjjjPjS_S_S_:
+	.loc	28	30	0
+	mov.u32 	%r1, %ntid.x;
+	mov.u32 	%r2, %ctaid.x;
+	mul.lo.u32 	%r3, %r2, %r1;
+	mov.u32 	%r4, %tid.x;
+	add.u32 	%r5, %r4, %r3;
+	mov.s32 	%r6, %r5;
+	ld.param.u32 	%r7, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__sm_range_min];
+	mul.lo.u32 	%r8, %r7, 24576;
+	shr.u32 	%r9, %r8, 2;
+	setp.le.u32 	%p1, %r9, %r5;
+	@%p1 bra 	$Lt_0_3330;
+	mov.u32 	%r10, %nctaid.x;
+	mul.lo.u32 	%r11, %r10, %r1;
+	cvt.u64.u32 	%rd1, %r5;
+	cvt.s64.u32 	%rd2, %r11;
+	mul.wide.u32 	%rd3, %r11, 8;
+	mul.wide.u32 	%rd4, %r11, 4;
+	ld.param.u64 	%rd5, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__global_histo];
+	mul.wide.u32 	%rd6, %r5, 8;
+	add.u64 	%rd7, %rd5, %rd6;
+	ld.param.u64 	%rd8, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__final_histo];
+	mul.wide.u32 	%rd9, %r5, 4;
+	add.u64 	%rd10, %rd8, %rd9;
+$Lt_0_3842:
+ //<loop> Loop body line 30, nesting depth: 1, estimated iterations: unknown
+	ld.global.v4.u16 	{%r12,%r13,%r14,%r15}, [%rd7+0];
+	.loc	28	33	0
+	mov.u32 	%r16, 0;
+	mov.u32 	%r17, 0;
+	mov.u32 	%r18, 0;
+	mov.u32 	%r19, 0;
+	st.global.v4.u16 	[%rd7+0], {%r16,%r17,%r18,%r19};
+	.loc	28	47	0
+	mov.s32 	%r20, 255;
+	min.s32 	%r21, %r12, %r20;
+	mov.s32 	%r22, 255;
+	min.s32 	%r23, %r13, %r22;
+	mov.s32 	%r24, 255;
+	min.s32 	%r25, %r14, %r24;
+	mov.s32 	%r26, 255;
+	min.s32 	%r27, %r15, %r26;
+	st.global.v4.u8 	[%rd10+0], {%r21,%r23,%r25,%r27};
+	add.u32 	%r6, %r11, %r6;
+	add.u64 	%rd10, %rd10, %rd4;
+	add.u64 	%rd7, %rd7, %rd3;
+	setp.gt.u32 	%p2, %r9, %r6;
+	@%p2 bra 	$Lt_0_3842;
+$Lt_0_3330:
+	.loc	28	51	0
+	add.u32 	%r28, %r9, %r5;
+	ld.param.u32 	%r29, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__sm_range_max];
+	mul.lo.u32 	%r30, %r29, 24576;
+	add.u32 	%r31, %r30, 24576;
+	shr.u32 	%r32, %r31, 2;
+	setp.le.u32 	%p3, %r32, %r28;
+	@%p3 bra 	$Lt_0_4354;
+	mov.u32 	%r33, %nctaid.x;
+	mul.lo.u32 	%r11, %r33, %r1;
+	cvt.u64.u32 	%rd11, %r28;
+	cvt.s64.u32 	%rd12, %r11;
+	mul.lo.u32 	%r34, %r28, 4;
+	mul.lo.u32 	%r35, %r11, 4;
+	mul.wide.u32 	%rd13, %r11, 16;
+	mul.wide.u32 	%rd4, %r11, 4;
+	ld.param.u64 	%rd14, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__global_overflow];
+	mul.wide.u32 	%rd15, %r28, 16;
+	add.u64 	%rd16, %rd14, %rd15;
+	ld.param.u64 	%rd17, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__final_histo];
+	mul.wide.u32 	%rd18, %r28, 4;
+	add.u64 	%rd19, %rd17, %rd18;
+	mul.lo.u32 	%r36, %r32, 4;
+	ld.param.u64 	%rd20, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__global_subhisto];
+$Lt_0_4866:
+ //<loop> Loop body line 51, nesting depth: 1, estimated iterations: unknown
+	.loc	28	54	0
+	mov.u32 	%r37, 0;
+	mov.u32 	%r38, 0;
+	mov.u32 	%r39, 0;
+	mov.u32 	%r40, 0;
+	st.global.v4.u32 	[%rd16+0], {%r37,%r38,%r39,%r40};
+	.loc	28	81	0
+	cvt.u64.u32 	%rd21, %r34;
+	mul.wide.u32 	%rd22, %r34, 4;
+	add.u64 	%rd23, %rd20, %rd22;
+	ld.global.u32 	%r41, [%rd23+4];
+	.loc	28	82	0
+	ld.global.u32 	%r42, [%rd23+8];
+	.loc	28	83	0
+	ld.global.u32 	%r43, [%rd23+12];
+	.loc	28	97	0
+	ld.global.u32 	%r44, [%rd23+0];
+	mov.u32 	%r45, 255;
+	min.u32 	%r46, %r44, %r45;
+	mov.u32 	%r47, 255;
+	min.u32 	%r48, %r41, %r47;
+	mov.u32 	%r49, 255;
+	min.u32 	%r50, %r42, %r49;
+	mov.u32 	%r51, 255;
+	min.u32 	%r52, %r43, %r51;
+	st.global.v4.u8 	[%rd19+0], {%r46,%r48,%r50,%r52};
+	add.u32 	%r34, %r34, %r35;
+	add.u64 	%rd19, %rd19, %rd4;
+	add.u64 	%rd16, %rd13, %rd16;
+	setp.lt.u32 	%p4, %r34, %r36;
+	@%p4 bra 	$Lt_0_4866;
+$Lt_0_4354:
+	.loc	28	101	0
+	add.u32 	%r53, %r32, %r5;
+	mov.s32 	%r54, %r53;
+	ld.param.u32 	%r55, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__histo_height];
+	ld.param.u32 	%r56, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__histo_width];
+	mul.lo.u32 	%r57, %r55, %r56;
+	shr.u32 	%r58, %r57, 2;
+	setp.le.u32 	%p5, %r58, %r53;
+	@%p5 bra 	$Lt_0_5378;
+	cvt.u64.u32 	%rd24, %r53;
+	mov.u32 	%r59, %nctaid.x;
+	mul.lo.u32 	%r11, %r59, %r1;
+	cvt.s64.u32 	%rd25, %r11;
+	ld.param.u64 	%rd26, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__global_histo];
+	mul.wide.u32 	%rd27, %r53, 8;
+	add.u64 	%rd28, %rd26, %rd27;
+	mul.wide.u32 	%rd3, %r11, 8;
+	ld.param.u64 	%rd29, [__cudaparm__Z18histo_final_kerneljjjjPjS_S_S__final_histo];
+	mul.wide.u32 	%rd30, %r53, 4;
+	add.u64 	%rd31, %rd29, %rd30;
+	mul.wide.u32 	%rd4, %r11, 4;
+$Lt_0_5890:
+ //<loop> Loop body line 101, nesting depth: 1, estimated iterations: unknown
+	ld.global.v4.u16 	{%r60,%r61,%r62,%r63}, [%rd28+0];
+	.loc	28	104	0
+	mov.u32 	%r64, 0;
+	mov.u32 	%r65, 0;
+	mov.u32 	%r66, 0;
+	mov.u32 	%r67, 0;
+	st.global.v4.u16 	[%rd28+0], {%r64,%r65,%r66,%r67};
+	.loc	28	118	0
+	mov.s32 	%r68, 255;
+	min.s32 	%r69, %r60, %r68;
+	mov.s32 	%r70, 255;
+	min.s32 	%r71, %r61, %r70;
+	mov.s32 	%r72, 255;
+	min.s32 	%r73, %r62, %r72;
+	mov.s32 	%r74, 255;
+	min.s32 	%r75, %r63, %r74;
+	st.global.v4.u8 	[%rd31+0], {%r69,%r71,%r73,%r75};
+	add.u32 	%r54, %r11, %r54;
+	add.u64 	%rd31, %rd31, %rd4;
+	add.u64 	%rd28, %rd28, %rd3;
+	setp.gt.u32 	%p6, %r58, %r54;
+	@%p6 bra 	$Lt_0_5890;
+$Lt_0_5378:
+	.loc	28	120	0
+	exit;
+$LDWend__Z18histo_final_kerneljjjjPjS_S_S_:
+	} // _Z18histo_final_kerneljjjjPjS_S_S_
+

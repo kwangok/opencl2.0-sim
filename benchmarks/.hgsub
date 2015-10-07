@@ -1,0 +1,11 @@
+
+common = common
+dcmbmk = dcmbmk
+libcuda = libcuda
+libopencl = libopencl
+parboil = parboil
+rodinia = rodinia
+rodinia-nocopy = rodinia-nocopy
+rodinia-omp = rodinia-omp
+unittests = unittests
+

@@ -1,0 +1,668 @@
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+#if !defined(__CUDABE__)
+# 884 "/home/bachelor/deicide218/cuda-4.2/include/math_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) __attribute__((__const__)) float roundf(float);
+#endif
+#if !defined(__CUDABE__)
+# 131 "/home/bachelor/deicide218/cuda-4.2/include/device_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) void __syncthreads(void);
+#endif
+# 96 "ex_particle_CUDA_float_seq.cu"
+___device__(extern  __no_sc__) float _Z17calcLikelihoodSumPhPiii(unsigned char *, int *, int, int);
+# 111 "ex_particle_CUDA_float_seq.cu"
+___device__(extern  __no_sc__) void _Z7cdfCalcPfS_i(float *, float *, int);
+# 124 "ex_particle_CUDA_float_seq.cu"
+___device__(extern  __no_sc__) float _Z7d_randuPii(int *, int);
+# 165 "ex_particle_CUDA_float_seq.cu"
+___device__(extern  __no_sc__) float _Z7d_randnPii(int *, int);
+# 182 "ex_particle_CUDA_float_seq.cu"
+___device__(extern  __no_sc__) float _Z13updateWeightsPfS_i(float *, float *, int);
+# 192 "ex_particle_CUDA_float_seq.cu"
+___device__(extern  __no_sc__) int _Z12findIndexBinPfiif(float *, int, int, float);
+# 229 "ex_particle_CUDA_float_seq.cu"
+__global__ __var_used__ extern void _Z17find_index_kernelPfS_S_S_S_S_S_i(float *, float *, float *, float *, float *, float *, float *, int);
+# 258 "ex_particle_CUDA_float_seq.cu"
+__global__ __var_used__ extern void _Z24normalize_weights_kernelPfiS_S_S_Pi(float *, int, float *, float *, float *, int *);
+# 276 "ex_particle_CUDA_float_seq.cu"
+__global__ __var_used__ extern void _Z10sum_kernelPfi(float *, int);
+# 309 "ex_particle_CUDA_float_seq.cu"
+__global__ __var_used__ extern void _Z17likelihood_kernelPfS_S_PiS0_S_PhS_S_iiiiiiS0_S_(float *, float *, float *, int *, int *, float *, unsigned char *, float *, float *, int, int, int, int, int, int, int *, float *);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 96 "ex_particle_CUDA_float_seq.cu"
+___device__( __no_sc__) float _Z17calcLikelihoodSumPhPiii(
+# 96 "ex_particle_CUDA_float_seq.cu"
+unsigned char *I, 
+# 96 "ex_particle_CUDA_float_seq.cu"
+int *ind, 
+# 96 "ex_particle_CUDA_float_seq.cu"
+int numOnes, 
+# 96 "ex_particle_CUDA_float_seq.cu"
+int index){
+# 96 "ex_particle_CUDA_float_seq.cu"
+{
+# 96 "ex_particle_CUDA_float_seq.cu"
+{
+# 97 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18083_11_non_const_likelihoodSum;
+# 98 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18084_9_non_const_x;
+# 97 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18083_11_non_const_likelihoodSum = (0.0F);
+# 99 "ex_particle_CUDA_float_seq.cu"
+for (__cuda_local_var_18084_9_non_const_x = 0; (__cuda_local_var_18084_9_non_const_x < numOnes); __cuda_local_var_18084_9_non_const_x++)
+# 99 "ex_particle_CUDA_float_seq.cu"
+{
+# 99 "ex_particle_CUDA_float_seq.cu"
+ float __T20;
+# 100 "ex_particle_CUDA_float_seq.cu"
+ float __T21;
+# 100 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18083_11_non_const_likelihoodSum += ((float)(fdivide(((double)(((__T20 = ((float)(((int)(I[(ind[((index * numOnes) + __cuda_local_var_18084_9_non_const_x)])])) - 100))) , (powif(((double)__T20), 2))) - ((__T21 = ((float)(((int)(I[(ind[((index * numOnes) + __cuda_local_var_18084_9_non_const_x)])])) - 228))) , (powif(((double)__T21), 2))))), (50.0))));
+# 100 "ex_particle_CUDA_float_seq.cu"
+}
+# 101 "ex_particle_CUDA_float_seq.cu"
+return __cuda_local_var_18083_11_non_const_likelihoodSum;
+# 102 "ex_particle_CUDA_float_seq.cu"
+}
+# 102 "ex_particle_CUDA_float_seq.cu"
+}}
+# 111 "ex_particle_CUDA_float_seq.cu"
+___device__( __no_sc__) void _Z7cdfCalcPfS_i(
+# 111 "ex_particle_CUDA_float_seq.cu"
+float *CDF, 
+# 111 "ex_particle_CUDA_float_seq.cu"
+float *weights, 
+# 111 "ex_particle_CUDA_float_seq.cu"
+int Nparticles){
+# 111 "ex_particle_CUDA_float_seq.cu"
+{
+# 111 "ex_particle_CUDA_float_seq.cu"
+{
+# 112 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18091_9_non_const_x;
+# 113 "ex_particle_CUDA_float_seq.cu"
+(CDF[0]) = (weights[0]);
+# 114 "ex_particle_CUDA_float_seq.cu"
+for (__cuda_local_var_18091_9_non_const_x = 1; (__cuda_local_var_18091_9_non_const_x < Nparticles); __cuda_local_var_18091_9_non_const_x++)
+# 114 "ex_particle_CUDA_float_seq.cu"
+{
+# 115 "ex_particle_CUDA_float_seq.cu"
+(CDF[__cuda_local_var_18091_9_non_const_x]) = ((weights[__cuda_local_var_18091_9_non_const_x]) + (CDF[(__cuda_local_var_18091_9_non_const_x - 1)]));
+# 116 "ex_particle_CUDA_float_seq.cu"
+}
+# 117 "ex_particle_CUDA_float_seq.cu"
+} 
+# 117 "ex_particle_CUDA_float_seq.cu"
+}}
+# 124 "ex_particle_CUDA_float_seq.cu"
+___device__( __no_sc__) float _Z7d_randuPii(
+# 124 "ex_particle_CUDA_float_seq.cu"
+int *seed, 
+# 124 "ex_particle_CUDA_float_seq.cu"
+int index){
+# 124 "ex_particle_CUDA_float_seq.cu"
+{
+# 124 "ex_particle_CUDA_float_seq.cu"
+{
+# 124 "ex_particle_CUDA_float_seq.cu"
+ float __T22;
+# 126 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18105_9_non_const_M;
+# 127 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18106_9_non_const_A;
+# 128 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18107_9_non_const_C;
+# 129 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18108_9_non_const_num;
+# 126 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18105_9_non_const_M = 2147483647;
+# 127 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18106_9_non_const_A = 1103515245;
+# 128 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18107_9_non_const_C = 12345;
+# 129 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18108_9_non_const_num = ((__cuda_local_var_18106_9_non_const_A * (seed[index])) + __cuda_local_var_18107_9_non_const_C);
+# 130 "ex_particle_CUDA_float_seq.cu"
+(seed[index]) = (__cuda_local_var_18108_9_non_const_num % __cuda_local_var_18105_9_non_const_M);
+# 131 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18108_9_non_const_num = (seed[index]);
+# 132 "ex_particle_CUDA_float_seq.cu"
+return (float)((__T22 = ((float)(fdividef(((double)((float)__cuda_local_var_18108_9_non_const_num)), ((double)((float)__cuda_local_var_18105_9_non_const_M)))))) , (fabsf(((double)__T22))));
+# 133 "ex_particle_CUDA_float_seq.cu"
+}
+# 133 "ex_particle_CUDA_float_seq.cu"
+}}
+# 165 "ex_particle_CUDA_float_seq.cu"
+___device__( __no_sc__) float _Z7d_randnPii(
+# 165 "ex_particle_CUDA_float_seq.cu"
+int *seed, 
+# 165 "ex_particle_CUDA_float_seq.cu"
+int index){
+# 165 "ex_particle_CUDA_float_seq.cu"
+{
+# 165 "ex_particle_CUDA_float_seq.cu"
+{
+# 165 "ex_particle_CUDA_float_seq.cu"
+ float __T23;
+# 167 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18131_11_non_const_pi;
+# 168 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18132_11_non_const_u;
+# 169 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18133_11_non_const_v;
+# 170 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18134_11_non_const_cosine;
+# 171 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18135_11_non_const_rt;
+# 167 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18131_11_non_const_pi = (3.141592741F);
+# 168 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18132_11_non_const_u = (_Z7d_randuPii(seed, index));
+# 169 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18133_11_non_const_v = (_Z7d_randuPii(seed, index));
+# 170 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18134_11_non_const_cosine = ((float)((__T23 = (((2.0F) * __cuda_local_var_18131_11_non_const_pi) * __cuda_local_var_18133_11_non_const_v)) , (cosf(((double)__T23)))));
+# 171 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18135_11_non_const_rt = ((-2.0F) * ((float)(logf(((double)__cuda_local_var_18132_11_non_const_u)))));
+# 172 "ex_particle_CUDA_float_seq.cu"
+return ((float)(sqrtf(((double)__cuda_local_var_18135_11_non_const_rt)))) * __cuda_local_var_18134_11_non_const_cosine;
+# 173 "ex_particle_CUDA_float_seq.cu"
+}
+# 173 "ex_particle_CUDA_float_seq.cu"
+}}
+# 182 "ex_particle_CUDA_float_seq.cu"
+___device__( __no_sc__) float _Z13updateWeightsPfS_i(
+# 182 "ex_particle_CUDA_float_seq.cu"
+float *weights, 
+# 182 "ex_particle_CUDA_float_seq.cu"
+float *likelihood, 
+# 182 "ex_particle_CUDA_float_seq.cu"
+int Nparticles){
+# 182 "ex_particle_CUDA_float_seq.cu"
+{
+# 182 "ex_particle_CUDA_float_seq.cu"
+{
+# 183 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18140_9_non_const_x;
+# 184 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18141_11_non_const_sum;
+# 184 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18141_11_non_const_sum = (0.0F);
+# 185 "ex_particle_CUDA_float_seq.cu"
+for (__cuda_local_var_18140_9_non_const_x = 0; (__cuda_local_var_18140_9_non_const_x < Nparticles); __cuda_local_var_18140_9_non_const_x++)
+# 185 "ex_particle_CUDA_float_seq.cu"
+{
+# 185 "ex_particle_CUDA_float_seq.cu"
+ float __T24;
+# 186 "ex_particle_CUDA_float_seq.cu"
+(weights[__cuda_local_var_18140_9_non_const_x]) = ((weights[__cuda_local_var_18140_9_non_const_x]) * ((float)((__T24 = (likelihood[__cuda_local_var_18140_9_non_const_x])) , (expf(((double)__T24))))));
+# 187 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18141_11_non_const_sum += (weights[__cuda_local_var_18140_9_non_const_x]);
+# 188 "ex_particle_CUDA_float_seq.cu"
+}
+# 189 "ex_particle_CUDA_float_seq.cu"
+return __cuda_local_var_18141_11_non_const_sum;
+# 190 "ex_particle_CUDA_float_seq.cu"
+}
+# 190 "ex_particle_CUDA_float_seq.cu"
+}}
+# 192 "ex_particle_CUDA_float_seq.cu"
+___device__( __no_sc__) int _Z12findIndexBinPfiif(
+# 192 "ex_particle_CUDA_float_seq.cu"
+float *CDF, 
+# 192 "ex_particle_CUDA_float_seq.cu"
+int beginIndex, 
+# 192 "ex_particle_CUDA_float_seq.cu"
+int endIndex, 
+# 192 "ex_particle_CUDA_float_seq.cu"
+float value){
+# 192 "ex_particle_CUDA_float_seq.cu"
+{
+# 192 "ex_particle_CUDA_float_seq.cu"
+{
+# 195 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18152_9_non_const_middleIndex;
+# 193 "ex_particle_CUDA_float_seq.cu"
+if (endIndex < beginIndex)
+# 193 "ex_particle_CUDA_float_seq.cu"
+{
+# 194 "ex_particle_CUDA_float_seq.cu"
+return (-1);
+# 194 "ex_particle_CUDA_float_seq.cu"
+}
+# 196 "ex_particle_CUDA_float_seq.cu"
+while (endIndex > beginIndex)
+# 196 "ex_particle_CUDA_float_seq.cu"
+{
+# 197 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18152_9_non_const_middleIndex = (beginIndex + ((endIndex - beginIndex) / 2));
+# 198 "ex_particle_CUDA_float_seq.cu"
+if ((CDF[__cuda_local_var_18152_9_non_const_middleIndex]) >= value)
+# 198 "ex_particle_CUDA_float_seq.cu"
+{
+# 199 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18152_9_non_const_middleIndex == 0)
+# 199 "ex_particle_CUDA_float_seq.cu"
+{
+# 200 "ex_particle_CUDA_float_seq.cu"
+return __cuda_local_var_18152_9_non_const_middleIndex;
+# 200 "ex_particle_CUDA_float_seq.cu"
+}
+# 200 "ex_particle_CUDA_float_seq.cu"
+else 
+# 200 "ex_particle_CUDA_float_seq.cu"
+{
+# 201 "ex_particle_CUDA_float_seq.cu"
+if ((CDF[(__cuda_local_var_18152_9_non_const_middleIndex - 1)]) < value)
+# 201 "ex_particle_CUDA_float_seq.cu"
+{
+# 202 "ex_particle_CUDA_float_seq.cu"
+return __cuda_local_var_18152_9_non_const_middleIndex;
+# 202 "ex_particle_CUDA_float_seq.cu"
+}
+# 202 "ex_particle_CUDA_float_seq.cu"
+else 
+# 202 "ex_particle_CUDA_float_seq.cu"
+{
+# 203 "ex_particle_CUDA_float_seq.cu"
+if ((CDF[(__cuda_local_var_18152_9_non_const_middleIndex - 1)]) == value)
+# 203 "ex_particle_CUDA_float_seq.cu"
+{
+# 204 "ex_particle_CUDA_float_seq.cu"
+while (((CDF[__cuda_local_var_18152_9_non_const_middleIndex]) == value) && (__cuda_local_var_18152_9_non_const_middleIndex >= 0))
+# 204 "ex_particle_CUDA_float_seq.cu"
+{
+# 205 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18152_9_non_const_middleIndex--;
+# 205 "ex_particle_CUDA_float_seq.cu"
+}
+# 206 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18152_9_non_const_middleIndex++;
+# 207 "ex_particle_CUDA_float_seq.cu"
+return __cuda_local_var_18152_9_non_const_middleIndex;
+# 208 "ex_particle_CUDA_float_seq.cu"
+}
+# 208 "ex_particle_CUDA_float_seq.cu"
+}
+# 208 "ex_particle_CUDA_float_seq.cu"
+}
+# 209 "ex_particle_CUDA_float_seq.cu"
+}
+# 210 "ex_particle_CUDA_float_seq.cu"
+if ((CDF[__cuda_local_var_18152_9_non_const_middleIndex]) > value)
+# 210 "ex_particle_CUDA_float_seq.cu"
+{
+# 211 "ex_particle_CUDA_float_seq.cu"
+endIndex = (__cuda_local_var_18152_9_non_const_middleIndex - 1);
+# 211 "ex_particle_CUDA_float_seq.cu"
+}
+# 211 "ex_particle_CUDA_float_seq.cu"
+else 
+# 211 "ex_particle_CUDA_float_seq.cu"
+{
+# 213 "ex_particle_CUDA_float_seq.cu"
+beginIndex = (__cuda_local_var_18152_9_non_const_middleIndex + 1);
+# 213 "ex_particle_CUDA_float_seq.cu"
+}
+# 214 "ex_particle_CUDA_float_seq.cu"
+}
+# 215 "ex_particle_CUDA_float_seq.cu"
+return (-1);
+# 216 "ex_particle_CUDA_float_seq.cu"
+}
+# 216 "ex_particle_CUDA_float_seq.cu"
+}}
+# 229 "ex_particle_CUDA_float_seq.cu"
+__global__ __var_used__ void _Z17find_index_kernelPfS_S_S_S_S_S_i(
+# 229 "ex_particle_CUDA_float_seq.cu"
+float *arrayX, 
+# 229 "ex_particle_CUDA_float_seq.cu"
+float *arrayY, 
+# 229 "ex_particle_CUDA_float_seq.cu"
+float *CDF, 
+# 229 "ex_particle_CUDA_float_seq.cu"
+float *u, 
+# 229 "ex_particle_CUDA_float_seq.cu"
+float *xj, 
+# 229 "ex_particle_CUDA_float_seq.cu"
+float *yj, 
+# 229 "ex_particle_CUDA_float_seq.cu"
+float *weights, 
+# 229 "ex_particle_CUDA_float_seq.cu"
+int Nparticles){
+# 229 "ex_particle_CUDA_float_seq.cu"
+{
+# 229 "ex_particle_CUDA_float_seq.cu"
+{
+# 230 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18176_9_non_const_block_id;
+# 231 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18177_9_non_const_i;
+# 230 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18176_9_non_const_block_id = ((int)(blockIdx.x));
+# 231 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18177_9_non_const_i = ((int)(((blockDim.x) * ((unsigned)__cuda_local_var_18176_9_non_const_block_id)) + (threadIdx.x)));
+# 233 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18177_9_non_const_i < Nparticles)
+# 233 "ex_particle_CUDA_float_seq.cu"
+{
+# 235 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18181_13_non_const_index;
+# 236 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18182_13_non_const_x;
+# 235 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18181_13_non_const_index = (-1);
+# 238 "ex_particle_CUDA_float_seq.cu"
+for (__cuda_local_var_18182_13_non_const_x = 0; (__cuda_local_var_18182_13_non_const_x < Nparticles); __cuda_local_var_18182_13_non_const_x++)
+# 238 "ex_particle_CUDA_float_seq.cu"
+{
+# 240 "ex_particle_CUDA_float_seq.cu"
+if ((CDF[__cuda_local_var_18182_13_non_const_x]) >= (u[__cuda_local_var_18177_9_non_const_i]))
+# 240 "ex_particle_CUDA_float_seq.cu"
+{
+# 241 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18181_13_non_const_index = __cuda_local_var_18182_13_non_const_x;
+# 242 "ex_particle_CUDA_float_seq.cu"
+goto __T226;
+# 243 "ex_particle_CUDA_float_seq.cu"
+}
+# 244 "ex_particle_CUDA_float_seq.cu"
+}
+# 244 "ex_particle_CUDA_float_seq.cu"
+__T226:;
+# 244 "ex_particle_CUDA_float_seq.cu"
+;
+# 245 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18181_13_non_const_index == (-1))
+# 245 "ex_particle_CUDA_float_seq.cu"
+{
+# 246 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18181_13_non_const_index = (Nparticles - 1);
+# 247 "ex_particle_CUDA_float_seq.cu"
+}
+# 249 "ex_particle_CUDA_float_seq.cu"
+(xj[__cuda_local_var_18177_9_non_const_i]) = (arrayX[__cuda_local_var_18181_13_non_const_index]);
+# 250 "ex_particle_CUDA_float_seq.cu"
+(yj[__cuda_local_var_18177_9_non_const_i]) = (arrayY[__cuda_local_var_18181_13_non_const_index]);
+# 252 "ex_particle_CUDA_float_seq.cu"
+(weights[__cuda_local_var_18177_9_non_const_i]) = ((1.0F) / ((float)Nparticles));
+# 254 "ex_particle_CUDA_float_seq.cu"
+}
+# 255 "ex_particle_CUDA_float_seq.cu"
+__syncthreads();
+# 256 "ex_particle_CUDA_float_seq.cu"
+} 
+# 256 "ex_particle_CUDA_float_seq.cu"
+}}
+# 258 "ex_particle_CUDA_float_seq.cu"
+__global__ __var_used__ void _Z24normalize_weights_kernelPfiS_S_S_Pi(
+# 258 "ex_particle_CUDA_float_seq.cu"
+float *weights, 
+# 258 "ex_particle_CUDA_float_seq.cu"
+int Nparticles, 
+# 258 "ex_particle_CUDA_float_seq.cu"
+float *partial_sums, 
+# 258 "ex_particle_CUDA_float_seq.cu"
+float *CDF, 
+# 258 "ex_particle_CUDA_float_seq.cu"
+float *u, 
+# 258 "ex_particle_CUDA_float_seq.cu"
+int *seed){
+# 258 "ex_particle_CUDA_float_seq.cu"
+{
+# 258 "ex_particle_CUDA_float_seq.cu"
+{
+# 259 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18205_9_non_const_block_id;
+# 260 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18206_9_non_const_i;
+# 261 "ex_particle_CUDA_float_seq.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_18207_35_non_const_u1;
+# 261 "ex_particle_CUDA_float_seq.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_18207_39_non_const_sumWeights;
+# 259 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18205_9_non_const_block_id = ((int)(blockIdx.x));
+# 260 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18206_9_non_const_i = ((int)(((blockDim.x) * ((unsigned)__cuda_local_var_18205_9_non_const_block_id)) + (threadIdx.x)));
+# 262 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18207_39_non_const_sumWeights = (partial_sums[0]);
+# 263 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18206_9_non_const_i < Nparticles)
+# 263 "ex_particle_CUDA_float_seq.cu"
+{
+# 264 "ex_particle_CUDA_float_seq.cu"
+(weights[__cuda_local_var_18206_9_non_const_i]) = ((float)(fdividef(((double)(weights[__cuda_local_var_18206_9_non_const_i])), ((double)__cuda_local_var_18207_39_non_const_sumWeights))));
+# 265 "ex_particle_CUDA_float_seq.cu"
+}
+# 266 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18206_9_non_const_i == 0)
+# 266 "ex_particle_CUDA_float_seq.cu"
+{
+# 267 "ex_particle_CUDA_float_seq.cu"
+_Z7cdfCalcPfS_i(CDF, weights, Nparticles);
+# 268 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18207_35_non_const_u1 = (((1.0F) / ((float)Nparticles)) * (_Z7d_randuPii(seed, __cuda_local_var_18206_9_non_const_i)));
+# 269 "ex_particle_CUDA_float_seq.cu"
+}
+# 270 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18206_9_non_const_i < Nparticles)
+# 270 "ex_particle_CUDA_float_seq.cu"
+{
+# 271 "ex_particle_CUDA_float_seq.cu"
+__syncthreads();
+# 272 "ex_particle_CUDA_float_seq.cu"
+(u[__cuda_local_var_18206_9_non_const_i]) = (__cuda_local_var_18207_35_non_const_u1 + ((float)(fdividef(((double)((float)__cuda_local_var_18206_9_non_const_i)), ((double)((float)Nparticles))))));
+# 273 "ex_particle_CUDA_float_seq.cu"
+}
+# 274 "ex_particle_CUDA_float_seq.cu"
+} 
+# 274 "ex_particle_CUDA_float_seq.cu"
+}}
+# 276 "ex_particle_CUDA_float_seq.cu"
+__global__ __var_used__ void _Z10sum_kernelPfi(
+# 276 "ex_particle_CUDA_float_seq.cu"
+float *partial_sums, 
+# 276 "ex_particle_CUDA_float_seq.cu"
+int Nparticles){
+# 276 "ex_particle_CUDA_float_seq.cu"
+{
+# 276 "ex_particle_CUDA_float_seq.cu"
+{
+# 277 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18223_9_non_const_block_id;
+# 278 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18224_9_non_const_i;
+# 277 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18223_9_non_const_block_id = ((int)(blockIdx.x));
+# 278 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18224_9_non_const_i = ((int)(((blockDim.x) * ((unsigned)__cuda_local_var_18223_9_non_const_block_id)) + (threadIdx.x)));
+# 280 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18224_9_non_const_i == 0)
+# 280 "ex_particle_CUDA_float_seq.cu"
+{
+# 281 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18227_13_non_const_x;
+# 282 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18228_15_non_const_sum;
+# 282 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18228_15_non_const_sum = (0.0F);
+# 283 "ex_particle_CUDA_float_seq.cu"
+for (__cuda_local_var_18227_13_non_const_x = 0; (__cuda_local_var_18227_13_non_const_x < (Nparticles / 512)); __cuda_local_var_18227_13_non_const_x++)
+# 283 "ex_particle_CUDA_float_seq.cu"
+{
+# 285 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18228_15_non_const_sum += (partial_sums[__cuda_local_var_18227_13_non_const_x]);
+# 286 "ex_particle_CUDA_float_seq.cu"
+}
+# 287 "ex_particle_CUDA_float_seq.cu"
+(partial_sums[0]) = __cuda_local_var_18228_15_non_const_sum;
+# 288 "ex_particle_CUDA_float_seq.cu"
+}
+# 289 "ex_particle_CUDA_float_seq.cu"
+} 
+# 289 "ex_particle_CUDA_float_seq.cu"
+}}
+# 309 "ex_particle_CUDA_float_seq.cu"
+__global__ __var_used__ void _Z17likelihood_kernelPfS_S_PiS0_S_PhS_S_iiiiiiS0_S_(
+# 309 "ex_particle_CUDA_float_seq.cu"
+float *arrayX, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+float *arrayY, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+float *CDF, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+int *ind, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+int *objxy, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+float *likelihood, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+unsigned char *I, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+float *u, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+float *weights, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+int Nparticles, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+int countOnes, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+int max_size, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+int k, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+int IszY, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+int Nfr, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+int *seed, 
+# 309 "ex_particle_CUDA_float_seq.cu"
+float *partial_sums){
+# 309 "ex_particle_CUDA_float_seq.cu"
+{
+# 309 "ex_particle_CUDA_float_seq.cu"
+{
+# 309 "ex_particle_CUDA_float_seq.cu"
+ float __T227;
+# 310 "ex_particle_CUDA_float_seq.cu"
+ float __T228;
+# 311 "ex_particle_CUDA_float_seq.cu"
+ float __T229;
+# 310 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18238_9_non_const_block_id;
+# 311 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18239_9_non_const_i;
+# 312 "ex_particle_CUDA_float_seq.cu"
+ int __cuda_local_var_18240_9_non_const_y;
+# 313 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18241_11_non_const_indX;
+# 313 "ex_particle_CUDA_float_seq.cu"
+ float __cuda_local_var_18241_17_non_const_indY;
+# 314 "ex_particle_CUDA_float_seq.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_18242_35_non_const_buffer[512];
+# 310 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18238_9_non_const_block_id = ((int)(blockIdx.x));
+# 311 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18239_9_non_const_i = ((int)(((blockDim.x) * ((unsigned)__cuda_local_var_18238_9_non_const_block_id)) + (threadIdx.x)));
+# 315 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18239_9_non_const_i < Nparticles)
+# 315 "ex_particle_CUDA_float_seq.cu"
+{
+# 316 "ex_particle_CUDA_float_seq.cu"
+(arrayX[__cuda_local_var_18239_9_non_const_i]) = ((float)((((double)(arrayX[__cuda_local_var_18239_9_non_const_i])) + (1.0)) + ((5.0) * ((double)(_Z7d_randnPii(seed, __cuda_local_var_18239_9_non_const_i))))));
+# 317 "ex_particle_CUDA_float_seq.cu"
+(arrayY[__cuda_local_var_18239_9_non_const_i]) = ((float)((((double)(arrayY[__cuda_local_var_18239_9_non_const_i])) - (2.0)) + ((2.0) * ((double)(_Z7d_randnPii(seed, __cuda_local_var_18239_9_non_const_i))))));
+# 318 "ex_particle_CUDA_float_seq.cu"
+__syncthreads();
+# 319 "ex_particle_CUDA_float_seq.cu"
+}
+# 320 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18239_9_non_const_i < Nparticles)
+# 320 "ex_particle_CUDA_float_seq.cu"
+{
+# 321 "ex_particle_CUDA_float_seq.cu"
+for (__cuda_local_var_18240_9_non_const_y = 0; (__cuda_local_var_18240_9_non_const_y < countOnes); __cuda_local_var_18240_9_non_const_y++)
+# 321 "ex_particle_CUDA_float_seq.cu"
+{
+# 322 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18241_11_non_const_indX = (((__T227 = (arrayX[__cuda_local_var_18239_9_non_const_i])) , (roundf(__T227))) + ((float)(objxy[((__cuda_local_var_18240_9_non_const_y * 2) + 1)])));
+# 323 "ex_particle_CUDA_float_seq.cu"
+__cuda_local_var_18241_17_non_const_indY = (((__T228 = (arrayY[__cuda_local_var_18239_9_non_const_i])) , (roundf(__T228))) + ((float)(objxy[(__cuda_local_var_18240_9_non_const_y * 2)])));
+# 324 "ex_particle_CUDA_float_seq.cu"
+(ind[((__cuda_local_var_18239_9_non_const_i * countOnes) + __cuda_local_var_18240_9_non_const_y)]) = ((int)(__float2int_rz(((double)((float)((__T229 = ((((__cuda_local_var_18241_11_non_const_indX * ((float)IszY)) * ((float)Nfr)) + (__cuda_local_var_18241_17_non_const_indY * ((float)Nfr))) + ((float)k))) , (fabsf(((double)__T229)))))))));
+# 325 "ex_particle_CUDA_float_seq.cu"
+if ((ind[((__cuda_local_var_18239_9_non_const_i * countOnes) + __cuda_local_var_18240_9_non_const_y)]) >= max_size)
+# 325 "ex_particle_CUDA_float_seq.cu"
+{
+# 326 "ex_particle_CUDA_float_seq.cu"
+(ind[((__cuda_local_var_18239_9_non_const_i * countOnes) + __cuda_local_var_18240_9_non_const_y)]) = 0;
+# 326 "ex_particle_CUDA_float_seq.cu"
+}
+# 327 "ex_particle_CUDA_float_seq.cu"
+}
+# 328 "ex_particle_CUDA_float_seq.cu"
+(likelihood[__cuda_local_var_18239_9_non_const_i]) = (_Z17calcLikelihoodSumPhPiii(I, ind, countOnes, __cuda_local_var_18239_9_non_const_i));
+# 329 "ex_particle_CUDA_float_seq.cu"
+(likelihood[__cuda_local_var_18239_9_non_const_i]) = ((float)(fdividef(((double)(likelihood[__cuda_local_var_18239_9_non_const_i])), ((double)((float)countOnes)))));
+# 331 "ex_particle_CUDA_float_seq.cu"
+__syncthreads();
+# 332 "ex_particle_CUDA_float_seq.cu"
+}
+# 334 "ex_particle_CUDA_float_seq.cu"
+if (__cuda_local_var_18239_9_non_const_i < Nparticles)
+# 334 "ex_particle_CUDA_float_seq.cu"
+{
+# 335 "ex_particle_CUDA_float_seq.cu"
+(weights[__cuda_local_var_18239_9_non_const_i]) = ((weights[__cuda_local_var_18239_9_non_const_i]) * (likelihood[__cuda_local_var_18239_9_non_const_i]));
+# 336 "ex_particle_CUDA_float_seq.cu"
+__syncthreads();
+# 337 "ex_particle_CUDA_float_seq.cu"
+((__cuda_local_var_18242_35_non_const_buffer)[(threadIdx.x)]) = (weights[__cuda_local_var_18239_9_non_const_i]);
+# 338 "ex_particle_CUDA_float_seq.cu"
+__syncthreads();
+# 338 "ex_particle_CUDA_float_seq.cu"
+{
+# 340 "ex_particle_CUDA_float_seq.cu"
+ unsigned s;
+# 340 "ex_particle_CUDA_float_seq.cu"
+s = ((blockDim.x) / 2U);
+# 340 "ex_particle_CUDA_float_seq.cu"
+for (; (s > 0U); s >>= 1)
+# 340 "ex_particle_CUDA_float_seq.cu"
+{
+# 341 "ex_particle_CUDA_float_seq.cu"
+if ((threadIdx.x) < s)
+# 341 "ex_particle_CUDA_float_seq.cu"
+{
+# 342 "ex_particle_CUDA_float_seq.cu"
+((__cuda_local_var_18242_35_non_const_buffer)[(threadIdx.x)]) += ((__cuda_local_var_18242_35_non_const_buffer)[((threadIdx.x) + s)]);
+# 343 "ex_particle_CUDA_float_seq.cu"
+}
+# 344 "ex_particle_CUDA_float_seq.cu"
+__syncthreads();
+# 345 "ex_particle_CUDA_float_seq.cu"
+}
+# 345 "ex_particle_CUDA_float_seq.cu"
+}
+# 346 "ex_particle_CUDA_float_seq.cu"
+if ((threadIdx.x) == 0U)
+# 346 "ex_particle_CUDA_float_seq.cu"
+{
+# 347 "ex_particle_CUDA_float_seq.cu"
+(partial_sums[(blockIdx.x)]) = ((__cuda_local_var_18242_35_non_const_buffer)[0]);
+# 348 "ex_particle_CUDA_float_seq.cu"
+}
+# 349 "ex_particle_CUDA_float_seq.cu"
+__syncthreads();
+# 350 "ex_particle_CUDA_float_seq.cu"
+}
+# 351 "ex_particle_CUDA_float_seq.cu"
+} 
+# 351 "ex_particle_CUDA_float_seq.cu"
+}}

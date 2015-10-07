@@ -1,0 +1,340 @@
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+#if !defined(__CUDABE__)
+# 131 "/home/bachelor/deicide218/cuda-4.2/include/device_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) void __syncthreads(void);
+#endif
+# 7 "lud_kernel.cu"
+__global__ __var_used__ extern void _Z12lud_diagonalPfii(float *, int, int);
+# 49 "lud_kernel.cu"
+__global__ __var_used__ extern void _Z13lud_perimeterPfii(float *, int, int);
+# 159 "lud_kernel.cu"
+__global__ __var_used__ extern void _Z12lud_internalPfii(float *, int, int);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 7 "lud_kernel.cu"
+__global__ __var_used__ void _Z12lud_diagonalPfii(
+# 7 "lud_kernel.cu"
+float *m, 
+# 7 "lud_kernel.cu"
+int matrix_dim, 
+# 7 "lud_kernel.cu"
+int offset){
+# 7 "lud_kernel.cu"
+{
+# 8 "lud_kernel.cu"
+{
+# 9 "lud_kernel.cu"
+ int __cuda_local_var_17424_7_non_const_i;
+# 9 "lud_kernel.cu"
+ int __cuda_local_var_17424_9_non_const_j;
+# 10 "lud_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17425_33_non_const_shadow[16][16];
+# 12 "lud_kernel.cu"
+ int __cuda_local_var_17427_7_non_const_array_offset;
+# 12 "lud_kernel.cu"
+__cuda_local_var_17427_7_non_const_array_offset = ((offset * matrix_dim) + offset);
+# 13 "lud_kernel.cu"
+for (__cuda_local_var_17424_7_non_const_i = 0; (__cuda_local_var_17424_7_non_const_i < 16); __cuda_local_var_17424_7_non_const_i++)
+# 13 "lud_kernel.cu"
+{
+# 14 "lud_kernel.cu"
+((((__cuda_local_var_17425_33_non_const_shadow)[__cuda_local_var_17424_7_non_const_i]))[(threadIdx.x)]) = (m[(((unsigned)__cuda_local_var_17427_7_non_const_array_offset) + (threadIdx.x))]);
+# 15 "lud_kernel.cu"
+__cuda_local_var_17427_7_non_const_array_offset += matrix_dim;
+# 16 "lud_kernel.cu"
+}
+# 17 "lud_kernel.cu"
+__syncthreads();
+# 18 "lud_kernel.cu"
+for (__cuda_local_var_17424_7_non_const_i = 0; (__cuda_local_var_17424_7_non_const_i < 15); __cuda_local_var_17424_7_non_const_i++)
+# 18 "lud_kernel.cu"
+{
+# 20 "lud_kernel.cu"
+if ((threadIdx.x) > ((unsigned)__cuda_local_var_17424_7_non_const_i))
+# 20 "lud_kernel.cu"
+{
+# 21 "lud_kernel.cu"
+for (__cuda_local_var_17424_9_non_const_j = 0; (__cuda_local_var_17424_9_non_const_j < __cuda_local_var_17424_7_non_const_i); __cuda_local_var_17424_9_non_const_j++)
+# 21 "lud_kernel.cu"
+{
+# 22 "lud_kernel.cu"
+((((__cuda_local_var_17425_33_non_const_shadow)[(threadIdx.x)]))[__cuda_local_var_17424_7_non_const_i]) -= (((((__cuda_local_var_17425_33_non_const_shadow)[(threadIdx.x)]))[__cuda_local_var_17424_9_non_const_j]) * ((((__cuda_local_var_17425_33_non_const_shadow)[__cuda_local_var_17424_9_non_const_j]))[__cuda_local_var_17424_7_non_const_i]));
+# 22 "lud_kernel.cu"
+}
+# 23 "lud_kernel.cu"
+((((__cuda_local_var_17425_33_non_const_shadow)[(threadIdx.x)]))[__cuda_local_var_17424_7_non_const_i]) = ((float)(fdividef(((double)((((__cuda_local_var_17425_33_non_const_shadow)[(threadIdx.x)]))[__cuda_local_var_17424_7_non_const_i])), ((double)((((__cuda_local_var_17425_33_non_const_shadow)[__cuda_local_var_17424_7_non_const_i]))[__cuda_local_var_17424_7_non_const_i])))));
+# 24 "lud_kernel.cu"
+}
+# 26 "lud_kernel.cu"
+__syncthreads();
+# 27 "lud_kernel.cu"
+if ((threadIdx.x) > ((unsigned)__cuda_local_var_17424_7_non_const_i))
+# 27 "lud_kernel.cu"
+{
+# 29 "lud_kernel.cu"
+for (__cuda_local_var_17424_9_non_const_j = 0; (__cuda_local_var_17424_9_non_const_j < (__cuda_local_var_17424_7_non_const_i + 1)); __cuda_local_var_17424_9_non_const_j++)
+# 29 "lud_kernel.cu"
+{
+# 30 "lud_kernel.cu"
+((((__cuda_local_var_17425_33_non_const_shadow)[(__cuda_local_var_17424_7_non_const_i + 1)]))[(threadIdx.x)]) -= (((((__cuda_local_var_17425_33_non_const_shadow)[(__cuda_local_var_17424_7_non_const_i + 1)]))[__cuda_local_var_17424_9_non_const_j]) * ((((__cuda_local_var_17425_33_non_const_shadow)[__cuda_local_var_17424_9_non_const_j]))[(threadIdx.x)]));
+# 30 "lud_kernel.cu"
+}
+# 31 "lud_kernel.cu"
+}
+# 32 "lud_kernel.cu"
+__syncthreads();
+# 33 "lud_kernel.cu"
+}
+# 41 "lud_kernel.cu"
+__cuda_local_var_17427_7_non_const_array_offset = (((offset + 1) * matrix_dim) + offset);
+# 42 "lud_kernel.cu"
+for (__cuda_local_var_17424_7_non_const_i = 1; (__cuda_local_var_17424_7_non_const_i < 16); __cuda_local_var_17424_7_non_const_i++)
+# 42 "lud_kernel.cu"
+{
+# 43 "lud_kernel.cu"
+(m[(((unsigned)__cuda_local_var_17427_7_non_const_array_offset) + (threadIdx.x))]) = ((((__cuda_local_var_17425_33_non_const_shadow)[__cuda_local_var_17424_7_non_const_i]))[(threadIdx.x)]);
+# 44 "lud_kernel.cu"
+__cuda_local_var_17427_7_non_const_array_offset += matrix_dim;
+# 45 "lud_kernel.cu"
+}
+# 46 "lud_kernel.cu"
+} 
+# 46 "lud_kernel.cu"
+}}
+# 49 "lud_kernel.cu"
+__global__ __var_used__ void _Z13lud_perimeterPfii(
+# 49 "lud_kernel.cu"
+float *m, 
+# 49 "lud_kernel.cu"
+int matrix_dim, 
+# 49 "lud_kernel.cu"
+int offset){
+# 49 "lud_kernel.cu"
+{
+# 50 "lud_kernel.cu"
+{
+# 51 "lud_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17466_33_non_const_dia[16][16];
+# 52 "lud_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17467_33_non_const_peri_row[16][16];
+# 53 "lud_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17468_33_non_const_peri_col[16][16];
+# 55 "lud_kernel.cu"
+ int __cuda_local_var_17470_7_non_const_i;
+# 55 "lud_kernel.cu"
+ int __cuda_local_var_17470_9_non_const_j;
+# 55 "lud_kernel.cu"
+ int __cuda_local_var_17470_12_non_const_array_offset;
+# 56 "lud_kernel.cu"
+ int __cuda_local_var_17471_7_non_const_idx;
+# 58 "lud_kernel.cu"
+if ((threadIdx.x) < 16U)
+# 58 "lud_kernel.cu"
+{
+# 59 "lud_kernel.cu"
+__cuda_local_var_17471_7_non_const_idx = ((int)(threadIdx.x));
+# 61 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset = ((offset * matrix_dim) + offset);
+# 62 "lud_kernel.cu"
+for (__cuda_local_var_17470_7_non_const_i = 0; (__cuda_local_var_17470_7_non_const_i < 8); __cuda_local_var_17470_7_non_const_i++)
+# 62 "lud_kernel.cu"
+{
+# 63 "lud_kernel.cu"
+((((__cuda_local_var_17466_33_non_const_dia)[__cuda_local_var_17470_7_non_const_i]))[__cuda_local_var_17471_7_non_const_idx]) = (m[(__cuda_local_var_17470_12_non_const_array_offset + __cuda_local_var_17471_7_non_const_idx)]);
+# 64 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset += matrix_dim;
+# 65 "lud_kernel.cu"
+}
+# 67 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset = ((offset * matrix_dim) + offset);
+# 68 "lud_kernel.cu"
+for (__cuda_local_var_17470_7_non_const_i = 0; (__cuda_local_var_17470_7_non_const_i < 16); __cuda_local_var_17470_7_non_const_i++)
+# 68 "lud_kernel.cu"
+{
+# 69 "lud_kernel.cu"
+((((__cuda_local_var_17467_33_non_const_peri_row)[__cuda_local_var_17470_7_non_const_i]))[__cuda_local_var_17471_7_non_const_idx]) = (m[((((unsigned)__cuda_local_var_17470_12_non_const_array_offset) + (((blockIdx.x) + 1U) * 16U)) + ((unsigned)__cuda_local_var_17471_7_non_const_idx))]);
+# 70 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset += matrix_dim;
+# 71 "lud_kernel.cu"
+}
+# 73 "lud_kernel.cu"
+}
+# 73 "lud_kernel.cu"
+else 
+# 73 "lud_kernel.cu"
+{
+# 74 "lud_kernel.cu"
+__cuda_local_var_17471_7_non_const_idx = ((int)((threadIdx.x) - 16U));
+# 76 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset = (((offset + 8) * matrix_dim) + offset);
+# 77 "lud_kernel.cu"
+for (__cuda_local_var_17470_7_non_const_i = 8; (__cuda_local_var_17470_7_non_const_i < 16); __cuda_local_var_17470_7_non_const_i++)
+# 77 "lud_kernel.cu"
+{
+# 78 "lud_kernel.cu"
+((((__cuda_local_var_17466_33_non_const_dia)[__cuda_local_var_17470_7_non_const_i]))[__cuda_local_var_17471_7_non_const_idx]) = (m[(__cuda_local_var_17470_12_non_const_array_offset + __cuda_local_var_17471_7_non_const_idx)]);
+# 79 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset += matrix_dim;
+# 80 "lud_kernel.cu"
+}
+# 82 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset = ((int)(((((unsigned)offset) + (((blockIdx.x) + 1U) * 16U)) * ((unsigned)matrix_dim)) + ((unsigned)offset)));
+# 83 "lud_kernel.cu"
+for (__cuda_local_var_17470_7_non_const_i = 0; (__cuda_local_var_17470_7_non_const_i < 16); __cuda_local_var_17470_7_non_const_i++)
+# 83 "lud_kernel.cu"
+{
+# 84 "lud_kernel.cu"
+((((__cuda_local_var_17468_33_non_const_peri_col)[__cuda_local_var_17470_7_non_const_i]))[__cuda_local_var_17471_7_non_const_idx]) = (m[(__cuda_local_var_17470_12_non_const_array_offset + __cuda_local_var_17471_7_non_const_idx)]);
+# 85 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset += matrix_dim;
+# 86 "lud_kernel.cu"
+}
+# 88 "lud_kernel.cu"
+}
+# 89 "lud_kernel.cu"
+__syncthreads();
+# 123 "lud_kernel.cu"
+if ((threadIdx.x) < 16U)
+# 123 "lud_kernel.cu"
+{
+# 124 "lud_kernel.cu"
+__cuda_local_var_17471_7_non_const_idx = ((int)(threadIdx.x));
+# 125 "lud_kernel.cu"
+for (__cuda_local_var_17470_7_non_const_i = 1; (__cuda_local_var_17470_7_non_const_i < 16); __cuda_local_var_17470_7_non_const_i++)
+# 125 "lud_kernel.cu"
+{
+# 126 "lud_kernel.cu"
+for (__cuda_local_var_17470_9_non_const_j = 0; (__cuda_local_var_17470_9_non_const_j < __cuda_local_var_17470_7_non_const_i); __cuda_local_var_17470_9_non_const_j++)
+# 126 "lud_kernel.cu"
+{
+# 127 "lud_kernel.cu"
+((((__cuda_local_var_17467_33_non_const_peri_row)[__cuda_local_var_17470_7_non_const_i]))[__cuda_local_var_17471_7_non_const_idx]) -= (((((__cuda_local_var_17466_33_non_const_dia)[__cuda_local_var_17470_7_non_const_i]))[__cuda_local_var_17470_9_non_const_j]) * ((((__cuda_local_var_17467_33_non_const_peri_row)[__cuda_local_var_17470_9_non_const_j]))[__cuda_local_var_17471_7_non_const_idx]));
+# 127 "lud_kernel.cu"
+}
+# 128 "lud_kernel.cu"
+}
+# 129 "lud_kernel.cu"
+}
+# 129 "lud_kernel.cu"
+else 
+# 129 "lud_kernel.cu"
+{
+# 130 "lud_kernel.cu"
+__cuda_local_var_17471_7_non_const_idx = ((int)((threadIdx.x) - 16U));
+# 131 "lud_kernel.cu"
+for (__cuda_local_var_17470_7_non_const_i = 0; (__cuda_local_var_17470_7_non_const_i < 16); __cuda_local_var_17470_7_non_const_i++)
+# 131 "lud_kernel.cu"
+{
+# 132 "lud_kernel.cu"
+for (__cuda_local_var_17470_9_non_const_j = 0; (__cuda_local_var_17470_9_non_const_j < __cuda_local_var_17470_7_non_const_i); __cuda_local_var_17470_9_non_const_j++)
+# 132 "lud_kernel.cu"
+{
+# 133 "lud_kernel.cu"
+((((__cuda_local_var_17468_33_non_const_peri_col)[__cuda_local_var_17471_7_non_const_idx]))[__cuda_local_var_17470_7_non_const_i]) -= (((((__cuda_local_var_17468_33_non_const_peri_col)[__cuda_local_var_17471_7_non_const_idx]))[__cuda_local_var_17470_9_non_const_j]) * ((((__cuda_local_var_17466_33_non_const_dia)[__cuda_local_var_17470_9_non_const_j]))[__cuda_local_var_17470_7_non_const_i]));
+# 133 "lud_kernel.cu"
+}
+# 134 "lud_kernel.cu"
+((((__cuda_local_var_17468_33_non_const_peri_col)[__cuda_local_var_17471_7_non_const_idx]))[__cuda_local_var_17470_7_non_const_i]) = ((float)(fdividef(((double)((((__cuda_local_var_17468_33_non_const_peri_col)[__cuda_local_var_17471_7_non_const_idx]))[__cuda_local_var_17470_7_non_const_i])), ((double)((((__cuda_local_var_17466_33_non_const_dia)[__cuda_local_var_17470_7_non_const_i]))[__cuda_local_var_17470_7_non_const_i])))));
+# 135 "lud_kernel.cu"
+}
+# 136 "lud_kernel.cu"
+}
+# 138 "lud_kernel.cu"
+__syncthreads();
+# 140 "lud_kernel.cu"
+if ((threadIdx.x) < 16U)
+# 140 "lud_kernel.cu"
+{
+# 141 "lud_kernel.cu"
+__cuda_local_var_17471_7_non_const_idx = ((int)(threadIdx.x));
+# 142 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset = (((offset + 1) * matrix_dim) + offset);
+# 143 "lud_kernel.cu"
+for (__cuda_local_var_17470_7_non_const_i = 1; (__cuda_local_var_17470_7_non_const_i < 16); __cuda_local_var_17470_7_non_const_i++)
+# 143 "lud_kernel.cu"
+{
+# 144 "lud_kernel.cu"
+(m[((((unsigned)__cuda_local_var_17470_12_non_const_array_offset) + (((blockIdx.x) + 1U) * 16U)) + ((unsigned)__cuda_local_var_17471_7_non_const_idx))]) = ((((__cuda_local_var_17467_33_non_const_peri_row)[__cuda_local_var_17470_7_non_const_i]))[__cuda_local_var_17471_7_non_const_idx]);
+# 145 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset += matrix_dim;
+# 146 "lud_kernel.cu"
+}
+# 147 "lud_kernel.cu"
+}
+# 147 "lud_kernel.cu"
+else 
+# 147 "lud_kernel.cu"
+{
+# 148 "lud_kernel.cu"
+__cuda_local_var_17471_7_non_const_idx = ((int)((threadIdx.x) - 16U));
+# 149 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset = ((int)(((((unsigned)offset) + (((blockIdx.x) + 1U) * 16U)) * ((unsigned)matrix_dim)) + ((unsigned)offset)));
+# 150 "lud_kernel.cu"
+for (__cuda_local_var_17470_7_non_const_i = 0; (__cuda_local_var_17470_7_non_const_i < 16); __cuda_local_var_17470_7_non_const_i++)
+# 150 "lud_kernel.cu"
+{
+# 151 "lud_kernel.cu"
+(m[(__cuda_local_var_17470_12_non_const_array_offset + __cuda_local_var_17471_7_non_const_idx)]) = ((((__cuda_local_var_17468_33_non_const_peri_col)[__cuda_local_var_17470_7_non_const_i]))[__cuda_local_var_17471_7_non_const_idx]);
+# 152 "lud_kernel.cu"
+__cuda_local_var_17470_12_non_const_array_offset += matrix_dim;
+# 153 "lud_kernel.cu"
+}
+# 154 "lud_kernel.cu"
+}
+# 156 "lud_kernel.cu"
+} 
+# 156 "lud_kernel.cu"
+}}
+# 159 "lud_kernel.cu"
+__global__ __var_used__ void _Z12lud_internalPfii(
+# 159 "lud_kernel.cu"
+float *m, 
+# 159 "lud_kernel.cu"
+int matrix_dim, 
+# 159 "lud_kernel.cu"
+int offset){
+# 159 "lud_kernel.cu"
+{
+# 160 "lud_kernel.cu"
+{
+# 161 "lud_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17544_33_non_const_peri_row[16][16];
+# 162 "lud_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17545_33_non_const_peri_col[16][16];
+# 164 "lud_kernel.cu"
+ int __cuda_local_var_17547_7_non_const_i;
+# 165 "lud_kernel.cu"
+ float __cuda_local_var_17548_9_non_const_sum;
+# 167 "lud_kernel.cu"
+ int __cuda_local_var_17550_7_non_const_global_row_id;
+# 168 "lud_kernel.cu"
+ int __cuda_local_var_17551_7_non_const_global_col_id;
+# 167 "lud_kernel.cu"
+__cuda_local_var_17550_7_non_const_global_row_id = ((int)(((unsigned)offset) + (((blockIdx.y) + 1U) * 16U)));
+# 168 "lud_kernel.cu"
+__cuda_local_var_17551_7_non_const_global_col_id = ((int)(((unsigned)offset) + (((blockIdx.x) + 1U) * 16U)));
+# 170 "lud_kernel.cu"
+((((__cuda_local_var_17544_33_non_const_peri_row)[(threadIdx.y)]))[(threadIdx.x)]) = (m[((((((unsigned)offset) + (threadIdx.y)) * ((unsigned)matrix_dim)) + ((unsigned)__cuda_local_var_17551_7_non_const_global_col_id)) + (threadIdx.x))]);
+# 171 "lud_kernel.cu"
+((((__cuda_local_var_17545_33_non_const_peri_col)[(threadIdx.y)]))[(threadIdx.x)]) = (m[((((((unsigned)__cuda_local_var_17550_7_non_const_global_row_id) + (threadIdx.y)) * ((unsigned)matrix_dim)) + ((unsigned)offset)) + (threadIdx.x))]);
+# 173 "lud_kernel.cu"
+__syncthreads();
+# 175 "lud_kernel.cu"
+__cuda_local_var_17548_9_non_const_sum = (0.0F);
+# 176 "lud_kernel.cu"
+for (__cuda_local_var_17547_7_non_const_i = 0; (__cuda_local_var_17547_7_non_const_i < 16); __cuda_local_var_17547_7_non_const_i++)
+# 176 "lud_kernel.cu"
+{
+# 177 "lud_kernel.cu"
+__cuda_local_var_17548_9_non_const_sum += (((((__cuda_local_var_17545_33_non_const_peri_col)[(threadIdx.y)]))[__cuda_local_var_17547_7_non_const_i]) * ((((__cuda_local_var_17544_33_non_const_peri_row)[__cuda_local_var_17547_7_non_const_i]))[(threadIdx.x)]));
+# 177 "lud_kernel.cu"
+}
+# 178 "lud_kernel.cu"
+(m[((((((unsigned)__cuda_local_var_17550_7_non_const_global_row_id) + (threadIdx.y)) * ((unsigned)matrix_dim)) + ((unsigned)__cuda_local_var_17551_7_non_const_global_col_id)) + (threadIdx.x))]) -= __cuda_local_var_17548_9_non_const_sum;
+# 181 "lud_kernel.cu"
+} 
+# 181 "lud_kernel.cu"
+}}

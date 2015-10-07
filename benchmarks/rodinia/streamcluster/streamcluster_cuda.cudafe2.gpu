@@ -1,0 +1,144 @@
+# 39 "streamcluster_header.cu"
+struct Point;
+# 1 "streamcluster_cuda.cudafe1.gpu"
+typedef char __nv_bool;
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 39 "streamcluster_header.cu"
+struct Point {
+# 40 "streamcluster_header.cu"
+float weight;
+# 41 "streamcluster_header.cu"
+float *coord;
+# 42 "streamcluster_header.cu"
+long assign;
+# 43 "streamcluster_header.cu"
+float cost;
+# 43 "streamcluster_header.cu"
+char __nv_no_debug_dummy_end_padding_0[4];};
+# 44 "streamcluster_header.cu"
+typedef struct Point Point;
+#if !defined(__CUDABE__)
+# 131 "/home/bachelor/deicide218/cuda-4.2/include/device_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) void __syncthreads(void);
+#endif
+# 55 "streamcluster_cuda.cu"
+__global__ __var_used__ extern void _Z12pgain_kerneliilP5PointiPfS1_PiPb(int, int, long, Point *, int, float *, float *, int *, __nv_bool *);
+# 70 "streamcluster_cuda.cu"
+__loc_sc__(__shared__,_unsized,extern ) float coord_s[];
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 55 "streamcluster_cuda.cu"
+__global__ __var_used__ void _Z12pgain_kerneliilP5PointiPfS1_PiPb(
+# 55 "streamcluster_cuda.cu"
+int num, 
+# 56 "streamcluster_cuda.cu"
+int dim, 
+# 57 "streamcluster_cuda.cu"
+long x, 
+# 58 "streamcluster_cuda.cu"
+Point *p, 
+# 59 "streamcluster_cuda.cu"
+int K, 
+# 60 "streamcluster_cuda.cu"
+float *coord_d, 
+# 61 "streamcluster_cuda.cu"
+float *work_mem_d, 
+# 62 "streamcluster_cuda.cu"
+int *center_table_d, 
+# 63 "streamcluster_cuda.cu"
+__nv_bool *switch_membership_d){
+# 63 "streamcluster_cuda.cu"
+{
+# 65 "streamcluster_cuda.cu"
+{
+# 67 "streamcluster_cuda.cu"
+ int __cuda_local_var_36946_12_non_const_block_id;
+# 68 "streamcluster_cuda.cu"
+ int __cuda_local_var_36947_12_non_const_thread_id;
+# 78 "streamcluster_cuda.cu"
+ float __cuda_local_var_36957_8_non_const_x_cost;
+# 83 "streamcluster_cuda.cu"
+ float __cuda_local_var_36962_8_non_const_current_cost;
+# 86 "streamcluster_cuda.cu"
+ float *__cuda_local_var_36965_9_non_const_lower;
+# 67 "streamcluster_cuda.cu"
+__cuda_local_var_36946_12_non_const_block_id = ((int)((blockIdx.x) + ((gridDim.x) * (blockIdx.y))));
+# 68 "streamcluster_cuda.cu"
+__cuda_local_var_36947_12_non_const_thread_id = ((int)(((blockDim.x) * ((unsigned)__cuda_local_var_36946_12_non_const_block_id)) + (threadIdx.x)));
+# 73 "streamcluster_cuda.cu"
+if ((threadIdx.x) == 0U)
+# 73 "streamcluster_cuda.cu"
+{
+# 73 "streamcluster_cuda.cu"
+{
+# 74 "streamcluster_cuda.cu"
+ int i;
+# 74 "streamcluster_cuda.cu"
+i = 0;
+# 74 "streamcluster_cuda.cu"
+for (; (i < dim); i++)
+# 74 "streamcluster_cuda.cu"
+{
+# 74 "streamcluster_cuda.cu"
+((coord_s)[i]) = (coord_d[(((long)(i * num)) + x)]);
+# 74 "streamcluster_cuda.cu"
+}
+# 74 "streamcluster_cuda.cu"
+}
+# 74 "streamcluster_cuda.cu"
+}
+# 75 "streamcluster_cuda.cu"
+__syncthreads();
+# 78 "streamcluster_cuda.cu"
+__cuda_local_var_36957_8_non_const_x_cost = (0.0F);
+# 78 "streamcluster_cuda.cu"
+{
+# 79 "streamcluster_cuda.cu"
+ int i;
+# 79 "streamcluster_cuda.cu"
+i = 0;
+# 79 "streamcluster_cuda.cu"
+for (; (i < dim); i++)
+# 79 "streamcluster_cuda.cu"
+{
+# 80 "streamcluster_cuda.cu"
+__cuda_local_var_36957_8_non_const_x_cost += (((coord_d[((i * num) + __cuda_local_var_36947_12_non_const_thread_id)]) - ((coord_s)[i])) * ((coord_d[((i * num) + __cuda_local_var_36947_12_non_const_thread_id)]) - ((coord_s)[i])));
+# 80 "streamcluster_cuda.cu"
+}
+# 80 "streamcluster_cuda.cu"
+}
+# 81 "streamcluster_cuda.cu"
+__cuda_local_var_36957_8_non_const_x_cost = (__cuda_local_var_36957_8_non_const_x_cost * ((p[__cuda_local_var_36947_12_non_const_thread_id]).weight));
+# 83 "streamcluster_cuda.cu"
+__cuda_local_var_36962_8_non_const_current_cost = ((p[__cuda_local_var_36947_12_non_const_thread_id]).cost);
+# 86 "streamcluster_cuda.cu"
+__cuda_local_var_36965_9_non_const_lower = (work_mem_d + (__cuda_local_var_36947_12_non_const_thread_id * (K + 1)));
+# 87 "streamcluster_cuda.cu"
+if (__cuda_local_var_36957_8_non_const_x_cost < __cuda_local_var_36962_8_non_const_current_cost)
+# 87 "streamcluster_cuda.cu"
+{
+# 88 "streamcluster_cuda.cu"
+(switch_membership_d[__cuda_local_var_36947_12_non_const_thread_id]) = ((__nv_bool)1);
+# 89 "streamcluster_cuda.cu"
+(__cuda_local_var_36965_9_non_const_lower[K]) += (__cuda_local_var_36957_8_non_const_x_cost - __cuda_local_var_36962_8_non_const_current_cost);
+# 90 "streamcluster_cuda.cu"
+}
+# 92 "streamcluster_cuda.cu"
+else 
+# 92 "streamcluster_cuda.cu"
+{
+# 93 "streamcluster_cuda.cu"
+ int __cuda_local_var_36972_10_non_const_assign;
+# 93 "streamcluster_cuda.cu"
+__cuda_local_var_36972_10_non_const_assign = ((int)((p[__cuda_local_var_36947_12_non_const_thread_id]).assign));
+# 94 "streamcluster_cuda.cu"
+(__cuda_local_var_36965_9_non_const_lower[(center_table_d[__cuda_local_var_36972_10_non_const_assign])]) += (__cuda_local_var_36962_8_non_const_current_cost - __cuda_local_var_36957_8_non_const_x_cost);
+# 95 "streamcluster_cuda.cu"
+}
+# 96 "streamcluster_cuda.cu"
+} 
+# 96 "streamcluster_cuda.cu"
+}}

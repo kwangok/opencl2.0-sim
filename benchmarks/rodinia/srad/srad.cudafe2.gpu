@@ -1,0 +1,620 @@
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+#if !defined(__CUDABE__)
+# 131 "/home/bachelor/deicide218/cuda-4.2/include/device_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) void __syncthreads(void);
+#endif
+# 5 "./srad_kernel.cu"
+__global__ __var_used__ extern void _Z11srad_cuda_1PfS_S_S_S_S_iif(float *, float *, float *, float *, float *, float *, int, int, float);
+# 170 "./srad_kernel.cu"
+__global__ __var_used__ extern void _Z11srad_cuda_2PfS_S_S_S_S_iiff(float *, float *, float *, float *, float *, float *, int, int, float, float);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 5 "./srad_kernel.cu"
+__global__ __var_used__ void _Z11srad_cuda_1PfS_S_S_S_S_iif(
+# 6 "./srad_kernel.cu"
+float *E_C, 
+# 7 "./srad_kernel.cu"
+float *W_C, 
+# 8 "./srad_kernel.cu"
+float *N_C, 
+# 9 "./srad_kernel.cu"
+float *S_C, 
+# 10 "./srad_kernel.cu"
+float *J_cuda, 
+# 11 "./srad_kernel.cu"
+float *C_cuda, 
+# 12 "./srad_kernel.cu"
+int cols, 
+# 13 "./srad_kernel.cu"
+int rows, 
+# 14 "./srad_kernel.cu"
+float q0sqr){
+# 14 "./srad_kernel.cu"
+{
+# 16 "./srad_kernel.cu"
+{
+# 19 "./srad_kernel.cu"
+ int __cuda_local_var_17448_7_non_const_bx;
+# 20 "./srad_kernel.cu"
+ int __cuda_local_var_17449_7_non_const_by;
+# 23 "./srad_kernel.cu"
+ int __cuda_local_var_17452_7_non_const_tx;
+# 24 "./srad_kernel.cu"
+ int __cuda_local_var_17453_7_non_const_ty;
+# 27 "./srad_kernel.cu"
+ int __cuda_local_var_17456_7_non_const_index;
+# 28 "./srad_kernel.cu"
+ int __cuda_local_var_17457_7_non_const_index_n;
+# 29 "./srad_kernel.cu"
+ int __cuda_local_var_17458_7_non_const_index_s;
+# 30 "./srad_kernel.cu"
+ int __cuda_local_var_17459_7_non_const_index_w;
+# 31 "./srad_kernel.cu"
+ int __cuda_local_var_17460_7_non_const_index_e;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_9_non_const_n;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_12_non_const_w;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_15_non_const_e;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_18_non_const_s;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_21_non_const_jc;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_25_non_const_g2;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_29_non_const_l;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_32_non_const_num;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_37_non_const_den;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_42_non_const_qsqr;
+# 33 "./srad_kernel.cu"
+ float __cuda_local_var_17462_48_non_const_c;
+# 36 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17465_33_non_const_temp[16][16];
+# 37 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17466_33_non_const_temp_result[16][16];
+# 39 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17468_33_non_const_north[16][16];
+# 40 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17469_33_non_const_south[16][16];
+# 41 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17470_33_non_const_east[16][16];
+# 42 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17471_33_non_const_west[16][16];
+# 19 "./srad_kernel.cu"
+__cuda_local_var_17448_7_non_const_bx = ((int)(blockIdx.x));
+# 20 "./srad_kernel.cu"
+__cuda_local_var_17449_7_non_const_by = ((int)(blockIdx.y));
+# 23 "./srad_kernel.cu"
+__cuda_local_var_17452_7_non_const_tx = ((int)(threadIdx.x));
+# 24 "./srad_kernel.cu"
+__cuda_local_var_17453_7_non_const_ty = ((int)(threadIdx.y));
+# 27 "./srad_kernel.cu"
+__cuda_local_var_17456_7_non_const_index = (((((cols * 16) * __cuda_local_var_17449_7_non_const_by) + (16 * __cuda_local_var_17448_7_non_const_bx)) + (cols * __cuda_local_var_17453_7_non_const_ty)) + __cuda_local_var_17452_7_non_const_tx);
+# 28 "./srad_kernel.cu"
+__cuda_local_var_17457_7_non_const_index_n = (((((cols * 16) * __cuda_local_var_17449_7_non_const_by) + (16 * __cuda_local_var_17448_7_non_const_bx)) + __cuda_local_var_17452_7_non_const_tx) - cols);
+# 29 "./srad_kernel.cu"
+__cuda_local_var_17458_7_non_const_index_s = (((((cols * 16) * __cuda_local_var_17449_7_non_const_by) + (16 * __cuda_local_var_17448_7_non_const_bx)) + (cols * 16)) + __cuda_local_var_17452_7_non_const_tx);
+# 30 "./srad_kernel.cu"
+__cuda_local_var_17459_7_non_const_index_w = (((((cols * 16) * __cuda_local_var_17449_7_non_const_by) + (16 * __cuda_local_var_17448_7_non_const_bx)) + (cols * __cuda_local_var_17453_7_non_const_ty)) - 1);
+# 31 "./srad_kernel.cu"
+__cuda_local_var_17460_7_non_const_index_e = (((((cols * 16) * __cuda_local_var_17449_7_non_const_by) + (16 * __cuda_local_var_17448_7_non_const_bx)) + (cols * __cuda_local_var_17453_7_non_const_ty)) + 16);
+# 47 "./srad_kernel.cu"
+if (__cuda_local_var_17449_7_non_const_by == 0)
+# 47 "./srad_kernel.cu"
+{
+# 48 "./srad_kernel.cu"
+((((__cuda_local_var_17468_33_non_const_north)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[((16 * __cuda_local_var_17448_7_non_const_bx) + __cuda_local_var_17452_7_non_const_tx)]);
+# 49 "./srad_kernel.cu"
+((((__cuda_local_var_17469_33_non_const_south)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[__cuda_local_var_17458_7_non_const_index_s]);
+# 50 "./srad_kernel.cu"
+}
+# 50 "./srad_kernel.cu"
+else 
+# 50 "./srad_kernel.cu"
+{
+# 51 "./srad_kernel.cu"
+if (((unsigned)__cuda_local_var_17449_7_non_const_by) == ((gridDim.y) - 1U))
+# 51 "./srad_kernel.cu"
+{
+# 52 "./srad_kernel.cu"
+((((__cuda_local_var_17468_33_non_const_north)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[__cuda_local_var_17457_7_non_const_index_n]);
+# 53 "./srad_kernel.cu"
+((((__cuda_local_var_17469_33_non_const_south)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[((((((unsigned)(cols * 16)) * ((gridDim.y) - 1U)) + ((unsigned)(16 * __cuda_local_var_17448_7_non_const_bx))) + ((unsigned)(cols * 15))) + ((unsigned)__cuda_local_var_17452_7_non_const_tx))]);
+# 54 "./srad_kernel.cu"
+}
+# 54 "./srad_kernel.cu"
+else 
+# 54 "./srad_kernel.cu"
+{
+# 55 "./srad_kernel.cu"
+((((__cuda_local_var_17468_33_non_const_north)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[__cuda_local_var_17457_7_non_const_index_n]);
+# 56 "./srad_kernel.cu"
+((((__cuda_local_var_17469_33_non_const_south)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[__cuda_local_var_17458_7_non_const_index_s]);
+# 57 "./srad_kernel.cu"
+}
+# 57 "./srad_kernel.cu"
+}
+# 58 "./srad_kernel.cu"
+__syncthreads();
+# 63 "./srad_kernel.cu"
+if (__cuda_local_var_17448_7_non_const_bx == 0)
+# 63 "./srad_kernel.cu"
+{
+# 64 "./srad_kernel.cu"
+((((__cuda_local_var_17470_33_non_const_east)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[__cuda_local_var_17460_7_non_const_index_e]);
+# 65 "./srad_kernel.cu"
+((((__cuda_local_var_17471_33_non_const_west)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[(((cols * 16) * __cuda_local_var_17449_7_non_const_by) + (cols * __cuda_local_var_17453_7_non_const_ty))]);
+# 66 "./srad_kernel.cu"
+}
+# 66 "./srad_kernel.cu"
+else 
+# 66 "./srad_kernel.cu"
+{
+# 67 "./srad_kernel.cu"
+if (((unsigned)__cuda_local_var_17448_7_non_const_bx) == ((gridDim.x) - 1U))
+# 67 "./srad_kernel.cu"
+{
+# 68 "./srad_kernel.cu"
+((((__cuda_local_var_17471_33_non_const_west)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[__cuda_local_var_17459_7_non_const_index_w]);
+# 69 "./srad_kernel.cu"
+((((__cuda_local_var_17470_33_non_const_east)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[((((((unsigned)((cols * 16) * __cuda_local_var_17449_7_non_const_by)) + (16U * ((gridDim.x) - 1U))) + ((unsigned)(cols * __cuda_local_var_17453_7_non_const_ty))) + 16U) - 1U)]);
+# 70 "./srad_kernel.cu"
+}
+# 70 "./srad_kernel.cu"
+else 
+# 70 "./srad_kernel.cu"
+{
+# 71 "./srad_kernel.cu"
+((((__cuda_local_var_17471_33_non_const_west)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[__cuda_local_var_17459_7_non_const_index_w]);
+# 72 "./srad_kernel.cu"
+((((__cuda_local_var_17470_33_non_const_east)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[__cuda_local_var_17460_7_non_const_index_e]);
+# 73 "./srad_kernel.cu"
+}
+# 73 "./srad_kernel.cu"
+}
+# 75 "./srad_kernel.cu"
+__syncthreads();
+# 79 "./srad_kernel.cu"
+((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (J_cuda[__cuda_local_var_17456_7_non_const_index]);
+# 81 "./srad_kernel.cu"
+__syncthreads();
+# 83 "./srad_kernel.cu"
+__cuda_local_var_17462_21_non_const_jc = ((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]);
+# 85 "./srad_kernel.cu"
+if ((__cuda_local_var_17453_7_non_const_ty == 0) && (__cuda_local_var_17452_7_non_const_tx == 0))
+# 85 "./srad_kernel.cu"
+{
+# 86 "./srad_kernel.cu"
+__cuda_local_var_17462_9_non_const_n = (((((__cuda_local_var_17468_33_non_const_north)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 87 "./srad_kernel.cu"
+__cuda_local_var_17462_18_non_const_s = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty + 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 88 "./srad_kernel.cu"
+__cuda_local_var_17462_12_non_const_w = (((((__cuda_local_var_17471_33_non_const_west)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 89 "./srad_kernel.cu"
+__cuda_local_var_17462_15_non_const_e = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx + 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 90 "./srad_kernel.cu"
+}
+# 90 "./srad_kernel.cu"
+else 
+# 90 "./srad_kernel.cu"
+{
+# 91 "./srad_kernel.cu"
+if ((__cuda_local_var_17453_7_non_const_ty == 0) && (__cuda_local_var_17452_7_non_const_tx == 15))
+# 91 "./srad_kernel.cu"
+{
+# 92 "./srad_kernel.cu"
+__cuda_local_var_17462_9_non_const_n = (((((__cuda_local_var_17468_33_non_const_north)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 93 "./srad_kernel.cu"
+__cuda_local_var_17462_18_non_const_s = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty + 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 94 "./srad_kernel.cu"
+__cuda_local_var_17462_12_non_const_w = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx - 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 95 "./srad_kernel.cu"
+__cuda_local_var_17462_15_non_const_e = (((((__cuda_local_var_17470_33_non_const_east)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 96 "./srad_kernel.cu"
+}
+# 96 "./srad_kernel.cu"
+else 
+# 96 "./srad_kernel.cu"
+{
+# 97 "./srad_kernel.cu"
+if ((__cuda_local_var_17453_7_non_const_ty == 15) && (__cuda_local_var_17452_7_non_const_tx == 15))
+# 97 "./srad_kernel.cu"
+{
+# 98 "./srad_kernel.cu"
+__cuda_local_var_17462_9_non_const_n = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty - 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 99 "./srad_kernel.cu"
+__cuda_local_var_17462_18_non_const_s = (((((__cuda_local_var_17469_33_non_const_south)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 100 "./srad_kernel.cu"
+__cuda_local_var_17462_12_non_const_w = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx - 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 101 "./srad_kernel.cu"
+__cuda_local_var_17462_15_non_const_e = (((((__cuda_local_var_17470_33_non_const_east)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 102 "./srad_kernel.cu"
+}
+# 102 "./srad_kernel.cu"
+else 
+# 102 "./srad_kernel.cu"
+{
+# 103 "./srad_kernel.cu"
+if ((__cuda_local_var_17453_7_non_const_ty == 15) && (__cuda_local_var_17452_7_non_const_tx == 0))
+# 103 "./srad_kernel.cu"
+{
+# 104 "./srad_kernel.cu"
+__cuda_local_var_17462_9_non_const_n = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty - 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 105 "./srad_kernel.cu"
+__cuda_local_var_17462_18_non_const_s = (((((__cuda_local_var_17469_33_non_const_south)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 106 "./srad_kernel.cu"
+__cuda_local_var_17462_12_non_const_w = (((((__cuda_local_var_17471_33_non_const_west)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 107 "./srad_kernel.cu"
+__cuda_local_var_17462_15_non_const_e = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx + 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 108 "./srad_kernel.cu"
+}
+# 108 "./srad_kernel.cu"
+else 
+# 108 "./srad_kernel.cu"
+{
+# 110 "./srad_kernel.cu"
+if (__cuda_local_var_17453_7_non_const_ty == 0)
+# 110 "./srad_kernel.cu"
+{
+# 111 "./srad_kernel.cu"
+__cuda_local_var_17462_9_non_const_n = (((((__cuda_local_var_17468_33_non_const_north)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 112 "./srad_kernel.cu"
+__cuda_local_var_17462_18_non_const_s = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty + 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 113 "./srad_kernel.cu"
+__cuda_local_var_17462_12_non_const_w = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx - 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 114 "./srad_kernel.cu"
+__cuda_local_var_17462_15_non_const_e = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx + 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 115 "./srad_kernel.cu"
+}
+# 115 "./srad_kernel.cu"
+else 
+# 115 "./srad_kernel.cu"
+{
+# 116 "./srad_kernel.cu"
+if (__cuda_local_var_17452_7_non_const_tx == 15)
+# 116 "./srad_kernel.cu"
+{
+# 117 "./srad_kernel.cu"
+__cuda_local_var_17462_9_non_const_n = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty - 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 118 "./srad_kernel.cu"
+__cuda_local_var_17462_18_non_const_s = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty + 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 119 "./srad_kernel.cu"
+__cuda_local_var_17462_12_non_const_w = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx - 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 120 "./srad_kernel.cu"
+__cuda_local_var_17462_15_non_const_e = (((((__cuda_local_var_17470_33_non_const_east)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 121 "./srad_kernel.cu"
+}
+# 121 "./srad_kernel.cu"
+else 
+# 121 "./srad_kernel.cu"
+{
+# 122 "./srad_kernel.cu"
+if (__cuda_local_var_17453_7_non_const_ty == 15)
+# 122 "./srad_kernel.cu"
+{
+# 123 "./srad_kernel.cu"
+__cuda_local_var_17462_9_non_const_n = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty - 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 124 "./srad_kernel.cu"
+__cuda_local_var_17462_18_non_const_s = (((((__cuda_local_var_17469_33_non_const_south)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 125 "./srad_kernel.cu"
+__cuda_local_var_17462_12_non_const_w = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx - 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 126 "./srad_kernel.cu"
+__cuda_local_var_17462_15_non_const_e = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx + 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 127 "./srad_kernel.cu"
+}
+# 127 "./srad_kernel.cu"
+else 
+# 127 "./srad_kernel.cu"
+{
+# 128 "./srad_kernel.cu"
+if (__cuda_local_var_17452_7_non_const_tx == 0)
+# 128 "./srad_kernel.cu"
+{
+# 129 "./srad_kernel.cu"
+__cuda_local_var_17462_9_non_const_n = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty - 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 130 "./srad_kernel.cu"
+__cuda_local_var_17462_18_non_const_s = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty + 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 131 "./srad_kernel.cu"
+__cuda_local_var_17462_12_non_const_w = (((((__cuda_local_var_17471_33_non_const_west)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 132 "./srad_kernel.cu"
+__cuda_local_var_17462_15_non_const_e = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx + 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 133 "./srad_kernel.cu"
+}
+# 134 "./srad_kernel.cu"
+else 
+# 134 "./srad_kernel.cu"
+{
+# 135 "./srad_kernel.cu"
+__cuda_local_var_17462_9_non_const_n = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty - 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 136 "./srad_kernel.cu"
+__cuda_local_var_17462_18_non_const_s = (((((__cuda_local_var_17465_33_non_const_temp)[(__cuda_local_var_17453_7_non_const_ty + 1)]))[__cuda_local_var_17452_7_non_const_tx]) - __cuda_local_var_17462_21_non_const_jc);
+# 137 "./srad_kernel.cu"
+__cuda_local_var_17462_12_non_const_w = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx - 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 138 "./srad_kernel.cu"
+__cuda_local_var_17462_15_non_const_e = (((((__cuda_local_var_17465_33_non_const_temp)[__cuda_local_var_17453_7_non_const_ty]))[(__cuda_local_var_17452_7_non_const_tx + 1)]) - __cuda_local_var_17462_21_non_const_jc);
+# 139 "./srad_kernel.cu"
+}
+# 139 "./srad_kernel.cu"
+}
+# 139 "./srad_kernel.cu"
+}
+# 139 "./srad_kernel.cu"
+}
+# 139 "./srad_kernel.cu"
+}
+# 139 "./srad_kernel.cu"
+}
+# 139 "./srad_kernel.cu"
+}
+# 139 "./srad_kernel.cu"
+}
+# 142 "./srad_kernel.cu"
+__cuda_local_var_17462_25_non_const_g2 = ((float)(fdividef(((double)((((__cuda_local_var_17462_9_non_const_n * __cuda_local_var_17462_9_non_const_n) + (__cuda_local_var_17462_18_non_const_s * __cuda_local_var_17462_18_non_const_s)) + (__cuda_local_var_17462_12_non_const_w * __cuda_local_var_17462_12_non_const_w)) + (__cuda_local_var_17462_15_non_const_e * __cuda_local_var_17462_15_non_const_e))), ((double)(__cuda_local_var_17462_21_non_const_jc * __cuda_local_var_17462_21_non_const_jc)))));
+# 144 "./srad_kernel.cu"
+__cuda_local_var_17462_29_non_const_l = ((float)(fdividef(((double)(((__cuda_local_var_17462_9_non_const_n + __cuda_local_var_17462_18_non_const_s) + __cuda_local_var_17462_12_non_const_w) + __cuda_local_var_17462_15_non_const_e)), ((double)__cuda_local_var_17462_21_non_const_jc))));
+# 146 "./srad_kernel.cu"
+__cuda_local_var_17462_32_non_const_num = ((float)(((0.5) * ((double)__cuda_local_var_17462_25_non_const_g2)) - ((0.0625) * ((double)(__cuda_local_var_17462_29_non_const_l * __cuda_local_var_17462_29_non_const_l)))));
+# 147 "./srad_kernel.cu"
+__cuda_local_var_17462_37_non_const_den = ((float)((1.0) + ((0.25) * ((double)__cuda_local_var_17462_29_non_const_l))));
+# 148 "./srad_kernel.cu"
+__cuda_local_var_17462_42_non_const_qsqr = ((float)(fdividef(((double)__cuda_local_var_17462_32_non_const_num), ((double)(__cuda_local_var_17462_37_non_const_den * __cuda_local_var_17462_37_non_const_den)))));
+# 151 "./srad_kernel.cu"
+__cuda_local_var_17462_37_non_const_den = ((float)(fdividef(((double)(__cuda_local_var_17462_42_non_const_qsqr - q0sqr)), ((double)(q0sqr * ((1.0F) + q0sqr))))));
+# 152 "./srad_kernel.cu"
+__cuda_local_var_17462_48_non_const_c = ((float)((1.0) / ((1.0) + ((double)__cuda_local_var_17462_37_non_const_den))));
+# 155 "./srad_kernel.cu"
+if (__cuda_local_var_17462_48_non_const_c < (0.0F))
+# 155 "./srad_kernel.cu"
+{
+# 155 "./srad_kernel.cu"
+((((__cuda_local_var_17466_33_non_const_temp_result)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (0.0F);
+# 155 "./srad_kernel.cu"
+}
+# 155 "./srad_kernel.cu"
+else 
+# 155 "./srad_kernel.cu"
+{
+# 156 "./srad_kernel.cu"
+if (__cuda_local_var_17462_48_non_const_c > (1.0F))
+# 156 "./srad_kernel.cu"
+{
+# 156 "./srad_kernel.cu"
+((((__cuda_local_var_17466_33_non_const_temp_result)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = (1.0F);
+# 156 "./srad_kernel.cu"
+}
+# 157 "./srad_kernel.cu"
+else 
+# 157 "./srad_kernel.cu"
+{
+# 157 "./srad_kernel.cu"
+((((__cuda_local_var_17466_33_non_const_temp_result)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]) = __cuda_local_var_17462_48_non_const_c;
+# 157 "./srad_kernel.cu"
+}
+# 157 "./srad_kernel.cu"
+}
+# 159 "./srad_kernel.cu"
+__syncthreads();
+# 161 "./srad_kernel.cu"
+(C_cuda[__cuda_local_var_17456_7_non_const_index]) = ((((__cuda_local_var_17466_33_non_const_temp_result)[__cuda_local_var_17453_7_non_const_ty]))[__cuda_local_var_17452_7_non_const_tx]);
+# 162 "./srad_kernel.cu"
+(E_C[__cuda_local_var_17456_7_non_const_index]) = __cuda_local_var_17462_15_non_const_e;
+# 163 "./srad_kernel.cu"
+(W_C[__cuda_local_var_17456_7_non_const_index]) = __cuda_local_var_17462_12_non_const_w;
+# 164 "./srad_kernel.cu"
+(S_C[__cuda_local_var_17456_7_non_const_index]) = __cuda_local_var_17462_18_non_const_s;
+# 165 "./srad_kernel.cu"
+(N_C[__cuda_local_var_17456_7_non_const_index]) = __cuda_local_var_17462_9_non_const_n;
+# 167 "./srad_kernel.cu"
+} 
+# 167 "./srad_kernel.cu"
+}}
+# 170 "./srad_kernel.cu"
+__global__ __var_used__ void _Z11srad_cuda_2PfS_S_S_S_S_iiff(
+# 171 "./srad_kernel.cu"
+float *E_C, 
+# 172 "./srad_kernel.cu"
+float *W_C, 
+# 173 "./srad_kernel.cu"
+float *N_C, 
+# 174 "./srad_kernel.cu"
+float *S_C, 
+# 175 "./srad_kernel.cu"
+float *J_cuda, 
+# 176 "./srad_kernel.cu"
+float *C_cuda, 
+# 177 "./srad_kernel.cu"
+int cols, 
+# 178 "./srad_kernel.cu"
+int rows, 
+# 179 "./srad_kernel.cu"
+float lambda, 
+# 180 "./srad_kernel.cu"
+float q0sqr){
+# 180 "./srad_kernel.cu"
+{
+# 182 "./srad_kernel.cu"
+{
+# 184 "./srad_kernel.cu"
+ int __cuda_local_var_17613_7_non_const_bx;
+# 185 "./srad_kernel.cu"
+ int __cuda_local_var_17614_9_non_const_by;
+# 188 "./srad_kernel.cu"
+ int __cuda_local_var_17617_9_non_const_tx;
+# 189 "./srad_kernel.cu"
+ int __cuda_local_var_17618_9_non_const_ty;
+# 192 "./srad_kernel.cu"
+ int __cuda_local_var_17621_9_non_const_index;
+# 193 "./srad_kernel.cu"
+ int __cuda_local_var_17622_7_non_const_index_s;
+# 194 "./srad_kernel.cu"
+ int __cuda_local_var_17623_9_non_const_index_e;
+# 195 "./srad_kernel.cu"
+ float __cuda_local_var_17624_9_non_const_cc;
+# 195 "./srad_kernel.cu"
+ float __cuda_local_var_17624_13_non_const_cn;
+# 195 "./srad_kernel.cu"
+ float __cuda_local_var_17624_17_non_const_cs;
+# 195 "./srad_kernel.cu"
+ float __cuda_local_var_17624_21_non_const_ce;
+# 195 "./srad_kernel.cu"
+ float __cuda_local_var_17624_25_non_const_cw;
+# 195 "./srad_kernel.cu"
+ float __cuda_local_var_17624_29_non_const_d_sum;
+# 198 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17627_33_non_const_south_c[16][16];
+# 199 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17628_35_non_const_east_c[16][16];
+# 201 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17630_35_non_const_c_cuda_temp[16][16];
+# 202 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17631_35_non_const_c_cuda_result[16][16];
+# 203 "./srad_kernel.cu"
+__loc_sc__(__shared__,, ) float __cuda_local_var_17632_35_non_const_temp[16][16];
+# 184 "./srad_kernel.cu"
+__cuda_local_var_17613_7_non_const_bx = ((int)(blockIdx.x));
+# 185 "./srad_kernel.cu"
+__cuda_local_var_17614_9_non_const_by = ((int)(blockIdx.y));
+# 188 "./srad_kernel.cu"
+__cuda_local_var_17617_9_non_const_tx = ((int)(threadIdx.x));
+# 189 "./srad_kernel.cu"
+__cuda_local_var_17618_9_non_const_ty = ((int)(threadIdx.y));
+# 192 "./srad_kernel.cu"
+__cuda_local_var_17621_9_non_const_index = (((((cols * 16) * __cuda_local_var_17614_9_non_const_by) + (16 * __cuda_local_var_17613_7_non_const_bx)) + (cols * __cuda_local_var_17618_9_non_const_ty)) + __cuda_local_var_17617_9_non_const_tx);
+# 193 "./srad_kernel.cu"
+__cuda_local_var_17622_7_non_const_index_s = (((((cols * 16) * __cuda_local_var_17614_9_non_const_by) + (16 * __cuda_local_var_17613_7_non_const_bx)) + (cols * 16)) + __cuda_local_var_17617_9_non_const_tx);
+# 194 "./srad_kernel.cu"
+__cuda_local_var_17623_9_non_const_index_e = (((((cols * 16) * __cuda_local_var_17614_9_non_const_by) + (16 * __cuda_local_var_17613_7_non_const_bx)) + (cols * __cuda_local_var_17618_9_non_const_ty)) + 16);
+# 206 "./srad_kernel.cu"
+((((__cuda_local_var_17632_35_non_const_temp)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]) = (J_cuda[__cuda_local_var_17621_9_non_const_index]);
+# 208 "./srad_kernel.cu"
+__syncthreads();
+# 212 "./srad_kernel.cu"
+if (((unsigned)__cuda_local_var_17614_9_non_const_by) == ((gridDim.y) - 1U))
+# 212 "./srad_kernel.cu"
+{
+# 213 "./srad_kernel.cu"
+((((__cuda_local_var_17627_33_non_const_south_c)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]) = (C_cuda[((((((unsigned)(cols * 16)) * ((gridDim.y) - 1U)) + ((unsigned)(16 * __cuda_local_var_17613_7_non_const_bx))) + ((unsigned)(cols * 15))) + ((unsigned)__cuda_local_var_17617_9_non_const_tx))]);
+# 214 "./srad_kernel.cu"
+}
+# 214 "./srad_kernel.cu"
+else 
+# 214 "./srad_kernel.cu"
+{
+# 215 "./srad_kernel.cu"
+((((__cuda_local_var_17627_33_non_const_south_c)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]) = (C_cuda[__cuda_local_var_17622_7_non_const_index_s]);
+# 216 "./srad_kernel.cu"
+}
+# 217 "./srad_kernel.cu"
+__syncthreads();
+# 222 "./srad_kernel.cu"
+if (((unsigned)__cuda_local_var_17613_7_non_const_bx) == ((gridDim.x) - 1U))
+# 222 "./srad_kernel.cu"
+{
+# 223 "./srad_kernel.cu"
+((((__cuda_local_var_17628_35_non_const_east_c)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]) = (C_cuda[((((((unsigned)((cols * 16) * __cuda_local_var_17614_9_non_const_by)) + (16U * ((gridDim.x) - 1U))) + ((unsigned)(cols * __cuda_local_var_17618_9_non_const_ty))) + 16U) - 1U)]);
+# 224 "./srad_kernel.cu"
+}
+# 224 "./srad_kernel.cu"
+else 
+# 224 "./srad_kernel.cu"
+{
+# 225 "./srad_kernel.cu"
+((((__cuda_local_var_17628_35_non_const_east_c)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]) = (C_cuda[__cuda_local_var_17623_9_non_const_index_e]);
+# 226 "./srad_kernel.cu"
+}
+# 228 "./srad_kernel.cu"
+__syncthreads();
+# 230 "./srad_kernel.cu"
+((((__cuda_local_var_17630_35_non_const_c_cuda_temp)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]) = (C_cuda[__cuda_local_var_17621_9_non_const_index]);
+# 232 "./srad_kernel.cu"
+__syncthreads();
+# 234 "./srad_kernel.cu"
+__cuda_local_var_17624_9_non_const_cc = ((((__cuda_local_var_17630_35_non_const_c_cuda_temp)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]);
+# 236 "./srad_kernel.cu"
+if ((__cuda_local_var_17618_9_non_const_ty == 15) && (__cuda_local_var_17617_9_non_const_tx == 15))
+# 236 "./srad_kernel.cu"
+{
+# 237 "./srad_kernel.cu"
+__cuda_local_var_17624_13_non_const_cn = __cuda_local_var_17624_9_non_const_cc;
+# 238 "./srad_kernel.cu"
+__cuda_local_var_17624_17_non_const_cs = ((((__cuda_local_var_17627_33_non_const_south_c)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]);
+# 239 "./srad_kernel.cu"
+__cuda_local_var_17624_25_non_const_cw = __cuda_local_var_17624_9_non_const_cc;
+# 240 "./srad_kernel.cu"
+__cuda_local_var_17624_21_non_const_ce = ((((__cuda_local_var_17628_35_non_const_east_c)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]);
+# 241 "./srad_kernel.cu"
+}
+# 241 "./srad_kernel.cu"
+else 
+# 241 "./srad_kernel.cu"
+{
+# 242 "./srad_kernel.cu"
+if (__cuda_local_var_17617_9_non_const_tx == 15)
+# 242 "./srad_kernel.cu"
+{
+# 243 "./srad_kernel.cu"
+__cuda_local_var_17624_13_non_const_cn = __cuda_local_var_17624_9_non_const_cc;
+# 244 "./srad_kernel.cu"
+__cuda_local_var_17624_17_non_const_cs = ((((__cuda_local_var_17630_35_non_const_c_cuda_temp)[(__cuda_local_var_17618_9_non_const_ty + 1)]))[__cuda_local_var_17617_9_non_const_tx]);
+# 245 "./srad_kernel.cu"
+__cuda_local_var_17624_25_non_const_cw = __cuda_local_var_17624_9_non_const_cc;
+# 246 "./srad_kernel.cu"
+__cuda_local_var_17624_21_non_const_ce = ((((__cuda_local_var_17628_35_non_const_east_c)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]);
+# 247 "./srad_kernel.cu"
+}
+# 247 "./srad_kernel.cu"
+else 
+# 247 "./srad_kernel.cu"
+{
+# 248 "./srad_kernel.cu"
+if (__cuda_local_var_17618_9_non_const_ty == 15)
+# 248 "./srad_kernel.cu"
+{
+# 249 "./srad_kernel.cu"
+__cuda_local_var_17624_13_non_const_cn = __cuda_local_var_17624_9_non_const_cc;
+# 250 "./srad_kernel.cu"
+__cuda_local_var_17624_17_non_const_cs = ((((__cuda_local_var_17627_33_non_const_south_c)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]);
+# 251 "./srad_kernel.cu"
+__cuda_local_var_17624_25_non_const_cw = __cuda_local_var_17624_9_non_const_cc;
+# 252 "./srad_kernel.cu"
+__cuda_local_var_17624_21_non_const_ce = ((((__cuda_local_var_17630_35_non_const_c_cuda_temp)[__cuda_local_var_17618_9_non_const_ty]))[(__cuda_local_var_17617_9_non_const_tx + 1)]);
+# 253 "./srad_kernel.cu"
+}
+# 254 "./srad_kernel.cu"
+else 
+# 254 "./srad_kernel.cu"
+{
+# 255 "./srad_kernel.cu"
+__cuda_local_var_17624_13_non_const_cn = __cuda_local_var_17624_9_non_const_cc;
+# 256 "./srad_kernel.cu"
+__cuda_local_var_17624_17_non_const_cs = ((((__cuda_local_var_17630_35_non_const_c_cuda_temp)[(__cuda_local_var_17618_9_non_const_ty + 1)]))[__cuda_local_var_17617_9_non_const_tx]);
+# 257 "./srad_kernel.cu"
+__cuda_local_var_17624_25_non_const_cw = __cuda_local_var_17624_9_non_const_cc;
+# 258 "./srad_kernel.cu"
+__cuda_local_var_17624_21_non_const_ce = ((((__cuda_local_var_17630_35_non_const_c_cuda_temp)[__cuda_local_var_17618_9_non_const_ty]))[(__cuda_local_var_17617_9_non_const_tx + 1)]);
+# 259 "./srad_kernel.cu"
+}
+# 259 "./srad_kernel.cu"
+}
+# 259 "./srad_kernel.cu"
+}
+# 262 "./srad_kernel.cu"
+__cuda_local_var_17624_29_non_const_d_sum = ((((__cuda_local_var_17624_13_non_const_cn * (N_C[__cuda_local_var_17621_9_non_const_index])) + (__cuda_local_var_17624_17_non_const_cs * (S_C[__cuda_local_var_17621_9_non_const_index]))) + (__cuda_local_var_17624_25_non_const_cw * (W_C[__cuda_local_var_17621_9_non_const_index]))) + (__cuda_local_var_17624_21_non_const_ce * (E_C[__cuda_local_var_17621_9_non_const_index])));
+# 265 "./srad_kernel.cu"
+((((__cuda_local_var_17631_35_non_const_c_cuda_result)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]) = ((float)(((double)((((__cuda_local_var_17632_35_non_const_temp)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx])) + (((0.25) * ((double)lambda)) * ((double)__cuda_local_var_17624_29_non_const_d_sum))));
+# 267 "./srad_kernel.cu"
+__syncthreads();
+# 269 "./srad_kernel.cu"
+(J_cuda[__cuda_local_var_17621_9_non_const_index]) = ((((__cuda_local_var_17631_35_non_const_c_cuda_result)[__cuda_local_var_17618_9_non_const_ty]))[__cuda_local_var_17617_9_non_const_tx]);
+# 271 "./srad_kernel.cu"
+} 
+# 271 "./srad_kernel.cu"
+}}

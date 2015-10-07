@@ -1,0 +1,534 @@
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+#if !defined(__CUDABE__)
+# 2242 "/home/bachelor/deicide218/cuda-4.2/include/math_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) float sqrtf(float);
+#endif
+# 127 "euler3d.cu"
+__global__ __var_used__ extern void _Z25cuda_initialize_variablesiPfS_(int, float *, float *);
+# 183 "euler3d.cu"
+__global__ __var_used__ extern void _Z24cuda_compute_step_factoriPfS_S_(int, float *, float *, float *);
+# 214 "euler3d.cu"
+__global__ __var_used__ extern void _Z17cuda_compute_fluxiPiPfS0_S0_S0_P6float3S2_S2_S2_(int, int *, float *, float *, float *, float *, float3 *, float3 *, float3 *, float3 *);
+# 351 "euler3d.cu"
+__global__ __var_used__ extern void _Z14cuda_time_stepiiPfS_S_S_(int, int, float *, float *, float *, float *);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 127 "euler3d.cu"
+__global__ __var_used__ void _Z25cuda_initialize_variablesiPfS_(
+# 127 "euler3d.cu"
+int nelr, 
+# 127 "euler3d.cu"
+float *variables, 
+# 127 "euler3d.cu"
+float *ff_variable){
+# 127 "euler3d.cu"
+{
+# 128 "euler3d.cu"
+{
+# 129 "euler3d.cu"
+ int __cuda_local_var_35703_12_non_const_i;
+# 129 "euler3d.cu"
+__cuda_local_var_35703_12_non_const_i = ((int)(((blockDim.x) * (blockIdx.x)) + (threadIdx.x)));
+# 129 "euler3d.cu"
+{
+# 130 "euler3d.cu"
+ int j;
+# 130 "euler3d.cu"
+j = 0;
+# 130 "euler3d.cu"
+for (; (j < 5); j++)
+# 130 "euler3d.cu"
+{
+# 131 "euler3d.cu"
+(variables[(__cuda_local_var_35703_12_non_const_i + (j * nelr))]) = (ff_variable[j]);
+# 131 "euler3d.cu"
+}
+# 131 "euler3d.cu"
+}
+# 132 "euler3d.cu"
+} 
+# 132 "euler3d.cu"
+}}
+# 183 "euler3d.cu"
+__global__ __var_used__ void _Z24cuda_compute_step_factoriPfS_S_(
+# 183 "euler3d.cu"
+int nelr, 
+# 183 "euler3d.cu"
+float *variables, 
+# 183 "euler3d.cu"
+float *areas, 
+# 183 "euler3d.cu"
+float *step_factors){
+# 183 "euler3d.cu"
+{
+# 184 "euler3d.cu"
+{
+# 185 "euler3d.cu"
+ int __cuda_local_var_35759_12_non_const_i;
+# 187 "euler3d.cu"
+ float __cuda_local_var_35761_8_non_const_density;
+# 188 "euler3d.cu"
+ float3 __cuda_local_var_35762_9_non_const_momentum;
+# 193 "euler3d.cu"
+ float __cuda_local_var_35767_8_non_const_density_energy;
+# 195 "euler3d.cu"
+ float3 __cuda_local_var_35769_9_non_const_velocity;
+# 196 "euler3d.cu"
+ float __cuda_local_var_35770_8_non_const_speed_sqd;
+# 197 "euler3d.cu"
+ float __cuda_local_var_35771_8_non_const_pressure;
+# 198 "euler3d.cu"
+ float __cuda_local_var_35772_8_non_const_speed_of_sound;
+# 185 "euler3d.cu"
+__cuda_local_var_35759_12_non_const_i = ((int)(((blockDim.x) * (blockIdx.x)) + (threadIdx.x)));
+# 187 "euler3d.cu"
+__cuda_local_var_35761_8_non_const_density = (variables[(__cuda_local_var_35759_12_non_const_i + (0 * nelr))]);
+# 189 "euler3d.cu"
+(__cuda_local_var_35762_9_non_const_momentum.x) = (variables[(__cuda_local_var_35759_12_non_const_i + (1 * nelr))]);
+# 190 "euler3d.cu"
+(__cuda_local_var_35762_9_non_const_momentum.y) = (variables[(__cuda_local_var_35759_12_non_const_i + (2 * nelr))]);
+# 191 "euler3d.cu"
+(__cuda_local_var_35762_9_non_const_momentum.z) = (variables[(__cuda_local_var_35759_12_non_const_i + (3 * nelr))]);
+# 193 "euler3d.cu"
+__cuda_local_var_35767_8_non_const_density_energy = (variables[(__cuda_local_var_35759_12_non_const_i + (4 * nelr))]);
+# 195 "euler3d.cu"
+{
+# 195 "euler3d.cu"
+(__cuda_local_var_35769_9_non_const_velocity.x) = ((float)(fdividef(((double)(__cuda_local_var_35762_9_non_const_momentum.x)), ((double)__cuda_local_var_35761_8_non_const_density))));
+# 195 "euler3d.cu"
+(__cuda_local_var_35769_9_non_const_velocity.y) = ((float)(fdividef(((double)(__cuda_local_var_35762_9_non_const_momentum.y)), ((double)__cuda_local_var_35761_8_non_const_density))));
+# 195 "euler3d.cu"
+(__cuda_local_var_35769_9_non_const_velocity.z) = ((float)(fdividef(((double)(__cuda_local_var_35762_9_non_const_momentum.z)), ((double)__cuda_local_var_35761_8_non_const_density))));
+# 195 "euler3d.cu"
+}
+# 196 "euler3d.cu"
+__cuda_local_var_35770_8_non_const_speed_sqd = ((((__cuda_local_var_35769_9_non_const_velocity.x) * (__cuda_local_var_35769_9_non_const_velocity.x)) + ((__cuda_local_var_35769_9_non_const_velocity.y) * (__cuda_local_var_35769_9_non_const_velocity.y))) + ((__cuda_local_var_35769_9_non_const_velocity.z) * (__cuda_local_var_35769_9_non_const_velocity.z)));
+# 197 "euler3d.cu"
+__cuda_local_var_35771_8_non_const_pressure = ((0.3999999762F) * (__cuda_local_var_35767_8_non_const_density_energy - (((0.5F) * __cuda_local_var_35761_8_non_const_density) * __cuda_local_var_35770_8_non_const_speed_sqd)));
+# 198 "euler3d.cu"
+__cuda_local_var_35772_8_non_const_speed_of_sound = (sqrtf(((float)(fdividef(((double)((1.399999976F) * __cuda_local_var_35771_8_non_const_pressure)), ((double)__cuda_local_var_35761_8_non_const_density))))));
+# 201 "euler3d.cu"
+(step_factors[__cuda_local_var_35759_12_non_const_i]) = ((float)(fdividef((0.5), ((double)((sqrtf((areas[__cuda_local_var_35759_12_non_const_i]))) * ((sqrtf(__cuda_local_var_35770_8_non_const_speed_sqd)) + __cuda_local_var_35772_8_non_const_speed_of_sound))))));
+# 202 "euler3d.cu"
+} 
+# 202 "euler3d.cu"
+}}
+# 214 "euler3d.cu"
+__global__ __var_used__ void _Z17cuda_compute_fluxiPiPfS0_S0_S0_P6float3S2_S2_S2_(
+# 214 "euler3d.cu"
+int nelr, 
+# 214 "euler3d.cu"
+int *elements_surrounding_elements, 
+# 214 "euler3d.cu"
+float *normals, 
+# 214 "euler3d.cu"
+float *variables, 
+# 214 "euler3d.cu"
+float *fluxes, 
+# 214 "euler3d.cu"
+float *ff_variable, 
+# 214 "euler3d.cu"
+float3 *ff_flux_contribution_momentum_x, 
+# 214 "euler3d.cu"
+float3 *ff_flux_contribution_momentum_y, 
+# 214 "euler3d.cu"
+float3 *ff_flux_contribution_momentum_z, 
+# 214 "euler3d.cu"
+float3 *ff_flux_contribution_density_energy){
+# 214 "euler3d.cu"
+{
+# 215 "euler3d.cu"
+{
+# 215 "euler3d.cu"
+ float __T28;
+# 216 "euler3d.cu"
+ float __cuda_local_var_35790_14_const_smoothing_coefficient;
+# 217 "euler3d.cu"
+ int __cuda_local_var_35791_12_non_const_i;
+# 219 "euler3d.cu"
+ int __cuda_local_var_35793_6_non_const_j;
+# 219 "euler3d.cu"
+ int __cuda_local_var_35793_9_non_const_nb;
+# 220 "euler3d.cu"
+ float3 __cuda_local_var_35794_9_non_const_normal;
+# 220 "euler3d.cu"
+ float __cuda_local_var_35794_23_non_const_normal_len;
+# 221 "euler3d.cu"
+ float __cuda_local_var_35795_8_non_const_factor;
+# 223 "euler3d.cu"
+ float __cuda_local_var_35797_8_non_const_density_i;
+# 224 "euler3d.cu"
+ float3 __cuda_local_var_35798_9_non_const_momentum_i;
+# 229 "euler3d.cu"
+ float __cuda_local_var_35803_8_non_const_density_energy_i;
+# 231 "euler3d.cu"
+ float3 __cuda_local_var_35805_9_non_const_velocity_i;
+# 232 "euler3d.cu"
+ float __cuda_local_var_35806_8_non_const_speed_sqd_i;
+# 233 "euler3d.cu"
+ float __cuda_local_var_35807_8_non_const_speed_i;
+# 234 "euler3d.cu"
+ float __cuda_local_var_35808_8_non_const_pressure_i;
+# 235 "euler3d.cu"
+ float __cuda_local_var_35809_8_non_const_speed_of_sound_i;
+# 236 "euler3d.cu"
+ float3 __cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x;
+# 236 "euler3d.cu"
+ float3 __cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y;
+# 236 "euler3d.cu"
+ float3 __cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z;
+# 237 "euler3d.cu"
+ float3 __cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy;
+# 240 "euler3d.cu"
+ float __cuda_local_var_35814_8_non_const_flux_i_density;
+# 241 "euler3d.cu"
+ float3 __cuda_local_var_35815_9_non_const_flux_i_momentum;
+# 245 "euler3d.cu"
+ float __cuda_local_var_35819_8_non_const_flux_i_density_energy;
+# 247 "euler3d.cu"
+ float3 __cuda_local_var_35821_9_non_const_velocity_nb;
+# 248 "euler3d.cu"
+ float __cuda_local_var_35822_8_non_const_density_nb;
+# 248 "euler3d.cu"
+ float __cuda_local_var_35822_20_non_const_density_energy_nb;
+# 249 "euler3d.cu"
+ float3 __cuda_local_var_35823_9_non_const_momentum_nb;
+# 250 "euler3d.cu"
+ float3 __cuda_local_var_35824_9_non_const_flux_contribution_nb_momentum_x;
+# 250 "euler3d.cu"
+ float3 __cuda_local_var_35824_42_non_const_flux_contribution_nb_momentum_y;
+# 250 "euler3d.cu"
+ float3 __cuda_local_var_35824_75_non_const_flux_contribution_nb_momentum_z;
+# 251 "euler3d.cu"
+ float3 __cuda_local_var_35825_9_non_const_flux_contribution_nb_density_energy;
+# 252 "euler3d.cu"
+ float __cuda_local_var_35826_8_non_const_speed_sqd_nb;
+# 252 "euler3d.cu"
+ float __cuda_local_var_35826_22_non_const_speed_of_sound_nb;
+# 252 "euler3d.cu"
+ float __cuda_local_var_35826_41_non_const_pressure_nb;
+# 216 "euler3d.cu"
+__cuda_local_var_35790_14_const_smoothing_coefficient = (0.200000003F);
+# 217 "euler3d.cu"
+__cuda_local_var_35791_12_non_const_i = ((int)(((blockDim.x) * (blockIdx.x)) + (threadIdx.x)));
+# 223 "euler3d.cu"
+__cuda_local_var_35797_8_non_const_density_i = (variables[(__cuda_local_var_35791_12_non_const_i + (0 * nelr))]);
+# 225 "euler3d.cu"
+(__cuda_local_var_35798_9_non_const_momentum_i.x) = (variables[(__cuda_local_var_35791_12_non_const_i + (1 * nelr))]);
+# 226 "euler3d.cu"
+(__cuda_local_var_35798_9_non_const_momentum_i.y) = (variables[(__cuda_local_var_35791_12_non_const_i + (2 * nelr))]);
+# 227 "euler3d.cu"
+(__cuda_local_var_35798_9_non_const_momentum_i.z) = (variables[(__cuda_local_var_35791_12_non_const_i + (3 * nelr))]);
+# 229 "euler3d.cu"
+__cuda_local_var_35803_8_non_const_density_energy_i = (variables[(__cuda_local_var_35791_12_non_const_i + (4 * nelr))]);
+# 231 "euler3d.cu"
+{
+# 231 "euler3d.cu"
+(__cuda_local_var_35805_9_non_const_velocity_i.x) = ((float)(fdividef(((double)(__cuda_local_var_35798_9_non_const_momentum_i.x)), ((double)__cuda_local_var_35797_8_non_const_density_i))));
+# 231 "euler3d.cu"
+(__cuda_local_var_35805_9_non_const_velocity_i.y) = ((float)(fdividef(((double)(__cuda_local_var_35798_9_non_const_momentum_i.y)), ((double)__cuda_local_var_35797_8_non_const_density_i))));
+# 231 "euler3d.cu"
+(__cuda_local_var_35805_9_non_const_velocity_i.z) = ((float)(fdividef(((double)(__cuda_local_var_35798_9_non_const_momentum_i.z)), ((double)__cuda_local_var_35797_8_non_const_density_i))));
+# 231 "euler3d.cu"
+}
+# 232 "euler3d.cu"
+__cuda_local_var_35806_8_non_const_speed_sqd_i = ((((__cuda_local_var_35805_9_non_const_velocity_i.x) * (__cuda_local_var_35805_9_non_const_velocity_i.x)) + ((__cuda_local_var_35805_9_non_const_velocity_i.y) * (__cuda_local_var_35805_9_non_const_velocity_i.y))) + ((__cuda_local_var_35805_9_non_const_velocity_i.z) * (__cuda_local_var_35805_9_non_const_velocity_i.z)));
+# 233 "euler3d.cu"
+__cuda_local_var_35807_8_non_const_speed_i = (sqrtf(__cuda_local_var_35806_8_non_const_speed_sqd_i));
+# 234 "euler3d.cu"
+__cuda_local_var_35808_8_non_const_pressure_i = ((0.3999999762F) * (__cuda_local_var_35803_8_non_const_density_energy_i - (((0.5F) * __cuda_local_var_35797_8_non_const_density_i) * __cuda_local_var_35806_8_non_const_speed_sqd_i)));
+# 235 "euler3d.cu"
+__cuda_local_var_35809_8_non_const_speed_of_sound_i = (sqrtf(((float)(fdividef(((double)((1.399999976F) * __cuda_local_var_35808_8_non_const_pressure_i)), ((double)__cuda_local_var_35797_8_non_const_density_i))))));
+# 238 "euler3d.cu"
+{
+# 238 "euler3d.cu"
+(__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.x) = (((__cuda_local_var_35805_9_non_const_velocity_i.x) * (__cuda_local_var_35798_9_non_const_momentum_i.x)) + __cuda_local_var_35808_8_non_const_pressure_i);
+# 238 "euler3d.cu"
+(__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.y) = ((__cuda_local_var_35805_9_non_const_velocity_i.x) * (__cuda_local_var_35798_9_non_const_momentum_i.y));
+# 238 "euler3d.cu"
+(__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.z) = ((__cuda_local_var_35805_9_non_const_velocity_i.x) * (__cuda_local_var_35798_9_non_const_momentum_i.z));
+# 238 "euler3d.cu"
+(__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.x) = (__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.y);
+# 238 "euler3d.cu"
+(__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.y) = (((__cuda_local_var_35805_9_non_const_velocity_i.y) * (__cuda_local_var_35798_9_non_const_momentum_i.y)) + __cuda_local_var_35808_8_non_const_pressure_i);
+# 238 "euler3d.cu"
+(__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.z) = ((__cuda_local_var_35805_9_non_const_velocity_i.y) * (__cuda_local_var_35798_9_non_const_momentum_i.z));
+# 238 "euler3d.cu"
+(__cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z.x) = (__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.z);
+# 238 "euler3d.cu"
+(__cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z.y) = (__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.z);
+# 238 "euler3d.cu"
+(__cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z.z) = (((__cuda_local_var_35805_9_non_const_velocity_i.z) * (__cuda_local_var_35798_9_non_const_momentum_i.z)) + __cuda_local_var_35808_8_non_const_pressure_i);
+# 238 "euler3d.cu"
+__T28 = (__cuda_local_var_35803_8_non_const_density_energy_i + __cuda_local_var_35808_8_non_const_pressure_i);
+# 238 "euler3d.cu"
+(__cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy.x) = ((__cuda_local_var_35805_9_non_const_velocity_i.x) * __T28);
+# 238 "euler3d.cu"
+(__cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy.y) = ((__cuda_local_var_35805_9_non_const_velocity_i.y) * __T28);
+# 238 "euler3d.cu"
+(__cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy.z) = ((__cuda_local_var_35805_9_non_const_velocity_i.z) * __T28);
+# 238 "euler3d.cu"
+}
+# 240 "euler3d.cu"
+__cuda_local_var_35814_8_non_const_flux_i_density = (0.0F);
+# 242 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.x) = (0.0F);
+# 243 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.y) = (0.0F);
+# 244 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.z) = (0.0F);
+# 245 "euler3d.cu"
+__cuda_local_var_35819_8_non_const_flux_i_density_energy = (0.0F);
+# 257 "euler3d.cu"
+
+#pragma unroll
+for (__cuda_local_var_35793_6_non_const_j = 0; (__cuda_local_var_35793_6_non_const_j < 4); __cuda_local_var_35793_6_non_const_j++)
+# 256 "euler3d.cu"
+{
+# 257 "euler3d.cu"
+__cuda_local_var_35793_9_non_const_nb = (elements_surrounding_elements[(__cuda_local_var_35791_12_non_const_i + (__cuda_local_var_35793_6_non_const_j * nelr))]);
+# 258 "euler3d.cu"
+(__cuda_local_var_35794_9_non_const_normal.x) = (normals[(__cuda_local_var_35791_12_non_const_i + ((__cuda_local_var_35793_6_non_const_j + 0) * nelr))]);
+# 259 "euler3d.cu"
+(__cuda_local_var_35794_9_non_const_normal.y) = (normals[(__cuda_local_var_35791_12_non_const_i + ((__cuda_local_var_35793_6_non_const_j + 4) * nelr))]);
+# 260 "euler3d.cu"
+(__cuda_local_var_35794_9_non_const_normal.z) = (normals[(__cuda_local_var_35791_12_non_const_i + ((__cuda_local_var_35793_6_non_const_j + 8) * nelr))]);
+# 261 "euler3d.cu"
+__cuda_local_var_35794_23_non_const_normal_len = (sqrtf(((((__cuda_local_var_35794_9_non_const_normal.x) * (__cuda_local_var_35794_9_non_const_normal.x)) + ((__cuda_local_var_35794_9_non_const_normal.y) * (__cuda_local_var_35794_9_non_const_normal.y))) + ((__cuda_local_var_35794_9_non_const_normal.z) * (__cuda_local_var_35794_9_non_const_normal.z)))));
+# 263 "euler3d.cu"
+if (__cuda_local_var_35793_9_non_const_nb >= 0)
+# 264 "euler3d.cu"
+{
+# 264 "euler3d.cu"
+ float __T29;
+# 265 "euler3d.cu"
+__cuda_local_var_35822_8_non_const_density_nb = (variables[(__cuda_local_var_35793_9_non_const_nb + (0 * nelr))]);
+# 266 "euler3d.cu"
+(__cuda_local_var_35823_9_non_const_momentum_nb.x) = (variables[(__cuda_local_var_35793_9_non_const_nb + (1 * nelr))]);
+# 267 "euler3d.cu"
+(__cuda_local_var_35823_9_non_const_momentum_nb.y) = (variables[(__cuda_local_var_35793_9_non_const_nb + (2 * nelr))]);
+# 268 "euler3d.cu"
+(__cuda_local_var_35823_9_non_const_momentum_nb.z) = (variables[(__cuda_local_var_35793_9_non_const_nb + (3 * nelr))]);
+# 269 "euler3d.cu"
+__cuda_local_var_35822_20_non_const_density_energy_nb = (variables[(__cuda_local_var_35793_9_non_const_nb + (4 * nelr))]);
+# 270 "euler3d.cu"
+{
+# 270 "euler3d.cu"
+(__cuda_local_var_35821_9_non_const_velocity_nb.x) = ((float)(fdividef(((double)(__cuda_local_var_35823_9_non_const_momentum_nb.x)), ((double)__cuda_local_var_35822_8_non_const_density_nb))));
+# 270 "euler3d.cu"
+(__cuda_local_var_35821_9_non_const_velocity_nb.y) = ((float)(fdividef(((double)(__cuda_local_var_35823_9_non_const_momentum_nb.y)), ((double)__cuda_local_var_35822_8_non_const_density_nb))));
+# 270 "euler3d.cu"
+(__cuda_local_var_35821_9_non_const_velocity_nb.z) = ((float)(fdividef(((double)(__cuda_local_var_35823_9_non_const_momentum_nb.z)), ((double)__cuda_local_var_35822_8_non_const_density_nb))));
+# 270 "euler3d.cu"
+}
+# 271 "euler3d.cu"
+__cuda_local_var_35826_8_non_const_speed_sqd_nb = ((((__cuda_local_var_35821_9_non_const_velocity_nb.x) * (__cuda_local_var_35821_9_non_const_velocity_nb.x)) + ((__cuda_local_var_35821_9_non_const_velocity_nb.y) * (__cuda_local_var_35821_9_non_const_velocity_nb.y))) + ((__cuda_local_var_35821_9_non_const_velocity_nb.z) * (__cuda_local_var_35821_9_non_const_velocity_nb.z)));
+# 272 "euler3d.cu"
+__cuda_local_var_35826_41_non_const_pressure_nb = ((0.3999999762F) * (__cuda_local_var_35822_20_non_const_density_energy_nb - (((0.5F) * __cuda_local_var_35822_8_non_const_density_nb) * __cuda_local_var_35826_8_non_const_speed_sqd_nb)));
+# 273 "euler3d.cu"
+__cuda_local_var_35826_22_non_const_speed_of_sound_nb = (sqrtf(((float)(fdividef(((double)((1.399999976F) * __cuda_local_var_35826_41_non_const_pressure_nb)), ((double)__cuda_local_var_35822_8_non_const_density_nb))))));
+# 274 "euler3d.cu"
+{
+# 274 "euler3d.cu"
+(__cuda_local_var_35824_9_non_const_flux_contribution_nb_momentum_x.x) = (((__cuda_local_var_35821_9_non_const_velocity_nb.x) * (__cuda_local_var_35823_9_non_const_momentum_nb.x)) + __cuda_local_var_35826_41_non_const_pressure_nb);
+# 274 "euler3d.cu"
+(__cuda_local_var_35824_9_non_const_flux_contribution_nb_momentum_x.y) = ((__cuda_local_var_35821_9_non_const_velocity_nb.x) * (__cuda_local_var_35823_9_non_const_momentum_nb.y));
+# 274 "euler3d.cu"
+(__cuda_local_var_35824_9_non_const_flux_contribution_nb_momentum_x.z) = ((__cuda_local_var_35821_9_non_const_velocity_nb.x) * (__cuda_local_var_35823_9_non_const_momentum_nb.z));
+# 274 "euler3d.cu"
+(__cuda_local_var_35824_42_non_const_flux_contribution_nb_momentum_y.x) = (__cuda_local_var_35824_9_non_const_flux_contribution_nb_momentum_x.y);
+# 274 "euler3d.cu"
+(__cuda_local_var_35824_42_non_const_flux_contribution_nb_momentum_y.y) = (((__cuda_local_var_35821_9_non_const_velocity_nb.y) * (__cuda_local_var_35823_9_non_const_momentum_nb.y)) + __cuda_local_var_35826_41_non_const_pressure_nb);
+# 274 "euler3d.cu"
+(__cuda_local_var_35824_42_non_const_flux_contribution_nb_momentum_y.z) = ((__cuda_local_var_35821_9_non_const_velocity_nb.y) * (__cuda_local_var_35823_9_non_const_momentum_nb.z));
+# 274 "euler3d.cu"
+(__cuda_local_var_35824_75_non_const_flux_contribution_nb_momentum_z.x) = (__cuda_local_var_35824_9_non_const_flux_contribution_nb_momentum_x.z);
+# 274 "euler3d.cu"
+(__cuda_local_var_35824_75_non_const_flux_contribution_nb_momentum_z.y) = (__cuda_local_var_35824_42_non_const_flux_contribution_nb_momentum_y.z);
+# 274 "euler3d.cu"
+(__cuda_local_var_35824_75_non_const_flux_contribution_nb_momentum_z.z) = (((__cuda_local_var_35821_9_non_const_velocity_nb.z) * (__cuda_local_var_35823_9_non_const_momentum_nb.z)) + __cuda_local_var_35826_41_non_const_pressure_nb);
+# 274 "euler3d.cu"
+__T29 = (__cuda_local_var_35822_20_non_const_density_energy_nb + __cuda_local_var_35826_41_non_const_pressure_nb);
+# 274 "euler3d.cu"
+(__cuda_local_var_35825_9_non_const_flux_contribution_nb_density_energy.x) = ((__cuda_local_var_35821_9_non_const_velocity_nb.x) * __T29);
+# 274 "euler3d.cu"
+(__cuda_local_var_35825_9_non_const_flux_contribution_nb_density_energy.y) = ((__cuda_local_var_35821_9_non_const_velocity_nb.y) * __T29);
+# 274 "euler3d.cu"
+(__cuda_local_var_35825_9_non_const_flux_contribution_nb_density_energy.z) = ((__cuda_local_var_35821_9_non_const_velocity_nb.z) * __T29);
+# 274 "euler3d.cu"
+}
+# 277 "euler3d.cu"
+__cuda_local_var_35795_8_non_const_factor = ((((-__cuda_local_var_35794_23_non_const_normal_len) * (0.200000003F)) * (0.5F)) * (((__cuda_local_var_35807_8_non_const_speed_i + (sqrtf(__cuda_local_var_35826_8_non_const_speed_sqd_nb))) + __cuda_local_var_35809_8_non_const_speed_of_sound_i) + __cuda_local_var_35826_22_non_const_speed_of_sound_nb));
+# 278 "euler3d.cu"
+__cuda_local_var_35814_8_non_const_flux_i_density += (__cuda_local_var_35795_8_non_const_factor * (__cuda_local_var_35797_8_non_const_density_i - __cuda_local_var_35822_8_non_const_density_nb));
+# 279 "euler3d.cu"
+__cuda_local_var_35819_8_non_const_flux_i_density_energy += (__cuda_local_var_35795_8_non_const_factor * (__cuda_local_var_35803_8_non_const_density_energy_i - __cuda_local_var_35822_20_non_const_density_energy_nb));
+# 280 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.x) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35798_9_non_const_momentum_i.x) - (__cuda_local_var_35823_9_non_const_momentum_nb.x)));
+# 281 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.y) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35798_9_non_const_momentum_i.y) - (__cuda_local_var_35823_9_non_const_momentum_nb.y)));
+# 282 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.z) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35798_9_non_const_momentum_i.z) - (__cuda_local_var_35823_9_non_const_momentum_nb.z)));
+# 285 "euler3d.cu"
+__cuda_local_var_35795_8_non_const_factor = ((0.5F) * (__cuda_local_var_35794_9_non_const_normal.x));
+# 286 "euler3d.cu"
+__cuda_local_var_35814_8_non_const_flux_i_density += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35823_9_non_const_momentum_nb.x) + (__cuda_local_var_35798_9_non_const_momentum_i.x)));
+# 287 "euler3d.cu"
+__cuda_local_var_35819_8_non_const_flux_i_density_energy += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35825_9_non_const_flux_contribution_nb_density_energy.x) + (__cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy.x)));
+# 288 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.x) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35824_9_non_const_flux_contribution_nb_momentum_x.x) + (__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.x)));
+# 289 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.y) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35824_42_non_const_flux_contribution_nb_momentum_y.x) + (__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.x)));
+# 290 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.z) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35824_75_non_const_flux_contribution_nb_momentum_z.x) + (__cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z.x)));
+# 292 "euler3d.cu"
+__cuda_local_var_35795_8_non_const_factor = ((0.5F) * (__cuda_local_var_35794_9_non_const_normal.y));
+# 293 "euler3d.cu"
+__cuda_local_var_35814_8_non_const_flux_i_density += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35823_9_non_const_momentum_nb.y) + (__cuda_local_var_35798_9_non_const_momentum_i.y)));
+# 294 "euler3d.cu"
+__cuda_local_var_35819_8_non_const_flux_i_density_energy += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35825_9_non_const_flux_contribution_nb_density_energy.y) + (__cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy.y)));
+# 295 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.x) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35824_9_non_const_flux_contribution_nb_momentum_x.y) + (__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.y)));
+# 296 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.y) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35824_42_non_const_flux_contribution_nb_momentum_y.y) + (__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.y)));
+# 297 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.z) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35824_75_non_const_flux_contribution_nb_momentum_z.y) + (__cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z.y)));
+# 299 "euler3d.cu"
+__cuda_local_var_35795_8_non_const_factor = ((0.5F) * (__cuda_local_var_35794_9_non_const_normal.z));
+# 300 "euler3d.cu"
+__cuda_local_var_35814_8_non_const_flux_i_density += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35823_9_non_const_momentum_nb.z) + (__cuda_local_var_35798_9_non_const_momentum_i.z)));
+# 301 "euler3d.cu"
+__cuda_local_var_35819_8_non_const_flux_i_density_energy += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35825_9_non_const_flux_contribution_nb_density_energy.z) + (__cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy.z)));
+# 302 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.x) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35824_9_non_const_flux_contribution_nb_momentum_x.z) + (__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.z)));
+# 303 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.y) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35824_42_non_const_flux_contribution_nb_momentum_y.z) + (__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.z)));
+# 304 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.z) += (__cuda_local_var_35795_8_non_const_factor * ((__cuda_local_var_35824_75_non_const_flux_contribution_nb_momentum_z.z) + (__cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z.z)));
+# 305 "euler3d.cu"
+}
+# 305 "euler3d.cu"
+else 
+# 305 "euler3d.cu"
+{
+# 306 "euler3d.cu"
+if (__cuda_local_var_35793_9_non_const_nb == (-1))
+# 307 "euler3d.cu"
+{
+# 308 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.x) += ((__cuda_local_var_35794_9_non_const_normal.x) * __cuda_local_var_35808_8_non_const_pressure_i);
+# 309 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.y) += ((__cuda_local_var_35794_9_non_const_normal.y) * __cuda_local_var_35808_8_non_const_pressure_i);
+# 310 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.z) += ((__cuda_local_var_35794_9_non_const_normal.z) * __cuda_local_var_35808_8_non_const_pressure_i);
+# 311 "euler3d.cu"
+}
+# 311 "euler3d.cu"
+else 
+# 311 "euler3d.cu"
+{
+# 312 "euler3d.cu"
+if (__cuda_local_var_35793_9_non_const_nb == (-2))
+# 313 "euler3d.cu"
+{
+# 314 "euler3d.cu"
+__cuda_local_var_35795_8_non_const_factor = ((0.5F) * (__cuda_local_var_35794_9_non_const_normal.x));
+# 315 "euler3d.cu"
+__cuda_local_var_35814_8_non_const_flux_i_density += (__cuda_local_var_35795_8_non_const_factor * ((ff_variable[1]) + (__cuda_local_var_35798_9_non_const_momentum_i.x)));
+# 316 "euler3d.cu"
+__cuda_local_var_35819_8_non_const_flux_i_density_energy += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_density_energy[0]).x) + (__cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy.x)));
+# 317 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.x) += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_momentum_x[0]).x) + (__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.x)));
+# 318 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.y) += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_momentum_y[0]).x) + (__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.x)));
+# 319 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.z) += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_momentum_z[0]).x) + (__cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z.x)));
+# 321 "euler3d.cu"
+__cuda_local_var_35795_8_non_const_factor = ((0.5F) * (__cuda_local_var_35794_9_non_const_normal.y));
+# 322 "euler3d.cu"
+__cuda_local_var_35814_8_non_const_flux_i_density += (__cuda_local_var_35795_8_non_const_factor * ((ff_variable[2]) + (__cuda_local_var_35798_9_non_const_momentum_i.y)));
+# 323 "euler3d.cu"
+__cuda_local_var_35819_8_non_const_flux_i_density_energy += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_density_energy[0]).y) + (__cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy.y)));
+# 324 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.x) += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_momentum_x[0]).y) + (__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.y)));
+# 325 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.y) += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_momentum_y[0]).y) + (__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.y)));
+# 326 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.z) += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_momentum_z[0]).y) + (__cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z.y)));
+# 328 "euler3d.cu"
+__cuda_local_var_35795_8_non_const_factor = ((0.5F) * (__cuda_local_var_35794_9_non_const_normal.z));
+# 329 "euler3d.cu"
+__cuda_local_var_35814_8_non_const_flux_i_density += (__cuda_local_var_35795_8_non_const_factor * ((ff_variable[3]) + (__cuda_local_var_35798_9_non_const_momentum_i.z)));
+# 330 "euler3d.cu"
+__cuda_local_var_35819_8_non_const_flux_i_density_energy += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_density_energy[0]).z) + (__cuda_local_var_35811_9_non_const_flux_contribution_i_density_energy.z)));
+# 331 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.x) += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_momentum_x[0]).z) + (__cuda_local_var_35810_9_non_const_flux_contribution_i_momentum_x.z)));
+# 332 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.y) += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_momentum_y[0]).z) + (__cuda_local_var_35810_41_non_const_flux_contribution_i_momentum_y.z)));
+# 333 "euler3d.cu"
+(__cuda_local_var_35815_9_non_const_flux_i_momentum.z) += (__cuda_local_var_35795_8_non_const_factor * (((ff_flux_contribution_momentum_z[0]).z) + (__cuda_local_var_35810_73_non_const_flux_contribution_i_momentum_z.z)));
+# 335 "euler3d.cu"
+}
+# 335 "euler3d.cu"
+}
+# 335 "euler3d.cu"
+}
+# 336 "euler3d.cu"
+}
+# 338 "euler3d.cu"
+(fluxes[(__cuda_local_var_35791_12_non_const_i + (0 * nelr))]) = __cuda_local_var_35814_8_non_const_flux_i_density;
+# 339 "euler3d.cu"
+(fluxes[(__cuda_local_var_35791_12_non_const_i + (1 * nelr))]) = (__cuda_local_var_35815_9_non_const_flux_i_momentum.x);
+# 340 "euler3d.cu"
+(fluxes[(__cuda_local_var_35791_12_non_const_i + (2 * nelr))]) = (__cuda_local_var_35815_9_non_const_flux_i_momentum.y);
+# 341 "euler3d.cu"
+(fluxes[(__cuda_local_var_35791_12_non_const_i + (3 * nelr))]) = (__cuda_local_var_35815_9_non_const_flux_i_momentum.z);
+# 342 "euler3d.cu"
+(fluxes[(__cuda_local_var_35791_12_non_const_i + (4 * nelr))]) = __cuda_local_var_35819_8_non_const_flux_i_density_energy;
+# 343 "euler3d.cu"
+} 
+# 343 "euler3d.cu"
+}}
+# 351 "euler3d.cu"
+__global__ __var_used__ void _Z14cuda_time_stepiiPfS_S_S_(
+# 351 "euler3d.cu"
+int j, 
+# 351 "euler3d.cu"
+int nelr, 
+# 351 "euler3d.cu"
+float *old_variables, 
+# 351 "euler3d.cu"
+float *variables, 
+# 351 "euler3d.cu"
+float *step_factors, 
+# 351 "euler3d.cu"
+float *fluxes){
+# 351 "euler3d.cu"
+{
+# 352 "euler3d.cu"
+{
+# 353 "euler3d.cu"
+ int __cuda_local_var_35927_12_non_const_i;
+# 355 "euler3d.cu"
+ float __cuda_local_var_35929_8_non_const_factor;
+# 353 "euler3d.cu"
+__cuda_local_var_35927_12_non_const_i = ((int)(((blockDim.x) * (blockIdx.x)) + (threadIdx.x)));
+# 355 "euler3d.cu"
+__cuda_local_var_35929_8_non_const_factor = ((float)(fdividef(((double)(step_factors[__cuda_local_var_35927_12_non_const_i])), ((double)((float)(4 - j))))));
+# 357 "euler3d.cu"
+(variables[(__cuda_local_var_35927_12_non_const_i + (0 * nelr))]) = ((old_variables[(__cuda_local_var_35927_12_non_const_i + (0 * nelr))]) + (__cuda_local_var_35929_8_non_const_factor * (fluxes[(__cuda_local_var_35927_12_non_const_i + (0 * nelr))])));
+# 358 "euler3d.cu"
+(variables[(__cuda_local_var_35927_12_non_const_i + (4 * nelr))]) = ((old_variables[(__cuda_local_var_35927_12_non_const_i + (4 * nelr))]) + (__cuda_local_var_35929_8_non_const_factor * (fluxes[(__cuda_local_var_35927_12_non_const_i + (4 * nelr))])));
+# 359 "euler3d.cu"
+(variables[(__cuda_local_var_35927_12_non_const_i + (1 * nelr))]) = ((old_variables[(__cuda_local_var_35927_12_non_const_i + (1 * nelr))]) + (__cuda_local_var_35929_8_non_const_factor * (fluxes[(__cuda_local_var_35927_12_non_const_i + (1 * nelr))])));
+# 360 "euler3d.cu"
+(variables[(__cuda_local_var_35927_12_non_const_i + (2 * nelr))]) = ((old_variables[(__cuda_local_var_35927_12_non_const_i + (2 * nelr))]) + (__cuda_local_var_35929_8_non_const_factor * (fluxes[(__cuda_local_var_35927_12_non_const_i + (2 * nelr))])));
+# 361 "euler3d.cu"
+(variables[(__cuda_local_var_35927_12_non_const_i + (3 * nelr))]) = ((old_variables[(__cuda_local_var_35927_12_non_const_i + (3 * nelr))]) + (__cuda_local_var_35929_8_non_const_factor * (fluxes[(__cuda_local_var_35927_12_non_const_i + (3 * nelr))])));
+# 362 "euler3d.cu"
+} 
+# 362 "euler3d.cu"
+}}

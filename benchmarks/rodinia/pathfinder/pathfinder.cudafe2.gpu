@@ -1,0 +1,180 @@
+# 1 "pathfinder.cudafe1.gpu"
+typedef char __nv_bool;
+# 211 "/usr/lib/gcc/x86_64-linux-gnu/4.4.7/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+#if !defined(__CUDABE__)
+# 131 "/home/bachelor/deicide218/cuda-4.2/include/device_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) void __syncthreads(void);
+#endif
+# 111 "pathfinder.cu"
+__global__ __var_used__ extern void _Z14dynproc_kerneliPiS_S_iiii(int, int *, int *, int *, int, int, int, int);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+# 111 "pathfinder.cu"
+__global__ __var_used__ void _Z14dynproc_kerneliPiS_S_iiii(
+# 112 "pathfinder.cu"
+int iteration, 
+# 113 "pathfinder.cu"
+int *gpuWall, 
+# 114 "pathfinder.cu"
+int *gpuSrc, 
+# 115 "pathfinder.cu"
+int *gpuResults, 
+# 116 "pathfinder.cu"
+int cols, 
+# 117 "pathfinder.cu"
+int rows, 
+# 118 "pathfinder.cu"
+int startStep, 
+# 119 "pathfinder.cu"
+int border){
+# 119 "pathfinder.cu"
+{
+# 120 "pathfinder.cu"
+{
+# 122 "pathfinder.cu"
+__loc_sc__(__shared__,, ) int __cuda_local_var_16464_37_non_const_prev[256];
+# 123 "pathfinder.cu"
+__loc_sc__(__shared__,, ) int __cuda_local_var_16465_37_non_const_result[256];
+# 125 "pathfinder.cu"
+ int __cuda_local_var_16467_6_non_const_bx;
+# 126 "pathfinder.cu"
+ int __cuda_local_var_16468_6_non_const_tx;
+# 134 "pathfinder.cu"
+ int __cuda_local_var_16476_6_non_const_small_block_cols;
+# 138 "pathfinder.cu"
+ int __cuda_local_var_16480_13_non_const_blkX;
+# 139 "pathfinder.cu"
+ int __cuda_local_var_16481_13_non_const_blkXmax;
+# 142 "pathfinder.cu"
+ int __cuda_local_var_16484_6_non_const_xidx;
+# 147 "pathfinder.cu"
+ int __cuda_local_var_16489_13_non_const_validXmin;
+# 148 "pathfinder.cu"
+ int __cuda_local_var_16490_13_non_const_validXmax;
+# 150 "pathfinder.cu"
+ int __cuda_local_var_16492_13_non_const_W;
+# 151 "pathfinder.cu"
+ int __cuda_local_var_16493_13_non_const_E;
+# 156 "pathfinder.cu"
+ __nv_bool __cuda_local_var_16498_14_non_const_isValid;
+# 162 "pathfinder.cu"
+ __nv_bool __cuda_local_var_16504_14_non_const_computed;
+# 125 "pathfinder.cu"
+__cuda_local_var_16467_6_non_const_bx = ((int)(blockIdx.x));
+# 126 "pathfinder.cu"
+__cuda_local_var_16468_6_non_const_tx = ((int)(threadIdx.x));
+# 134 "pathfinder.cu"
+__cuda_local_var_16476_6_non_const_small_block_cols = (256 - ((iteration * 1) * 2));
+# 138 "pathfinder.cu"
+__cuda_local_var_16480_13_non_const_blkX = ((__cuda_local_var_16476_6_non_const_small_block_cols * __cuda_local_var_16467_6_non_const_bx) - border);
+# 139 "pathfinder.cu"
+__cuda_local_var_16481_13_non_const_blkXmax = ((__cuda_local_var_16480_13_non_const_blkX + 256) - 1);
+# 142 "pathfinder.cu"
+__cuda_local_var_16484_6_non_const_xidx = (__cuda_local_var_16480_13_non_const_blkX + __cuda_local_var_16468_6_non_const_tx);
+# 147 "pathfinder.cu"
+__cuda_local_var_16489_13_non_const_validXmin = ((__cuda_local_var_16480_13_non_const_blkX < 0) ? (-__cuda_local_var_16480_13_non_const_blkX) : 0);
+# 148 "pathfinder.cu"
+__cuda_local_var_16490_13_non_const_validXmax = ((__cuda_local_var_16481_13_non_const_blkXmax > (cols - 1)) ? (255 - ((__cuda_local_var_16481_13_non_const_blkXmax - cols) + 1)) : 255);
+# 150 "pathfinder.cu"
+__cuda_local_var_16492_13_non_const_W = (__cuda_local_var_16468_6_non_const_tx - 1);
+# 151 "pathfinder.cu"
+__cuda_local_var_16493_13_non_const_E = (__cuda_local_var_16468_6_non_const_tx + 1);
+# 153 "pathfinder.cu"
+__cuda_local_var_16492_13_non_const_W = ((__cuda_local_var_16492_13_non_const_W < __cuda_local_var_16489_13_non_const_validXmin) ? __cuda_local_var_16489_13_non_const_validXmin : __cuda_local_var_16492_13_non_const_W);
+# 154 "pathfinder.cu"
+__cuda_local_var_16493_13_non_const_E = ((__cuda_local_var_16493_13_non_const_E > __cuda_local_var_16490_13_non_const_validXmax) ? __cuda_local_var_16490_13_non_const_validXmax : __cuda_local_var_16493_13_non_const_E);
+# 156 "pathfinder.cu"
+__cuda_local_var_16498_14_non_const_isValid = ((__nv_bool)((__cuda_local_var_16468_6_non_const_tx >= __cuda_local_var_16489_13_non_const_validXmin) && (__cuda_local_var_16468_6_non_const_tx <= __cuda_local_var_16490_13_non_const_validXmax)));
+# 158 "pathfinder.cu"
+if ((__cuda_local_var_16484_6_non_const_xidx >= 0) && (__cuda_local_var_16484_6_non_const_xidx <= (cols - 1)))
+# 158 "pathfinder.cu"
+{
+# 159 "pathfinder.cu"
+((__cuda_local_var_16464_37_non_const_prev)[__cuda_local_var_16468_6_non_const_tx]) = (gpuSrc[__cuda_local_var_16484_6_non_const_xidx]);
+# 160 "pathfinder.cu"
+}
+# 160 "pathfinder.cu"
+{
+# 163 "pathfinder.cu"
+ int i;
+# 163 "pathfinder.cu"
+i = 0;
+# 163 "pathfinder.cu"
+for (; (i < iteration); i++)
+# 163 "pathfinder.cu"
+{
+# 164 "pathfinder.cu"
+__cuda_local_var_16504_14_non_const_computed = ((__nv_bool)0);
+# 165 "pathfinder.cu"
+if (((__cuda_local_var_16468_6_non_const_tx >= (i + 1)) && (__cuda_local_var_16468_6_non_const_tx <= ((256 - i) - 2))) && (__cuda_local_var_16498_14_non_const_isValid))
+# 165 "pathfinder.cu"
+{
+# 168 "pathfinder.cu"
+ int __cuda_local_var_16510_23_non_const_left;
+# 169 "pathfinder.cu"
+ int __cuda_local_var_16511_23_non_const_up;
+# 170 "pathfinder.cu"
+ int __cuda_local_var_16512_23_non_const_right;
+# 171 "pathfinder.cu"
+ int __cuda_local_var_16513_23_non_const_shortest;
+# 173 "pathfinder.cu"
+ int __cuda_local_var_16515_23_non_const_index;
+# 167 "pathfinder.cu"
+__cuda_local_var_16504_14_non_const_computed = ((__nv_bool)1);
+# 168 "pathfinder.cu"
+__cuda_local_var_16510_23_non_const_left = ((__cuda_local_var_16464_37_non_const_prev)[__cuda_local_var_16492_13_non_const_W]);
+# 169 "pathfinder.cu"
+__cuda_local_var_16511_23_non_const_up = ((__cuda_local_var_16464_37_non_const_prev)[__cuda_local_var_16468_6_non_const_tx]);
+# 170 "pathfinder.cu"
+__cuda_local_var_16512_23_non_const_right = ((__cuda_local_var_16464_37_non_const_prev)[__cuda_local_var_16493_13_non_const_E]);
+# 171 "pathfinder.cu"
+__cuda_local_var_16513_23_non_const_shortest = ((__cuda_local_var_16510_23_non_const_left <= __cuda_local_var_16511_23_non_const_up) ? __cuda_local_var_16510_23_non_const_left : __cuda_local_var_16511_23_non_const_up);
+# 172 "pathfinder.cu"
+__cuda_local_var_16513_23_non_const_shortest = ((__cuda_local_var_16513_23_non_const_shortest <= __cuda_local_var_16512_23_non_const_right) ? __cuda_local_var_16513_23_non_const_shortest : __cuda_local_var_16512_23_non_const_right);
+# 173 "pathfinder.cu"
+__cuda_local_var_16515_23_non_const_index = ((cols * (startStep + i)) + __cuda_local_var_16484_6_non_const_xidx);
+# 174 "pathfinder.cu"
+((__cuda_local_var_16465_37_non_const_result)[__cuda_local_var_16468_6_non_const_tx]) = (__cuda_local_var_16513_23_non_const_shortest + (gpuWall[__cuda_local_var_16515_23_non_const_index]));
+# 176 "pathfinder.cu"
+}
+# 177 "pathfinder.cu"
+__syncthreads();
+# 178 "pathfinder.cu"
+if (i == (iteration - 1))
+# 178 "pathfinder.cu"
+{
+# 179 "pathfinder.cu"
+goto __T24;
+# 179 "pathfinder.cu"
+}
+# 180 "pathfinder.cu"
+if (__cuda_local_var_16504_14_non_const_computed)
+# 180 "pathfinder.cu"
+{
+# 181 "pathfinder.cu"
+((__cuda_local_var_16464_37_non_const_prev)[__cuda_local_var_16468_6_non_const_tx]) = ((__cuda_local_var_16465_37_non_const_result)[__cuda_local_var_16468_6_non_const_tx]);
+# 181 "pathfinder.cu"
+}
+# 182 "pathfinder.cu"
+}
+# 182 "pathfinder.cu"
+}
+# 182 "pathfinder.cu"
+__T24:;
+# 182 "pathfinder.cu"
+;
+# 187 "pathfinder.cu"
+if (__cuda_local_var_16504_14_non_const_computed)
+# 187 "pathfinder.cu"
+{
+# 188 "pathfinder.cu"
+(gpuResults[__cuda_local_var_16484_6_non_const_xidx]) = ((__cuda_local_var_16465_37_non_const_result)[__cuda_local_var_16468_6_non_const_tx]);
+# 189 "pathfinder.cu"
+}
+# 190 "pathfinder.cu"
+} 
+# 190 "pathfinder.cu"
+}}
