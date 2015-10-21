@@ -38,6 +38,8 @@
 
 #include "stream_manager.h"
 
+#define DEVICE_STREAM
+
 extern gpgpu_sim *g_the_gpu;
 
 unsigned mem_access_t::sm_next_access_uid = 0;   
@@ -628,6 +630,46 @@ void kernel_info_t::print_parent_info()
 				m_parent_tid.x, m_parent_tid.y, m_parent_tid.z);
 	}
 }
+
+#ifdef DEVICE_STREAM
+CUstream_st * kernel_info_t::create_stream_cta(dim3 ctaid)
+{
+	std::map<dim3, CUstream_st *>::iterator it = m_cta_streams.find(ctaid);
+	if (it != m_cta_streams.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		CUstream_st * stream = new CUstream_st(stream_device);
+		g_stream_manager->add_stream(stream);
+
+		m_cta_streams[ctaid] = stream;
+		return stream;
+	}
+}
+
+CUstream_st * kernel_info_t::get_default_stream_cta(dim3 ctaid)
+{
+	if (cta_has_stream(ctaid))
+	{
+		return m_cta_streams[ctaid];
+	}
+	else
+	{
+		return g_stream_manager->findStream(m_uid);
+	}
+}
+
+bool kernel_info_t::cta_has_stream(dim3 ctaid)
+{
+	return (m_cta_streams.find(ctaid) != m_cta_streams.end());
+}
+
+void kernel_info_t::destory_cta_streams()
+{
+}
+#endif
 
 simt_stack::simt_stack( unsigned wid, unsigned warpSize)
 {

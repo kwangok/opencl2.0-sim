@@ -32,15 +32,27 @@
 #include "cuda-sim/cuda-sim.h"
 #include "gpgpu-sim/gpu-sim.h"
 
-#undef DEVICE_STREAM
+#define DEVICE_STREAM
 
 unsigned CUstream_st::sm_next_stream_uid = 0;
 
 CUstream_st::CUstream_st() 
 {
+#ifdef DEVICE_STREAM
+	m_type = stream_host;
+#endif
     m_pending = false;
     m_uid = sm_next_stream_uid++;
 }
+
+#ifdef DEVICE_STREAM
+CUstream_st::CUstream_st(stream_type type)
+{
+	m_type = type;
+	m_pending = false;
+	m_uid = sm_next_stream_uid++;
+}
+#endif
 
 bool CUstream_st::empty()
 {
@@ -246,11 +258,6 @@ bool stream_manager::register_finished_kernel(unsigned grid_uid)
     return false;
 }
 
-#ifdef DEVICE_STREAM
-// Round-robin fashion
-int turn = 0;
-#endif
-
 stream_operation stream_manager::front() 
 {
     // called by gpu simulation thread
@@ -262,45 +269,31 @@ stream_operation stream_manager::front()
 	// TODO: Code reuse
     if (m_service_stream_zero)
 	{
-#ifdef DEVICE_STREAM
-		turn %= 2;
-		if (turn == 0)
+		if (!m_stream_zero.empty() && !m_stream_zero.busy())
 		{
-			turn++;
-#endif
-			if (!m_stream_zero.empty() && !m_stream_zero.busy())
+			result = m_stream_zero.next();
+			if (result.is_kernel())
 			{
-				result = m_stream_zero.next();
-				if (result.is_kernel())
-				{
-					unsigned grid_id = result.get_kernel()->get_uid();
-					m_grid_id_to_stream[grid_id] = &m_stream_zero;
-				}
+				unsigned grid_id = result.get_kernel()->get_uid();
+				m_grid_id_to_stream[grid_id] = &m_stream_zero;
 			}
-			else
-			{
-				m_service_stream_zero = false;
-			}
-#ifdef DEVICE_STREAM
 		}
+#ifdef DEVICE_STREAM
+		// TODO: Multiple device streams
+		else if (!m_device_stream_zero.empty() && !m_device_stream_zero.busy())
+		{
+			result = m_device_stream_zero.next();
+			if (result.is_kernel())
+			{
+				unsigned grid_id = result.get_kernel()->get_uid();
+				m_grid_id_to_stream[grid_id] = &m_device_stream_zero;
+			}
+		}
+#endif
 		else
 		{
-			turn++;
-			if (!m_device_stream.empty() && !m_device_stream.busy())
-			{
-				result = m_device_stream.next();
-				if (result.is_kernel())
-				{
-					unsigned grid_id = result.get_kernel()->get_uid();
-					m_grid_id_to_stream[grid_id] = &m_device_stream;
-				}
-			}
-			else
-			{
-				m_service_stream_zero = false;
-			}
+			m_service_stream_zero = false;
 		}
-#endif
     }
 	else
 	{
@@ -337,7 +330,7 @@ bool stream_manager::ready()
 			ready = true;
         }
 #ifdef DEVICE_STREAM
-		else if (!m_device_stream.empty() && !m_device_stream.busy())
+		else if (!m_device_stream_zero.empty() && !m_device_stream_zero.busy())
 		{
 			ready = true;
 		}
@@ -358,6 +351,16 @@ bool stream_manager::ready()
                 ready = true;
             }
         }
+#ifdef DEVICE_STREAM
+		for (s = m_device_streams.begin(); s != m_device_streams.end(); ++s)
+		{
+			CUstream_st *stream = *s;
+			if (!stream->busy() && !stream->empty())
+			{
+				ready = true;
+			}
+		}
+#endif
     }
     return ready;
 }
@@ -365,7 +368,18 @@ bool stream_manager::ready()
 void stream_manager::add_stream( struct CUstream_st *stream )
 {
     // called by host thread
-    m_streams.push_back(stream);
+	switch (stream->getType())
+	{
+		case stream_host:
+			m_streams.push_back(stream);
+			break;
+		case stream_device:
+			m_device_streams.push_back(stream);
+			break;
+		default:
+			fprintf(stderr, "Unknown stream type\n");
+			break;
+	}
 }
 
 void stream_manager::destroy_stream( CUstream_st *stream )
@@ -406,7 +420,7 @@ bool stream_manager::empty_protected()
     if ( !m_stream_zero.empty() )
         result = false;
 #ifdef DEVICE_STREAM
-	if ( !m_device_stream.empty() )
+	if ( !m_device_stream_zero.empty() )
 		result = false;
 #endif
     return result;
@@ -420,7 +434,7 @@ bool stream_manager::empty()
     if ( !m_stream_zero.empty() ) 
         result = false;
 #ifdef DEVICE_STREAM
-    if ( !m_device_stream.empty() ) 
+    if ( !m_device_stream_zero.empty() ) 
         result = false;
 #endif
     return result;
@@ -443,8 +457,8 @@ void stream_manager::print_impl( FILE *fp)
     if( !m_stream_zero.empty() ) 
         m_stream_zero.print(fp);
 #ifdef DEVICE_STREAM
-    if( !m_device_stream.empty() ) 
-        m_device_stream.print(fp);
+    if( !m_device_stream_zero.empty() ) 
+        m_device_stream_zero.print(fp);
 #endif
 }
 

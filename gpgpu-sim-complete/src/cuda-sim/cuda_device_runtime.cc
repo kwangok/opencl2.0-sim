@@ -231,9 +231,24 @@ void gpgpusim_cuda_launchDeviceV2(
 		}
 		else if (arg == 1)
 		{
-			// TODO: Handle device-side stream (optional)
 			assert(size == sizeof(cudaStream_t));
 			thread->m_local_mem->read(from_addr, size, &child_stream);
+
+			kernel_info_t & parent_kernel = thread->get_kernel();
+			if (child_stream == 0)
+			{
+				// Return default stream
+				child_stream = parent_kernel.get_default_stream_cta(thread->get_ctaid());
+				DEV_RUNTIME_REPORT("launching child kernel " << device_grid->get_uid() <<
+						" to default stream of the cta " << child_stream->get_uid() << ": " << child_stream);
+			}
+			else
+			{
+				assert(parent_kernel.cta_has_stream(thread->get_ctaid()));
+				DEV_RUNTIME_REPORT("launching child kernel " << device_grid->get_uid() <<
+						" to stream " << child_stream->get_uid() << ": " << child_stream);
+			}
+			device_launch_op.set_stream(child_stream);
 		}
 	}
 	// TODO: Launch child kernel
@@ -241,10 +256,78 @@ void gpgpusim_cuda_launchDeviceV2(
 	g_cuda_device_launch_param_map.erase(parameter_buffer);
 
 	// Set retval0
-	const operand_info &actual_return_op = pI->operand_lookup(0); //retval0
-	const symbol *formal_return = target_func->get_return_var(); //cudaError_t
+	const operand_info &actual_return_op = pI->operand_lookup(0);
+	// cudaError_t
+	const symbol *formal_return = target_func->get_return_var();
 	unsigned int return_size = formal_return->get_size_in_bytes();
 	DEV_RUNTIME_REPORT("cudaLaunchDeviceV2 return value has size of " << return_size);
+	assert(actual_return_op.is_param_local());
+	assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(cudaError_t));
+	cudaError_t error = cudaSuccess;
+	addr_t ret_param_addr = actual_return_op.get_symbol()->get_address();
+	thread->m_local_mem->write(ret_param_addr, return_size, &error, NULL, NULL);
+}
+
+/*
+ * TODO: Implement cudaStreamCreateWithFlags function
+ *
+ * extern __device__ __cudart_builtin__ cudaError_t CUDARTAPI
+ * cudaStreamCreateWithFlags(cudaStream_t * pStream, unsigned int flags);
+ *
+ * The first parameter is a pointer to a new stream to be created, and the
+ * second parameter is to determine the bahviors of the new stream
+ */
+void gpgpusim_cuda_streamCreateWithFlags(const ptx_instruction * pI, ptx_thread_info * thread, const function_info * target_func) {
+	DEV_RUNTIME_REPORT("Calling cudaStreamCreateWithFlags");
+
+	unsigned n_return = target_func->has_return();
+	unsigned n_args = target_func->num_args();
+
+	// Must have a return value
+	assert(n_return);
+	// There must be exactly 2 parameters passed in
+	assert( n_args == 2 );
+
+	size_t generic_pStream_addr;
+	addr_t pStream_addr;
+	unsigned int flags;
+	for (unsigned arg = 0; arg < n_args; ++arg)
+	{
+		const operand_info &actual_param_op = pI->operand_lookup(n_return+1+arg);
+		const symbol *formal_param = target_func->get_arg(arg);
+		unsigned size=formal_param->get_size_in_bytes();
+		assert( formal_param->is_param_local() );
+		assert( actual_param_op.is_param_local() );
+		addr_t from_addr = actual_param_op.get_symbol()->get_address();
+
+		if (arg == 0)
+		{
+			// Handle cudaStream_t * pStream, address of cudaStream_t
+			assert(size == sizeof(cudaStream_t *));
+			thread->m_local_mem->read(from_addr, size, &generic_pStream_addr);
+
+			// pStream should be non-zero address in local memory
+			pStream_addr = generic_to_local(thread->get_hw_sid(), thread->get_hw_tid(), generic_pStream_addr);
+			DEV_RUNTIME_REPORT("pStream locating at local memory " << pStream_addr);
+		}
+		else if (arg == 1)
+		{
+			// Handle unsigned int flags, MUST be cudaStreamNonBlocking
+			assert(size == sizeof(unsigned int));
+			thread->m_local_mem->read(from_addr, size, &flags);
+			assert(flags == cudaStreamNonBlocking);
+		}
+	}
+	// Create stream and write back to param0
+	CUstream_st * stream = thread->get_kernel().create_stream_cta(thread->get_ctaid());
+	DEV_RUNTIME_REPORT("Create stream " << stream->get_uid() << ": " << stream);
+	thread->m_local_mem->write(pStream_addr, sizeof(cudaStream_t), &stream, NULL, NULL);
+	// Set retval0
+	const operand_info &actual_return_op = pI->operand_lookup(0);
+	// cudaError_t
+	const symbol *formal_return = target_func->get_return_var();
+	unsigned int return_size = formal_return->get_size_in_bytes();
+	DEV_RUNTIME_REPORT("cudaStreamCreateWithFlags return value has size of " << return_size);
 	assert(actual_return_op.is_param_local());
 	assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(cudaError_t));
 	cudaError_t error = cudaSuccess;

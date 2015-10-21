@@ -28,6 +28,8 @@
 #ifndef ABSTRACT_HARDWARE_MODEL_INCLUDED
 #define ABSTRACT_HARDWARE_MODEL_INCLUDED
 
+#define DEVICE_STREAM
+
 struct CudaGPU;
 
 enum _memory_space_t {
@@ -254,12 +256,27 @@ public:
 	void notify_parent_finished();
 	void print_parent_info();
 	kernel_info_t * get_parent() { return m_parent_kernel; }
+#ifdef DEVICE_STREAM
+	struct CUstream_st * create_stream_cta(dim3 ctaid);
+	struct CUstream_st * get_default_stream_cta(dim3 ctaid);
+	bool cta_has_stream(dim3 ctaid);
+	void destory_cta_streams();
+#endif
 
 private:
 	kernel_info_t * m_parent_kernel;
 	dim3 m_parent_ctaid;
 	dim3 m_parent_tid;
 	std::list<kernel_info_t *> m_child_kernels; // Child kernel launched
+#ifdef DEVICE_STREAM
+	struct block_id_comp {
+		bool operator() (const dim3 & a, const dim3 & b) const
+		{
+			return (a.x != b.x || a.y != b.y || a.z != b.z);
+		}
+	};
+	std::map<dim3, struct CUstream_st *, block_id_comp> m_cta_streams;
+#endif
 
 // TODO: How to simulate clock?
 public:
