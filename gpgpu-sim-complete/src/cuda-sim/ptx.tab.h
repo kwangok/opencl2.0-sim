@@ -206,7 +206,8 @@ extern int ptx_debug;
     TESTP_NUMBER = 416,
     TESTP_NOTANUMBER = 417,
     TESTP_NORMAL = 418,
-    TESTP_SUBNORMAL = 419
+    TESTP_SUBNORMAL = 419,
+    SHIFTAMT_OPTION = 420
   };
 #endif
 
@@ -223,7 +224,7 @@ union YYSTYPE
   char * string_value;
   void * ptr_value;
 
-#line 227 "ptx.tab.h" /* yacc.c:1909  */
+#line 228 "ptx.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

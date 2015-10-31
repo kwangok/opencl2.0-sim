@@ -1038,6 +1038,7 @@ ptx_instruction::ptx_instruction( int opcode,
    m_atomic_spec = 0;
    m_membar_level = 0;
    m_inst_size = 8; // bytes
+   m_shiftamt_option = false;
 
    std::list<int>::const_iterator i;
    unsigned n=1;
@@ -1191,6 +1192,9 @@ ptx_instruction::ptx_instruction( int opcode,
 		 break;
 	  case TESTP_SUBNORMAL:
 		 m_testp_op = TESTP_SUBNORMAL;
+		 break;
+	  case SHIFTAMT_OPTION:
+		 m_shiftamt_option = true;
 		 break;
       default:
          assert(0);

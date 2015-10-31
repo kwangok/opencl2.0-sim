@@ -58,13 +58,6 @@ const char *g_opcode_string[NUM_OPCODES] = {
 #undef OP_DEF
 };
 
-#define min(a,b) \
-	({ \
-		__typeof__ (a) _a = (a); \
-		__typeof__ (b) _b = (b); \
-		_a < _b ? _a : _b; \
-	 })
-
 void inst_not_implemented( const ptx_instruction * pI ) ;
 //ptx_reg_t srcOperandModifiers(ptx_reg_t opData, operand_info opInfo, operand_info dstInfo, unsigned type, ptx_thread_info *thread);
 
@@ -1257,11 +1250,153 @@ void bfe_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 			break;
 	}
 
-	thread->set_operand_value(dst,data, i_type, thread, pI);
+	thread->set_operand_value(dst, data, i_type, thread, pI);
 }
 
-void bfi_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
-void bfind_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
+/*
+ * deicide: Add bfi instruction
+ * TODO: Need to verify the functionality
+ */
+void bfi_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t a, b, c, d, f;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+	const operand_info &src2 = pI->src2();
+	const operand_info &src3 = pI->src3();
+	const operand_info &src4 = pI->src4();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+	b = thread->get_operand_value(src2, dst, i_type, thread, 1);
+	c = thread->get_operand_value(src3, dst, U32_TYPE, thread, 1);
+	d = thread->get_operand_value(src4, dst, U32_TYPE, thread, 1);
+
+	int msb = (i_type == B32_TYPE || i_type == U32_TYPE) ? 31 : 63;
+	// c, d are u32 type, but their values are restricted to the  range [0:255]
+	int pos = c.u32 & 0xff;
+	int len = d.u32 & 0xff;
+
+	switch (i_type)
+	{
+	case B32_TYPE:
+	case U32_TYPE:
+		f.u32 = b.u32;
+		for (int i = 0; i < len && (pos + i <= msb); ++i)
+		{
+			int a_i     = (a.u32 >> i) & 1;
+			int f_pos_i = (f.u32 >> (pos + i)) & 1;
+			if (a_i == 0 && f_pos_i == 1)
+			{
+				f.u32 &= ~(1 << (pos + i));
+			}
+			else
+			{
+				f.u32 |= (a_i << (pos + i));
+			}
+		}
+		break;
+	case B64_TYPE:
+	case U64_TYPE:
+		f.u64 = b.u64;
+		for (int i = 0; i < len && (pos + i <= msb); ++i)
+		{
+			int a_i     = (a.u64 >> i) & 1;
+			int f_pos_i = (f.u64 >> (pos + i)) & 1;
+			if (a_i == 0 && f_pos_i == 1)
+			{
+				f.u64 &= ~(1 << (pos + i));
+			}
+			else
+			{
+				f.u64 |= (a_i << (pos + i));
+			}
+		}
+		break;
+	default:
+		printf("Execution error: type mismatch with instruction bfi\n");
+		assert(0);
+		break;
+	}
+
+	thread->set_operand_value(dst, f, i_type, thread, pI);
+}
+
+/*
+ * deicide: Add bfind instruction
+ * TODO: Need to verify the functionality
+ */
+void bfind_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t a, d;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+
+	int msb = (i_type == U32_TYPE || i_type == S32_TYPE) ? 31 : 63;
+
+	switch (i_type)
+	{
+	case S32_TYPE:
+		if (a.s32 & (1 << msb)) a.s32 = ~(a.s32);
+		d.u32 = 0xffffffff;
+		for (int i = msb; i >= 0; i--)
+		{
+			if (a.s32 & (1 << i))
+			{
+				d.u32 = i;
+				break;
+			}
+		}
+		break;
+	case B32_TYPE:
+	case U32_TYPE:
+		d.u32 = 0xffffffff;
+		for (int i = msb; i >= 0; i--)
+		{
+			if (a.u32 & (1 << i))
+			{
+				d.u32 = i;
+				break;
+			}
+		}
+		break;
+	case S64_TYPE:
+		if (a.s64 & (1 << msb)) a.s64 = ~(a.s64);
+		d.u32 = 0xffffffff;
+		for (int i = msb; i >= 0; i--)
+		{
+			if (a.s64 & (1 << i))
+			{
+				d.u32 = i;
+				break;
+			}
+		}
+		break;
+	case B64_TYPE:
+	case U64_TYPE:
+		d.u32 = 0xffffffff;
+		for (int i = msb; i >= 0; i--)
+		{
+			if (a.u64 & (1 << i))
+			{
+				d.u32 = i;
+				break;
+			}
+		}
+		break;
+	default:
+		printf("Execution error: type mismatch with instruction bfind\n");
+		assert(0);
+		break;
+	}
+
+	// Note: bfind always return a u32 type value
+	if (pI->shiftamt() && d.u32 != 0xffffffff) d.u32 = msb - d.u32;
+	thread->set_operand_value(dst, d, U32_TYPE, thread, pI);
+}
 
 void bra_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -3132,7 +3267,7 @@ void selp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 	*/
    d = (!(c.pred & 0x0001))?a:b;
 
-   // deicide218: The type of d should be the same as a, b
+   // deicide: The type of d should be the same as a, b
    // thread->set_operand_value(dst,d, PRED_TYPE, thread, pI);
    thread->set_operand_value(dst, d, i_type, thread, pI);
 }
@@ -3411,7 +3546,7 @@ void shf_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 	case B32_TYPE:
 	case U32_TYPE:
 		{
-			unsigned n = (shf_mode == CLAMP_OPTION) ? min(c.u32, 32) : c.u32 & 0x1f;
+			unsigned n = (shf_mode == CLAMP_OPTION) ? MY_MIN_I(c.u32, 32) : c.u32 & 0x1f;
 			switch (shf_direction) {
 				case SHFL_OPTION:
 					d.u32 = (b.u32 << n) | (a.u32 >> (32 - n));
@@ -3428,7 +3563,7 @@ void shf_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 		break;
 	case S32_TYPE:
 		{
-			int n = (shf_mode == CLAMP_OPTION) ? min(c.s32, 32) : c.s32 & 0x1f;
+			int n = (shf_mode == CLAMP_OPTION) ? MY_MIN_I(c.s32, 32) : c.s32 & 0x1f;
 			switch (shf_direction) {
 				case SHFL_OPTION:
 					d.s32 = (b.s32 << n) | (a.s32 >> (32 - n));
@@ -4284,14 +4419,13 @@ void xor_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide218: Add testp instruction
+ * deicide: Add testp instruction
  * TODO: Need to verify the functionality
  */
 
 void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
 	ptx_reg_t p, a;
-
 	const operand_info &dst  = pI->dst();
 	const operand_info &src1 = pI->src1();
 
@@ -4354,6 +4488,14 @@ void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 		assert(0);
 		break;
 	}
+
+	/*
+	 * TODO: 
+	 * Use PTXPlus predicate value convention, 1 is false and 0 is true.
+	 * Not sure if this is right
+	 */
+	p.pred = result ? 0 : 1;
+	thread->set_operand_value(dst, p, PRED_TYPE, thread, pI);
 }
 
 void inst_not_implemented( const ptx_instruction * pI ) 

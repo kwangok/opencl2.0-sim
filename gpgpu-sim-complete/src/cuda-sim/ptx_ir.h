@@ -933,6 +933,12 @@ public:
       return m_operands[3];
    }
 
+   const operand_info &src4() const 
+   { 
+      assert( m_operands.size() > 4 );
+      return m_operands[4];
+   }
+
    const operand_info &operand_lookup( unsigned n ) const
    {
       assert( n < m_operands.size() );
@@ -994,6 +1000,7 @@ public:
    unsigned shf_direction() const { return m_shf_direction; }
    unsigned shf_mode() const { return m_shf_mode; }
    unsigned testp_op() const { return m_testp_op; }
+   bool shiftamt() const { return m_shiftamt_option; }
    enum vote_mode_t { vote_any, vote_all, vote_uni, vote_ballot };
    enum vote_mode_t vote_mode() const { return m_vote_mode; }
 
@@ -1059,6 +1066,7 @@ private:
    unsigned            m_shf_direction;
    unsigned            m_shf_mode;
    unsigned            m_testp_op;
+   bool                m_shiftamt_option;
 
    std::list<int>          m_scalar_type;
    memory_space_t m_space_spec;

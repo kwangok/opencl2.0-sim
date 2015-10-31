@@ -197,6 +197,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %token  TESTP_NOTANUMBER;
 %token  TESTP_NORMAL;
 %token  TESTP_SUBNORMAL;
+%token  SHIFTAMT_OPTION;
 
 %type <int_value> function_decl_header
 %type <ptr_value> function_decl
@@ -453,6 +454,7 @@ option: type_spec
 	| CLAMP_OPTION { add_option(CLAMP_OPTION); }
 	| WRAP_OPTION { add_option(WRAP_OPTION); }
 	| testp_operation_spec;
+	| SHIFTAMT_OPTION { add_option(SHIFTAMT_OPTION); }
 	;
 
 /* deicide218: testp instructions */

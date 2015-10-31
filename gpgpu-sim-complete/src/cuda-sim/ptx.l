@@ -344,6 +344,8 @@ breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
 \.normal     TC; return TESTP_NORMAL;
 \.subnormal  TC; return TESTP_SUBNORMAL;
 
+\.shiftamt   TC; return SHIFTAMT_OPTION;
+
 \.1d	TC; return GEOM_MODIFIER_1D;
 \.2d	TC; return GEOM_MODIFIER_2D;
 \.3d	TC; return GEOM_MODIFIER_3D;
