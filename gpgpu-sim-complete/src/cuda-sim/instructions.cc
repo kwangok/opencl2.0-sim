@@ -61,13 +61,6 @@ const char *g_opcode_string[NUM_OPCODES] = {
 #undef OP_DEF
 };
 
-#define min(a,b) \
-	({ \
-		__typeof__ (a) _a = (a); \
-		__typeof__ (b) _b = (b); \
-		_a < _b ? _a : _b; \
-	 })
-
 void inst_not_implemented( const ptx_instruction * pI ) ;
 //ptx_reg_t srcOperandModifiers(ptx_reg_t opData, operand_info opInfo, operand_info dstInfo, unsigned type, ptx_thread_info *thread);
 
@@ -3927,7 +3920,7 @@ void selp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 	*/
    d = (!(c.pred & 0x0001))?a:b;
 
-   // deicide218: The type of d should be the same as a, b
+   // deicide: The type of d should be the same as a, b
    // thread->set_operand_value(dst,d, PRED_TYPE, thread, pI);
    thread->set_operand_value(dst, d, i_type, thread, pI);
 }

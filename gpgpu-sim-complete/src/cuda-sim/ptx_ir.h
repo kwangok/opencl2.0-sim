@@ -935,6 +935,12 @@ public:
       return m_operands[3];
    }
 
+   const operand_info &src4() const 
+   { 
+      assert( m_operands.size() > 4 );
+      return m_operands[4];
+   }
+
    const operand_info &operand_lookup( unsigned n ) const
    {
       assert( n < m_operands.size() );
