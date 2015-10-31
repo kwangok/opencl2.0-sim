@@ -115,6 +115,7 @@ sad     TC; ptx_lval.int_value = SAD_OP; return OPCODE;
 selp	TC; ptx_lval.int_value = SELP_OP; return OPCODE;
 setp    TC; ptx_lval.int_value = SETP_OP; return OPCODE;
 set	TC; ptx_lval.int_value = SET_OP; return OPCODE;
+shf     TC; ptx_lval.int_value = SHF_OP; return OPCODE;
 shl     TC; ptx_lval.int_value = SHL_OP; return OPCODE;
 shr     TC; ptx_lval.int_value = SHR_OP; return OPCODE;
 sin	TC; ptx_lval.int_value = SIN_OP; return OPCODE;
@@ -319,6 +320,11 @@ breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
 
 \.wb	TC; return WB_OPTION;
 \.wt	TC; return WT_OPTION;
+
+\.l     TC; return SHFL_OPTION;
+\.r     TC; return SHFR_OPTION;
+\.clamp TC; return CLAMP_OPTION;
+\.wrap  TC; return WRAP_OPTION;
 
 \.and	TC; return ATOMIC_AND;
 \.or	TC; return ATOMIC_OR;

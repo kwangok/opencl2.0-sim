@@ -65,6 +65,7 @@ void sad_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void selp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void setp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void set_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
+void shf_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void shl_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void shr_impl( const ptx_instruction *pI, ptx_thread_info *thread );
 void sin_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;

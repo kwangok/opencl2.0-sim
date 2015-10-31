@@ -1165,7 +1165,7 @@ ptx_instruction::ptx_instruction( int opcode,
       case HALF_OPTION:
          m_inst_size = 4; // bytes
          break;
-	  case SHFL_OPTION: // deicide218: New options added from here
+	  case SHFL_OPTION:
 		 m_shf_direction = SHFL_OPTION;
 		 break;
 	  case SHFR_OPTION:

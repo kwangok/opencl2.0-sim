@@ -2871,20 +2871,13 @@ void clReleaseContext(ThreadContext *tc, gpusyscall_t *call_params) {
 	  } \
 
 void clFinish(ThreadContext *tc, gpusyscall_t *call_params) {
-<<<<<<< HEAD
-	GPUSyscallHelper helper(tc, call_params);
-	cl_int ret = CL_SUCCESS;
-	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
-	return ;
-=======
-    // deicide: clFinish will block CPU thread until kernel is done
+    // clFinish will block CPU thread until kernel is done
     GPUSyscallHelper helper(tc, call_params);
     DPRINTF(GPUSyscalls, "gem5 GPU Syscall: clFinish(), tc = %x\n", tc);
     CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
     bool suspend = cudaGPU->needsToBlock();
     helper.setReturn((uint8_t*)&suspend, sizeof(bool));
     return ;
->>>>>>> origin/OpenCL-1.X
 }
 
 void clGetContextInfo(ThreadContext *tc, gpusyscall_t *call_params) {
@@ -3036,13 +3029,9 @@ void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 	case CL_DEVICE_SINGLE_FP_CONFIG: CL_INT_CASE(0); break;
 	case CL_DEVICE_MEM_BASE_ADDR_ALIGN: CL_INT_CASE(256*8); break;
 	default:
-<<<<<<< HEAD
         DPRINTF(GPUSyscalls, "gem5 GPU Syscall: WARNING ** Not yet implemented OpenCL device info");
         break;
 		// opencl_not_implemented(__my_func__,__LINE__);
-=======
-		opencl_not_implemented(__my_func__,__LINE__);
->>>>>>> origin/OpenCL-1.X
 	}
 	cl_int ret = CL_SUCCESS;
 	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));

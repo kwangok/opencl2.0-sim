@@ -61,6 +61,13 @@ const char *g_opcode_string[NUM_OPCODES] = {
 #undef OP_DEF
 };
 
+#define min(a,b) \
+	({ \
+		__typeof__ (a) _a = (a); \
+		__typeof__ (b) _b = (b); \
+		_a < _b ? _a : _b; \
+	 })
+
 void inst_not_implemented( const ptx_instruction * pI ) ;
 //ptx_reg_t srcOperandModifiers(ptx_reg_t opData, operand_info opInfo, operand_info dstInfo, unsigned type, ptx_thread_info *thread);
 
@@ -4174,6 +4181,7 @@ void set_impl( const ptx_instruction *pI, ptx_thread_info *thread )
  * deicide: Add shf instruction.
  * TODO: Verify the functionality.
  */
+
 void shf_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
 	ptx_reg_t a, b, c, d;
