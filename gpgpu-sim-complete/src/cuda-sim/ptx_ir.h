@@ -993,6 +993,7 @@ public:
    unsigned dimension() const { return m_geom_spec;}
    unsigned shf_direction() const { return m_shf_direction; }
    unsigned shf_mode() const { return m_shf_mode; }
+   unsigned testp_op() const { return m_testp_op; }
    enum vote_mode_t { vote_any, vote_all, vote_uni, vote_ballot };
    enum vote_mode_t vote_mode() const { return m_vote_mode; }
 
@@ -1057,6 +1058,7 @@ private:
    unsigned            m_saturation_mode;
    unsigned            m_shf_direction;
    unsigned            m_shf_mode;
+   unsigned            m_testp_op;
 
    std::list<int>          m_scalar_type;
    memory_space_t m_space_spec;

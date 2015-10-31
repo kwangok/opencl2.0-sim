@@ -3126,11 +3126,15 @@ void selp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    b = thread->get_operand_value(src2, dst, i_type, thread, 1);
    c = thread->get_operand_value(src3, dst, i_type, thread, 1);
 
-   //predicate value was changed so the lowest bit being set means the zero flag is set.
-   //As a result, the value of c.pred must be inverted to get proper behavior
+   /* 
+	* Predicate value was changed so the lowest bit being set means the zero flag is set.
+	* As a result, the value of c.pred must be inverted to get proper behavior
+	*/
    d = (!(c.pred & 0x0001))?a:b;
 
-   thread->set_operand_value(dst,d, PRED_TYPE, thread, pI);
+   // deicide218: The type of d should be the same as a, b
+   // thread->set_operand_value(dst,d, PRED_TYPE, thread, pI);
+   thread->set_operand_value(dst, d, i_type, thread, pI);
 }
 
 bool isFloat(int type) 
@@ -4277,6 +4281,79 @@ void xor_impl( const ptx_instruction *pI, ptx_thread_info *thread )
       data.u64 = src1_data.u64 ^ src2_data.u64;
 
    thread->set_operand_value(dst,data, i_type, thread, pI);
+}
+
+/*
+ * deicide218: Add testp instruction
+ * TODO: Need to verify the functionality
+ */
+
+void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t p, a;
+
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+
+	unsigned testp_op = pI->testp_op();
+	bool result;
+	/*
+	 * TODO: Are the semantics of finite, normal, and subnormal the same?
+	 */
+	switch (i_type)
+	{
+	case F32_TYPE:
+		switch (testp_op)
+		{
+		case TESTP_FINITE:
+		case TESTP_NORMAL:
+		case TESTP_SUBNORMAL:
+			result = !(isnan(a.f32) || isinf(a.f32));
+			break;
+		case TESTP_INFINITE:
+			result = isinf(a.f32);
+			break;
+		case TESTP_NUMBER:
+			result = !isnan(a.f32);
+			break;
+		case TESTP_NOTANUMBER:
+			result = isnan(a.f32);
+			break;
+		default:
+			printf("Execution error: operation mismatch with instruction testp\n");
+			assert(0);
+			break;
+		}
+	case F64_TYPE:
+		switch (testp_op)
+		{
+		case TESTP_FINITE:
+		case TESTP_NORMAL:
+		case TESTP_SUBNORMAL:
+			result = !(isnan(a.f64) || isinf(a.f64));
+			break;
+		case TESTP_INFINITE:
+			result = isinf(a.f64);
+			break;
+		case TESTP_NUMBER:
+			result = !isnan(a.f64);
+			break;
+		case TESTP_NOTANUMBER:
+			result = isnan(a.f64);
+			break;
+		default:
+			printf("Execution error: operation mismatch with instruction testp\n");
+			assert(0);
+			break;
+		}
+	default:
+		printf("Execution error: type mismatch with instruction testp\n");
+		assert(0);
+		break;
+	}
 }
 
 void inst_not_implemented( const ptx_instruction * pI ) 

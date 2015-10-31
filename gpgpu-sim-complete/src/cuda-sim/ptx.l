@@ -143,6 +143,7 @@ vshr    TC; ptx_lval.int_value = VSHR_OP; return OPCODE;
 vsub    TC; ptx_lval.int_value = VSUB_OP; return OPCODE;
 vote	TC; ptx_lval.int_value = VOTE_OP; return OPCODE;
 xor     TC; ptx_lval.int_value = XOR_OP; return OPCODE;
+testp   TC; ptx_lval.int_value = TESTP_OP; return OPCODE;
 nop     TC; ptx_lval.int_value = NOP_OP; return OPCODE;
 break  TC; ptx_lval.int_value = BREAK_OP; return OPCODE;
 breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
@@ -335,6 +336,13 @@ breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
 \.dec	TC; return ATOMIC_DEC;
 \.min	TC; return ATOMIC_MIN;
 \.max	TC; return ATOMIC_MAX;
+
+\.finite     TC; return TESTP_FINITE;
+\.infinite   TC; return TESTP_INFINITE;
+\.number     TC; return TESTP_NUMBER;
+\.notanumber TC; return TESTP_NOTANUMBER;
+\.normal     TC; return TESTP_NORMAL;
+\.subnormal  TC; return TESTP_SUBNORMAL;
 
 \.1d	TC; return GEOM_MODIFIER_1D;
 \.2d	TC; return GEOM_MODIFIER_2D;

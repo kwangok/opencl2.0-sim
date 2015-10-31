@@ -200,7 +200,13 @@ extern int ptx_debug;
     SHFL_OPTION = 410,
     SHFR_OPTION = 411,
     CLAMP_OPTION = 412,
-    WRAP_OPTION = 413
+    WRAP_OPTION = 413,
+    TESTP_FINITE = 414,
+    TESTP_INFINITE = 415,
+    TESTP_NUMBER = 416,
+    TESTP_NOTANUMBER = 417,
+    TESTP_NORMAL = 418,
+    TESTP_SUBNORMAL = 419
   };
 #endif
 
@@ -217,7 +223,7 @@ union YYSTYPE
   char * string_value;
   void * ptr_value;
 
-#line 221 "ptx.tab.h" /* yacc.c:1909  */
+#line 227 "ptx.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
