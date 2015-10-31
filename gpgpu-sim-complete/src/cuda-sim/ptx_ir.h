@@ -991,6 +991,8 @@ public:
    unsigned rounding_mode() const { return m_rounding_mode;}
    unsigned saturation_mode() const { return m_saturation_mode;}
    unsigned dimension() const { return m_geom_spec;}
+   unsigned shf_direction() const { return m_shf_direction; }
+   unsigned shf_mode() const { return m_shf_mode; }
    enum vote_mode_t { vote_any, vote_all, vote_uni, vote_ballot };
    enum vote_mode_t vote_mode() const { return m_vote_mode; }
 
@@ -1053,6 +1055,8 @@ private:
    unsigned            m_rounding_mode;
    unsigned            m_compare_op;
    unsigned            m_saturation_mode;
+   unsigned            m_shf_direction;
+   unsigned            m_shf_mode;
 
    std::list<int>          m_scalar_type;
    memory_space_t m_space_spec;

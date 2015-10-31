@@ -58,6 +58,13 @@ const char *g_opcode_string[NUM_OPCODES] = {
 #undef OP_DEF
 };
 
+#define min(a,b) \
+	({ \
+		__typeof__ (a) _a = (a); \
+		__typeof__ (b) _b = (b); \
+		_a < _b ? _a : _b; \
+	 })
+
 void inst_not_implemented( const ptx_instruction * pI ) ;
 //ptx_reg_t srcOperandModifiers(ptx_reg_t opData, operand_info opInfo, operand_info dstInfo, unsigned type, ptx_thread_info *thread);
 
@@ -3373,6 +3380,72 @@ void set_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 
    thread->set_operand_value(dst, data, pI->get_type(), thread, pI);
 
+}
+
+/* 
+ * deicide: Add shf instruction.
+ * TODO: Need to verify the functionality.
+ */
+
+void shf_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t a, b, c, d;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+	const operand_info &src2 = pI->src2();
+	const operand_info &src3 = pI->src3();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+	b = thread->get_operand_value(src2, dst, i_type, thread, 1);
+	c = thread->get_operand_value(src3, dst, i_type, thread, 1);
+
+	unsigned shf_direction = pI->shf_direction();
+	unsigned shf_mode      = pI->shf_mode();
+
+	switch ( i_type ) {
+	case B32_TYPE:
+	case U32_TYPE:
+		{
+			unsigned n = (shf_mode == CLAMP_OPTION) ? min(c.u32, 32) : c.u32 & 0x1f;
+			switch (shf_direction) {
+				case SHFL_OPTION:
+					d.u32 = (b.u32 << n) | (a.u32 >> (32 - n));
+					break;
+				case SHFR_OPTION:
+					d.u32 = (b.u32 << (32 - n)) | (a.u32 >> n);
+					break;
+				default:
+					printf("Execution error: direction mismatch with instruction shf\n");
+					assert(0);
+					break;
+			}
+		}
+		break;
+	case S32_TYPE:
+		{
+			int n = (shf_mode == CLAMP_OPTION) ? min(c.s32, 32) : c.s32 & 0x1f;
+			switch (shf_direction) {
+				case SHFL_OPTION:
+					d.s32 = (b.s32 << n) | (a.s32 >> (32 - n));
+					break;
+				case SHFR_OPTION:
+					d.s32 = (b.s32 << (32 - n)) | (a.s32 >> n);
+					break;
+				default:
+					printf("Execution error: direction mismatch with instruction shf\n");
+					assert(0);
+					break;
+			}
+		}
+		break;
+	default:
+		printf("Execution error: type mismatch with instruction shf\n");
+		assert(0); 
+		break;
+	}
+	
+	thread->set_operand_value(dst, d, i_type, thread, pI);
 }
 
 void shl_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 

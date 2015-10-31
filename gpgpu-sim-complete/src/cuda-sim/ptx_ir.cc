@@ -1162,6 +1162,18 @@ ptx_instruction::ptx_instruction( int opcode,
       case HALF_OPTION:
          m_inst_size = 4; // bytes
          break;
+	  case SHFL_OPTION:
+		 m_shf_direction = SHFL_OPTION;
+		 break;
+	  case SHFR_OPTION:
+		 m_shf_direction = SHFR_OPTION;
+		 break;
+	  case CLAMP_OPTION:
+		 m_shf_mode = CLAMP_OPTION;
+		 break;
+	  case WRAP_OPTION:
+		 m_shf_mode = WRAP_OPTION;
+		 break;
       default:
          assert(0);
          break;

@@ -187,6 +187,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %token  CV_OPTION;
 %token  WB_OPTION;
 %token  WT_OPTION;
+%token  SHFL_OPTION;
+%token  SHFR_OPTION;
+%token  CLAMP_OPTION;
+%token  WRAP_OPTION;
 
 %type <int_value> function_decl_header
 %type <ptr_value> function_decl
@@ -438,6 +442,10 @@ option: type_spec
 	| CV_OPTION { add_option(CV_OPTION); }
 	| WB_OPTION { add_option(WB_OPTION); }
 	| WT_OPTION { add_option(WT_OPTION); }
+	| SHFL_OPTION { add_option(SHFL_OPTION); }
+	| SHFR_OPTION { add_option(SHFR_OPTION); }
+	| CLAMP_OPTION { add_option(CLAMP_OPTION); }
+	| WRAP_OPTION { add_option(WRAP_OPTION); }
 	;
 
 atomic_operation_spec: ATOMIC_AND { add_option(ATOMIC_AND); } 
