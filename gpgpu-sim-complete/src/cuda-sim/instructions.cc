@@ -3921,11 +3921,15 @@ void selp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    b = thread->get_operand_value(src2, dst, i_type, thread, 1);
    c = thread->get_operand_value(src3, dst, i_type, thread, 1);
 
-   //predicate value was changed so the lowest bit being set means the zero flag is set.
-   //As a result, the value of c.pred must be inverted to get proper behavior
+   /* 
+	* Predicate value was changed so the lowest bit being set means the zero flag is set.
+	* As a result, the value of c.pred must be inverted to get proper behavior
+	*/
    d = (!(c.pred & 0x0001))?a:b;
 
-   thread->set_operand_value(dst,d, PRED_TYPE, thread, pI);
+   // deicide218: The type of d should be the same as a, b
+   // thread->set_operand_value(dst,d, PRED_TYPE, thread, pI);
+   thread->set_operand_value(dst, d, i_type, thread, pI);
 }
 
 bool isFloat(int type) 
@@ -5397,6 +5401,9 @@ void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 
 	unsigned testp_op = pI->testp_op();
 	bool result;
+	/*
+	 * TODO: Are the semantics of finite, normal, and subnormal the same?
+	 */
 	switch (i_type)
 	{
 	case F32_TYPE:

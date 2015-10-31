@@ -94,4 +94,5 @@ void vshr_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void vsub_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void vote_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void xor_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
+void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 #endif
