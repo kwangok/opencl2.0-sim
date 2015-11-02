@@ -714,74 +714,246 @@ void addp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    thread->set_operand_value(dst, data, i_type, thread, pI, overflow, carry  );
 }
 
+/*
+ * deicide218: Add extended-precision for instruction add
+ * TODO: Verify the functionality
+ */
 void add_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
-{ 
-   ptx_reg_t src1_data, src2_data, data;
-   int overflow = 0;
-   int carry = 0;
+{
+	ptx_reg_t a, b, d;
+	const operand_info &dst = pI->dst();
+	const operand_info &src1 = pI->src1();
+	const operand_info &src2 = pI->src2();
 
-   const operand_info &dst  = pI->dst();  //get operand info of sources and destination 
-   const operand_info &src1 = pI->src1(); //use them to determine that they are of type 'register'
-   const operand_info &src2 = pI->src2();
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+	b = thread->get_operand_value(src2, dst, i_type, thread, 1);
 
-   unsigned i_type = pI->get_type();
-   src1_data = thread->get_operand_value(src1, dst, i_type, thread, 1);
-   src2_data = thread->get_operand_value(src2, dst, i_type, thread, 1);
-
-   unsigned rounding_mode = pI->rounding_mode();
-   int orig_rm = fegetround();
-   switch ( rounding_mode ) {
-   case RN_OPTION: break;
-   case RZ_OPTION: fesetround( FE_TOWARDZERO ); break;
-   default: assert(0); break;
-   }
-
-   //performs addition. Sets carry and overflow if needed.
-   switch ( i_type ) {
-   case S8_TYPE:
-      data.s64 = (src1_data.s64 & 0x0000000FF) + (src2_data.s64 & 0x0000000FF);
-      if(((src1_data.s64 & 0x80)-(src2_data.s64 & 0x80)) == 0) {overflow=((src1_data.s64 & 0x80)-(data.s64 & 0x80))==0?0:1; }
-      carry = (data.u64 & 0x000000100)>>8;
-      break;
-   case S16_TYPE:
-      data.s64 = (src1_data.s64 & 0x00000FFFF) + (src2_data.s64 & 0x00000FFFF);
-      if(((src1_data.s64 & 0x8000)-(src2_data.s64 & 0x8000)) == 0) {overflow=((src1_data.s64 & 0x8000)-(data.s64 & 0x8000))==0?0:1; }
-      carry = (data.u64 & 0x000010000)>>16;
-      break;
-   case S32_TYPE:
-      data.s64 = (src1_data.s64 & 0x0FFFFFFFF) + (src2_data.s64 & 0x0FFFFFFFF);
-      if(((src1_data.s64 & 0x80000000)-(src2_data.s64 & 0x80000000)) == 0) {overflow=((src1_data.s64 & 0x80000000)-(data.s64 & 0x80000000))==0?0:1; }
-      carry = (data.u64 & 0x100000000)>>32;
-      break;
-   case S64_TYPE:
-      data.s64 = src1_data.s64 + src2_data.s64;
-      break;
-   case U8_TYPE:
-      data.u64 = (src1_data.u64 & 0xFF) + (src2_data.u64 & 0xFF);
-      carry = (data.u64 & 0x100)>>8;
-      break;
-   case U16_TYPE:
-      data.u64 = (src1_data.u64 & 0xFFFF) + (src2_data.u64 & 0xFFFF);
-      carry = (data.u64 & 0x10000)>>16;
-      break;
-   case U32_TYPE:
-      data.u64 = (src1_data.u64 & 0xFFFFFFFF) + (src2_data.u64 & 0xFFFFFFFF);
-      carry = (data.u64 & 0x100000000)>>32;
-      break;
-   case U64_TYPE:
-      data.u64 = src1_data.u64 + src2_data.u64;
-      break;
-   case F16_TYPE: assert(0); break;
-   case F32_TYPE: data.f32 = src1_data.f32 + src2_data.f32; break;
-   case F64_TYPE: case FF64_TYPE: data.f64 = src1_data.f64 + src2_data.f64; break;
-   default: assert(0); break;
-   }
-   fesetround( orig_rm );
-
-   thread->set_operand_value(dst, data, i_type, thread, pI, overflow, carry  );
+	if (i_type == F32_TYPE || i_type == F64_TYPE)
+	{
+		// Floating-Point Add
+		if (pI->carry_flag())
+		{
+			printf("Execution error: unsupported extended-precision type with instruction add\n");
+			assert(0);
+		}
+		unsigned rounding_mode = pI->rounding_mode();
+		int orig_rm = fegetround();
+		switch(rounding_mode)
+		{
+		case RN_OPTION:
+			break;
+		case RZ_OPTION:
+			fesetround(FE_TOWARDZERO);
+			break;
+		default:
+			printf("Execution error: rounding mode missing with instruction add\n");
+			assert(0);
+			break;
+		}
+		switch (i_type)
+		{
+		case F32_TYPE:
+			d.f32 = a.f32 + b.f32;
+			break;
+		case F64_TYPE:
+			d.f64 = a.f64 + b.f64;
+			break;
+		default:
+			printf("Execution error: type mismatch with instruction add\n");
+			assert(0);
+			break;
+		}
+		fesetround( orig_rm );
+	}
+	else
+	{
+		// Integer Add
+		switch (i_type)
+		{
+		case S8_TYPE:
+			if (pI->carry_flag())
+			{
+				d.s64 = a.s8 + b.s8;
+				thread->CC_CF = (d.s64 & 0x100) >> 8;
+			}
+			else
+			{
+				d.s8 = a.s8 + b.s8;
+			}
+			break;
+		case S16_TYPE:
+			if (pI->carry_flag())
+			{
+				d.s64 = a.s16 + b.s16;
+				thread->CC_CF = (d.s64 & 0x10000) >> 16;
+			}
+			else
+			{
+				d.s16 = a.s16 + b.s16;
+			}
+			break;
+		case S32_TYPE:
+			if (pI->carry_flag())
+			{
+				d.s64 = a.s32 + b.s32;
+				thread->CC_CF = (d.s64 & 0x100000000) >> 32;
+			}
+			else
+			{
+				d.s32 = a.s32 + b.s32;
+			}
+			break;
+		case S64_TYPE:
+			if (pI->carry_flag())
+			{
+				printf("Execution error: unsupported extended-precision type with instruction add\n");
+				assert(0);
+			}
+			else
+			{
+				d.s64 = a.s64 + b.s64;
+			}
+			break;
+		case U8_TYPE:
+			if (pI->carry_flag())
+			{
+				d.u64 = a.u8 + b.u8;
+				thread->CC_CF = (d.u64 & 0x100) >> 8;
+			}
+			else
+			{
+				d.u8 = a.u8 + b.u8;
+			}
+			break;
+		case U16_TYPE:
+			if (pI->carry_flag())
+			{
+				d.u64 = a.u16 + b.u16;
+				thread->CC_CF = (d.u64 & 0x10000) >> 16;
+			}
+			else
+			{
+				d.u16 = a.u16 + b.u16;
+			}
+			break;
+		case U32_TYPE:
+			if (pI->carry_flag())
+			{
+				d.u64 = a.u32 + b.u32;
+				thread->CC_CF = (d.u64 & 0x100000000) >> 32;
+			}
+			else
+			{
+				d.u32 = a.u32 + b.u32;
+			}
+			break;
+		case U64_TYPE:
+			if (pI->carry_flag())
+			{
+				printf("Execution error: unsupported extended-precision type with instruction add\n");
+				assert(0);
+			}
+			else
+			{
+				d.u64 = a.u64 + b.u64;
+			}
+			break;
+		default:
+			printf("Execution error: type mismatch with instruction add\n");
+			assert(0);
+			break;
+		}
+	}
+	thread->set_operand_value(dst, d, i_type, thread, pI);
 }
 
-void addc_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
+void addc_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t a, b, d;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+	const operand_info &src2 = pI->src2();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+	b = thread->get_operand_value(src2, dst, i_type, thread, 1);
+
+	switch (i_type)
+	{
+	case S8_TYPE:
+		if (pI->carry_flag())
+		{
+			d.s64 = a.s8 + b.s8 + thread->CC_CF;
+			thread->CC_CF = (d.s64 & 0x100) >> 8;
+		}
+		else
+		{
+			d.s8 = a.s8 + b.s8 + thread->CC_CF;
+		}
+		break;
+	case S16_TYPE:
+		if (pI->carry_flag())
+		{
+			d.s64 = a.s16 + b.s16 + thread->CC_CF;
+			thread->CC_CF = (d.s64 & 0x10000) >> 16;
+		}
+		else
+		{
+			d.s16 = a.s16 + b.s16 + thread->CC_CF;
+		}
+		break;
+	case S32_TYPE:
+		if (pI->carry_flag())
+		{
+			d.s64 = a.s32 + b.s32 + thread->CC_CF;
+			thread->CC_CF = (d.s64 & 0x100000000) >> 32;
+		}
+		else
+		{
+			d.s32 = a.s32 + b.s32 + thread->CC_CF;
+		}
+		break;
+	case U8_TYPE:
+		if (pI->carry_flag())
+		{
+			d.u64 = a.u8 + b.u8 + thread->CC_CF;
+			thread->CC_CF = (d.u64 & 0x100) >> 8;
+		}
+		else
+		{
+			d.u8 = a.u8 + b.u8 + thread->CC_CF;
+		}
+		break;
+	case U16_TYPE:
+		if (pI->carry_flag())
+		{
+			d.u64 = a.u16 + b.u16 + thread->CC_CF;
+			thread->CC_CF = (d.u64 & 0x10000) >> 16;
+		}
+		else
+		{
+			d.u16 = a.u16 + b.u16 + thread->CC_CF;
+		}
+		break;
+	case U32_TYPE:
+		if (pI->carry_flag())
+		{
+			d.u64 = a.u32 + b.u32 + thread->CC_CF;
+			thread->CC_CF = (d.u64 & 0x100000000) >> 32;
+		}
+		else
+		{
+			d.u32 = a.u32 + b.u32 + thread->CC_CF;
+		}
+		break;
+	default:
+		printf("Execution error: unsupported extended-precision type with instruction add\n");
+		assert(0);
+		break;
+	}
+	thread->set_operand_value(dst, d, i_type, thread, pI);
+}
 
 void and_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 { 
@@ -1252,11 +1424,153 @@ void bfe_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 			break;
 	}
 
-	thread->set_operand_value(dst,data, i_type, thread, pI);
+	thread->set_operand_value(dst, data, i_type, thread, pI);
 }
 
-void bfi_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
-void bfind_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
+/*
+ * deicide: Add bfi instruction
+ * TODO: Verify the functionality
+ */
+void bfi_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t a, b, c, d, f;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+	const operand_info &src2 = pI->src2();
+	const operand_info &src3 = pI->src3();
+	const operand_info &src4 = pI->src4();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+	b = thread->get_operand_value(src2, dst, i_type, thread, 1);
+	c = thread->get_operand_value(src3, dst, U32_TYPE, thread, 1);
+	d = thread->get_operand_value(src4, dst, U32_TYPE, thread, 1);
+
+	int msb = (i_type == B32_TYPE || i_type == U32_TYPE) ? 31 : 63;
+	// c, d are u32 type, but their values are restricted to the  range [0:255]
+	int pos = c.u32 & 0xff;
+	int len = d.u32 & 0xff;
+
+	switch (i_type)
+	{
+	case B32_TYPE:
+	case U32_TYPE:
+		f.u32 = b.u32;
+		for (int i = 0; i < len && (pos + i <= msb); ++i)
+		{
+			int a_i     = (a.u32 >> i) & 1;
+			int f_pos_i = (f.u32 >> (pos + i)) & 1;
+			if (a_i == 0 && f_pos_i == 1)
+			{
+				f.u32 &= ~(1 << (pos + i));
+			}
+			else
+			{
+				f.u32 |= (a_i << (pos + i));
+			}
+		}
+		break;
+	case B64_TYPE:
+	case U64_TYPE:
+		f.u64 = b.u64;
+		for (int i = 0; i < len && (pos + i <= msb); ++i)
+		{
+			int a_i     = (a.u64 >> i) & 1;
+			int f_pos_i = (f.u64 >> (pos + i)) & 1;
+			if (a_i == 0 && f_pos_i == 1)
+			{
+				f.u64 &= ~(1 << (pos + i));
+			}
+			else
+			{
+				f.u64 |= (a_i << (pos + i));
+			}
+		}
+		break;
+	default:
+		printf("Execution error: type mismatch with instruction bfi\n");
+		assert(0);
+		break;
+	}
+
+	thread->set_operand_value(dst, f, i_type, thread, pI);
+}
+
+/*
+ * deicide: Add bfind instruction
+ * TODO: Verify the functionality
+ */
+void bfind_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t a, d;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+
+	int msb = (i_type == U32_TYPE || i_type == S32_TYPE) ? 31 : 63;
+
+	switch (i_type)
+	{
+	case S32_TYPE:
+		if (a.s32 & (1 << msb)) a.s32 = ~(a.s32);
+		d.u32 = 0xffffffff;
+		for (int i = msb; i >= 0; i--)
+		{
+			if (a.s32 & (1 << i))
+			{
+				d.u32 = i;
+				break;
+			}
+		}
+		break;
+	case B32_TYPE:
+	case U32_TYPE:
+		d.u32 = 0xffffffff;
+		for (int i = msb; i >= 0; i--)
+		{
+			if (a.u32 & (1 << i))
+			{
+				d.u32 = i;
+				break;
+			}
+		}
+		break;
+	case S64_TYPE:
+		if (a.s64 & (1 << msb)) a.s64 = ~(a.s64);
+		d.u32 = 0xffffffff;
+		for (int i = msb; i >= 0; i--)
+		{
+			if (a.s64 & (1 << i))
+			{
+				d.u32 = i;
+				break;
+			}
+		}
+		break;
+	case B64_TYPE:
+	case U64_TYPE:
+		d.u32 = 0xffffffff;
+		for (int i = msb; i >= 0; i--)
+		{
+			if (a.u64 & (1 << i))
+			{
+				d.u32 = i;
+				break;
+			}
+		}
+		break;
+	default:
+		printf("Execution error: type mismatch with instruction bfind\n");
+		assert(0);
+		break;
+	}
+
+	// Note: bfind always return a u32 type value
+	if (pI->shift_amount() && d.u32 != 0xffffffff) d.u32 = msb - d.u32;
+	thread->set_operand_value(dst, d, U32_TYPE, thread, pI);
+}
 
 void bra_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -1292,7 +1606,42 @@ void breakaddr_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    assert(pI->has_pred() == false); // pdom analysis cannot handle if this instruction is predicated 
 }
 
-void brev_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
+/*
+ * deicide: Add brev instruction
+ * TODO: Verify the functionality
+ */
+
+void brev_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t a, d;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+
+	int msb = (i_type == B32_TYPE || i_type == U32_TYPE) ? 31 : 63;
+
+	switch (i_type)
+	{
+	case B32_TYPE:
+	case U32_TYPE:
+		for (int i = 0; i <= msb; ++i)
+			d.u32 |= (((a.u32 >> i) & 1) << (msb - i));
+		break;
+	case B64_TYPE:
+	case U64_TYPE:
+		for (int i = 0; i <= msb; ++i)
+			d.u64 |= (((a.u64 >> i) & 1) << (msb - i));
+		break;
+	default:
+		printf("Execution error: type mismatch with instruction brev\n");
+		assert(0);
+		break;
+	}
+
+	thread->set_operand_value(dst, d, i_type, thread, pI);
+}
 void brkpt_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
 
 void call_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
@@ -1419,7 +1768,7 @@ void clz_impl( const ptx_instruction *pI, ptx_thread_info *thread )
       a.u64 = a.u64 << 1;
    }
 
-   thread->set_operand_value(dst,d, B32_TYPE, thread, pI);
+   thread->set_operand_value(dst, d, B32_TYPE, thread, pI);
 }
 
 void cnot_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
@@ -2367,6 +2716,11 @@ void mad_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 void madp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
    mad_def(pI, thread, true);
+}
+
+void madc_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	inst_not_implemented(pI);
 }
 
 void mad_def( const ptx_instruction *pI, ptx_thread_info *thread, bool use_carry ) 
@@ -3379,6 +3733,72 @@ void set_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 
 }
 
+/* 
+ * deicide: Add shf instruction.
+ * TODO: Verify the functionality.
+ */
+
+void shf_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t a, b, c, d;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+	const operand_info &src2 = pI->src2();
+	const operand_info &src3 = pI->src3();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+	b = thread->get_operand_value(src2, dst, i_type, thread, 1);
+	c = thread->get_operand_value(src3, dst, i_type, thread, 1);
+
+	unsigned shf_direction = pI->shf_direction();
+	unsigned shf_mode      = pI->shf_mode();
+
+	switch ( i_type ) {
+	case B32_TYPE:
+	case U32_TYPE:
+		{
+			unsigned n = (shf_mode == CLAMP_OPTION) ? MY_MIN_I(c.u32, 32) : c.u32 & 0x1f;
+			switch (shf_direction) {
+				case SHFL_OPTION:
+					d.u32 = (b.u32 << n) | (a.u32 >> (32 - n));
+					break;
+				case SHFR_OPTION:
+					d.u32 = (b.u32 << (32 - n)) | (a.u32 >> n);
+					break;
+				default:
+					printf("Execution error: direction mismatch with instruction shf\n");
+					assert(0);
+					break;
+			}
+		}
+		break;
+	case S32_TYPE:
+		{
+			int n = (shf_mode == CLAMP_OPTION) ? MY_MIN_I(c.s32, 32) : c.s32 & 0x1f;
+			switch (shf_direction) {
+				case SHFL_OPTION:
+					d.s32 = (b.s32 << n) | (a.s32 >> (32 - n));
+					break;
+				case SHFR_OPTION:
+					d.s32 = (b.s32 << (32 - n)) | (a.s32 >> n);
+					break;
+				default:
+					printf("Execution error: direction mismatch with instruction shf\n");
+					assert(0);
+					break;
+			}
+		}
+		break;
+	default:
+		printf("Execution error: type mismatch with instruction shf\n");
+		assert(0); 
+		break;
+	}
+	
+	thread->set_operand_value(dst, d, i_type, thread, pI);
+}
+
 void shl_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
    ptx_reg_t a, b, d;
@@ -4218,6 +4638,86 @@ void xor_impl( const ptx_instruction *pI, ptx_thread_info *thread )
       data.u64 = src1_data.u64 ^ src2_data.u64;
 
    thread->set_operand_value(dst,data, i_type, thread, pI);
+}
+
+/*
+ * deicide: Add testp instruction
+ * TODO: Verify the functionality
+ */
+
+void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t p, a;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+
+	unsigned testp_op = pI->testp_op();
+	bool result;
+	/*
+	 * TODO: Are the semantics of finite, normal, and subnormal the same?
+	 */
+	switch (i_type)
+	{
+	case F32_TYPE:
+		switch (testp_op)
+		{
+		case TESTP_FINITE:
+		case TESTP_NORMAL:
+		case TESTP_SUBNORMAL:
+			result = !(isnan(a.f32) || isinf(a.f32));
+			break;
+		case TESTP_INFINITE:
+			result = isinf(a.f32);
+			break;
+		case TESTP_NUMBER:
+			result = !isnan(a.f32);
+			break;
+		case TESTP_NOTANUMBER:
+			result = isnan(a.f32);
+			break;
+		default:
+			printf("Execution error: operation mismatch with instruction testp\n");
+			assert(0);
+			break;
+		}
+	case F64_TYPE:
+		switch (testp_op)
+		{
+		case TESTP_FINITE:
+		case TESTP_NORMAL:
+		case TESTP_SUBNORMAL:
+			result = !(isnan(a.f64) || isinf(a.f64));
+			break;
+		case TESTP_INFINITE:
+			result = isinf(a.f64);
+			break;
+		case TESTP_NUMBER:
+			result = !isnan(a.f64);
+			break;
+		case TESTP_NOTANUMBER:
+			result = isnan(a.f64);
+			break;
+		default:
+			printf("Execution error: operation mismatch with instruction testp\n");
+			assert(0);
+			break;
+		}
+	default:
+		printf("Execution error: type mismatch with instruction testp\n");
+		assert(0);
+		break;
+	}
+
+	/*
+	 * TODO: 
+	 * Use PTXPlus predicate value convention, 1 is false and 0 is true.
+	 * Not sure if this is right
+	 */
+	p.pred = result ? 0 : 1;
+	thread->set_operand_value(dst, p, PRED_TYPE, thread, pI);
 }
 
 void inst_not_implemented( const ptx_instruction * pI ) 

@@ -37,6 +37,7 @@ void lg2_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void mad24_impl( const ptx_instruction *pI, ptx_thread_info *thread );
 void mad_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void madp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
+void madc_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void max_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void membar_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void min_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;

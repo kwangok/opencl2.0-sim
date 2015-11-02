@@ -187,6 +187,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %token  CV_OPTION;
 %token  WB_OPTION;
 %token  WT_OPTION;
+%token  SHFL_OPTION;
+%token  SHFR_OPTION;
+%token  CLAMP_OPTION;
+%token  WRAP_OPTION;
+%token  TESTP_FINITE;
+%token  TESTP_INFINITE;
+%token  TESTP_NUMBER;
+%token  TESTP_NOTANUMBER;
+%token  TESTP_NORMAL;
+%token  TESTP_SUBNORMAL;
+%token  SHIFTAMT_OPTION;
+%token  CARRY_FLAG;
 
 %type <int_value> function_decl_header
 %type <ptr_value> function_decl
@@ -438,7 +450,23 @@ option: type_spec
 	| CV_OPTION { add_option(CV_OPTION); }
 	| WB_OPTION { add_option(WB_OPTION); }
 	| WT_OPTION { add_option(WT_OPTION); }
+	| SHFL_OPTION { add_option(SHFL_OPTION); } /* deicide218: New options added from here */
+	| SHFR_OPTION { add_option(SHFR_OPTION); }
+	| CLAMP_OPTION { add_option(CLAMP_OPTION); }
+	| WRAP_OPTION { add_option(WRAP_OPTION); }
+	| testp_operation_spec;
+	| SHIFTAMT_OPTION { add_option(SHIFTAMT_OPTION); }
+	| CARRY_FLAG { add_option(CARRY_FLAG); }
 	;
+
+/* deicide218: testp instructions */
+
+testp_operation_spec: TESTP_FINITE { add_option(TESTP_FINITE); }
+	| TESTP_INFINITE { add_option(TESTP_INFINITE); }
+	| TESTP_NUMBER { add_option(TESTP_NUMBER); }
+	| TESTP_NOTANUMBER { add_option(TESTP_NOTANUMBER); }
+	| TESTP_NORMAL { add_option(TESTP_NORMAL); }
+	| TESTP_SUBNORMAL { add_option(TESTP_SUBNORMAL); }
 
 atomic_operation_spec: ATOMIC_AND { add_option(ATOMIC_AND); } 
 	| ATOMIC_OR { add_option(ATOMIC_OR); } 

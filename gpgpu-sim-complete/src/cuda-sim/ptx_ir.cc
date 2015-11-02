@@ -1162,6 +1162,41 @@ ptx_instruction::ptx_instruction( int opcode,
       case HALF_OPTION:
          m_inst_size = 4; // bytes
          break;
+	  case SHFL_OPTION: // deicide218: New options added from here
+		 m_shf_direction = SHFL_OPTION;
+		 break;
+	  case SHFR_OPTION:
+		 m_shf_direction = SHFR_OPTION;
+		 break;
+	  case CLAMP_OPTION:
+		 m_shf_mode = CLAMP_OPTION;
+		 break;
+	  case WRAP_OPTION:
+		 m_shf_mode = WRAP_OPTION;
+		 break;
+	  case TESTP_FINITE:
+		 m_testp_op = TESTP_FINITE;
+		 break;
+	  case TESTP_INFINITE:
+		 m_testp_op = TESTP_INFINITE;
+		 break;
+	  case TESTP_NUMBER:
+		 m_testp_op = TESTP_NUMBER;
+		 break;
+	  case TESTP_NOTANUMBER:
+		 m_testp_op = TESTP_NOTANUMBER;
+		 break;
+	  case TESTP_NORMAL:
+		 m_testp_op = TESTP_NORMAL;
+		 break;
+	  case TESTP_SUBNORMAL:
+		 m_testp_op = TESTP_SUBNORMAL;
+		 break;
+	  case SHIFTAMT_OPTION:
+		 m_shiftamt_option = true;
+		 break;
+	  case CARRY_FLAG:
+		 m_carry_flag = true;
       default:
          assert(0);
          break;

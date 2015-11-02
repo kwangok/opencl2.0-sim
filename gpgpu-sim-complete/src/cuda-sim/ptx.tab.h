@@ -30,8 +30,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_PTX_HOME_CUDA_SIM_PTX_TAB_H_INCLUDED
-# define YY_PTX_HOME_CUDA_SIM_PTX_TAB_H_INCLUDED
+#ifndef YY_PTX_PTX_TAB_H_INCLUDED
+# define YY_PTX_PTX_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -196,7 +196,19 @@ extern int ptx_debug;
     LU_OPTION = 406,
     CV_OPTION = 407,
     WB_OPTION = 408,
-    WT_OPTION = 409
+    WT_OPTION = 409,
+    SHFL_OPTION = 410,
+    SHFR_OPTION = 411,
+    CLAMP_OPTION = 412,
+    WRAP_OPTION = 413,
+    TESTP_FINITE = 414,
+    TESTP_INFINITE = 415,
+    TESTP_NUMBER = 416,
+    TESTP_NOTANUMBER = 417,
+    TESTP_NORMAL = 418,
+    TESTP_SUBNORMAL = 419,
+    SHIFTAMT_OPTION = 420,
+    CARRY_FLAG = 421
   };
 #endif
 
@@ -213,7 +225,7 @@ union YYSTYPE
   char * string_value;
   void * ptr_value;
 
-#line 217 "ptx.tab.h" /* yacc.c:1909  */
+#line 229 "ptx.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -224,4 +236,4 @@ extern YYSTYPE ptx_lval;
 
 int ptx_parse (void);
 
-#endif /* !YY_PTX_HOME_CUDA_SIM_PTX_TAB_H_INCLUDED  */
+#endif /* !YY_PTX_PTX_TAB_H_INCLUDED  */
