@@ -1000,7 +1000,8 @@ public:
    unsigned shf_direction() const { return m_shf_direction; }
    unsigned shf_mode() const { return m_shf_mode; }
    unsigned testp_op() const { return m_testp_op; }
-   bool shiftamt() const { return m_shiftamt_option; }
+   bool shift_amount() const { return m_shiftamt_option; }
+   bool carry_flag() const { return m_carry_flag; }
    enum vote_mode_t { vote_any, vote_all, vote_uni, vote_ballot };
    enum vote_mode_t vote_mode() const { return m_vote_mode; }
 
@@ -1067,6 +1068,7 @@ private:
    unsigned            m_shf_mode;
    unsigned            m_testp_op;
    bool                m_shiftamt_option;
+   bool                m_carry_flag;
 
    std::list<int>          m_scalar_type;
    memory_space_t m_space_spec;

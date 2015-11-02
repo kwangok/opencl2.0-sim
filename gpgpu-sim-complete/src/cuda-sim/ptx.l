@@ -87,6 +87,7 @@ lg2	TC; ptx_lval.int_value = LG2_OP; return OPCODE;
 mad24   TC; ptx_lval.int_value = MAD24_OP; return OPCODE;
 mad     TC; ptx_lval.int_value = MAD_OP; return OPCODE;
 madp    TC; ptx_lval.int_value = MADP_OP; return OPCODE;
+madc    TC; ptx_lval.int_value = MADC_OP; return OPCODE;
 max     TC; ptx_lval.int_value = MAX_OP; return OPCODE;
 membar  TC; ptx_lval.int_value = MEMBAR_OP; return OPCODE;
 min     TC; ptx_lval.int_value = MIN_OP; return OPCODE;
@@ -345,6 +346,8 @@ breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
 \.subnormal  TC; return TESTP_SUBNORMAL;
 
 \.shiftamt   TC; return SHIFTAMT_OPTION;
+
+\.cc    TC; return CARRY_FLAG;
 
 \.1d	TC; return GEOM_MODIFIER_1D;
 \.2d	TC; return GEOM_MODIFIER_2D;

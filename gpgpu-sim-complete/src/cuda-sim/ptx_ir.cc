@@ -1196,6 +1196,8 @@ ptx_instruction::ptx_instruction( int opcode,
 	  case SHIFTAMT_OPTION:
 		 m_shiftamt_option = true;
 		 break;
+	  case CARRY_FLAG:
+		 m_carry_flag = true;
       default:
          assert(0);
          break;

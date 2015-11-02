@@ -691,7 +691,7 @@ void ptx_instruction::set_opcode_and_latency()
 		   break;
 	   }
 	   break;
-   case MAD_OP: case MADP_OP:
+   case MAD_OP: case MADP_OP: case MADC_OP:
 	   //MAD latency
 	   switch(get_type()){
 	   case F32_TYPE:
@@ -741,6 +741,33 @@ void ptx_instruction::set_opcode_and_latency()
 	  initiation_interval = dp_init[2];
       op = SFU_OP;
       break;
+   case TESTP_OP:
+	  /*
+	   * deicide: Add latency modeling
+	   * TODO: Verify the accuracy
+	   */
+	  op = SFU_OP;
+	  switch(get_type()){
+		  case F32_TYPE:
+			  latency = fp_latency[1];
+			  initiation_interval = fp_init[1];
+			  break;
+		  case F64_TYPE:
+			  latency = dp_latency[1];
+			  initiation_interval = dp_init[1];
+			  break;
+		  default:
+			  break;
+	  }
+	  break;
+   case BFIND_OP: case BREV_OP: case BFE_OP: case BFI_OP:
+	  /*
+	   * deicide: Add latency modeling
+	   * TODO: Verify the accuracy
+	   */
+	  latency = int_latency[0];
+	  initiation_interval = int_init[0];
+	  break;
    default: 
        break;
    }

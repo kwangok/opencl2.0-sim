@@ -198,6 +198,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %token  TESTP_NORMAL;
 %token  TESTP_SUBNORMAL;
 %token  SHIFTAMT_OPTION;
+%token  CARRY_FLAG;
 
 %type <int_value> function_decl_header
 %type <ptr_value> function_decl
@@ -455,6 +456,7 @@ option: type_spec
 	| WRAP_OPTION { add_option(WRAP_OPTION); }
 	| testp_operation_spec;
 	| SHIFTAMT_OPTION { add_option(SHIFTAMT_OPTION); }
+	| CARRY_FLAG { add_option(CARRY_FLAG); }
 	;
 
 /* deicide218: testp instructions */
