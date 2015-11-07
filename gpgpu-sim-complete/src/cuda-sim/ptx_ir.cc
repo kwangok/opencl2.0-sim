@@ -1039,6 +1039,7 @@ ptx_instruction::ptx_instruction( int opcode,
    m_membar_level = 0;
    m_inst_size = 8; // bytes
    m_shiftamt_option = false;
+   m_ftz = false;
 
    std::list<int>::const_iterator i;
    unsigned n=1;
@@ -1144,6 +1145,7 @@ ptx_instruction::ptx_instruction( int opcode,
          m_membar_level = SYS_OPTION;
          break;
       case FTZ_OPTION:
+		 m_ftz = true;
          break;
       case EXIT_OPTION:
          m_exit = true;
