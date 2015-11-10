@@ -726,7 +726,26 @@ workend(ThreadContext *tc, uint64_t workid, uint64_t threadid)
 void
 gpu(ThreadContext *tc, uint64_t gpusysno, uint64_t call_params)
 {
-    if (gpusysno > 85) {
+/* Jie */
+//    if (gpusysno > 85) {
+// clGetPlatformIDs,		/*  86 OpenCL  1 */
+// clGetDeviceIDs,		/*  87 OpenCL  2 */
+// clCreateContext,		/*  88 OpenCL  3 */
+// clCreateCommandQueue,	/*  89 OpenCL  4 */
+// clCreateProgramWithSource,	/*  90 OpenCL  5 */
+// clBuildProgram,		/*  91 OpenCL  6 */
+// clCreateBuffer,		/*  92 OpenCL  7 */
+// clCreateKernel,		/*  93 OpenCL  8 */
+// clSetKernelArg,		/*  94 OpenCL  9 */
+// clEnqueueNDRangeKernel,	/*  95 OpenCL 10 */
+// clEnqueueReadBuffer,		/*  96 OpenCL 11 */
+// clReleaseKernel,		/*  97 OpenCL 12 */
+// clReleaseProgram,		/*  98 OpenCL 13 */
+// clReleaseMemObject,		/*  99 OpenCL 14 */
+// clReleaseCommandQueue,	/* 100 OpenCL 15 */
+// clReleaseContext,		/* 101 OpenCL 16 */
+    if (gpusysno > 101) {
+/* Jie */
         warn("Ignoring gpu syscall %d\n", gpusysno);
         return;
     }

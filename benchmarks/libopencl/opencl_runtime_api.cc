@@ -92,6 +92,208 @@ extern "C" {
 #define CL_USE_DEPRECATED_OPENCL_1_0_APIS
 #include <CL/cl.h>
 
+/* Jie */
+#include "builtin_types.h"
+
+typedef enum cudaError cudaError_t;
+
+enum { CUDA_MALLOC_DEVICE = 0,
+       CUDA_MALLOC_HOST = 1,
+       CUDA_FREE_DEVICE = 4,
+       CUDA_FREE_HOST = 5
+};
+
+#define PAGE_SIZE_BYTES 4096
+
+void
+pack(char *bytes, int &bytes_off, int *lengths, int &lengths_off, char *arg, int arg_size)
+{
+    for (int i = 0; i < arg_size; i++) {
+        bytes[bytes_off + i] = *arg;
+        arg++;
+    }
+    *(lengths + lengths_off) = arg_size;
+
+    bytes_off += arg_size;
+    lengths_off += 1;
+}
+
+unsigned char
+touchPages(unsigned char *ptr, size_t size)
+{
+    unsigned char sum = 0;
+    for (unsigned i = 0; i < size; i += PAGE_SIZE_BYTES) {
+        sum += ptr[i];
+    }
+    sum += ptr[size-1];
+    return sum;
+}
+
+void
+blockThread()
+{
+    // Cache line align the bool to ensure other values are not allocated on
+    // the same line to avoid contention and Ruby functional access failures
+    bool *is_free;
+    int error = posix_memalign((void**)&is_free, 128, 128);
+    if (error) {
+        fprintf(stderr, "ERROR: cudaRegisterFatBinary2 failed with code: %d, Exiting...\n", error);
+        exit(-1);
+    }
+    *is_free = false;
+
+    gpusyscall_t call_params;
+    call_params.num_args = 1;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(bool*);
+    call_params.total_bytes = call_params.arg_lengths[0];
+    call_params.args = new char[call_params.total_bytes];
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&is_free, call_params.arg_lengths[0]);
+
+    // This while loop is used to suppress interrupts that awaken the thread.
+    // When a thread is woken up, it may handle a system call, and it should
+    // return to blocking (suspended) if the mutex has not yet been cleared.
+    bool free_to_pass = *is_free;
+    while(!free_to_pass) {
+        m5_gpu(83, (uint64_t)&call_params);
+        free_to_pass = *is_free;
+    }
+
+    delete[] call_params.args;
+    delete[] call_params.arg_lengths;
+    delete is_free;
+}
+
+cudaError_t
+cudaMallocHelper(void **ptr, size_t size, unsigned type)
+{
+    gpusyscall_t call_params;
+    call_params.num_args = 2;
+    call_params.arg_lengths = new int[call_params.num_args];
+
+    call_params.arg_lengths[0] = sizeof(void **);
+    call_params.arg_lengths[1] = sizeof(size_t);
+    call_params.total_bytes = call_params.arg_lengths[0] + call_params.arg_lengths[1];
+
+    call_params.args = new char[call_params.total_bytes];
+
+    call_params.ret = new char[sizeof(cudaError_t)];
+    cudaError_t* ret_spot = (cudaError_t*)call_params.ret;
+    *ret_spot = cudaSuccess;
+
+    int bytes_off = 0;
+    int lengths_off = 0;
+
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&ptr, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&size, call_params.arg_lengths[1]);
+
+    m5_gpu(type, (uint64_t)&call_params);
+    cudaError_t ret = *((cudaError_t*)call_params.ret);
+
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
+
+    if (ret == cudaErrorApiFailureBase) {
+        // This return code indicates that memory management must be handled
+        // outside the simulator, so CPU must allocate memory for GPU
+        int error = posix_memalign(ptr, 128, size);
+        if (error) {
+            fprintf(stderr, "ERROR: cudaMalloc failed with code: %d, Exiting...\n", error);
+            exit(-1);
+        }
+        ret = cudaSuccess;
+
+        // Touch all pages to ensure OS mapping
+        touchPages((unsigned char*)*ptr, size);
+
+        if (type == CUDA_MALLOC_DEVICE) {
+            // Need to register this memory as device memory in simulator.
+            // This registration is used if/when enforcing access permissions
+            // between CPU and GPU
+            call_params.num_args = 2;
+            call_params.arg_lengths = new int[call_params.num_args];
+
+            call_params.arg_lengths[0] = sizeof(void*);
+            call_params.arg_lengths[1] = sizeof(size_t);
+            call_params.total_bytes = call_params.arg_lengths[0] + call_params.arg_lengths[1];
+
+            call_params.args = new char[call_params.total_bytes];
+
+            call_params.ret = new char[sizeof(cudaError_t)];
+            ret_spot = (cudaError_t*)call_params.ret;
+            *ret_spot = cudaSuccess;
+
+            bytes_off = 0;
+            lengths_off = 0;
+
+            pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)ptr, call_params.arg_lengths[0]);
+            pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&size, call_params.arg_lengths[1]);
+
+            m5_gpu(82, (uint64_t)&call_params);
+            cudaError_t reg_ret = *((cudaError_t*)call_params.ret);
+            assert(reg_ret == cudaSuccess);
+
+            delete[] call_params.args;
+            delete[] call_params.arg_lengths;
+            delete[] call_params.ret;
+        }
+    }
+
+    return ret;
+}
+
+cudaError_t
+cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind)
+{
+    // If transfer will access host memory, touch it to ensure OS page mapping
+    if (kind == cudaMemcpyHostToDevice) {
+        touchPages((unsigned char*)src, count);
+    } else if(kind == cudaMemcpyDeviceToHost) {
+        touchPages((unsigned char*)dst, count);
+    }
+
+    gpusyscall_t call_params;
+    call_params.num_args = 4;
+    call_params.arg_lengths = new int[call_params.num_args];
+
+    call_params.arg_lengths[0] = sizeof(void*);
+    call_params.arg_lengths[1] = sizeof(const void*);
+    call_params.arg_lengths[2] = sizeof(size_t);
+    call_params.arg_lengths[3] = sizeof(enum cudaMemcpyKind);
+    call_params.total_bytes = call_params.arg_lengths[0] +
+            call_params.arg_lengths[1] + call_params.arg_lengths[2] +
+            call_params.arg_lengths[3];
+
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(bool)];
+    bool* ret_spot = (bool*)call_params.ret;
+    *ret_spot = false;
+
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&dst, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&src, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&count, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kind, call_params.arg_lengths[3]);
+
+    m5_gpu(7, (uint64_t)&call_params);
+    bool block_thread = *((bool*)call_params.ret);
+
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
+
+    if (block_thread) {
+        blockThread();
+    }
+
+    return cudaSuccess;
+}
+/* Jie */
+
 // TODO: Migrate into gem5-gpu:
 class function_info;
 
@@ -711,6 +913,33 @@ clCreateContext( const cl_context_properties * properties,
                   void *                  user_data,
                   cl_int *                errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 2;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(const cl_context_properties*);
+  call_params.arg_lengths[1] = sizeof(cl_int*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_context)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&properties, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[1]);
+
+  m5_gpu(88, (uint64_t)&call_params);
+  cl_context ret = *((cl_context*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     //struct _cl_device_id *gpu = GPGPUSim_Init();
     if (properties != NULL) {
         if (properties[0] != CL_CONTEXT_PLATFORM || properties[1] != (cl_context_properties)&g_gpgpu_sim_platform_id) {
@@ -765,6 +994,37 @@ clCreateCommandQueue(cl_context                     context,
                      cl_command_queue_properties    properties,
                      cl_int *                       errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 4;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(cl_context);
+  call_params.arg_lengths[1] = sizeof(cl_device_id);
+  call_params.arg_lengths[2] = sizeof(cl_command_queue_properties);
+  call_params.arg_lengths[3] = sizeof(cl_int*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_command_queue)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&context, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device, call_params.arg_lengths[1]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&properties, call_params.arg_lengths[2]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[3]);
+
+  m5_gpu(89, (uint64_t)&call_params);
+  cl_command_queue ret = *((cl_command_queue*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     if (!context) { setErrCode(errcode_ret, CL_INVALID_CONTEXT);   return NULL; }
     gem5gpu_opencl_warning(__my_func__,__LINE__, "assuming device_id is in context");
     if ((properties & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE))
@@ -782,6 +1042,16 @@ clCreateBuffer(cl_context   context,
                void *       host_ptr,
                cl_int *     errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  cl_mem cl_ret;
+  cudaError_t cuda_ret = cudaMallocHelper((void**)&cl_ret, size, CUDA_MALLOC_DEVICE);
+  if ( errcode_ret != NULL )
+    if ( cuda_ret == cudaSuccess ) *errcode_ret = CL_SUCCESS;
+    else *errcode_ret = CL_INVALID_CONTEXT;
+  if ( host_ptr != NULL )
+    cudaMemcpy(cl_ret, host_ptr, size, cudaMemcpyHostToDevice);
+  return cl_ret;
+/* Jie */
     if (!context) { setErrCode(errcode_ret, CL_INVALID_CONTEXT);   return NULL; }
     return context->CreateBuffer(flags,size,host_ptr,errcode_ret);
 }
@@ -793,6 +1063,43 @@ clCreateProgramWithSource(cl_context        context,
                           const size_t *    lengths,
                           cl_int *          errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 5;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(cl_context);
+  call_params.arg_lengths[1] = sizeof(cl_uint);
+  call_params.arg_lengths[2] = sizeof(char*);
+  call_params.arg_lengths[3] = sizeof(const size_t*);
+  call_params.arg_lengths[4] = sizeof(cl_int*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_program)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  const size_t * length = new size_t(strlen(*strings));
+  char * stringsData = new char[*length];
+  strcpy( stringsData, *strings );
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&context, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&count, call_params.arg_lengths[1]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&stringsData, call_params.arg_lengths[2]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&length, call_params.arg_lengths[3]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[4]);
+
+  m5_gpu(90, (uint64_t)&call_params);
+  cl_program ret = *((cl_program*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     if (!context) { setErrCode(errcode_ret, CL_INVALID_CONTEXT);   return NULL; }
     setErrCode(errcode_ret, CL_SUCCESS);
     return new _cl_program(context,count,strings,lengths);
@@ -807,6 +1114,84 @@ clBuildProgram(cl_program           program,
                void (*pfn_notify)(cl_program /* program */, void * /* user_data */),
                void *               user_data) CL_API_SUFFIX__VERSION_1_0
 {
+ /* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 3;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(cl_program);
+  call_params.arg_lengths[1] = sizeof(const char*);
+  call_params.arg_lengths[2] = sizeof(cl_int*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = -1; // ???
+
+  char * option = new char[99];
+  strcpy(option, ((options != NULL) ? options : ""));
+  cl_int * ret = new cl_int;
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&program, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&option, call_params.arg_lengths[1]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&ret, call_params.arg_lengths[2]);
+
+  m5_gpu(91, (uint64_t)&call_params);
+  int allocation_size = *((int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  if (allocation_size < 0) {
+    printf("gem5 + GPGPU-Sim CUDA RT: Problem with const allocation... Exiting\n");
+    exit(-1);
+  }
+
+  // Allocate memory for globals and constants:
+  int padding = allocation_size % PAGE_SIZE_BYTES;
+  if (padding > 0) {
+    allocation_size -= padding;
+    allocation_size += PAGE_SIZE_BYTES;
+  }
+  unsigned char* alloc_ptr = NULL;
+  if (allocation_size > 0) {
+    int error = posix_memalign((void**)&alloc_ptr, PAGE_SIZE_BYTES, allocation_size);
+    if (error) {
+      fprintf(stderr, "ERROR: cudaRegisterFatBinary2 failed with code: %d, Exiting...\n", error);
+      exit(-1);
+    }
+
+    // Const memory space is default allocated to 0, and this touches
+    // all pages to ensure OS mapping... Double win
+    memset(alloc_ptr, 0, allocation_size);
+  }
+
+  // Second up-call after allocating memory for globals and constants:
+  call_params.num_args = 1;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(void *);
+  call_params.total_bytes = call_params.arg_lengths[0];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(void**)];
+  void*** ret_spot2 = (void***)call_params.ret;
+  *ret_spot2 = NULL;
+
+  bytes_off = 0;
+  lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&alloc_ptr, call_params.arg_lengths[0]);
+
+  m5_gpu(81, (uint64_t)&call_params);
+  // void** ret = *((void***)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return *ret;
+/* Jie */
     if (!program) return CL_INVALID_PROGRAM;
     program->Build(options);
     return CL_SUCCESS;
@@ -817,6 +1202,39 @@ clCreateKernel(cl_program      program,
                const char *    kernel_name,
                cl_int *        errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 4;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(cl_program);
+  call_params.arg_lengths[1] = sizeof(int);
+  call_params.arg_lengths[2] = sizeof(const char*);
+  call_params.arg_lengths[3] = sizeof(cl_int*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_kernel)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  int kernel_name_length = strlen(kernel_name)+1;
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&program, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel_name_length, call_params.arg_lengths[1]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel_name, call_params.arg_lengths[2]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[3]);
+
+  m5_gpu(93, (uint64_t)&call_params);
+  cl_kernel ret = *((cl_kernel*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     if (kernel_name == NULL) {
         setErrCode(errcode_ret, CL_INVALID_KERNEL_NAME);
         return NULL;
@@ -831,6 +1249,37 @@ clSetKernelArg(cl_kernel    kernel,
                size_t       arg_size,
                const void * arg_value) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 4;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(cl_kernel);
+  call_params.arg_lengths[1] = sizeof(cl_uint);
+  call_params.arg_lengths[2] = sizeof(size_t);
+  call_params.arg_lengths[3] = sizeof(const void*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_index, call_params.arg_lengths[1]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_size, call_params.arg_lengths[2]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_value, call_params.arg_lengths[3]);
+
+  m5_gpu(94, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     kernel->SetKernelArg(arg_index,arg_size,arg_value);
     return CL_SUCCESS;
 }
@@ -846,6 +1295,41 @@ clEnqueueNDRangeKernel(cl_command_queue command_queue,
                        const cl_event * event_wait_list,
                        cl_event *       event) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 6;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(cl_command_queue);
+  call_params.arg_lengths[1] = sizeof(cl_kernel);
+  call_params.arg_lengths[2] = sizeof(cl_uint);
+  call_params.arg_lengths[3] = sizeof(const size_t*);
+  call_params.arg_lengths[4] = sizeof(const size_t*);
+  call_params.arg_lengths[5] = sizeof(const size_t*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4]+call_params.arg_lengths[5];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&command_queue, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[1]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&work_dim, call_params.arg_lengths[2]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&global_work_offset, call_params.arg_lengths[3]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&global_work_size, call_params.arg_lengths[4]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&local_work_size, call_params.arg_lengths[5]);
+
+  m5_gpu(95, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     int _global_size[3];
     //int zeros[3] = {0, 0, 0};
     printf("\n\n\n");
@@ -947,6 +1431,10 @@ clEnqueueReadBuffer(cl_command_queue    command_queue,
                     const cl_event *    event_wait_list,
                     cl_event *          event) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  cudaMemcpy(ptr, buffer, cb, cudaMemcpyDeviceToHost);
+  return CL_SUCCESS;
+/* Jie */
     opencl_not_implemented(__my_func__,__LINE__);
     //if (!blocking_read)
     //    gpgpusim_opencl_warning(__my_func__,__LINE__, "non-blocking read treated as blocking read");
@@ -966,6 +1454,10 @@ clEnqueueWriteBuffer(cl_command_queue   command_queue,
                      const cl_event *   event_wait_list,
                      cl_event *         event) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  cudaMemcpy(buffer, ptr, cb, cudaMemcpyHostToDevice);
+  return CL_SUCCESS;
+/* Jie */
     opencl_not_implemented(__my_func__,__LINE__);
     //if (!blocking_write)
     //    gpgpusim_opencl_warning(__my_func__,__LINE__, "non-blocking write treated as blocking write");
@@ -977,36 +1469,165 @@ clEnqueueWriteBuffer(cl_command_queue   command_queue,
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseMemObject(cl_mem /* memobj */) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 0;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.total_bytes = 0;
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  m5_gpu(99, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseKernel(cl_kernel   /* kernel */) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 0;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.total_bytes = 0;
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  m5_gpu(97, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 0;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.total_bytes = 0;
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  m5_gpu(98, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseCommandQueue(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 0;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.total_bytes = 0;
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  m5_gpu(100, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseContext(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 0;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.total_bytes = 0;
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  m5_gpu(101, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clGetPlatformIDs(cl_uint num_entries, cl_platform_id *platforms, cl_uint *num_platforms) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 3;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(cl_uint);
+  call_params.arg_lengths[1] = sizeof(cl_platform_id*);
+  call_params.arg_lengths[2] = sizeof(cl_uint*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_entries, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&platforms, call_params.arg_lengths[1]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_platforms, call_params.arg_lengths[2]);
+
+  m5_gpu(86, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     if (((num_entries == 0) && (platforms != NULL)) ||
         ((num_platforms == NULL) && (platforms == NULL)))
         return CL_INVALID_VALUE;
@@ -1083,6 +1704,39 @@ clGetDeviceIDs(cl_platform_id   platform,
                cl_device_id *   devices,
                cl_uint *        num_devices) CL_API_SUFFIX__VERSION_1_0
 {
+/* Jie */
+  gpusyscall_t call_params;
+  call_params.num_args = 5;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(cl_platform_id);
+  call_params.arg_lengths[1] = sizeof(cl_device_type);
+  call_params.arg_lengths[2] = sizeof(cl_uint);
+  call_params.arg_lengths[3] = sizeof(cl_device_id*);
+  call_params.arg_lengths[4] = sizeof(cl_uint*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&platform, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device_type, call_params.arg_lengths[1]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_entries, call_params.arg_lengths[2]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&devices, call_params.arg_lengths[3]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_devices, call_params.arg_lengths[4]);
+
+  m5_gpu(87, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+/* Jie */
     if (platform == NULL || platform->m_uid != 0)
         return CL_INVALID_PLATFORM;
     if ((num_entries == 0 && devices != NULL) ||

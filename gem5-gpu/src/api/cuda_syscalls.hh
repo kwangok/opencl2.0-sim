@@ -256,6 +256,25 @@ void cudaGLMapBufferObject(ThreadContext *tc, gpusyscall_t *call_params);
 void cudaGLUnmapBufferObject(ThreadContext *tc, gpusyscall_t *call_params);
 void cudaGLUnregisterBufferObject(ThreadContext *tc, gpusyscall_t *call_params);
 
+/* Jie */
+void clGetPlatformIDs(ThreadContext *tc, gpusyscall_t *call_params);
+void clGetDeviceIDs(ThreadContext *tc, gpusyscall_t *call_params);
+void clCreateContext(ThreadContext *tc, gpusyscall_t *call_params);
+void clCreateCommandQueue(ThreadContext *tc, gpusyscall_t *call_params);
+void clCreateProgramWithSource(ThreadContext *tc, gpusyscall_t *call_params);
+void clBuildProgram(ThreadContext *tc, gpusyscall_t *call_params);
+void clCreateBuffer(ThreadContext *tc, gpusyscall_t *call_params);
+void clCreateKernel(ThreadContext *tc, gpusyscall_t *call_params);
+void clSetKernelArg(ThreadContext *tc, gpusyscall_t *call_params);
+void clEnqueueNDRangeKernel(ThreadContext *tc, gpusyscall_t *call_params);
+void clEnqueueReadBuffer(ThreadContext *tc, gpusyscall_t *call_params);
+void clReleaseKernel(ThreadContext *tc, gpusyscall_t *call_params);
+void clReleaseProgram(ThreadContext *tc, gpusyscall_t *call_params);
+void clReleaseMemObject(ThreadContext *tc, gpusyscall_t *call_params);
+void clReleaseCommandQueue(ThreadContext *tc, gpusyscall_t *call_params);
+void clReleaseContext(ThreadContext *tc, gpusyscall_t *call_params);
+/* Jie */
+
 #if (CUDART_VERSION >= 2010)
 
 void cudaHostAlloc(ThreadContext *tc, gpusyscall_t *call_params);
@@ -370,7 +389,26 @@ cudaFunc_t gpgpu_funcs[] = {
         cudaRegisterDeviceMemory,    /* 82 */
         cudaBlockThread,    /* 83 */
         __cudaCheckAllocateLocal,    /* 84 */
-        __cudaSetLocalAllocation    /* 85 */
+/* Jie */
+//	__cudaSetLocalAllocation    /* 85 */
+        __cudaSetLocalAllocation,    /* 85 */
+        clGetPlatformIDs,		/*  86 OpenCL  1 */
+        clGetDeviceIDs,			/*  87 OpenCL  2 */
+        clCreateContext,		/*  88 OpenCL  3 */
+        clCreateCommandQueue,		/*  89 OpenCL  4 */
+        clCreateProgramWithSource,	/*  90 OpenCL  5 */
+        clBuildProgram,			/*  91 OpenCL  6 */
+        clCreateBuffer,			/*  92 OpenCL  7 */
+        clCreateKernel,			/*  93 OpenCL  8 */
+        clSetKernelArg,			/*  94 OpenCL  9 */
+        clEnqueueNDRangeKernel,		/*  95 OpenCL 10 */
+        clEnqueueReadBuffer,		/*  96 OpenCL 11 */
+        clReleaseKernel,		/*  97 OpenCL 12 */
+        clReleaseProgram,		/*  98 OpenCL 13 */
+        clReleaseMemObject,		/*  99 OpenCL 14 */
+        clReleaseCommandQueue,		/* 100 OpenCL 15 */
+        clReleaseContext		/* 101 OpenCL 16 */
+/* Jie */
 };
 
 #endif
