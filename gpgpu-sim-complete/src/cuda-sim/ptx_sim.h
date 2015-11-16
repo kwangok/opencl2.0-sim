@@ -284,7 +284,7 @@ public:
    void set_reg( const symbol *reg, const ptx_reg_t &value );
    ptx_reg_t get_reg( const symbol *reg );
    ptx_reg_t get_operand_value( const operand_info &op, operand_info dstInfo, unsigned opType, ptx_thread_info *thread, int derefFlag );
-   void set_operand_value( const operand_info &dst, const ptx_reg_t &data, unsigned type, ptx_thread_info *thread, const ptx_instruction *pI );
+   void set_operand_value( const operand_info &dst, const ptx_reg_t &data, unsigned type, ptx_thread_info *thread, const ptx_instruction *pI, int shfl_pval = 0 );
    void set_operand_value( const operand_info &dst, const ptx_reg_t &data, unsigned type, ptx_thread_info *thread, const ptx_instruction *pI, int overflow, int carry );
    void get_vector_operand_values( const operand_info &op, ptx_reg_t* ptx_regs, unsigned num_elements );
    void set_vector_operand_values( const operand_info &dst, 

@@ -10,10 +10,11 @@ bfi          O
 bfind        O
 brev         O
 copysign     X
-madc         X
+madc         O
+prmt         O
 red          X                Treat it as atom
 shf          O
-shfl         X
+shfl         O
 subc         O
 testp        O
 

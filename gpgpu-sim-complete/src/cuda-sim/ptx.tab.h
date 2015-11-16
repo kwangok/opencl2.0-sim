@@ -208,7 +208,17 @@ extern int ptx_debug;
     TESTP_NORMAL = 418,
     TESTP_SUBNORMAL = 419,
     SHIFTAMT_OPTION = 420,
-    CARRY_FLAG = 421
+    CARRY_FLAG = 421,
+    UP_OPTION = 422,
+    DOWN_OPTION = 423,
+    BFLY_OPTION = 424,
+    IDX_OPTION = 425,
+    F4E_OPTION = 426,
+    B4E_OPTION = 427,
+    RC8_OPTION = 428,
+    ECL_OPTION = 429,
+    ECR_OPTION = 430,
+    RC16_OPTION = 431
   };
 #endif
 
@@ -225,7 +235,7 @@ union YYSTYPE
   char * string_value;
   void * ptr_value;
 
-#line 229 "ptx.tab.h" /* yacc.c:1909  */
+#line 239 "ptx.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

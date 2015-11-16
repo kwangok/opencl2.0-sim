@@ -371,7 +371,7 @@ void ptx_thread_info::set_operand_value( const operand_info &dst, const ptx_reg_
 
 }
 
-void ptx_thread_info::set_operand_value( const operand_info &dst, const ptx_reg_t &data, unsigned type, ptx_thread_info *thread, const ptx_instruction *pI )
+void ptx_thread_info::set_operand_value( const operand_info &dst, const ptx_reg_t &data, unsigned type, ptx_thread_info *thread, const ptx_instruction *pI, int shfl_pval )
 {
    ptx_reg_t dstData;
    size_t size;
@@ -388,19 +388,26 @@ void ptx_thread_info::set_operand_value( const operand_info &dst, const ptx_reg_
       // Double destination in set instruction ($p0|$p1) - second is negation of first
       if (dst.get_double_operand_type() == -1)
       {
-          ptx_reg_t setValue2;
-          const symbol *name1 = dst.vec_symbol(0);
-          const symbol *name2 = dst.vec_symbol(1);
+		  ptx_reg_t setValue2;
+		  const symbol *name1 = dst.vec_symbol(0);
+		  const symbol *name2 = dst.vec_symbol(1);
+		  if (pI->get_opcode() == SHFL_OP)
+		  {
+			  // deicide218: Handle predicate destination for shfl
+			  setValue2.pred = shfl_pval;
+		  }
+		  else
+		  {
+			  if ( (type==F16_TYPE)||(type==F32_TYPE)||(type==F64_TYPE)||(type==FF64_TYPE) ) {
+				 setValue2.f32 = (setValue.u64==0)?1.0f:0.0f;
+			  } else {
+				 setValue2.u32 = (setValue.u64==0)?0xFFFFFFFF:0;
+			  }
 
-          if ( (type==F16_TYPE)||(type==F32_TYPE)||(type==F64_TYPE)||(type==FF64_TYPE) ) {
-             setValue2.f32 = (setValue.u64==0)?1.0f:0.0f;
-          } else {
-             setValue2.u32 = (setValue.u64==0)?0xFFFFFFFF:0;
-          }
-
-          set_reg(name1,setValue);
-          set_reg(name2,setValue2);
-      }
+		  }
+		  set_reg(name1,setValue);
+		  set_reg(name2,setValue2);
+	  }
 
       // Double destination in cvt,shr,mul,etc. instruction ($p0|$r4) - second register operand receives data, first predicate operand
       // is set as $p0=($r4!=0)
@@ -1422,30 +1429,34 @@ void bfe_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 	}
 
 	switch (i_type) {
-		case U32_TYPE:
-			data.u32 = 0;
-			for (unsigned i = 0; i <= msb; ++i) {
-				data.u32 = (i<len && pos + i <= msb) ? (src1_data.u32 << pos+i) & 1 : sbit;
-			}
-			break;
-		case U64_TYPE:
-			data.u64 = 0;
-			for (unsigned i = 0; i <= msb; ++i) {
-				data.u64 = (i<len && pos + i <= msb) ? (src1_data.u64 << pos+i) & 1 : sbit;
-			}
-			break;
-		case S32_TYPE:
-			data.s32 = 0;
-			for (unsigned i = 0; i <= msb; ++i) {
-				data.s32 = (i<len && pos + i <= msb) ? (src1_data.s32 << pos+i) & 1 : sbit;
-			}
-			break;
-		case S64_TYPE:
-			data.s64 = 0;
-			for (unsigned i = 0; i <= msb; ++i) {
-				data.s64 = (i<len && pos + i <= msb) ? (src1_data.s64 << pos+i) & 1 : sbit;
-			}
-			break;
+	case U32_TYPE:
+		data.u32 = 0;
+		for (unsigned i = 0; i <= msb; ++i) {
+			data.u32 &= ((i < len) && ((pos + i) <= msb)) ? (src1_data.u32 & (1 << (pos + i))) >> pos : sbit << i;
+		}
+		break;
+	case U64_TYPE:
+		data.u64 = 0;
+		for (unsigned i = 0; i <= msb; ++i) {
+			data.u64 &= ((i < len) && ((pos + i) <= msb)) ? (src1_data.u64 & (1 << (pos + i))) >> pos : sbit << i;
+		}
+		break;
+	case S32_TYPE:
+		data.s32 = 0;
+		for (unsigned i = 0; i <= msb; ++i) {
+			data.s32 &= ((i < len) && ((pos + i) <= msb)) ? (src1_data.s32 & (1 << (pos + i))) >> pos : sbit << i;
+		}
+		break;
+	case S64_TYPE:
+		data.s64 = 0;
+		for (unsigned i = 0; i <= msb; ++i) {
+			data.s64 &= ((i < len) && ((pos + i) <= msb)) ? (src1_data.s64 & (1 << (pos + i))) >> pos : sbit << i;
+		}
+		break;
+	default:
+		printf("Execution error: type mismatch with instruction bfe\n");
+		assert(0);
+		break;
 	}
 
 	thread->set_operand_value(dst, data, i_type, thread, pI);
@@ -3748,7 +3759,213 @@ void popc_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 void prefetch_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
 void prefetchu_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
-void prmt_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
+
+/*
+ * deicide218: Add shfl instruction
+ * TODO: Verify the functionality
+ */
+void shfl_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	static bool first_in_warp = true;
+	static std::list<ptx_thread_info*> threads_in_warp;
+	static std::map<int, unsigned> sourceA;
+	static std::map<int, unsigned> targetLane;
+	static unsigned last_tid;
+	
+	if( first_in_warp ) {
+		// Initialization
+		first_in_warp = false;
+		threads_in_warp.clear();
+		sourceA.clear();
+		targetLane.clear();
+		int offset = pI->warp_size() - 1;
+		while ( (offset >= 0) && !pI->active(offset) ) 
+			offset--;
+		assert( offset >= 0 );
+		last_tid = (thread->get_hw_tid() - (thread->get_hw_tid()%pI->warp_size())) + offset;
+	}
+
+	ptx_reg_t a, b, c;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+	const operand_info &src2 = pI->src2();
+	const operand_info &src3 = pI->src3();
+
+	unsigned i_type = pI->get_type();
+	if (i_type != B32_TYPE)
+	{
+		printf("Execution error: type mismatch with instruction shfl\n");
+		assert(0);
+	}
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+	b = thread->get_operand_value(src2, dst, i_type, thread, 1);
+	c = thread->get_operand_value(src3, dst, i_type, thread, 1);
+	
+	int lane_id = thread->get_hw_tid() % pI->warp_size();
+	int bval    = b.u32 & 0x1f;
+	int cval    = c.u32 & 0x1f;
+	int mask    = (c.u32 >> 8) & 0x1f;
+
+	sourceA[lane_id] = a.u32;
+
+	int maxLane = (lane_id & mask) | (cval & ((~mask) & 0x1f));
+	int minLane = (lane_id & mask);
+	int j, pval;
+	switch (pI->shfl_mode())
+	{
+	case UP_OPTION:
+		j = lane_id - bval;
+		pval = (j >= maxLane) & 1;
+		break;
+	case DOWN_OPTION:
+		j = lane_id + bval;
+		pval = (j <= maxLane) & 1;
+		break;
+	case BFLY_OPTION:
+		j = (lane_id ^ bval) & 0x1f;
+		pval = (j <= maxLane) & 1;
+		break;
+	case IDX_OPTION:
+		j = minLane | (bval & ((~mask) & 0x1f));
+		pval = (j <= maxLane) & 1;
+		break;
+	default:
+		printf("Execution error: operation mismatch with instruction shfl\n");
+		assert(0);
+		break;
+	}
+	if (!pval) j = lane_id;
+	targetLane[lane_id] = ((pval << 8) & j);
+
+	// Let the last thread do the things for the whole warp
+	if (thread->get_hw_tid() == last_tid)
+	{
+		for (std::list<ptx_thread_info*>::iterator t = threads_in_warp.begin(); t!=threads_in_warp.end(); ++t)
+		{
+			const operand_info &dst = pI->dst();
+			ptx_reg_t d;
+			std::map<int, unsigned>::iterator target_lane = targetLane.find((*t)->get_hw_tid() % pI->warp_size());
+			if (target_lane != targetLane.end())
+			{
+				pval = (target_lane->second >> 8) & 1;
+				// Target lane is composed of the first 5 bit
+				std::map<int, unsigned>::iterator target_source = sourceA.find(target_lane->second & 0x1f);
+				d.u32 = (target_source != sourceA.end()) ? target_source->second : (unsigned)-1;
+			}
+			else
+			{
+				// Undefined shfl
+				pval = 0;
+				d.u32 = (unsigned)-1;
+			}
+			// TODO: Should we use ptxplus convention for pval? (i.e. reverse the pval value)
+			(*t)->set_operand_value(dst, d, pI->get_type(), (*t), pI, pval);
+		}
+		first_in_warp = true;
+	}
+}
+
+/*
+ * deicide: Add prmt instruction
+ * TODO: Verify the functionality
+ */
+void prmt_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
+{
+	ptx_reg_t a, b, c, d;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+	const operand_info &src2 = pI->src2();
+	const operand_info &src3 = pI->src3();
+
+	unsigned i_type = pI->get_type();
+	if (i_type != B32_TYPE)
+	{
+		printf("Execution error: type mismatch with instruction prmt\n");
+		assert(0);
+	}
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+	b = thread->get_operand_value(src2, dst, i_type, thread, 1);
+	c = thread->get_operand_value(src3, dst, i_type, thread, 1);
+	d.u32 = 0;
+
+	// tmp64 = {byte7, byte6, byte5, byte4, byte3, byte2, byte1, byte0} = {b3, b2, b1, b0, a3, a2, a1, a0}
+	unsigned long long tmp64 = (b.u32 << 32) | a.u32;
+	unsigned ctl = c.u32 & 0x3;
+	
+	switch (pI->prmt_mode())
+	{
+	case F4E_OPTION:
+		// d = {byte3, byte2, byte1, byte0} = {tmp64(ctl + 3), tmp64(ctl + 2), tmp64(ctl + 1), tmp64(ctl + 0)}
+		for (unsigned i = 0; i < 4; ++i)
+		{
+			d.u32 |= (((tmp64 >> ((ctl + i) * 8)) & 0xff) << (i * 8));
+		}
+		break;
+	case B4E_OPTION:
+		// d = {byte3, byte2, byte1, byte0} = {tmp64((ctl + 5) mod 8), tmp64((ctl + 6) mod 8), tmp64((ctl + 7) mod 8), tmp64((ctl + 8) mod 8)}
+		for (unsigned i = 0; i < 4; ++i)
+		{
+			d.u32 |= (((tmp64 >> (((ctl + 8 - i) % 8) * 8)) & 0xff) << (i * 8));
+		}
+		break;
+	case RC8_OPTION:
+		// d = {byte3, byte2, byte1, byte0} = {tmp64(ctl), tmp64(ctl), tmp64(ctl), tmp64(ctl)}
+		for (unsigned i = 0; i < 4; ++i)
+		{
+			d.u32 |= (((tmp64 >> (ctl * 8)) & 0xff) << (i * 8));
+		}
+		break;
+	case ECL_OPTION:
+		// d = {byte3, byte2, byte1, byte0} = {tmp64(3), tmp64(2), tmp64(1), tmp64(0)}
+		for (unsigned i = 0; i < 4; ++i)
+		{
+			d.u32 |= (tmp64 & (0xff << (i * 8)));
+		}
+		break;
+	case ECR_OPTION:
+		// d = {byte3, byte2, byte1, byte0} = {tmp64(min(ctl, 3)), tmp64(min(ctl, 2)), tmp64(min(ctl, 1)), tmp64(min(ctl, 0))}
+		for (unsigned i = 0; i < 4; ++i)
+		{
+			d.u32 |= (((tmp64 >> (MY_MIN_I(ctl, i) * 8)) & 0xff) << (i * 8));
+		}
+		break;
+	case RC16_OPTION:
+		/*
+		 * ctl  d.b3  d.b2  d.b1  d.b0
+		 *
+		 *  0     1     0     1     0
+		 *  1     3     2     3     2
+		 *  2     1     0     1     0
+		 *  3     3     2     3     2
+		 */
+		if (ctl % 2 == 0)
+		{
+			for (unsigned i = 0; i < 4; ++i)
+			{
+				d.u32 |= (((tmp64 >> (((i % 2) + 0) * 8)) & 0xff) << (i * 8));
+			}
+		}
+		else
+		{
+			for (unsigned i = 0; i < 4; ++i)
+			{
+				d.u32 |= (((tmp64 >> (((i % 2) + 2) * 8)) & 0xff) << (i * 8));
+			}
+		}
+		break;
+	default:
+		for (unsigned i = 0; i < 4; ++i)
+		{
+			ctl = (c.u32 >> (4 * i)) & 0x7;
+			unsigned replicate_sign = ((c.u32 >> (4 * i)) & 0x8) >> 3;
+			// Whether to replicate the sign bit or not
+			unsigned long long mask = (replicate_sign == 1) ? 0xff : 0x7f;
+			d.u32 |= (((tmp64 >> (ctl * 8)) & mask) << (i * 8));
+		}
+		break;
+	}
+	thread->set_operand_value(dst, d, i_type, thread, pI);
+}
 
 void rcp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 { 
@@ -5452,6 +5669,11 @@ void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 	 */
 	p.pred = result ? 0 : 1;
 	thread->set_operand_value(dst, p, PRED_TYPE, thread, pI);
+}
+
+void copysign_impl( const ptx_instruction *pI, ptx_thread_info *thread )
+{
+	// TODO: copysign instruction
 }
 
 void inst_not_implemented( const ptx_instruction * pI ) 

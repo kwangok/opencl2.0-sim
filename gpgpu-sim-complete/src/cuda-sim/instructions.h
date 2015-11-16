@@ -55,6 +55,7 @@ void popc_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void prefetch_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void prefetchu_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void prmt_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
+void shfl_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void rcp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void red_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void rem_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
@@ -95,4 +96,5 @@ void vsub_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void vote_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void xor_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
+void copysign_impl( const ptx_instruction *pI, ptx_thread_info *thread ) ;
 #endif

@@ -1038,8 +1038,15 @@ ptx_instruction::ptx_instruction( int opcode,
    m_atomic_spec = 0;
    m_membar_level = 0;
    m_inst_size = 8; // bytes
+   // deicide218: New flag initialization added from here
    m_shiftamt_option = false;
+   m_carry_flag = false;
    m_ftz = false;
+   m_shf_direction = 0;
+   m_shf_mode = 0;
+   m_testp_op = 0;
+   m_shfl_mode = 0;
+   m_prmt_mode = 0;
 
    std::list<int>::const_iterator i;
    unsigned n=1;
@@ -1166,40 +1173,41 @@ ptx_instruction::ptx_instruction( int opcode,
          m_inst_size = 4; // bytes
          break;
 	  case SHFL_OPTION: // deicide218: New options added from here
-		 m_shf_direction = SHFL_OPTION;
-		 break;
 	  case SHFR_OPTION:
-		 m_shf_direction = SHFR_OPTION;
+		 m_shf_direction = last_ptx_inst_option;
 		 break;
 	  case CLAMP_OPTION:
-		 m_shf_mode = CLAMP_OPTION;
-		 break;
 	  case WRAP_OPTION:
-		 m_shf_mode = WRAP_OPTION;
+		 m_shf_mode = last_ptx_inst_option;
 		 break;
 	  case TESTP_FINITE:
-		 m_testp_op = TESTP_FINITE;
-		 break;
 	  case TESTP_INFINITE:
-		 m_testp_op = TESTP_INFINITE;
-		 break;
 	  case TESTP_NUMBER:
-		 m_testp_op = TESTP_NUMBER;
-		 break;
 	  case TESTP_NOTANUMBER:
-		 m_testp_op = TESTP_NOTANUMBER;
-		 break;
 	  case TESTP_NORMAL:
-		 m_testp_op = TESTP_NORMAL;
-		 break;
 	  case TESTP_SUBNORMAL:
-		 m_testp_op = TESTP_SUBNORMAL;
+		 m_testp_op = last_ptx_inst_option;
 		 break;
 	  case SHIFTAMT_OPTION:
 		 m_shiftamt_option = true;
 		 break;
 	  case CARRY_FLAG:
 		 m_carry_flag = true;
+		 break;
+	  case UP_OPTION:
+	  case DOWN_OPTION:
+	  case BFLY_OPTION:
+	  case IDX_OPTION:
+		 m_shfl_mode = last_ptx_inst_option;
+		 break;
+	  case F4E_OPTION:
+	  case B4E_OPTION:
+	  case RC8_OPTION:
+	  case ECL_OPTION:
+	  case ECR_OPTION:
+	  case RC16_OPTION:
+		 m_prmt_mode = last_ptx_inst_option;
+		 break;
       default:
          assert(0);
          break;

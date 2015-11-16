@@ -199,6 +199,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %token  TESTP_SUBNORMAL;
 %token  SHIFTAMT_OPTION;
 %token  CARRY_FLAG;
+%token  UP_OPTION;
+%token  DOWN_OPTION;
+%token  BFLY_OPTION;
+%token  IDX_OPTION;
+%token  F4E_OPTION;
+%token  B4E_OPTION;
+%token  RC8_OPTION;
+%token  ECL_OPTION;
+%token  ECR_OPTION;
+%token  RC16_OPTION;
 
 %type <int_value> function_decl_header
 %type <ptr_value> function_decl
@@ -457,6 +467,16 @@ option: type_spec
 	| testp_operation_spec;
 	| SHIFTAMT_OPTION { add_option(SHIFTAMT_OPTION); }
 	| CARRY_FLAG { add_option(CARRY_FLAG); }
+	| UP_OPTION { add_option(UP_OPTION); }
+	| DOWN_OPTION { add_option(DOWN_OPTION); }
+	| BFLY_OPTION { add_option(BFLY_OPTION); }
+	| IDX_OPTION { add_option(IDX_OPTION); }
+	| F4E_OPTION { add_option(F4E_OPTION); }
+	| B4E_OPTION { add_option(B4E_OPTION); }
+	| RC8_OPTION { add_option(RC8_OPTION); }
+	| ECL_OPTION { add_option(ECL_OPTION); }
+	| ECR_OPTION { add_option(ECR_OPTION); }
+	| RC16_OPTION { add_option(RC16_OPTION); }
 	;
 
 /* deicide218: testp instructions */

@@ -145,6 +145,8 @@ vsub    TC; ptx_lval.int_value = VSUB_OP; return OPCODE;
 vote	TC; ptx_lval.int_value = VOTE_OP; return OPCODE;
 xor     TC; ptx_lval.int_value = XOR_OP; return OPCODE;
 testp   TC; ptx_lval.int_value = TESTP_OP; return OPCODE;
+shfl    TC; ptx_lval.int_value = SHFL_OP; return OPCODE;
+copysign  TC; ptx_lval.int_value = COPYSIGN_OP; return OPCODE;
 nop     TC; ptx_lval.int_value = NOP_OP; return OPCODE;
 break  TC; ptx_lval.int_value = BREAK_OP; return OPCODE;
 breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
@@ -348,6 +350,18 @@ breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
 \.shiftamt   TC; return SHIFTAMT_OPTION;
 
 \.cc    TC; return CARRY_FLAG;
+
+\.up    TC; return UP_OPTION;
+\.down  TC; return DOWN_OPTION;
+\.bfly  TC; return BFLY_OPTION;
+\.idx   TC; return IDX_OPTION;
+
+\.f4e   TC; return F4E_OPTION;
+\.b4e   TC; return B4E_OPTION;
+\.rc8   TC; return RC8_OPTION;
+\.ecl   TC; return ECL_OPTION;
+\.ecr   TC; return ECR_OPTION;
+\.rc16  TC; return RC16_OPTION;
 
 \.1d	TC; return GEOM_MODIFIER_1D;
 \.2d	TC; return GEOM_MODIFIER_2D;

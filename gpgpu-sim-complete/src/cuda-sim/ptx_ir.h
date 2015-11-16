@@ -1000,6 +1000,8 @@ public:
    unsigned shf_direction() const { return m_shf_direction; }
    unsigned shf_mode() const { return m_shf_mode; }
    unsigned testp_op() const { return m_testp_op; }
+   unsigned shfl_mode() const { return m_shfl_mode; }
+   unsigned prmt_mode() const { return m_prmt_mode; }
    bool shift_amount() const { return m_shiftamt_option; }
    bool carry_flag() const { return m_carry_flag; }
    bool ftz() const { return m_ftz; }
@@ -1068,6 +1070,8 @@ private:
    unsigned            m_shf_direction;
    unsigned            m_shf_mode;
    unsigned            m_testp_op;
+   unsigned            m_shfl_mode;
+   unsigned            m_prmt_mode;
    bool                m_shiftamt_option;
    bool                m_carry_flag;
    bool                m_ftz;
