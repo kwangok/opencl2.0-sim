@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %token LMEM
 %token SMEM
 %token CMEM
+%token GMEM
 %token <string_value> IDENTIFIER
 %token PLUS
 %token COMMA
@@ -81,8 +82,10 @@ line: 	HEADER INFO COLON line_info
 	| HEADER WARNING { printf("GPGPU-Sim: ptxas %s\n", $2); }
 	;
 
+/* deicide: Add gmem */
 line_info: function_name
 	| function_info { ptxinfo_addinfo(); }
+	| gmem_info
 	;
 
 function_name: FUNC QUOTE IDENTIFIER QUOTE { ptxinfo_function($3); }
@@ -90,6 +93,11 @@ function_name: FUNC QUOTE IDENTIFIER QUOTE { ptxinfo_function($3); }
 
 function_info: info
 	| function_info COMMA info
+	;
+
+/* deicide: Add gmem */
+gmem_info: INT_OPERAND BYTES GMEM
+	| INT_OPERAND BYTES GMEM COMMA info
 	;
 
 info: 	  USED INT_OPERAND REGS { ptxinfo_regs($2); }
