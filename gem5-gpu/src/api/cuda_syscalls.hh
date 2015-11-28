@@ -273,6 +273,22 @@ void clReleaseProgram(ThreadContext *tc, gpusyscall_t *call_params);
 void clReleaseMemObject(ThreadContext *tc, gpusyscall_t *call_params);
 void clReleaseCommandQueue(ThreadContext *tc, gpusyscall_t *call_params);
 void clReleaseContext(ThreadContext *tc, gpusyscall_t *call_params);
+/* yamato */
+void clCreateProgramWithBinary(ThreadContext *tc, gpusyscall_t *call_params);
+void clEnqueueWriteBuffer(ThreadContext *tc, gpusyscall_t *call_params);
+void clFinish(ThreadContext *tc, gpusyscall_t *call_params);
+void clGetContextInfo(ThreadContext *tc, gpusyscall_t *call_params);
+void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params);
+void clGetEventInfo(ThreadContext *tc, gpusyscall_t *call_params);
+void clGetEventProfilingInfo(ThreadContext *tc, gpusyscall_t *call_params);
+void clGetKernelWorkGroupInfo(ThreadContext *tc, gpusyscall_t *call_params);
+void clGetPlatformInfo(ThreadContext *tc, gpusyscall_t *call_params);
+void clGetProgramBuildInfo(ThreadContext *tc, gpusyscall_t *call_params);
+void clGetProgramInfo(ThreadContext *tc, gpusyscall_t *call_params);
+void clReleaseEvent(ThreadContext *tc, gpusyscall_t *call_params);
+void clWaitForEvents(ThreadContext *tc, gpusyscall_t *call_params);
+void clCreateContextFromType(ThreadContext *tc, gpusyscall_t *call_params);
+/* yamato */
 /* Jie */
 
 #if (CUDART_VERSION >= 2010)
@@ -407,7 +423,24 @@ cudaFunc_t gpgpu_funcs[] = {
         clReleaseProgram,		/*  98 OpenCL 13 */
         clReleaseMemObject,		/*  99 OpenCL 14 */
         clReleaseCommandQueue,		/* 100 OpenCL 15 */
-        clReleaseContext		/* 101 OpenCL 16 */
+/* yamato */
+//      clReleaseContext		/* 101 OpenCL 16 */
+        clReleaseContext,		/* 101 OpenCL 16 */
+        clCreateProgramWithBinary,	/* 102 OpenCL 17 */
+        clEnqueueWriteBuffer,		/* 103 OpenCL 18 */
+        clFinish,			/* 104 OpenCL 19 */
+        clGetContextInfo,		/* 105 OpenCL 20 */
+        clGetDeviceInfo,		/* 106 OpenCL 21 */
+        clGetEventInfo,			/* 107 OpenCL 22 */
+        clGetEventProfilingInfo,	/* 108 OpenCL 23 */
+        clGetKernelWorkGroupInfo,	/* 109 OpenCL 24 */
+        clGetPlatformInfo,		/* 110 OpenCL 25 */
+        clGetProgramBuildInfo,		/* 111 OpenCL 26 */
+        clGetProgramInfo,		/* 112 OpenCL 27 */
+        clReleaseEvent,			/* 113 OpenCL 28 */
+        clWaitForEvents,		/* 114 OpenCL 29 */
+        clCreateContextFromType		/* 115 OpenCL 30 */
+/* yamato */
 /* Jie */
 };
 

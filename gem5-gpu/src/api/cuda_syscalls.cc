@@ -1870,9 +1870,14 @@ size_t _cl_kernel::get_workgroup_size(cl_device_id device)
 {
    unsigned nregs = ptx_kernel_nregs( m_kernel_impl );
    unsigned result_regs = (unsigned)-1;
+   CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
    if( nregs > 0 )
-      result_regs = device->the_device()->num_registers_per_core() / ((nregs+3)&~3);
-   unsigned result = device->the_device()->threads_per_core();
+      result_regs = cudaGPU->getDeviceProperties()->regsPerBlock / ((nregs+3)&~3);
+      // result_regs = device->the_device()->num_registers_per_core() / ((nregs+3)&~3);
+      // yamato modify Gem5-gpu version
+   unsigned result = cudaGPU->getMaxThreadsPerMultiprocessor();
+   // unsigned result = device->the_device()->threads_per_core();
+   // yamato modify Gem5-gpu version
    result = min(result, result_regs);
    return (size_t)result;
 }
@@ -2383,10 +2388,10 @@ void clCreateContext(ThreadContext *tc, gpusyscall_t *call_params) {
   Addr properties_addr = *((Addr*)helper.getParam(0, true));
   Addr errcode_ret_addr = *((Addr*)helper.getParam(1, true));
 
-  cl_context_properties * properties = new cl_context_properties;
+  cl_context_properties * properties = new cl_context_properties[2];
   cl_int * errcode_ret = new cl_int;
   if ( properties_addr == NULL ) properties = NULL;
-  else helper.readBlob(properties_addr, (uint8_t*)properties, sizeof(cl_context_properties));
+  else helper.readBlob(properties_addr, (uint8_t*)properties, 2 * sizeof(cl_context_properties));
 
   struct _cl_device_id *gpu = GPGPUSim_Init();
   if( properties != NULL ) {
@@ -2557,15 +2562,15 @@ void clEnqueueNDRangeKernel(ThreadContext *tc, gpusyscall_t *call_params) {
 
   CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
 
-  const size_t * global_work_offset = new size_t;
-  const size_t * global_work_size = new size_t;
-  const size_t * local_work_size = new size_t;
+  const size_t * global_work_offset = new size_t[work_dim];
+  const size_t * global_work_size = new size_t[work_dim];
+  const size_t * local_work_size = new size_t[work_dim];
   if ( global_work_offset_addr == NULL ) global_work_offset = NULL;
-  else helper.readBlob(global_work_offset_addr, (uint8_t*)global_work_offset, sizeof(const size_t));
+  else helper.readBlob(global_work_offset_addr, (uint8_t*)global_work_offset, work_dim * sizeof(const size_t));
   if ( global_work_size_addr == NULL ) global_work_size = NULL;
-  else helper.readBlob(global_work_size_addr, (uint8_t*)global_work_size, sizeof(const size_t));
+  else helper.readBlob(global_work_size_addr, (uint8_t*)global_work_size, work_dim * sizeof(const size_t));
   if ( local_work_size_addr == NULL ) local_work_size = NULL;
-  else helper.readBlob(local_work_size_addr, (uint8_t*)local_work_size, sizeof(const size_t));
+  else helper.readBlob(local_work_size_addr, (uint8_t*)local_work_size, work_dim * sizeof(const size_t));
 
   int _global_size[3];
   int zeros[3] = { 0, 0, 0};
@@ -2704,4 +2709,540 @@ void clReleaseContext(ThreadContext *tc, gpusyscall_t *call_params) {
   return ;
 }
 
+/* yamato */
+
+#define CL_STRING_CASE( S ) \
+      if( param_value && (param_value_size < strlen(S)+1) ) { \
+			cl_int ret = CL_INVALID_VALUE; \
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int)); \
+			return ; \
+	  } \
+      if( param_value ) { \
+		  snprintf(buf,strlen(S)+1,S); \
+		  helper.writeBlob(param_value_addr, (uint8_t*)buf, (strlen(S)+1) * sizeof(char)); \
+	  } \
+      if( param_value_size_ret ) { \
+		  *param_value_size_ret = strlen(S)+1; \
+		  helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t)); \
+	  } \
+
+#define CL_INT_CASE( N ) \
+      if( param_value && param_value_size < sizeof(cl_int) ) { \
+			cl_int ret = CL_INVALID_VALUE; \
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int)); \
+			return ; \
+	  } \
+      if( param_value ) { \
+		  *((cl_int*)param_value) = (N); \
+		  helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size); \
+	  } \
+      if( param_value_size_ret ) { \
+		  *param_value_size_ret = sizeof(cl_int); \
+		  helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t)); \
+	  } \
+
+#define CL_UINT_CASE( N ) \
+      if( param_value && param_value_size < sizeof(cl_uint) ) { \
+			cl_int ret = CL_INVALID_VALUE; \
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int)); \
+			return ; \
+	  } \
+      if( param_value ) { \
+		  *((cl_int*)param_value) = (N); \
+		  helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size); \
+	  } \
+      if( param_value_size_ret ) { \
+		  *param_value_size_ret = sizeof(cl_int); \
+		  helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t)); \
+	  } \
+
+#define CL_ULONG_CASE( N ) \
+      if( param_value && param_value_size < sizeof(cl_ulong) ) { \
+			cl_int ret = CL_INVALID_VALUE; \
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int)); \
+			return ; \
+	  } \
+      if( param_value ) { \
+		  *((cl_ulong*)param_value) = (N); \
+		  helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size); \
+	  } \
+      if( param_value_size_ret ) { \
+		  *param_value_size_ret = sizeof(cl_ulong); \
+		  helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t)); \
+	  } \
+
+#define CL_BOOL_CASE( N ) \
+      if( param_value && param_value_size < sizeof(cl_bool) ) { \
+			cl_int ret = CL_INVALID_VALUE; \
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int)); \
+			return ; \
+	  } \
+      if( param_value ) { \
+		  *((cl_bool*)param_value) = (N); \
+		  helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size); \
+	  } \
+      if( param_value_size_ret ) { \
+		  *param_value_size_ret = sizeof(cl_bool); \
+		  helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t)); \
+	  } \
+
+#define CL_SIZE_CASE( N ) \
+      if( param_value && param_value_size < sizeof(size_t) ) { \
+			cl_int ret = CL_INVALID_VALUE; \
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int)); \
+			return ; \
+	  } \
+      if( param_value ) { \
+		  *((size_t*)param_value) = (N); \
+		  helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size); \
+	  } \
+      if( param_value_size_ret ) { \
+		  *param_value_size_ret = sizeof(size_t); \
+		  helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t)); \
+	  } \
+
+#define CL_CASE( T, N ) \
+      if( param_value && param_value_size < sizeof(T) ) { \
+			cl_int ret = CL_INVALID_VALUE; \
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int)); \
+			return ; \
+	  } \
+      if( param_value ) { \
+		  *((T*)param_value) = (N); \
+		  helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size); \
+	  } \
+      if( param_value_size_ret ) { \
+		  *param_value_size_ret = sizeof(T); \
+		  helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t)); \
+	  } \
+
+void clFinish(ThreadContext *tc, gpusyscall_t *call_params) {
+	GPUSyscallHelper helper(tc, call_params);
+	cl_int ret = CL_SUCCESS;
+	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	return ;
+}
+
+void clGetContextInfo(ThreadContext *tc, gpusyscall_t *call_params) {
+	GPUSyscallHelper helper(tc, call_params);
+	cl_context context = *((cl_context*)helper.getParam(0));
+	cl_context_info param_name = *((cl_context_info*)helper.getParam(1));
+	Addr param_value_addr = *((Addr*)helper.getParam(2, true));
+	Addr param_value_size_ret_addr = *((Addr*)helper.getParam(3, true));
+	size_t param_value_size = *((size_t*)helper.getParam(4));
+
+	void * param_value = new char[param_value_size]; //yamato
+	if ( param_value_addr == NULL ) param_value = NULL;
+	else helper.readBlob(param_value_addr, (uint8_t*)param_value, param_value_size );
+	
+	size_t * param_value_size_ret = new size_t;
+	if ( param_value_size_ret_addr == NULL ) param_value_size_ret = NULL;
+	else helper.readBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+	
+	if( context == NULL ) {
+		cl_int ret = CL_INVALID_CONTEXT;
+		helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+		return ;
+	}
+	switch( param_name ) {
+	case CL_CONTEXT_DEVICES: {
+		unsigned ngpu=0;
+		cl_device_id device_id = context->get_first_device();
+		while ( device_id != NULL ) {
+			if( param_value ) {
+				((cl_device_id*)param_value)[ngpu] = device_id;
+				helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+			}
+			device_id = device_id->next();
+			ngpu++;
+		}
+		if( param_value_size_ret ) {
+			*param_value_size_ret = ngpu * sizeof(cl_device_id);
+			helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+		}
+		break;
+	}
+	case CL_CONTEXT_REFERENCE_COUNT:
+		opencl_not_finished(__my_func__,__LINE__);
+		break;
+	case CL_CONTEXT_PROPERTIES: 
+		opencl_not_finished(__my_func__,__LINE__);
+		break;
+	default:
+		opencl_not_finished(__my_func__,__LINE__);
+	}
+	cl_int ret = CL_SUCCESS;
+	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	return ;
+}
+
+void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params) {
+	GPUSyscallHelper helper(tc, call_params);
+	cl_device_id device = *((cl_device_id*)helper.getParam(0));
+	cl_device_info param_name = *((cl_device_info*)helper.getParam(1));
+	size_t param_value_size = *((size_t*)helper.getParam(2));
+	Addr param_value_addr = *((Addr*)helper.getParam(3, true));
+	Addr param_value_size_ret_addr = *((Addr*)helper.getParam(4, true));
+
+	CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);  // yamato modify Gem5-gpu version
+
+	void * param_value = new char[param_value_size]; // yamato
+	if ( param_value_addr == NULL ) param_value = NULL;
+	else helper.readBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+
+	size_t * param_value_size_ret = new size_t;
+	if ( param_value_size_ret_addr == NULL ) param_value_size_ret = NULL;
+	else helper.readBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+
+	if( device != GPGPUSim_Init() ) {
+		cl_int ret = CL_INVALID_DEVICE;
+		helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+		return ;
+	}
+	char *buf = (char*)param_value;
+	switch( param_name ) {
+	case CL_DEVICE_NAME: CL_STRING_CASE( "GPGPU-Sim" ); break;
+	case CL_DEVICE_GLOBAL_MEM_SIZE: CL_ULONG_CASE( 1024*1024*1024 ); break;
+	case CL_DEVICE_MAX_COMPUTE_UNITS: CL_UINT_CASE( cudaGPU->getDeviceProperties()->multiProcessorCount ); break;
+	//case CL_DEVICE_MAX_COMPUTE_UNITS: CL_UINT_CASE( device->the_device()->get_config().num_shader() ); break; // yamato modify Gem5-gpu version
+	case CL_DEVICE_MAX_CLOCK_FREQUENCY: CL_UINT_CASE( cudaGPU->getDeviceProperties()->clockRate ); break;
+	//case CL_DEVICE_MAX_CLOCK_FREQUENCY: CL_UINT_CASE( device->the_device()->shader_clock() ); break; // yamato modify Gem5-gpu version
+	case CL_DEVICE_VENDOR:CL_STRING_CASE("GPGPU-Sim.org"); break;
+	case CL_DEVICE_VERSION: CL_STRING_CASE("OpenCL 1.0"); break;
+	case CL_DRIVER_VERSION: CL_STRING_CASE("1.0"); break;
+	case CL_DEVICE_TYPE: CL_CASE(cl_device_type, CL_DEVICE_TYPE_GPU); break;
+	case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS: CL_INT_CASE( 3 ); break;
+	case CL_DEVICE_MAX_WORK_ITEM_SIZES: 
+		if( param_value && param_value_size < 3*sizeof(size_t) ) {
+			cl_int ret = CL_INVALID_VALUE;
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+			return ;
+		}
+		if( param_value ) {
+			unsigned n_thread_per_shader = cudaGPU->getMaxThreadsPerMultiprocessor();
+			// unsigned n_thread_per_shader = device->the_device()->threads_per_core(); // yamato modify Gem5-gpu version
+			((size_t*)param_value)[0] = n_thread_per_shader;
+			((size_t*)param_value)[1] = n_thread_per_shader;
+			((size_t*)param_value)[2] = n_thread_per_shader;
+			helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+		}
+		if( param_value_size_ret ) {
+			*param_value_size_ret = 3*sizeof(cl_uint);
+			helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+		}
+		break;
+	case CL_DEVICE_MAX_WORK_GROUP_SIZE: CL_INT_CASE( cudaGPU->getMaxThreadsPerMultiprocessor() ); break;
+	// case CL_DEVICE_MAX_WORK_GROUP_SIZE: CL_INT_CASE( device->the_device()->threads_per_core() ); break; // yamato modify Gem5-gpu version
+	case CL_DEVICE_ADDRESS_BITS: CL_INT_CASE( 32 ); break;
+	case CL_DEVICE_AVAILABLE: CL_BOOL_CASE( CL_TRUE ); break;
+	case CL_DEVICE_COMPILER_AVAILABLE: CL_BOOL_CASE( CL_TRUE ); break;
+	case CL_DEVICE_IMAGE_SUPPORT: CL_INT_CASE( CL_TRUE ); break;
+	case CL_DEVICE_MAX_READ_IMAGE_ARGS: CL_INT_CASE( 128 ); break;
+	case CL_DEVICE_MAX_WRITE_IMAGE_ARGS: CL_INT_CASE( 8 ); break;
+	case CL_DEVICE_IMAGE2D_MAX_HEIGHT: CL_INT_CASE( 8192 ); break;
+	case CL_DEVICE_IMAGE2D_MAX_WIDTH: CL_INT_CASE( 8192 ); break;
+	case CL_DEVICE_IMAGE3D_MAX_HEIGHT: CL_INT_CASE( 2048 ); break;
+	case CL_DEVICE_IMAGE3D_MAX_WIDTH: CL_INT_CASE( 2048 ); break;
+	case CL_DEVICE_IMAGE3D_MAX_DEPTH: CL_INT_CASE( 2048 ); break;
+	case CL_DEVICE_MAX_MEM_ALLOC_SIZE: CL_INT_CASE( 128*1024*1024 ); break;
+	case CL_DEVICE_ERROR_CORRECTION_SUPPORT: CL_INT_CASE( 0 ); break;
+	case CL_DEVICE_LOCAL_MEM_TYPE: CL_INT_CASE( CL_LOCAL ); break;
+	case CL_DEVICE_LOCAL_MEM_SIZE: CL_ULONG_CASE( cudaGPU->getDeviceProperties()->sharedMemPerBlock ); break;
+	//case CL_DEVICE_LOCAL_MEM_SIZE: CL_ULONG_CASE( device->the_device()->shared_mem_size() ); break; // yamato modify Gem5-gpu version
+	case CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE: CL_ULONG_CASE( 64 * 1024 ); break;
+	case CL_DEVICE_QUEUE_PROPERTIES: CL_INT_CASE( CL_QUEUE_PROFILING_ENABLE ); break;
+	case CL_DEVICE_EXTENSIONS: 
+		if( param_value && (param_value_size < 1) ) {
+			cl_int ret = CL_INVALID_VALUE;
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+			return ;
+		}
+		if( param_value ) buf[0]=0;
+		if( param_value_size_ret ) {
+			*param_value_size_ret = 1; 
+			helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+		}
+		break;
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR: CL_INT_CASE(1); break;
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT: CL_INT_CASE(1); break;
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT: CL_INT_CASE(1); break;
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG: CL_INT_CASE(1); break;
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT: CL_INT_CASE(1); break;
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE: CL_INT_CASE(0); break;
+	case CL_DEVICE_SINGLE_FP_CONFIG: CL_INT_CASE(0); break;
+	case CL_DEVICE_MEM_BASE_ADDR_ALIGN: CL_INT_CASE(256*8); break;
+	default:
+		opencl_not_implemented(__my_func__,__LINE__);
+	}
+	cl_int ret = CL_SUCCESS;
+	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	return ;
+}
+
+void clGetKernelWorkGroupInfo(ThreadContext *tc, gpusyscall_t *call_params) {
+	GPUSyscallHelper helper(tc, call_params);
+	cl_kernel kernel = *((cl_kernel*)helper.getParam(0));
+	cl_device_id device = *((cl_device_id*)helper.getParam(1));
+	cl_kernel_work_group_info param_name = *((cl_kernel_work_group_info*)helper.getParam(2));
+	Addr param_value_addr = *((Addr*)helper.getParam(3, true));
+	size_t param_value_size = *((size_t*)helper.getParam(4));
+	Addr param_value_size_ret_addr = *((Addr*)helper.getParam(5, true));
+
+	CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device); // yamato modify Gem5-gpu version
+	
+	void * param_value = new char[param_value_size];
+	if ( param_value_addr == NULL ) param_value = NULL;
+	else helper.readBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+
+	size_t * param_value_size_ret = new size_t;
+	if ( param_value_size_ret_addr == NULL ) param_value_size_ret = NULL;
+	else helper.readBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+	
+	if( kernel == NULL ) {
+		cl_int ret = CL_INVALID_KERNEL;
+		helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+		return ;
+	}
+	switch( param_name ) {
+	case CL_KERNEL_WORK_GROUP_SIZE:
+		CL_SIZE_CASE( kernel->get_workgroup_size(device) );
+		break;
+	case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
+	case CL_KERNEL_LOCAL_MEM_SIZE:
+		opencl_not_implemented(__my_func__,__LINE__);
+		*(size_t *)param_value = cudaGPU->getDeviceProperties()->sharedMemPerBlock;
+		// *(size_t *)param_value = device->the_device()->shared_mem_size(); // yamato modify Gem5-gpu version
+		helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+		break;
+	default:
+		cl_int ret = CL_INVALID_VALUE;
+		helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+		return ;
+		break;
+	}
+	cl_int ret = CL_SUCCESS;
+	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	return ;
+}
+
+void clGetPlatformInfo(ThreadContext *tc, gpusyscall_t *call_params) {
+    GPUSyscallHelper helper(tc, call_params);
+	cl_platform_id platform = *((cl_platform_id*)helper.getParam(0));
+	cl_platform_info param_name = *((cl_platform_info*)helper.getParam(1));
+	Addr param_value_addr = *((Addr*)helper.getParam(2, true));
+	size_t param_value_size = *((size_t*)helper.getParam(3));
+	Addr param_value_size_ret_addr = *((Addr*)helper.getParam(4, true));
+	
+	void * param_value = new char[param_value_size];
+	if ( param_value_addr == NULL ) param_value = NULL;
+	else helper.readBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+
+	size_t * param_value_size_ret = new size_t;
+	if ( param_value_size_ret_addr == NULL ) param_value_size_ret = NULL;
+	else helper.readBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+	
+	if( platform == NULL || platform->m_uid != 0 ) {
+	  cl_int ret = CL_INVALID_PLATFORM;
+	  helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	  return ;
+	}
+	char *buf = (char*)param_value;
+	switch( param_name ) {
+	case CL_PLATFORM_PROFILE:    CL_STRING_CASE("FULL_PROFILE"); break;
+	case CL_PLATFORM_VERSION:    CL_STRING_CASE("OpenCL 1.0"); break;
+	case CL_PLATFORM_NAME:       CL_STRING_CASE("GPGPU-Sim"); break;
+	case CL_PLATFORM_VENDOR:     CL_STRING_CASE("GPGPU-Sim.org"); break;
+	case CL_PLATFORM_EXTENSIONS: CL_STRING_CASE(" "); break;
+	default:
+	  cl_int ret = CL_INVALID_VALUE;
+	  helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	  return ;
+	}
+	cl_int ret = CL_SUCCESS;
+	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	return ;
+}
+
+void clGetProgramInfo(ThreadContext *tc, gpusyscall_t *call_params) {
+	GPUSyscallHelper helper(tc, call_params);
+	cl_program program = *((cl_program*)helper.getParam(0));
+	cl_program_info param_name = *((cl_program_info*)helper.getParam(1));
+	size_t param_value_size = *((size_t*)helper.getParam(2));
+	Addr param_value_addr = *((Addr*)helper.getParam(3, true));
+	Addr param_value_size_ret_addr = *((Addr*)helper.getParam(4, true));
+
+	void * param_value = new char[param_value_size];
+	if ( param_value_addr == NULL ) param_value = NULL;
+	else helper.readBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+	
+	size_t * param_value_size_ret = new size_t;
+	if ( param_value_size_ret_addr == NULL ) param_value_size_ret = NULL;
+	else helper.readBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+	
+	if( program == NULL ) {
+		cl_int ret = CL_INVALID_PROGRAM;
+		helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+		return ;
+	}
+	char *tmp=NULL;
+	size_t len=0;
+	switch( param_name ) {
+	case CL_PROGRAM_REFERENCE_COUNT: 
+		CL_INT_CASE(1);
+		break;
+	case CL_PROGRAM_CONTEXT:
+		if( param_value && param_value_size < sizeof(cl_context)) {
+			cl_int ret = CL_INVALID_VALUE;
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+			return ;
+		}
+		if( param_value ) {
+			*((cl_context*)param_value) = program->get_context();
+			helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+		}
+		if( param_value_size_ret ) {
+			*param_value_size_ret = sizeof(cl_context);
+			helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+		}
+		break;
+	case CL_PROGRAM_NUM_DEVICES:
+		CL_INT_CASE(NUM_DEVICES);
+		break;
+	case CL_PROGRAM_DEVICES:
+		if( param_value && param_value_size < NUM_DEVICES * sizeof(cl_device_id) ) {
+			cl_int ret = CL_INVALID_VALUE;
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+			return ;
+		}
+		if( param_value ) {
+			assert( NUM_DEVICES == 1 );
+			((cl_device_id*)param_value)[0] = GPGPUSim_Init();
+			helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+		}
+		if( param_value_size_ret ) {
+			*param_value_size_ret = sizeof(cl_device_id);
+			helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+		}
+		break;
+	case CL_PROGRAM_SOURCE:
+		opencl_not_implemented(__my_func__,__LINE__);
+		break;
+	case CL_PROGRAM_BINARY_SIZES:
+		if( param_value && param_value_size < NUM_DEVICES * sizeof(size_t) ) {
+			cl_int ret = CL_INVALID_VALUE;
+			helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+			return ;
+		}
+		if( param_value ) {
+			*((size_t*)param_value) = program->get_ptx_size();
+			helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+		}
+		if( param_value_size_ret ) {
+			*param_value_size_ret = NUM_DEVICES*sizeof(size_t);
+			helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+		}
+		break;
+	case CL_PROGRAM_BINARIES:
+		len = program->get_ptx_size();
+		tmp = program->get_ptx();
+		if( param_value ) {
+			memcpy( ((char**)param_value)[0], tmp, len );
+			helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
+		}
+		if( param_value_size_ret ) {
+			*param_value_size_ret = len;
+			helper.writeBlob(param_value_size_ret_addr, (uint8_t*)param_value_size_ret, sizeof(size_t));
+		}
+		break;
+	default:
+		cl_int ret = CL_INVALID_VALUE;
+		helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+		return ;
+		break;
+	}
+	cl_int ret = CL_SUCCESS;
+	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	return ;
+	
+}
+
+void clCreateContextFromType(ThreadContext *tc, gpusyscall_t *call_params) {
+	GPUSyscallHelper helper(tc, call_params);
+	Addr properties_addr = *((Addr*)helper.getParam(0, true));
+	cl_device_type device_type = *((cl_device_type*)helper.getParam(1));
+	Addr errcode_ret_addr = *((Addr*)helper.getParam(2, true));
+
+	const cl_context_properties * properties = new cl_context_properties;
+	if ( properties_addr == NULL ) properties = NULL;
+	else helper.readBlob(properties_addr, (uint8_t*)properties, sizeof(cl_context_properties));
+	
+	cl_int * errcode_ret = new cl_int;
+	if ( errcode_ret_addr == NULL ) errcode_ret = NULL;
+	else helper.readBlob(errcode_ret_addr, (uint8_t*)errcode_ret, sizeof(cl_int));
+	
+	_cl_device_id *gpu = GPGPUSim_Init();
+
+   switch (device_type) {
+   case CL_DEVICE_TYPE_GPU: 
+   case CL_DEVICE_TYPE_ACCELERATOR:
+   case CL_DEVICE_TYPE_DEFAULT:
+   case CL_DEVICE_TYPE_ALL:
+      break; // GPGPU-Sim qualifies as these types of device. 
+   default: 
+      printf("GPGPU-Sim OpenCL API: unsupported device type %lx\n", device_type );
+      setErrCode( errcode_ret, CL_DEVICE_NOT_FOUND );
+	  if ( errcode_ret_addr != NULL) helper.writeBlob(errcode_ret_addr, (uint8_t*)errcode_ret, sizeof(cl_int));
+	  cl_context ret = NULL;
+	  helper.setReturn((uint8_t*)&ret, sizeof(cl_context));
+	  return ;
+      break;
+   }
+   
+   if( properties_addr != NULL ) {
+      printf("GPGPU-Sim OpenCL API: do not know how to use properties in %s\n", __my_func__ );
+      //exit(1); // Temporarily commented out to allow the AMD Sample applications to run. 
+   }
+   
+   setErrCode( errcode_ret, CL_SUCCESS );
+   if ( errcode_ret_addr != NULL) helper.writeBlob(errcode_ret_addr, (uint8_t*)errcode_ret, sizeof(cl_int));
+   cl_context ret = new _cl_context(gpu);
+   helper.setReturn((uint8_t*)&ret, sizeof(cl_context));
+   return ;
+}
+
+void clReleaseEvent(ThreadContext *tc, gpusyscall_t *call_params) {
+	GPUSyscallHelper helper(tc, call_params);
+	cl_int ret = CL_SUCCESS;
+	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	return ;
+}
+
+void clWaitForEvents(ThreadContext *tc, gpusyscall_t *call_params) {
+	GPUSyscallHelper helper(tc, call_params);
+	cl_int ret = CL_SUCCESS;
+	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+	return ;
+}
+
+void clCreateProgramWithBinary(ThreadContext *tc, gpusyscall_t *call_params) {
+	opencl_not_implemented(__my_func__,__LINE__);
+}
+
+void clGetEventInfo(ThreadContext *tc, gpusyscall_t *call_params) {
+	opencl_not_implemented(__my_func__,__LINE__);
+}
+
+void clGetEventProfilingInfo(ThreadContext *tc, gpusyscall_t *call_params) {
+	opencl_not_implemented(__my_func__,__LINE__);
+}
+
+void clGetProgramBuildInfo(ThreadContext *tc, gpusyscall_t *call_params) {
+	opencl_not_implemented(__my_func__,__LINE__);
+}
+
+void clEnqueueWriteBuffer(ThreadContext *tc, gpusyscall_t *call_params) {
+	opencl_not_implemented(__my_func__,__LINE__);
+}
+
+/* yamato */
 /* Jie */

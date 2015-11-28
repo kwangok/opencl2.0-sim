@@ -557,6 +557,7 @@ kernel_info_t::kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *
     m_num_cores_running=0;
     m_uid = m_next_uid++;
     m_param_mem = new memory_space_impl<8192>("param",64*1024);
+    m_parent_kernel = NULL; /* Jie */
 }
 
 kernel_info_t::~kernel_info_t()
