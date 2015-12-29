@@ -5675,9 +5675,36 @@ void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 	thread->set_operand_value(dst, p, PRED_TYPE, thread, pI);
 }
 
+/*
+ * deicide: Add copysign instruction
+ * TODO: Verify the functionality
+ */
 void copysign_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 {
-	// TODO: copysign instruction
+	ptx_reg_t a, b, d;
+	const operand_info &dst  = pI->dst();
+	const operand_info &src1 = pI->src1();
+	const operand_info &src2 = pI->src2();
+
+	unsigned i_type = pI->get_type();
+	a = thread->get_operand_value(src1, dst, i_type, thread, 1);
+	b = thread->get_operand_value(src2, dst, i_type, thread, 1);
+
+	switch (i_type)
+	{
+	case F32_TYPE:
+		d.f32 = copysign(b.f32, a.f32);
+		break;
+	case F64_TYPE:
+		d.f64 = copysign(b.f64, a.f64);
+		break;
+	default:
+		printf("Execution error: type mismatch with instruction copysign\n");
+		assert(0);
+		break;
+	}
+	
+	thread->set_operand_value(dst, d, i_type, thread, pI);
 }
 
 void inst_not_implemented( const ptx_instruction * pI ) 

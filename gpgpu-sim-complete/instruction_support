@@ -9,7 +9,7 @@ bfe          O
 bfi          O
 bfind        O
 brev         O
-copysign     X
+copysign     O
 madc         O
 prmt         O
 red          X                Treat it as atom
