@@ -27,6 +27,8 @@
 
 #include "gpu/gpgpu-sim/cuda_gpu.hh"
 
+#include "gpu/gpgpu-sim/cuda_gpu.hh"
+
 #include "stream_manager.h"
 #include "gpgpusim_entrypoint.h"
 #include "cuda-sim/cuda-sim.h"
@@ -128,13 +130,12 @@ void stream_operation::do_operation( gpgpu_sim *gpu )
     case stream_memcpy_to_symbol:
         if(g_debug_execution >= 3)
             printf("memcpy to symbol\n");
-        gpu->gem5CudaGPU->memcpy_symbol(m_symbol, m_host_address_src, m_cnt, m_offset, 1, m_stream);
+		gpu->gem5CudaGPU->memcpy_to_symbol(m_symbol, m_host_address_src, m_cnt, m_offset, m_stream);
         break;
     case stream_memcpy_from_symbol:
         if(g_debug_execution >= 3)
             printf("memcpy from symbol\n");
-        printf("Received stream_memcpy_from_symbol request, which is not implemented!\n");
-        abort();
+		gpu->gem5CudaGPU->memcpy_from_symbol(m_host_address_dst, m_symbol, m_cnt, m_offset, m_stream);
         break;
     case stream_kernel_launch:
         if( gpu->can_start_kernel() ) {

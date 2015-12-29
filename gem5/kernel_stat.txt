@@ -1,0 +1,2 @@
+ kernel 1: _Z22bpnn_layerforward_CUDAPfS_S_S_ii, start 0, end 0, retire 4926
+ kernel 2: _Z24bpnn_adjust_weights_cudaPfiS_iS_S_, start 252548829184, end 3670355968, retire 8438

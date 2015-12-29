@@ -94,6 +94,10 @@ def get_processes(options):
         process.executable = wrkld
         process.cwd = os.getcwd()
 
+        if options.env:
+            with open(options.env, 'r') as f:
+                process.env = [line.rstrip() for line in f]
+
         if len(pargs) > idx:
             process.cmd = [wrkld] + pargs[idx].split()
         else:
@@ -110,7 +114,7 @@ def get_processes(options):
         idx += 1
 
     if options.smt:
-        assert(options.cpu_type == "detailed" or options.cpu_type == "inorder")
+        assert(options.cpu_type == "detailed")
         return multiprocesses, idx
     else:
         return multiprocesses, 1
@@ -265,7 +269,7 @@ if options.ruby:
             system.cpu[i].dtb.walker.port = ruby_port.slave
 else:
     MemClass = Simulation.setMemClass(options)
-    system.membus = CoherentXBar()
+    system.membus = SystemXBar()
     system.system_port = system.membus.slave
     CacheConfig.config_cache(options, system)
     MemConfig.config_mem(options, system)

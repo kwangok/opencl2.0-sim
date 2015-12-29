@@ -101,7 +101,7 @@ extern float rsqrtf(float); // CUDA 2.3 beta
 #define CUDA_FLOAT_MATH_FUNCTIONS
 #include <device_types.h>
 #define __CUDA_INTERNAL_COMPILATION__
-#include <math_functions.h>
+//#include <math_functions.h>
 #undef __CUDA_INTERNAL_COMPILATION__
 #undef __attribute__
 

@@ -36,7 +36,12 @@
 #include "option_parser.h"
 #include <algorithm>
 
+#include "gpu/gpgpu-sim/cuda_gpu.hh"
 #include "stream_manager.h"
+
+extern gpgpu_sim *g_the_gpu;
+
+#include "gpu/gpgpu-sim/cuda_gpu.hh"
 
 extern gpgpu_sim *g_the_gpu;
 
@@ -93,8 +98,8 @@ void gpgpu_functional_sim_config::ptx_set_tex_cache_linesize(unsigned linesize)
    m_texcache_linesize = linesize;
 }
 
-gpgpu_t::gpgpu_t( const gpgpu_functional_sim_config &config, int _sharedMemDelay )
-    : sharedMemDelay(_sharedMemDelay), m_function_model_config(config)
+gpgpu_t::gpgpu_t( const gpgpu_functional_sim_config &config, CudaGPU *cuda_gpu )
+	: gem5CudaGPU(cuda_gpu), m_function_model_config(config)
 {
    m_global_mem = NULL; // Accesses to global memory should go through gem5-gpu
    m_tex_mem = new memory_space_impl<8192>("tex",64*1024);
@@ -104,6 +109,12 @@ gpgpu_t::gpgpu_t( const gpgpu_functional_sim_config &config, int _sharedMemDelay
 
    if(m_function_model_config.get_ptx_inst_debug_to_file() != 0) 
       ptx_inst_debug_file = fopen(m_function_model_config.get_ptx_inst_debug_file(), "w");
+
+   if(gem5CudaGPU) {
+       sharedMemDelay = gem5CudaGPU->getSharedMemDelay();
+   } else {
+       sharedMemDelay = 1;
+   }
 }
 
 address_type line_size_based_tag_func(new_addr_type address, new_addr_type line_size)

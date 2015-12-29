@@ -96,9 +96,9 @@ class CheckerThreadContext : public ThreadContext
 
     int cpuId() const { return actualTC->cpuId(); }
 
-    int contextId() const { return actualTC->contextId(); }
+    ContextID contextId() const { return actualTC->contextId(); }
 
-    void setContextId(int id)
+    void setContextId(ContextID id)
     {
        actualTC->setContextId(id);
        checkerTC->setContextId(id);
@@ -179,10 +179,6 @@ class CheckerThreadContext : public ThreadContext
         actualTC->regStats(name);
         checkerTC->regStats(name);
     }
-
-    void serialize(std::ostream &os) { actualTC->serialize(os); }
-    void unserialize(Checkpoint *cp, const std::string &section)
-    { actualTC->unserialize(cp, section); }
 
     EndQuiesceEvent *getQuiesceEvent() { return actualTC->getQuiesceEvent(); }
 
@@ -275,7 +271,7 @@ class CheckerThreadContext : public ThreadContext
     MicroPC microPC()
     { return actualTC->microPC(); }
 
-    MiscReg readMiscRegNoEffect(int misc_reg)
+    MiscReg readMiscRegNoEffect(int misc_reg) const
     { return actualTC->readMiscRegNoEffect(misc_reg); }
 
     MiscReg readMiscReg(int misc_reg)
@@ -287,6 +283,14 @@ class CheckerThreadContext : public ThreadContext
                          " and O3..\n", misc_reg);
         checkerTC->setMiscRegNoEffect(misc_reg, val);
         actualTC->setMiscRegNoEffect(misc_reg, val);
+    }
+
+    void setMiscRegActuallyNoEffect(int misc_reg, const MiscReg &val)
+    {
+        DPRINTF(Checker, "Setting misc reg with no effect: %d to both Checker"
+                         " and O3..\n", misc_reg);
+        checkerTC->setMiscRegActuallyNoEffect(misc_reg, val);
+        actualTC->setMiscRegActuallyNoEffect(misc_reg, val);
     }
 
     void setMiscReg(int misc_reg, const MiscReg &val)
@@ -309,9 +313,6 @@ class CheckerThreadContext : public ThreadContext
     {
         actualTC->setStCondFailures(sc_failures);
     }
-
-    // @todo: Fix this!
-    bool misspeculating() { return actualTC->misspeculating(); }
 
     Counter readFuncExeInst() { return actualTC->readFuncExeInst(); }
 

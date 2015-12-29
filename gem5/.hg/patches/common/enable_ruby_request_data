@@ -1,5 +1,5 @@
 # HG changeset patch
-# Parent 5db306bbb3146829638d72f4308f76f95911fedc
+# Parent 9739ed72ccb7abf4e6f661b4c01bb9c0dce1186c
 Ruby: Enable slicc to get data from RubyRequest
 This allows protocols to get the data out of the ruby request
 before the read/writeCallback function is called. This is useful
@@ -9,7 +9,7 @@ before the transaction is complete.
 diff --git a/src/mem/protocol/RubySlicc_Types.sm b/src/mem/protocol/RubySlicc_Types.sm
 --- a/src/mem/protocol/RubySlicc_Types.sm
 +++ b/src/mem/protocol/RubySlicc_Types.sm
-@@ -123,6 +123,7 @@
+@@ -126,6 +126,7 @@
    int Size,                  desc="size in bytes of access";
    PrefetchBit Prefetch,      desc="Is this a prefetch request";
    int contextId,             desc="this goes away but must be replace with Nilay";
@@ -35,7 +35,7 @@ diff --git a/src/mem/ruby/slicc_interface/RubyRequest.hh b/src/mem/ruby/slicc_in
 +    void
 +    writeData(DataBlock& block) const
 +    {
-+      block.setData(data, m_PhysicalAddress.getOffset(), m_Size);
++      block.setData(data, getOffset(m_PhysicalAddress), m_Size);
 +    }
 +
      void print(std::ostream& out) const;

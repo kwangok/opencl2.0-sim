@@ -44,6 +44,7 @@
 #include <list>
 #include <string>
 
+#include "arch/generic/tlb.hh"
 #include "arch/kernel_stats.hh"
 #include "arch/vtophys.hh"
 #include "cpu/checker/cpu.hh"
@@ -53,7 +54,6 @@
 #include "cpu/thread_context.hh"
 #include "params/CheckerCPU.hh"
 #include "sim/full_system.hh"
-#include "sim/tlb.hh"
 
 using namespace std;
 using namespace TheISA;
@@ -129,12 +129,12 @@ CheckerCPU::setDcachePort(MasterPort *dcache_port)
 }
 
 void
-CheckerCPU::serialize(ostream &os)
+CheckerCPU::serialize(ostream &os) const
 {
 }
 
 void
-CheckerCPU::unserialize(Checkpoint *cp, const string &section)
+CheckerCPU::unserialize(CheckpointIn &cp)
 {
 }
 
@@ -154,8 +154,8 @@ CheckerCPU::readMem(Addr addr, uint8_t *data, unsigned size, unsigned flags)
 
     // Need to account for multiple accesses like the Atomic and TimingSimple
     while (1) {
-        memReq = new Request();
-        memReq->setVirt(0, addr, size, flags, masterId, thread->pcState().instAddr());
+        memReq = new Request(0, addr, size, flags, masterId,
+                             thread->pcState().instAddr(), tc->contextId(), 0);
 
         // translate to physical address
         fault = dtb->translateFunctional(memReq, tc, BaseTLB::Read);
@@ -242,8 +242,8 @@ CheckerCPU::writeMem(uint8_t *data, unsigned size,
 
     // Need to account for a multiple access like Atomic and Timing CPUs
     while (1) {
-        memReq = new Request();
-        memReq->setVirt(0, addr, size, flags, masterId, thread->pcState().instAddr());
+        memReq = new Request(0, addr, size, flags, masterId,
+                             thread->pcState().instAddr(), tc->contextId(), 0);
 
         // translate to physical address
         fault = dtb->translateFunctional(memReq, tc, BaseTLB::Write);

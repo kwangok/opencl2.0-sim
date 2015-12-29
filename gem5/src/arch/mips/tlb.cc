@@ -148,7 +148,7 @@ TLB::checkCacheability(RequestPtr &req)
     // address or by the TLB entry
     if ((req->getVaddr() & VAddrUncacheable) == VAddrUncacheable) {
         // mark request as uncacheable
-        req->setFlags(Request::UNCACHEABLE);
+        req->setFlags(Request::UNCACHEABLE | Request::STRICT_ORDER);
     }
     return NoFault;
 }
@@ -197,25 +197,26 @@ TLB::flushAll()
 }
 
 void
-TLB::serialize(ostream &os)
+TLB::serialize(CheckpointOut &cp) const
 {
     SERIALIZE_SCALAR(size);
     SERIALIZE_SCALAR(nlu);
 
     for (int i = 0; i < size; i++) {
-        nameOut(os, csprintf("%s.PTE%d", name(), i));
-        table[i].serialize(os);
+        ScopedCheckpointSection sec(cp, csprintf("PTE%d", i));
+        table[i].serialize(cp);
     }
 }
 
 void
-TLB::unserialize(Checkpoint *cp, const string &section)
+TLB::unserialize(CheckpointIn &cp)
 {
     UNSERIALIZE_SCALAR(size);
     UNSERIALIZE_SCALAR(nlu);
 
     for (int i = 0; i < size; i++) {
-        table[i].unserialize(cp, csprintf("%s.PTE%d", section, i));
+        ScopedCheckpointSection sec(cp, csprintf("PTE%d", i));
+        table[i].unserialize(cp);
         if (table[i].V0 || table[i].V1) {
             lookupTable.insert(make_pair(table[i].VPN, i));
         }

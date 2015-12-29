@@ -11,9 +11,6 @@
 #   possibly fix underlying issues with gem5
 #######################################################
 
-# Submitted to gem5 reviewboard on 2014/2/4
-fix-ruby-access-backing-store
-
 
 # We need to remove this patch and fix it in a good way
 tmp-fix-packet
@@ -36,13 +33,12 @@ common/flash_invalidate
 common/add_fence_mem_cmd
 common/warn_mc_refresh_threshold
 common/make_cluster_more_generic
+common/interrupts_add_setMiscRegActuallyNoEffect
+common/gpu_page_faults
+joel/add_arm_gpu_fault_regs
 
 jason/TLB-bypass-L1
 jason/ruby-bypass-L1
-
-jason/gpu-page-faults
-jason/page-fault-interrupts
-joel/add_arm_gpu_fault_regs
 
 joel/connect_io_params
 joel/enable_ruby_atomics
@@ -50,7 +46,6 @@ joel/enable_ruby_atomics
 #######################################################
 # Utility patches that require qselection
 #######################################################
-joel/hack_ruby_func_access #+func_access
 
 #######################################################
 ## A section for personal patches:

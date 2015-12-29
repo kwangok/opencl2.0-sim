@@ -42,6 +42,8 @@
  *          Steve Reinhardt
  */
 
+#include "arch/arm/tlb.hh"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -52,7 +54,6 @@
 #include "arch/arm/table_walker.hh"
 #include "arch/arm/stage2_lookup.hh"
 #include "arch/arm/stage2_mmu.hh"
-#include "arch/arm/tlb.hh"
 #include "arch/arm/utility.hh"
 #include "base/inifile.hh"
 #include "base/str.hh"
@@ -74,7 +75,7 @@ TLB::TLB(const ArmTLBParams *p)
     : BaseTLB(p), table(new TlbEntry[p->size]), size(p->size),
       isStage2(p->is_stage2), stage2Req(false), _attr(0),
       directToStage2(false), tableWalker(p->walker), stage2Tlb(NULL),
-      stage2Mmu(NULL), rangeMRU(1), bootUncacheability(false),
+      stage2Mmu(NULL), rangeMRU(1),
       aarch64(false), aarch64EL(EL0), isPriv(false), isSecure(false),
       isHyp(false), asid(0), vmid(0), dacr(0),
       miscRegValid(false), curTranType(NormalTran)
@@ -100,10 +101,10 @@ TLB::init()
 }
 
 void
-TLB::setMMU(Stage2MMU *m)
+TLB::setMMU(Stage2MMU *m, MasterID master_id)
 {
     stage2Mmu = m;
-    tableWalker->setMMU(m);
+    tableWalker->setMMU(m, master_id);
 }
 
 bool
@@ -368,7 +369,6 @@ TLB::takeOverFrom(BaseTLB *_otlb)
         haveLPAE = otlb->haveLPAE;
         directToStage2 = otlb->directToStage2;
         stage2Req = otlb->stage2Req;
-        bootUncacheability = otlb->bootUncacheability;
 
         /* Sync the stage2 MMU if they exist in both
          * the old CPU and the new
@@ -383,7 +383,7 @@ TLB::takeOverFrom(BaseTLB *_otlb)
 }
 
 void
-TLB::serialize(ostream &os)
+TLB::serialize(CheckpointOut &cp) const
 {
     DPRINTF(Checkpoint, "Serializing Arm TLB\n");
 
@@ -391,18 +391,15 @@ TLB::serialize(ostream &os)
     SERIALIZE_SCALAR(haveLPAE);
     SERIALIZE_SCALAR(directToStage2);
     SERIALIZE_SCALAR(stage2Req);
-    SERIALIZE_SCALAR(bootUncacheability);
 
     int num_entries = size;
     SERIALIZE_SCALAR(num_entries);
-    for(int i = 0; i < size; i++){
-        nameOut(os, csprintf("%s.TlbEntry%d", name(), i));
-        table[i].serialize(os);
-    }
+    for(int i = 0; i < size; i++)
+        table[i].serializeSection(cp, csprintf("TlbEntry%d", i));
 }
 
 void
-TLB::unserialize(Checkpoint *cp, const string &section)
+TLB::unserialize(CheckpointIn &cp)
 {
     DPRINTF(Checkpoint, "Unserializing Arm TLB\n");
 
@@ -410,13 +407,11 @@ TLB::unserialize(Checkpoint *cp, const string &section)
     UNSERIALIZE_SCALAR(haveLPAE);
     UNSERIALIZE_SCALAR(directToStage2);
     UNSERIALIZE_SCALAR(stage2Req);
-    UNSERIALIZE_SCALAR(bootUncacheability);
 
     int num_entries;
     UNSERIALIZE_SCALAR(num_entries);
-    for(int i = 0; i < min(size, num_entries); i++){
-        table[i].unserialize(cp, csprintf("%s.TlbEntry%d", section, i));
-    }
+    for(int i = 0; i < min(size, num_entries); i++)
+        table[i].unserializeSection(cp, csprintf("TlbEntry%d", i));
 }
 
 void
@@ -549,7 +544,7 @@ TLB::translateSe(RequestPtr req, ThreadContext *tc, Mode mode,
     Addr vaddr_tainted = req->getVaddr();
     Addr vaddr = 0;
     if (aarch64)
-        vaddr = purifyTaggedAddr(vaddr_tainted, tc, aarch64EL);
+        vaddr = purifyTaggedAddr(vaddr_tainted, tc, aarch64EL, ttbcr);
     else
         vaddr = vaddr_tainted;
     uint32_t flags = req->getFlags();
@@ -768,7 +763,7 @@ TLB::checkPermissions64(TlbEntry *te, RequestPtr req, Mode mode,
     assert(aarch64);
 
     Addr vaddr_tainted = req->getVaddr();
-    Addr vaddr = purifyTaggedAddr(vaddr_tainted, tc, aarch64EL);
+    Addr vaddr = purifyTaggedAddr(vaddr_tainted, tc, aarch64EL, ttbcr);
 
     uint32_t flags = req->getFlags();
     bool is_fetch  = (mode == Execute);
@@ -962,7 +957,7 @@ TLB::translateFs(RequestPtr req, ThreadContext *tc, Mode mode,
     Addr vaddr_tainted = req->getVaddr();
     Addr vaddr = 0;
     if (aarch64)
-        vaddr = purifyTaggedAddr(vaddr_tainted, tc, aarch64EL);
+        vaddr = purifyTaggedAddr(vaddr_tainted, tc, aarch64EL, ttbcr);
     else
         vaddr = vaddr_tainted;
     uint32_t flags = req->getFlags();
@@ -982,19 +977,9 @@ TLB::translateFs(RequestPtr req, ThreadContext *tc, Mode mode,
                  "flags %#x tranType 0x%x\n", vaddr_tainted, mode, isStage2,
                  scr, sctlr, flags, tranType);
 
-    // If this is a clrex instruction, provide a PA of 0 with no fault
-    // This will force the monitor to set the tracked address to 0
-    // a bit of a hack but this effectively clrears this processors monitor
-    if (flags & Request::CLEAR_LL){
-        // @todo: check implications of security extensions
-       req->setPaddr(0);
-       req->setFlags(Request::UNCACHEABLE);
-       req->setFlags(Request::CLEAR_LL);
-       return NoFault;
-    }
     if ((req->isInstFetch() && (!sctlr.i)) ||
         ((!req->isInstFetch()) && (!sctlr.c))){
-       req->setFlags(Request::UNCACHEABLE);
+       req->setFlags(Request::UNCACHEABLE | Request::STRICT_ORDER);
     }
     if (!is_fetch) {
         assert(flags & MustBeOne);
@@ -1021,10 +1006,10 @@ TLB::translateFs(RequestPtr req, ThreadContext *tc, Mode mode,
 
         // @todo: double check this (ARM ARM issue C B3.2.1)
         if (long_desc_format || sctlr.tre == 0) {
-            req->setFlags(Request::UNCACHEABLE);
+            req->setFlags(Request::UNCACHEABLE | Request::STRICT_ORDER);
         } else {
             if (nmrr.ir0 == 0 || nmrr.or0 == 0 || prrr.tr0 != 0x2)
-                req->setFlags(Request::UNCACHEABLE);
+                req->setFlags(Request::UNCACHEABLE | Request::STRICT_ORDER);
         }
 
         // Set memory attributes
@@ -1077,22 +1062,18 @@ TLB::translateFs(RequestPtr req, ThreadContext *tc, Mode mode,
                 te->shareable, te->innerAttrs, te->outerAttrs,
                 static_cast<uint8_t>(te->mtype), isStage2);
         setAttr(te->attributes);
-        if (te->nonCacheable) {
-            req->setFlags(Request::UNCACHEABLE);
-        }
 
-        if (!bootUncacheability &&
-            ((ArmSystem*)tc->getSystemPtr())->adderBootUncacheable(vaddr)) {
+        if (te->nonCacheable)
             req->setFlags(Request::UNCACHEABLE);
-        }
+
+        // Require requests to be ordered if the request goes to
+        // strongly ordered or device memory (i.e., anything other
+        // than normal memory requires strict order).
+        if (te->mtype != TlbEntry::MemoryType::Normal)
+            req->setFlags(Request::STRICT_ORDER);
 
         Addr pa = te->pAddr(vaddr);
         req->setPaddr(pa);
-
-        if (!bootUncacheability &&
-            ((ArmSystem*)tc->getSystemPtr())->adderBootUncacheable(pa)) {
-            req->setFlags(Request::UNCACHEABLE);
-        }
 
         if (isSecure && !te->ns) {
             req->setFlags(Request::SECURE);
@@ -1117,7 +1098,6 @@ TLB::translateFs(RequestPtr req, ThreadContext *tc, Mode mode,
 
     // Generate Illegal Inst Set State fault if IL bit is set in CPSR
     if (fault == NoFault) {
-        CPSR cpsr = tc->readMiscReg(MISCREG_CPSR);
         if (aarch64 && is_fetch && cpsr.il == 1) {
             return std::make_shared<IllegalInstSetStateFault>();
         }
@@ -1215,13 +1195,7 @@ TLB::translateComplete(RequestPtr req, ThreadContext *tc,
 BaseMasterPort*
 TLB::getMasterPort()
 {
-    return &tableWalker->getMasterPort("port");
-}
-
-DmaPort&
-TLB::getWalkerPort()
-{
-    return tableWalker->getWalkerPort();
+    return &stage2Mmu->getPort();
 }
 
 void
@@ -1235,7 +1209,7 @@ TLB::updateMiscReg(ThreadContext *tc, ArmTranslationType tranType)
     }
 
     DPRINTF(TLBVerbose, "TLB variables changed!\n");
-    CPSR cpsr = tc->readMiscReg(MISCREG_CPSR);
+    cpsr = tc->readMiscReg(MISCREG_CPSR);
     // Dependencies: SCR/SCR_EL3, CPSR
     isSecure  = inSecureState(tc);
     isSecure &= (tranType & HypMode)    == 0;
@@ -1341,7 +1315,7 @@ TLB::getTE(TlbEntry **te, RequestPtr req, ThreadContext *tc, Mode mode,
     Addr vaddr = 0;
     ExceptionLevel target_el = aarch64 ? aarch64EL : EL1;
     if (aarch64) {
-        vaddr = purifyTaggedAddr(vaddr_tainted, tc, target_el);
+        vaddr = purifyTaggedAddr(vaddr_tainted, tc, target_el, ttbcr);
     } else {
         vaddr = vaddr_tainted;
     }

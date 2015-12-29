@@ -63,8 +63,7 @@ TrafficGen::TrafficGen(const TrafficGenParams* p)
       port(name() + ".port", *this),
       retryPkt(NULL),
       retryPktTick(0),
-      updateEvent(this),
-      drainManager(NULL)
+      updateEvent(this)
 {
 }
 
@@ -118,12 +117,12 @@ TrafficGen::initState()
     }
 }
 
-unsigned int
-TrafficGen::drain(DrainManager *dm)
+DrainState
+TrafficGen::drain()
 {
     if (!updateEvent.scheduled()) {
         // no event has been scheduled yet (e.g. switched from atomic mode)
-        return 0;
+        return DrainState::Drained;
     }
 
     if (retryPkt == NULL) {
@@ -131,15 +130,14 @@ TrafficGen::drain(DrainManager *dm)
         nextPacketTick = MaxTick;
         nextTransitionTick = MaxTick;
         deschedule(updateEvent);
-        return 0;
+        return DrainState::Drained;
     } else {
-        drainManager = dm;
-        return 1;
+        return DrainState::Draining;
     }
 }
 
 void
-TrafficGen::serialize(ostream &os)
+TrafficGen::serialize(CheckpointOut &cp) const
 {
     DPRINTF(Checkpoint, "Serializing TrafficGen\n");
 
@@ -158,7 +156,7 @@ TrafficGen::serialize(ostream &os)
 }
 
 void
-TrafficGen::unserialize(Checkpoint* cp, const string& section)
+TrafficGen::unserialize(CheckpointIn &cp)
 {
     // restore scheduled events
     Tick nextEvent;
@@ -331,13 +329,8 @@ TrafficGen::parseConfig()
                                  blocksize, page_size);
 
                         if (nbr_of_banks_util > nbr_of_banks_DRAM)
-                            fatal("Attempting to use more banks (%) than "
-                                  "what is available (%)\n",
-                                  nbr_of_banks_util, nbr_of_banks_DRAM);
-
-                        if (nbr_of_banks_util > nbr_of_banks_DRAM)
-                            fatal("Attempting to use more banks (%) than "
-                                  "what is available (%)\n",
+                            fatal("Attempting to use more banks (%d) than "
+                                  "what is available (%d)\n",
                                   nbr_of_banks_util, nbr_of_banks_DRAM);
 
                         // count the number of sequential packets to
@@ -476,7 +469,7 @@ TrafficGen::enterState(uint32_t newState)
 }
 
 void
-TrafficGen::recvRetry()
+TrafficGen::recvReqRetry()
 {
     assert(retryPkt != NULL);
 
@@ -493,7 +486,7 @@ TrafficGen::recvRetry()
         retryPktTick = 0;
         retryTicks += delay;
 
-        if (drainManager == NULL) {
+        if (drainState() != DrainState::Draining) {
             // packet is sent, so find out when the next one is due
             nextPacketTick = states[currState]->nextPacketTick(elasticReq,
                                                                delay);
@@ -503,9 +496,7 @@ TrafficGen::recvRetry()
             // shut things down
             nextPacketTick = MaxTick;
             nextTransitionTick = MaxTick;
-            drainManager->signalDrainDone();
-            // Clear the drain event once we're done with it.
-            drainManager = NULL;
+            signalDrainDone();
         }
     }
 }

@@ -54,10 +54,10 @@ LRU::LRU(const Params *p)
 {
 }
 
-BaseSetAssoc::BlkType*
+CacheBlk*
 LRU::accessBlock(Addr addr, bool is_secure, Cycles &lat, int master_id)
 {
-    BlkType *blk = BaseSetAssoc::accessBlock(addr, is_secure, lat, master_id);
+    CacheBlk *blk = BaseSetAssoc::accessBlock(addr, is_secure, lat, master_id);
 
     if (blk != NULL) {
         // move this block to head of the MRU list
@@ -70,14 +70,22 @@ LRU::accessBlock(Addr addr, bool is_secure, Cycles &lat, int master_id)
     return blk;
 }
 
-BaseSetAssoc::BlkType*
-LRU::findVictim(Addr addr) const
+CacheBlk*
+LRU::findVictim(Addr addr)
 {
     int set = extractSet(addr);
     // grab a replacement candidate
-    BlkType *blk = sets[set].blks[assoc - 1];
+    BlkType *blk = NULL;
+    for (int i = assoc - 1; i >= 0; i--) {
+        BlkType *b = sets[set].blks[i];
+        if (b->way < allocAssoc) {
+            blk = b;
+            break;
+        }
+    }
+    assert(!blk || blk->way < allocAssoc);
 
-    if (blk->isValid()) {
+    if (blk && blk->isValid()) {
         DPRINTF(CacheRepl, "set %x: selecting blk %x for replacement\n",
                 set, regenerateBlkAddr(blk->tag, set));
     }
@@ -95,7 +103,7 @@ LRU::insertBlock(PacketPtr pkt, BlkType *blk)
 }
 
 void
-LRU::invalidate(BlkType *blk)
+LRU::invalidate(CacheBlk *blk)
 {
     BaseSetAssoc::invalidate(blk);
 

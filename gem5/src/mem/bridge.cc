@@ -137,7 +137,7 @@ Bridge::BridgeMasterPort::recvTimingResp(PacketPtr pkt)
     DPRINTF(Bridge, "Request queue size: %d\n", transmitList.size());
 
     // @todo: We need to pay for this and not just zero it out
-    pkt->firstWordDelay = pkt->lastWordDelay = 0;
+    pkt->headerDelay = pkt->payloadDelay = 0;
 
     slavePort.schedTimingResp(pkt, bridge.clockEdge(delay));
 
@@ -181,7 +181,7 @@ Bridge::BridgeSlavePort::recvTimingReq(PacketPtr pkt)
 
         if (!retryReq) {
             // @todo: We need to pay for this and not just zero it out
-            pkt->firstWordDelay = pkt->lastWordDelay = 0;
+            pkt->headerDelay = pkt->payloadDelay = 0;
 
             masterPort.schedTimingReq(pkt, bridge.clockEdge(delay));
         }
@@ -200,22 +200,13 @@ Bridge::BridgeSlavePort::retryStalledReq()
     if (retryReq) {
         DPRINTF(Bridge, "Request waiting for retry, now retrying\n");
         retryReq = false;
-        sendRetry();
+        sendRetryReq();
     }
 }
 
 void
 Bridge::BridgeMasterPort::schedTimingReq(PacketPtr pkt, Tick when)
 {
-    // If we expect to see a response, we need to restore the source
-    // and destination field that is potentially changed by a second
-    // crossbar
-    if (!pkt->memInhibitAsserted() && pkt->needsResponse()) {
-        // Update the sender state so we can deal with the response
-        // appropriately
-        pkt->pushSenderState(new RequestState(pkt->getSrc()));
-    }
-
     // If we're about to put this packet at the head of the queue, we
     // need to schedule an event to do the transmit.  Otherwise there
     // should already be an event scheduled for sending the head
@@ -226,26 +217,13 @@ Bridge::BridgeMasterPort::schedTimingReq(PacketPtr pkt, Tick when)
 
     assert(transmitList.size() != reqQueueLimit);
 
-    transmitList.push_back(DeferredPacket(pkt, when));
+    transmitList.emplace_back(pkt, when);
 }
 
 
 void
 Bridge::BridgeSlavePort::schedTimingResp(PacketPtr pkt, Tick when)
 {
-    // This is a response for a request we forwarded earlier.  The
-    // corresponding request state should be stored in the packet's
-    // senderState field.
-    RequestState *req_state =
-        dynamic_cast<RequestState*>(pkt->popSenderState());
-    assert(req_state != NULL);
-    pkt->setDest(req_state->origSrc);
-    delete req_state;
-
-    // the bridge sets the destination irrespective of it is valid or
-    // not, as it is checked in the crossbar
-    DPRINTF(Bridge, "response, new dest %d\n", pkt->getDest());
-
     // If we're about to put this packet at the head of the queue, we
     // need to schedule an event to do the transmit.  Otherwise there
     // should already be an event scheduled for sending the head
@@ -254,7 +232,7 @@ Bridge::BridgeSlavePort::schedTimingResp(PacketPtr pkt, Tick when)
         bridge.schedule(sendEvent, when);
     }
 
-    transmitList.push_back(DeferredPacket(pkt, when));
+    transmitList.emplace_back(pkt, when);
 }
 
 void
@@ -331,7 +309,7 @@ Bridge::BridgeSlavePort::trySendTiming()
         if (!masterPort.reqQueueFull() && retryReq) {
             DPRINTF(Bridge, "Request waiting for retry, now retrying\n");
             retryReq = false;
-            sendRetry();
+            sendRetryReq();
         }
     }
 
@@ -340,13 +318,13 @@ Bridge::BridgeSlavePort::trySendTiming()
 }
 
 void
-Bridge::BridgeMasterPort::recvRetry()
+Bridge::BridgeMasterPort::recvReqRetry()
 {
     trySendTiming();
 }
 
 void
-Bridge::BridgeSlavePort::recvRetry()
+Bridge::BridgeSlavePort::recvRespRetry()
 {
     trySendTiming();
 }

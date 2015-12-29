@@ -113,6 +113,7 @@ class SLICC(Grammar):
         'stall_and_wait' : 'STALL_AND_WAIT',
         'enqueue' : 'ENQUEUE',
         'check_allocate' : 'CHECK_ALLOCATE',
+        'check_next_cycle' : 'CHECK_NEXT_CYCLE',
         'check_stop_slots' : 'CHECK_STOP_SLOTS',
         'static_cast' : 'STATIC_CAST',
         'if' : 'IF',
@@ -278,7 +279,7 @@ class SLICC(Grammar):
         p[0] = ast.OutPortDeclAST(self, p[3], p[5], p[7], p[8])
 
     def p_decl__trans0(self, p):
-        "decl : TRANS '(' idents ',' idents ',' ident ')' idents"
+        "decl : TRANS '(' idents ',' idents ',' ident_or_star ')' idents"
         p[0] = ast.TransitionDeclAST(self, [], p[3], p[5], p[7], p[9])
 
     def p_decl__trans1(self, p):
@@ -286,7 +287,7 @@ class SLICC(Grammar):
         p[0] = ast.TransitionDeclAST(self, [], p[3], p[5], None, p[7])
 
     def p_decl__trans2(self, p):
-        "decl : TRANS '(' idents ',' idents ',' ident ')' idents idents"
+        "decl : TRANS '(' idents ',' idents ',' ident_or_star ')' idents idents"
         p[0] = ast.TransitionDeclAST(self, p[9], p[3], p[5], p[7], p[10])
 
     def p_decl__trans3(self, p):
@@ -506,6 +507,11 @@ class SLICC(Grammar):
         "ident : IDENT"
         p[0] = p[1]
 
+    def p_ident_or_star(self, p):
+        """ident_or_star : ident
+                         | STAR"""
+        p[0] = p[1]
+
     # Pair and pair lists
     def p_pairs__list(self, p):
         "pairs : ',' pairsx"
@@ -591,6 +597,10 @@ class SLICC(Grammar):
     def p_statement__check_allocate(self, p):
         "statement : CHECK_ALLOCATE '(' var ')' SEMI"
         p[0] = ast.CheckAllocateStatementAST(self, p[3])
+
+    def p_statement__check_next_cycle(self, p):
+        "statement : CHECK_NEXT_CYCLE '(' ')' SEMI"
+        p[0] = ast.CheckNextCycleAST(self)
 
     def p_statement__check_stop(self, p):
         "statement : CHECK_STOP_SLOTS '(' var ',' STRING ',' STRING ')' SEMI"

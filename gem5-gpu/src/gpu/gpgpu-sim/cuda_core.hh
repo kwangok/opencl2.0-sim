@@ -116,7 +116,7 @@ class CudaCore : public MemObject
 
       protected:
         virtual bool recvTimingResp(PacketPtr pkt);
-        virtual void recvRetry();
+        virtual void recvReqRetry();
         virtual Tick recvAtomic(PacketPtr pkt);
         virtual void recvFunctional(PacketPtr pkt);
     };
@@ -140,7 +140,7 @@ class CudaCore : public MemObject
 
       protected:
         virtual bool recvTimingResp(PacketPtr pkt);
-        virtual void recvRetry();
+        virtual void recvReqRetry();
     };
     // Ports for each of the GPU lanes
     std::vector<LSQPort*> lsqPorts;
@@ -164,7 +164,7 @@ class CudaCore : public MemObject
 
       protected:
         virtual bool recvTimingResp(PacketPtr pkt);
-        virtual void recvRetry();
+        virtual void recvReqRetry();
     };
     LSQControlPort lsqControlPort;
 
@@ -193,7 +193,7 @@ class CudaCore : public MemObject
     // Number of threads in the warp, also the number of lanes per SM
     int warpSize;
 
-    // Stalled because a memory request called recvRetry, usually because
+    // Stalled because a memory request called recvReqRetry, usually because
     // a queue filled up
     bool stallOnICacheRetry;
 
@@ -244,7 +244,7 @@ class CudaCore : public MemObject
                                           PortID idx = -1);
 
     // For checkpoint restore (empty unserialize)
-    virtual void unserialize(Checkpoint *cp, const std::string &section);
+    virtual void unserialize(CheckpointIn &cp);
 
     // Perform initialization. Called from SPA
     void initialize();

@@ -127,8 +127,11 @@ MC146818::startup()
 {
     assert(!event.scheduled());
     assert(!tickEvent.scheduled());
-    schedule(event, curTick() + event.offset);
-    schedule(tickEvent, curTick() + tickEvent.offset);
+
+    if (stat_regB.pie)
+        schedule(event, curTick() + event.offset);
+    if (!rega_dv_disabled(stat_regA))
+        schedule(tickEvent, curTick() + tickEvent.offset);
 }
 
 void
@@ -262,14 +265,14 @@ MC146818::tickClock()
 }
 
 void
-MC146818::serialize(const string &base, ostream &os)
+MC146818::serialize(const string &base, CheckpointOut &cp) const
 {
     uint8_t regA_serial(stat_regA);
     uint8_t regB_serial(stat_regB);
 
-    arrayParamOut(os, base + ".clock_data", clock_data, sizeof(clock_data));
-    paramOut(os, base + ".stat_regA", (uint8_t)regA_serial);
-    paramOut(os, base + ".stat_regB", (uint8_t)regB_serial);
+    arrayParamOut(cp, base + ".clock_data", clock_data, sizeof(clock_data));
+    paramOut(cp, base + ".stat_regA", (uint8_t)regA_serial);
+    paramOut(cp, base + ".stat_regB", (uint8_t)regB_serial);
 
     //
     // save the timer tick and rtc clock tick values to correctly reschedule 
@@ -282,17 +285,16 @@ MC146818::serialize(const string &base, ostream &os)
 }
 
 void
-MC146818::unserialize(const string &base, Checkpoint *cp,
-                      const string &section)
+MC146818::unserialize(const string &base, CheckpointIn &cp)
 {
     uint8_t tmp8;
 
-    arrayParamIn(cp, section, base + ".clock_data", clock_data,
+    arrayParamIn(cp, base + ".clock_data", clock_data,
                  sizeof(clock_data));
 
-    paramIn(cp, section, base + ".stat_regA", tmp8);
+    paramIn(cp, base + ".stat_regA", tmp8);
     stat_regA = tmp8;
-    paramIn(cp, section, base + ".stat_regB", tmp8);
+    paramIn(cp, base + ".stat_regB", tmp8);
     stat_regB = tmp8;
 
     //

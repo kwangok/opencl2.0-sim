@@ -45,7 +45,6 @@ def getTestFilename(test_location):
     test_filename = test_filename.replace('/opt/','/')
     test_filename = test_filename.replace('/debug/','/')
     test_filename = test_filename.replace('/fast/','/')
-    print test_filename
     supported_isas = [ 'arm', 'x86' ]
     isa = None
     for test_isa in supported_isas:
@@ -94,7 +93,7 @@ Ruby.define_options(parser)
 
 # Use ruby
 options.ruby = True
-options.mem_type = "ruby_memory"
+options.mem_type = "RubyMemoryControl"
 
 if not args or len(args) != 1:
     print "Error: script expects a single positional argument"
@@ -207,7 +206,7 @@ for (i, cpu) in enumerate(system.cpu):
 #
 GPUConfig.connectGPUPorts(system.gpu, system.ruby, options)
 
-if options.mem_type == "ruby_memory":
+if options.mem_type == "RubyMemoryControl":
     GPUMemConfig.setMemoryControlOptions(system, options)
 
 #
@@ -216,7 +215,7 @@ if options.mem_type == "ruby_memory":
 root = Root(full_system = False, system = system)
 
 command_line = []
-command_line.append(options.cmd)
+command_line.append(binpath(options.cmd))
 for option in options.options.split():
     command_line.append(option)
 root.system.cpu[0].workload = LiveProcess(cmd = command_line,

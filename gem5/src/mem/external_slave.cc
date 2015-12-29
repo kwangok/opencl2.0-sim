@@ -80,7 +80,7 @@ class StubSlavePort : public ExternalSlave::Port
     void recvFunctional(PacketPtr packet);
     bool recvTimingReq(PacketPtr packet);
     bool recvTimingSnoopResp(PacketPtr packet);
-    void recvRetry();
+    void recvRespRetry();
     void recvFunctionalSnoop(PacketPtr packet);
 };
 
@@ -124,14 +124,14 @@ void
 StubSlavePort::ResponseEvent::process()
 {
     owner.responsePacket->makeResponse();
-    owner.responsePacket->firstWordDelay = 0;
-    owner.responsePacket->lastWordDelay = 0;
+    owner.responsePacket->headerDelay = 0;
+    owner.responsePacket->payloadDelay = 0;
 
     if (owner.sendTimingResp(owner.responsePacket)) {
         owner.responsePacket = NULL;
 
         if (owner.mustRetry)
-            owner.sendRetry();
+            owner.sendRetryReq();
         owner.mustRetry = false;
     }
 }
@@ -161,7 +161,7 @@ StubSlavePort::recvTimingSnoopResp(PacketPtr packet)
 }
 
 void
-StubSlavePort::recvRetry()
+StubSlavePort::recvRespRetry()
 {
     assert(responsePacket);
     /* Stub handles only one response at a time so responseEvent should never

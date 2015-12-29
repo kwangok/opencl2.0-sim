@@ -126,14 +126,10 @@ def modregions(wctx, fname):
     return mod_regions
 
 class UserInterface(object):
-    def __init__(self, verbose=False, auto=False):
-        self.auto = auto
+    def __init__(self, verbose=False):
         self.verbose = verbose
 
     def prompt(self, prompt, results, default):
-        if self.auto:
-            return self.auto
-
         while True:
             result = self.do_prompt(prompt, results, default)
             if result in results:
@@ -158,11 +154,9 @@ class StdioUI(UserInterface):
         sys.stdout.write(string)
 
 class Verifier(object):
-    def __init__(self, ui, repo=None):
+    def __init__(self, ui, repo):
         self.ui = ui
         self.repo = repo
-        if repo is None:
-            self.wctx = None
 
     def __getattr__(self, attr):
         if attr in ('prompt', 'write'):
@@ -180,8 +174,7 @@ class Verifier(object):
         raise AttributeError
 
     def open(self, filename, mode):
-        if self.repo:
-            filename = self.repo.wjoin(filename)
+        filename = self.repo.wjoin(filename)
 
         try:
             f = file(filename, mode)
@@ -192,6 +185,8 @@ class Verifier(object):
         return f
 
     def skip(self, filename):
+        filename = self.repo.wjoin(filename)
+
         # We never want to handle symlinks, so always skip them: If the location
         # pointed to is a directory, skip it. If the location is a file inside
         # the gem5 directory, it will be checked as a file, so symlink can be
@@ -357,7 +352,8 @@ class ValidationStats(object):
                self.trailwhite or self.badcontrol or self.cret
 
 def validate(filename, stats, verbose, exit_code):
-    if lang_type(filename) not in format_types:
+    lang = lang_type(filename)
+    if lang not in format_types:
         return
 
     def msg(lineno, line, message):
@@ -413,13 +409,47 @@ def validate(filename, stats, verbose, exit_code):
             bad()
 
         # for c++, exactly one space betwen if/while/for and (
-        if cpp:
+        if lang == 'C++':
             match = any_control.search(line)
             if match and not good_control.search(line):
                 stats.badcontrol += 1
                 if verbose > 1:
                     msg(i, line, 'improper spacing after %s' % match.group(1))
                 bad()
+
+
+def _modified_regions(repo, patterns, **kwargs):
+    opt_all = kwargs.get('all', False)
+    opt_no_ignore = kwargs.get('no_ignore', False)
+
+    # Import the match (repository file name matching helper)
+    # function. Different versions of Mercurial keep it in different
+    # modules and implement them differently.
+    try:
+        from mercurial import scmutil
+        m = scmutil.match(repo[None], patterns, kwargs)
+    except ImportError:
+        from mercurial import cmdutil
+        m = cmdutil.match(repo, patterns, kwargs)
+
+    modified, added, removed, deleted, unknown, ignore, clean = \
+        repo.status(match=m, clean=opt_all)
+
+    if not opt_all:
+        try:
+            wctx = repo.workingctx()
+        except:
+            from mercurial import context
+            wctx = context.workingctx(repo)
+
+        files = [ (fn, all_regions) for fn in added ] + \
+            [ (fn,  modregions(wctx, fn)) for fn in modified ]
+    else:
+        files = [ (fn, all_regions) for fn in added + modified + clean ]
+
+    for fname, mod_regions in files:
+        if opt_no_ignore or not check_ignores(fname):
+            yield fname, mod_regions
 
 
 def do_check_style(hgui, repo, *pats, **opts):
@@ -435,79 +465,69 @@ def do_check_style(hgui, repo, *pats, **opts):
     The --all option can be specified to include clean files and check
     modified files in their entirety.
     """
-    from mercurial import mdiff, util
+    opt_fix_all = opts.get('fix_all', False)
+    if not opt_fix_all:
+        opt_fix_white = opts.get('fix_white', False)
+        opt_fix_include = opts.get('fix_include', False)
+    else:
+        opt_fix_white = True
+        opt_fix_include = True
 
-    opt_fix_white = opts.get('fix_white', False)
-    opt_all = opts.get('all', False)
-    opt_no_ignore = opts.get('no_ignore', False)
-    ui = MercurialUI(hgui, hgui.verbose, opt_fix_white)
+    ui = MercurialUI(hgui, verbose=hgui.verbose)
 
     def prompt(name, func, regions=all_regions):
         result = ui.prompt("(a)bort, (i)gnore, or (f)ix?", 'aif', 'a')
         if result == 'a':
             return True
         elif result == 'f':
-            func(repo.wjoin(name), regions)
+            func(name, regions)
 
         return False
 
+    def no_prompt(name, func, regions=all_regions):
+        func(name, regions)
+        return False
 
-    # Import the match (repository file name matching helper)
-    # function. Different versions of Mercurial keep it in different
-    # modules and implement them differently.
-    try:
-        from mercurial import scmutil
-        m = scmutil.match(repo[None], pats, opts)
-    except ImportError:
-        from mercurial import cmdutil
-        m = cmdutil.match(repo, pats, opts)
+    prompt_white = prompt if not opt_fix_white else no_prompt
+    prompt_include = prompt if not opt_fix_include else no_prompt
 
-    modified, added, removed, deleted, unknown, ignore, clean = \
-        repo.status(match=m, clean=opt_all)
-    if not opt_all:
-        try:
-            wctx = repo.workingctx()
-        except:
-            from mercurial import context
-            wctx = context.workingctx(repo)
-
-        files = [ (fn, all_regions) for fn in added ] + \
-            [ (fn,  modregions(wctx, fn)) for fn in modified ]
-    else:
-        files = [ (fn, all_regions) for fn in added + modified + clean ]
-
-    whitespace = Whitespace(ui)
-    sorted_includes = SortedIncludes(ui)
-    for fname, mod_regions in files:
-        if not opt_no_ignore and check_ignores(fname):
-            continue
-
-        fpath = joinpath(repo.root, fname)
-
-        if whitespace.apply(fpath, prompt, mod_regions):
+    whitespace = Whitespace(ui, repo)
+    sorted_includes = SortedIncludes(ui, repo)
+    for fname, mod_regions in _modified_regions(repo, pats, **opts):
+        if whitespace.apply(fname, prompt_white, mod_regions):
             return True
 
-        if sorted_includes.apply(fpath, prompt, mod_regions):
+        if sorted_includes.apply(fname, prompt_include, mod_regions):
             return True
 
     return False
 
-def do_check_format(hgui, repo, **args):
-    ui = MercurialUI(hgui, hgui.verbose, auto)
+def do_check_format(hgui, repo, *pats, **opts):
+    """check files for gem5 code formatting violations
 
-    modified, added, removed, deleted, unknown, ignore, clean = repo.status()
+    Without an argument, checks all modified and added files for gem5
+    code formatting violations. A list of files can be specified to
+    limit the checker to a subset of the repository. The style rules
+    are normally applied on a diff of the repository state (i.e.,
+    added files are checked in their entirety while only modifications
+    of modified files are checked).
+
+    The --all option can be specified to include clean files and check
+    modified files in their entirety.
+    """
+    ui = MercurialUI(hgui, hgui.verbose)
 
     verbose = 0
-    stats = ValidationStats()
-    for f in modified + added:
-        validate(joinpath(repo.root, f), stats, verbose, None)
-
-    if stats:
-        stats.dump()
-        result = ui.prompt("invalid formatting\n(i)gnore or (a)bort?",
-                           'ai', 'a')
-        if result == 'a':
-            return True
+    for fname, mod_regions in _modified_regions(repo, pats, **opts):
+        stats = ValidationStats()
+        validate(joinpath(repo.root, fname), stats, verbose, None)
+        if stats:
+            print "%s:" % fname
+            stats.dump()
+            result = ui.prompt("invalid formatting\n(i)gnore or (a)bort?",
+                               'ai', 'a')
+            if result == 'a':
+                return True
 
     return False
 
@@ -544,18 +564,23 @@ except ImportError:
     def _(arg):
         return arg
 
+_common_region_options = [
+    ('a', 'all', False,
+     _("include clean files and unmodified parts of modified files")),
+    ('', 'no-ignore', False, _("ignore the style ignore list")),
+    ]
+
 cmdtable = {
     '^m5style' : (
         do_check_style, [
-            ('w', 'fix-white', False, _("automatically fix whitespace")),
-            ('a', 'all', False,
-             _("include clean files and unmodified parts of modified files")),
-            ('', 'no-ignore', False, _("ignore the style ignore list")),
-            ] +  commands.walkopts,
+            ('f', 'fix-all', False, _("automatically fix style issues")),
+            ('', 'fix-white', False, _("automatically fix white space issues")),
+            ('', 'fix-include', False, _("automatically fix include ordering")),
+            ] + _common_region_options +  commands.walkopts,
         _('hg m5style [-a] [FILE]...')),
     '^m5format' :
-    ( do_check_format,
-      [ ],
+    ( do_check_format, [
+            ] + _common_region_options + commands.walkopts,
       _('hg m5format [FILE]...')),
 }
 

@@ -1500,7 +1500,7 @@ ptx_reg_t sexd( ptx_reg_t x, unsigned from_width, unsigned to_width, int to_sign
    case 16:if ( x.get_bit(15) ) x.mask_or(0xFFFFFFFF,0xFFFF0000);break;
    case 32: if ( x.get_bit(31) ) x.mask_or(0xFFFFFFFF,0x00000000);break;
    case 64: break;
-   default: assert(0);
+   default: assert(0); break;
    }
    return x;
 }
@@ -3651,7 +3651,7 @@ void st_impl( const ptx_instruction *pI, ptx_thread_info *thread )
        }
    }
    thread->m_last_effective_address = addr;
-   thread->m_last_memory_space = space; 
+   thread->m_last_memory_space = space;
 }
 
 void sub_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 

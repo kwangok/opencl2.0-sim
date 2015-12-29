@@ -32,7 +32,6 @@
 
 #include "base/cast.hh"
 #include "base/stl_helpers.hh"
-#include "mem/ruby/common/Global.hh"
 #include "mem/ruby/common/NetDest.hh"
 #include "mem/ruby/network/garnet/fixed-pipeline/CreditLink_d.hh"
 #include "mem/ruby/network/garnet/fixed-pipeline/GarnetLink_d.hh"
@@ -40,6 +39,7 @@
 #include "mem/ruby/network/garnet/fixed-pipeline/NetworkInterface_d.hh"
 #include "mem/ruby/network/garnet/fixed-pipeline/NetworkLink_d.hh"
 #include "mem/ruby/network/garnet/fixed-pipeline/Router_d.hh"
+#include "mem/ruby/system/System.hh"
 
 using namespace std;
 using m5::stl_helpers::deletePointers;
@@ -223,15 +223,16 @@ GarnetNetwork_d::regStats()
 void
 GarnetNetwork_d::collateStats()
 {
+    RubySystem *rs = params()->ruby_system;
+    double time_delta = double(curCycle() - rs->getStartCycle());
+
     for (int i = 0; i < m_links.size(); i++) {
         m_average_link_utilization +=
-            (double(m_links[i]->getLinkUtilization())) /
-            (double(curCycle() - g_ruby_start));
+            (double(m_links[i]->getLinkUtilization())) / time_delta;
 
         vector<unsigned int> vc_load = m_links[i]->getVcLoad();
         for (int j = 0; j < vc_load.size(); j++) {
-            m_average_vc_load[j] +=
-                ((double)vc_load[j] / (double)(curCycle() - g_ruby_start));
+            m_average_vc_load[j] += ((double)vc_load[j] / time_delta);
         }
     }
 

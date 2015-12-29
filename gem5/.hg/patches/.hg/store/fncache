@@ -2,6 +2,8 @@ data/joel/shader_core_page_fault_debug.i
 data/gem5-fix/fix_maxtick_checkpoints.i
 data/common/add_fence_mem_cmd.i
 data/gem5-fix/fix_valgrind_errors.i
+data/common/gpu_page_faults.i
+data/submitted_patches_delimiter.i
 data/joel/fold_page_fault_interrupts.i
 data/jason/page-fault-interrupts.i
 data/jason/slicc-pass-includes.i
@@ -54,6 +56,7 @@ data/common/fix_mc_address_mapping.i
 data/joel/fold_gpu-page-faults.i
 data/gem5-fix/add-cluster-len.i
 data/jason/topology-update.i
+data/common/interrupts_add_setMiscRegActuallyNoEffect.i
 data/gem5-fix/fix_rubyport_evict_packet_leak.i
 data/jason/TLB-bypass-L1.i
 data/joel/enable_ruby_atomics.i

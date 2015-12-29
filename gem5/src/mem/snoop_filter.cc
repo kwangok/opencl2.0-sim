@@ -74,7 +74,7 @@ SnoopFilter::lookupRequest(const Packet* cpkt, const SlavePort& slave_port)
     DPRINTF(SnoopFilter, "%s:   SF value %x.%x\n",
             __func__, sf_item.requested, sf_item.holder);
 
-    if (cpkt->needsResponse()) {
+    if (!cpkt->req->isUncacheable() && cpkt->needsResponse()) {
         if (!cpkt->memInhibitAsserted()) {
             // Max one request per address per port
             panic_if(sf_item.requested & req_port, "double request :( "\
@@ -104,6 +104,9 @@ SnoopFilter::updateRequest(const Packet* cpkt, const SlavePort& slave_port,
     DPRINTF(SnoopFilter, "%s: packet src %s addr 0x%x cmd %s\n",
             __func__, slave_port.name(), cpkt->getAddr(), cpkt->cmdString());
 
+    if (cpkt->req->isUncacheable())
+        return;
+
     Addr line_addr = cpkt->getAddr() & ~(linesize - 1);
     SnoopMask req_port = portToMask(slave_port);
     SnoopItem& sf_item  = cachedLocations[line_addr];
@@ -131,7 +134,8 @@ SnoopFilter::updateRequest(const Packet* cpkt, const SlavePort& slave_port,
             // Writebacks -> the sender does not have the line anymore
             sf_item.holder &= ~req_port;
         } else {
-            assert(0 == "Handle non-writeback, here");
+            // @todo Add CleanEvicts
+            assert(cpkt->cmd == MemCmd::CleanEvict);
         }
         DPRINTF(SnoopFilter, "%s:   new SF value %x.%x\n",
                 __func__,  sf_item.requested, sf_item.holder);
@@ -171,8 +175,13 @@ SnoopFilter::lookupSnoop(const Packet* cpkt)
         else
             hitMultiSnoops++;
     }
-
-    assert(cpkt->isInvalidate() == cpkt->needsExclusive());
+    // ReadEx and Writes require both invalidation and exlusivity, while reads
+    // require neither. Writebacks on the other hand require exclusivity but
+    // not the invalidation. Previously Writebacks did not generate upward
+    // snoops so this was never an aissue. Now that Writebacks generate snoops
+    // we need to special case for Writebacks.
+    assert(cpkt->cmd == MemCmd::Writeback ||
+           (cpkt->isInvalidate() == cpkt->needsExclusive()));
     if (cpkt->isInvalidate() && !sf_item.requested) {
         // Early clear of the holder, if no other request is currently going on
         // @todo: This should possibly be updated even though we do not filter
@@ -195,13 +204,16 @@ SnoopFilter::updateSnoopResponse(const Packet* cpkt,
             __func__, rsp_port.name(), req_port.name(), cpkt->getAddr(),
             cpkt->cmdString());
 
+    assert(cpkt->isResponse());
+    assert(cpkt->memInhibitAsserted());
+
+    if (cpkt->req->isUncacheable())
+        return;
+
     Addr line_addr = cpkt->getAddr() & ~(linesize - 1);
     SnoopMask rsp_mask = portToMask(rsp_port);
     SnoopMask req_mask = portToMask(req_port);
     SnoopItem& sf_item = cachedLocations[line_addr];
-
-    assert(cpkt->isResponse());
-    assert(cpkt->memInhibitAsserted());
 
     DPRINTF(SnoopFilter, "%s:   old SF value %x.%x\n",
             __func__,  sf_item.requested, sf_item.holder);
@@ -270,11 +282,14 @@ SnoopFilter::updateResponse(const Packet* cpkt, const SlavePort& slave_port)
     DPRINTF(SnoopFilter, "%s: packet src %s addr 0x%x cmd %s\n",
             __func__, slave_port.name(), cpkt->getAddr(), cpkt->cmdString());
 
+    assert(cpkt->isResponse());
+
+    if (cpkt->req->isUncacheable())
+        return;
+
     Addr line_addr = cpkt->getAddr() & ~(linesize - 1);
     SnoopMask slave_mask = portToMask(slave_port);
     SnoopItem& sf_item = cachedLocations[line_addr];
-
-    assert(cpkt->isResponse());
 
     DPRINTF(SnoopFilter, "%s:   old SF value %x.%x\n",
             __func__,  sf_item.requested, sf_item.holder);

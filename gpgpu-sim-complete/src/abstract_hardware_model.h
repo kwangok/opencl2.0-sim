@@ -30,6 +30,8 @@
 
 struct CudaGPU;
 
+struct CudaGPU;
+
 enum _memory_space_t {
    undefined_space=0,
    reg_space,
@@ -63,6 +65,10 @@ enum FuncCache
 typedef unsigned long long new_addr_type;
 typedef new_addr_type address_type;
 typedef new_addr_type addr_t;
+
+// Forward declarations
+class gpgpu_sim;
+class kernel_info_t;
 
 // Forward declarations
 class gpgpu_sim;
@@ -300,6 +306,7 @@ struct core_config {
     unsigned gpgpu_shmem_sizeDefault;
     unsigned gpgpu_shmem_sizePrefL1;
     unsigned gpgpu_shmem_sizePrefShared;
+    unsigned gpgpu_shmem_access_latency;
 
     // texture and constant cache line sizes (used to determine number of memory accesses)
     unsigned gpgpu_cache_texl1_linesize;
@@ -462,7 +469,7 @@ private:
 
 class gpgpu_t {
 public:
-    gpgpu_t( const gpgpu_functional_sim_config &config, int _sharedMemDelay = 1 );
+	gpgpu_t( const gpgpu_functional_sim_config &config, CudaGPU *cuda_gpu );
     void* gpu_malloc( size_t size );
     void* gpu_mallocarray( size_t count );
     void  gpu_memset( size_t dst_start_addr, int c, size_t count );
@@ -510,7 +517,7 @@ public:
     // gem5 stuff
     CudaGPU *gem5CudaGPU;
     int sharedMemDelay;
-    void setCudaGPU(CudaGPU *cudaGPU) {gem5CudaGPU = cudaGPU;}
+    // void setCudaGPU(CudaGPU *cudaGPU) {gem5CudaGPU = cudaGPU;}
 
 protected:
     const gpgpu_functional_sim_config &m_function_model_config;

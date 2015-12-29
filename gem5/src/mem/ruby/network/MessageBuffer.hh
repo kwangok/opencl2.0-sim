@@ -41,25 +41,23 @@
 #include <string>
 #include <vector>
 
+#include "debug/RubyQueue.hh"
 #include "mem/ruby/common/Address.hh"
 #include "mem/ruby/common/Consumer.hh"
-#include "mem/ruby/network/MessageBufferNode.hh"
 #include "mem/ruby/slicc_interface/Message.hh"
 #include "mem/packet.hh"
+#include "params/MessageBuffer.hh"
+#include "sim/sim_object.hh"
 
-class MessageBuffer
+class MessageBuffer : public SimObject
 {
   public:
-    MessageBuffer(const std::string &name = "");
+    typedef MessageBufferParams Params;
+    MessageBuffer(const Params *p);
 
-    std::string name() const { return m_name; }
-
-    void setRecycleLatency(Cycles recycle_latency)
-    { m_recycle_latency = recycle_latency; }
-
-    void reanalyzeMessages(const Address& addr);
+    void reanalyzeMessages(Addr addr);
     void reanalyzeAllMessages();
-    void stallMessage(const Address& addr);
+    void stallMessage(Addr addr);
 
     // TRUE if head of queue timestamp <= SystemTime
     bool isReady() const;
@@ -67,11 +65,11 @@ class MessageBuffer
     void
     delayHead()
     {
-        MessageBufferNode node = m_prio_heap.front();
+        MsgPtr m = m_prio_heap.front();
         std::pop_heap(m_prio_heap.begin(), m_prio_heap.end(),
-                      std::greater<MessageBufferNode>());
+                      std::greater<MsgPtr>());
         m_prio_heap.pop_back();
-        enqueue(node.m_msgptr, Cycles(1));
+        enqueue(m, Cycles(1));
     }
 
     bool areNSlotsAvailable(unsigned int n);
@@ -79,6 +77,7 @@ class MessageBuffer
     void setPriority(int rank) { m_priority_rank = rank; }
     void setConsumer(Consumer* consumer)
     {
+        DPRINTF(RubyQueue, "Setting consumer: %s\n", *consumer);
         if (m_consumer != NULL) {
             fatal("Trying to connect %s to MessageBuffer %s. \
                   \n%s already connected. Check the cntrl_id's.\n",
@@ -89,20 +88,21 @@ class MessageBuffer
 
     void setSender(ClockedObject* obj)
     {
+        DPRINTF(RubyQueue, "Setting sender: %s\n", obj->name());
         assert(m_sender == NULL || m_sender == obj);
         m_sender = obj;
     }
 
     void setReceiver(ClockedObject* obj)
     {
+        DPRINTF(RubyQueue, "Setting receiver: %s\n", obj->name());
         assert(m_receiver == NULL || m_receiver == obj);
         m_receiver = obj;
     }
 
-    void setDescription(const std::string& name) { m_name = name; }
-    std::string getDescription() { return m_name;}
-
     Consumer* getConsumer() { return m_consumer; }
+
+    bool getOrdered() { return m_strict_fifo; }
 
     //! Function for extracting the message at the head of the
     //! message queue.  The function assumes that the queue is nonempty.
@@ -112,7 +112,7 @@ class MessageBuffer
     peekMsgPtr() const
     {
         assert(isReady());
-        return m_prio_heap.front().m_msgptr;
+        return m_prio_heap.front();
     }
 
     void enqueue(MsgPtr message) { enqueue(message, Cycles(1)); }
@@ -124,17 +124,10 @@ class MessageBuffer
 
     void recycle();
     bool isEmpty() const { return m_prio_heap.size() == 0; }
+    bool isStallMapEmpty() { return m_stall_msg_map.size() == 0; }
+    unsigned int getStallMapSize() { return m_stall_msg_map.size(); }
 
-    void
-    setOrdering(bool order)
-    {
-        m_strict_fifo = order;
-        m_ordering_set = true;
-    }
-
-    void resize(unsigned int size) { m_max_size = size; }
     unsigned int getSize();
-    void setRandomization(bool random_flag) { m_randomization = random_flag; }
 
     void clear();
     void print(std::ostream& out) const;
@@ -155,12 +148,12 @@ class MessageBuffer
     uint32_t functionalWrite(Packet *pkt);
 
   private:
+    //added by SS
+    const Cycles m_recycle_latency;
+
     void reanalyzeList(std::list<MsgPtr> &, Tick);
 
   private:
-    //added by SS
-    Cycles m_recycle_latency;
-
     // Data Members (m_ prefix)
     //! The two ends of the buffer.
     ClockedObject* m_sender;
@@ -168,20 +161,19 @@ class MessageBuffer
 
     //! Consumer to signal a wakeup(), can be NULL
     Consumer* m_consumer;
-    std::vector<MessageBufferNode> m_prio_heap;
+    std::vector<MsgPtr> m_prio_heap;
 
     // use a std::map for the stalled messages as this container is
     // sorted and ensures a well-defined iteration order
-    typedef std::map< Address, std::list<MsgPtr> > StallMsgMapType;
+    typedef std::map<Addr, std::list<MsgPtr> > StallMsgMapType;
 
     StallMsgMapType m_stall_msg_map;
-    std::string m_name;
 
-    unsigned int m_max_size;
+    const unsigned int m_max_size;
     Cycles m_time_last_time_size_checked;
     unsigned int m_size_last_time_size_checked;
 
-    // variables used so enqueues appear to happen imediately, while
+    // variables used so enqueues appear to happen immediately, while
     // pop happen the next cycle
     Cycles m_time_last_time_enqueue;
     Tick m_time_last_time_pop;
@@ -192,11 +184,10 @@ class MessageBuffer
 
     int m_not_avail_count;  // count the # of times I didn't have N
                             // slots available
-    uint64 m_msg_counter;
+    uint64_t m_msg_counter;
     int m_priority_rank;
-    bool m_strict_fifo;
-    bool m_ordering_set;
-    bool m_randomization;
+    const bool m_strict_fifo;
+    const bool m_randomization;
 
     int m_input_link_id;
     int m_vnet_id;

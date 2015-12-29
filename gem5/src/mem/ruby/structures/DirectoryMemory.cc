@@ -42,7 +42,7 @@ uint64_t DirectoryMemory::m_total_size_bytes = 0;
 int DirectoryMemory::m_numa_high_bit = 0;
 
 int DirectoryMemory::m_num_dev_directories = 0;
-uint64_t DirectoryMemory::m_device_segment_base = 0;
+Addr DirectoryMemory::m_device_segment_base = 0;
 int DirectoryMemory::m_num_dev_directories_bits = 0;
 
 DirectoryMemory::DirectoryMemory(const Params *p)
@@ -83,7 +83,7 @@ DirectoryMemory::init()
 DirectoryMemory::~DirectoryMemory()
 {
     // free up all the directory entries
-    for (uint64 i = 0; i < m_num_entries; i++) {
+    for (uint64_t i = 0; i < m_num_entries; i++) {
         if (m_entries[i] != NULL) {
             delete m_entries[i];
         }
@@ -93,72 +93,75 @@ DirectoryMemory::~DirectoryMemory()
 
 #define DEV_DIR_BITS 8
 
-uint64
-DirectoryMemory::mapAddressToDirectoryVersion(PhysAddress address)
+uint64_t
+DirectoryMemory::mapAddressToDirectoryVersion(Addr address)
 {
-    uint64 ret;
+    uint64_t ret;
     if (m_num_dev_directories > 0) {
-        Addr addr = address.getAddress();
+        Addr addr = address;
         if (addr >= m_device_segment_base) {
-            PhysAddress relative_addr;
-            relative_addr.setAddress(addr - m_device_segment_base);
-            ret = relative_addr.shiftLowOrderBits(m_numa_high_bit - m_num_dev_directories_bits + 1) % m_num_dev_directories;
+            Addr relative_addr;
+            relative_addr = addr - m_device_segment_base;
+            ret = shiftLowOrderBits(relative_addr, m_numa_high_bit - m_num_dev_directories_bits + 1) % m_num_dev_directories;
             ret += m_num_directories;
         } else {
-            ret = address.shiftLowOrderBits(m_numa_high_bit - m_num_directories_bits + 1) % m_num_directories;
+            ret = shiftLowOrderBits(address, m_numa_high_bit - m_num_directories_bits + 1) % m_num_directories;
         }
     } else {
-        ret = address.shiftLowOrderBits(m_numa_high_bit - m_num_directories_bits + 1) % m_num_directories;
+        ret = shiftLowOrderBits(address, m_numa_high_bit - m_num_directories_bits + 1) % m_num_directories;
     }
 
     return ret;
 }
 
 bool
-DirectoryMemory::isPresent(PhysAddress address)
+DirectoryMemory::isPresent(Addr address)
 {
     bool ret = (mapAddressToDirectoryVersion(address) == m_version);
     return ret;
 }
 
-uint64
-DirectoryMemory::mapAddressToLocalIdx(PhysAddress address)
+uint64_t
+DirectoryMemory::mapAddressToLocalIdx(Addr address)
 {
-    uint64 ret;
+    uint64_t ret;
     if (m_num_dev_directories > 0) {
-        if (address.getAddress() >= m_device_segment_base) {
-            PhysAddress relative_address;
-            relative_address.setAddress(address.getAddress() - m_device_segment_base);
+        if (address >= m_device_segment_base) {
+            Addr relative_address;
+            relative_address = address - m_device_segment_base;
             if (m_num_dev_directories_bits > 0) {
-                ret = relative_address.bitRemove(m_numa_high_bit - m_num_dev_directories_bits + 1,
-                                        m_numa_high_bit);
+                ret = bitRemove(relative_address,
+                          m_numa_high_bit - m_num_dev_directories_bits + 1,
+                          m_numa_high_bit);
             } else {
-                ret = relative_address.getAddress();
+                ret = relative_address;
             }
         } else {
             if (m_num_directories_bits > 0) {
-                ret = address.bitRemove(m_numa_high_bit - m_num_directories_bits + 1,
-                                        m_numa_high_bit);
+                ret = bitRemove(address,
+                                m_numa_high_bit - m_num_directories_bits + 1,
+                                m_numa_high_bit);
             } else {
-                ret = address.getAddress();
+                ret = address;
             }
         }
     } else {
         if (m_num_directories_bits > 0) {
-            ret = address.bitRemove(m_numa_high_bit - m_num_directories_bits + 1,
-                                    m_numa_high_bit);
+            ret = bitRemove(address,
+                            m_numa_high_bit - m_num_directories_bits + 1,
+                            m_numa_high_bit);
         } else {
-            ret = address.getAddress();
+            ret = address;
         }
     }
 
     ret >>= (RubySystem::getBlockSizeBits());
-    DPRINTF(RubyDirectoryMemory, "%#x, %u\n", address.getAddress(), ret);
+    DPRINTF(RubyDirectoryMemory, "%#x, %u\n", address, ret);
     return ret;
 }
 
 AbstractEntry*
-DirectoryMemory::lookup(PhysAddress address)
+DirectoryMemory::lookup(Addr address)
 {
     assert(isPresent(address));
     DPRINTF(RubyCache, "Looking up address: %s\n", address);
@@ -169,10 +172,10 @@ DirectoryMemory::lookup(PhysAddress address)
 }
 
 AbstractEntry*
-DirectoryMemory::allocate(const PhysAddress& address, AbstractEntry* entry)
+DirectoryMemory::allocate(Addr address, AbstractEntry *entry)
 {
     assert(isPresent(address));
-    uint64 idx;
+    uint64_t idx;
     DPRINTF(RubyCache, "Looking up address: %s\n", address);
 
     idx = mapAddressToLocalIdx(address);

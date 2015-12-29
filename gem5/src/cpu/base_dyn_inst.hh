@@ -46,11 +46,13 @@
 #ifndef __CPU_BASE_DYN_INST_HH__
 #define __CPU_BASE_DYN_INST_HH__
 
+#include <array>
 #include <bitset>
 #include <list>
 #include <string>
 #include <queue>
 
+#include "arch/generic/tlb.hh"
 #include "arch/utility.hh"
 #include "base/trace.hh"
 #include "config/the_isa.hh"
@@ -65,7 +67,6 @@
 #include "mem/packet.hh"
 #include "sim/byteswap.hh"
 #include "sim/system.hh"
-#include "sim/tlb.hh"
 
 /**
  * @file
@@ -144,7 +145,7 @@ class BaseDynInst : public ExecContext, public RefCounted
          *  @todo: Consider if this is necessary or not.
          */
         EACalcDone,
-        IsUncacheable,
+        IsStrictlyOrdered,
         ReqMade,
         MemOpDone,
         MaxFlags
@@ -258,22 +259,22 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** Flattened register index of the destination registers of this
      *  instruction.
      */
-    TheISA::RegIndex _flatDestRegIdx[TheISA::MaxInstDestRegs];
+    std::array<TheISA::RegIndex, TheISA::MaxInstDestRegs> _flatDestRegIdx;
 
     /** Physical register index of the destination registers of this
      *  instruction.
      */
-    PhysRegIndex _destRegIdx[TheISA::MaxInstDestRegs];
+    std::array<PhysRegIndex, TheISA::MaxInstDestRegs> _destRegIdx;
 
     /** Physical register index of the source registers of this
      *  instruction.
      */
-    PhysRegIndex _srcRegIdx[TheISA::MaxInstSrcRegs];
+    std::array<PhysRegIndex, TheISA::MaxInstSrcRegs> _srcRegIdx;
 
     /** Physical register index of the previous producers of the
      *  architected destinations.
      */
-    PhysRegIndex _prevDestRegIdx[TheISA::MaxInstDestRegs];
+    std::array<PhysRegIndex, TheISA::MaxInstDestRegs> _prevDestRegIdx;
 
 
   public:
@@ -459,7 +460,7 @@ class BaseDynInst : public ExecContext, public RefCounted
     MasterID masterId() const { return cpu->dataMasterId(); }
 
     /** Read this context's system-wide ID **/
-    int contextId() const { return thread->contextId(); }
+    ContextID contextId() const { return thread->contextId(); }
 
     /** Returns the fault type. */
     Fault getFault() const { return fault; }
@@ -594,6 +595,7 @@ class BaseDynInst : public ExecContext, public RefCounted
     // for machines with separate int & FP reg files
     int8_t numFPDestRegs()  const { return staticInst->numFPDestRegs(); }
     int8_t numIntDestRegs() const { return staticInst->numIntDestRegs(); }
+    int8_t numCCDestRegs() const { return staticInst->numCCDestRegs(); }
 
     /** Returns the logical register index of the i'th destination register. */
     RegIndex destRegIdx(int i) const { return staticInst->destRegIdx(i); }
@@ -833,8 +835,8 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** Returns whether or not the eff. addr. source registers are ready. */
     bool eaSrcsReady();
 
-    /** Is this instruction's memory access uncacheable. */
-    bool uncacheable() { return instFlags[IsUncacheable]; }
+    /** Is this instruction's memory access strictly ordered? */
+    bool strictlyOrdered() const { return instFlags[IsStrictlyOrdered]; }
 
     /** Has this instruction generated a memory request. */
     bool hasRequest() { return instFlags[ReqMade]; }
@@ -917,9 +919,8 @@ BaseDynInst<Impl>::readMem(Addr addr, uint8_t *data,
         }
     }
 
-    if (traceData) {
-        traceData->setAddr(addr);
-    }
+    if (traceData)
+        traceData->setMem(addr, size, flags);
 
     return fault;
 }
@@ -929,9 +930,8 @@ Fault
 BaseDynInst<Impl>::writeMem(uint8_t *data, unsigned size,
                             Addr addr, unsigned flags, uint64_t *res)
 {
-    if (traceData) {
-        traceData->setAddr(addr);
-    }
+    if (traceData)
+        traceData->setMem(addr, size, flags);
 
     instFlags[ReqMade] = true;
     Request *req = NULL;
@@ -1053,7 +1053,7 @@ BaseDynInst<Impl>::finishTranslation(WholeTranslationState *state)
 {
     fault = state->getFault();
 
-    instFlags[IsUncacheable] = state->isUncacheable();
+    instFlags[IsStrictlyOrdered] = state->isStrictlyOrdered();
 
     if (fault == NoFault) {
         physEffAddr = state->getPaddr();

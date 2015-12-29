@@ -68,6 +68,7 @@ enum {
 // AArch64 registers
 enum {
     GDB64_X0 = 0,
+    GDB64_SPX = 31,
     GDB64_PC = 32,
     GDB64_CPSR = 33,
     GDB64_V0 = 34,
@@ -75,8 +76,9 @@ enum {
     GDB64_NUMREGS = 98
 };
 
-const int GDB_REG_BYTES = std::max(GDB64_NUMREGS * sizeof(uint64_t),
-                                   GDB32_NUMREGS * sizeof(uint32_t));
+const int GDB_REG_BYTES M5_VAR_USED =
+    std::max(GDB64_NUMREGS * sizeof(uint64_t),
+             GDB32_NUMREGS * sizeof(uint32_t));
 
 class RemoteGDB : public BaseRemoteGDB
 {

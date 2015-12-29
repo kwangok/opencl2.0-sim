@@ -35,14 +35,17 @@ if env['TARGET_ISA'] == 'null':
     Source('intr_control_noisa.cc')
     Return()
 
+# Only build the protocol buffer instructions tracer if we have protobuf support
+if env['HAVE_PROTOBUF'] and env['TARGET_ISA'] != 'x86':
+    SimObject('InstPBTrace.py')
+    Source('inst_pb_trace.cc')
+
 SimObject('CheckerCPU.py')
 
 SimObject('BaseCPU.py')
+SimObject('CPUTracers.py')
 SimObject('FuncUnit.py')
-SimObject('ExeTracer.py')
-SimObject('IntelTrace.py')
 SimObject('IntrControl.py')
-SimObject('NativeTrace.py')
 SimObject('TimingExpr.py')
 
 Source('activity.cc')
@@ -64,10 +67,6 @@ Source('thread_context.cc')
 Source('thread_state.cc')
 Source('timing_expr.cc')
 
-if env['TARGET_ISA'] == 'sparc':
-    SimObject('LegionTrace.py')
-    Source('legiontrace.cc')
-
 SimObject('DummyChecker.py')
 SimObject('StaticInstFlags.py')
 Source('checker/cpu.cc')
@@ -87,7 +86,6 @@ DebugFlag('ExecFetchSeq', 'Format: Fetch sequence number')
 DebugFlag('ExecOpClass', 'Format: Include operand class')
 DebugFlag('ExecRegDelta')
 DebugFlag('ExecResult', 'Format: Include results from execution')
-DebugFlag('ExecSpeculative', 'Format: Include a miss-/speculation flag (-/+)')
 DebugFlag('ExecSymbol', 'Format: Try to include symbol names')
 DebugFlag('ExecThread', 'Format: Include thread ID in trace')
 DebugFlag('ExecTicks', 'Format: Include tick count')
@@ -106,7 +104,7 @@ DebugFlag('Mwait')
 
 CompoundFlag('ExecAll', [ 'ExecEnable', 'ExecCPSeq', 'ExecEffAddr',
     'ExecFaulting', 'ExecFetchSeq', 'ExecOpClass', 'ExecRegDelta',
-    'ExecResult', 'ExecSpeculative', 'ExecSymbol', 'ExecThread',
+    'ExecResult', 'ExecSymbol', 'ExecThread',
     'ExecTicks', 'ExecMicro', 'ExecMacro', 'ExecUser', 'ExecKernel',
     'ExecAsid', 'ExecFlags' ])
 CompoundFlag('Exec', [ 'ExecEnable', 'ExecTicks', 'ExecOpClass', 'ExecThread',

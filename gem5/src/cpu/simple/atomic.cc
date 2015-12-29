@@ -108,7 +108,6 @@ AtomicSimpleCPU::AtomicSimpleCPU(AtomicSimpleCPUParams *p)
     : BaseSimpleCPU(p), tickEvent(this), width(p->width), locked(false),
       simulate_data_stalls(p->simulate_data_stalls),
       simulate_inst_stalls(p->simulate_inst_stalls),
-      drain_manager(NULL),
       icachePort(name() + ".icache_port", this),
       dcachePort(name() + ".dcache_port", this),
       fastmem(p->fastmem), dcache_access(false), dcache_latency(0),
@@ -125,23 +124,21 @@ AtomicSimpleCPU::~AtomicSimpleCPU()
     }
 }
 
-unsigned int
-AtomicSimpleCPU::drain(DrainManager *dm)
+DrainState
+AtomicSimpleCPU::drain()
 {
-    assert(!drain_manager);
     if (switchedOut())
-        return 0;
+        return DrainState::Drained;
 
     if (!isDrained()) {
         DPRINTF(Drain, "Requesting drain: %s\n", pcState());
-        drain_manager = dm;
-        return 1;
+        return DrainState::Draining;
     } else {
         if (tickEvent.scheduled())
             deschedule(tickEvent);
 
         DPRINTF(Drain, "Not executing microcode, no need to drain.\n");
-        return 0;
+        return DrainState::Drained;
     }
 }
 
@@ -149,7 +146,6 @@ void
 AtomicSimpleCPU::drainResume()
 {
     assert(!tickEvent.scheduled());
-    assert(!drain_manager);
     if (switchedOut())
         return;
 
@@ -168,14 +164,12 @@ AtomicSimpleCPU::drainResume()
         _status = BaseSimpleCPU::Idle;
         notIdleFraction = 0;
     }
-
-    system->totalNumInsts = 0;
 }
 
 bool
 AtomicSimpleCPU::tryCompleteDrain()
 {
-    if (!drain_manager)
+    if (drainState() != DrainState::Draining)
         return false;
 
     DPRINTF(Drain, "tryCompleteDrain: %s\n", pcState());
@@ -183,8 +177,7 @@ AtomicSimpleCPU::tryCompleteDrain()
         return false;
 
     DPRINTF(Drain, "CPU done draining, processing drain event\n");
-    drain_manager->signalDrainDone();
-    drain_manager = NULL;
+    signalDrainDone();
 
     return true;
 }
@@ -317,9 +310,8 @@ AtomicSimpleCPU::readMem(Addr addr, uint8_t * data,
     // use the CPU's statically allocated read request and packet objects
     Request *req = &data_read_req;
 
-    if (traceData) {
-        traceData->setAddr(addr);
-    }
+    if (traceData)
+        traceData->setMem(addr, size, flags);
 
     //The size of the data we're trying to read.
     int fullSize = size;
@@ -342,8 +334,7 @@ AtomicSimpleCPU::readMem(Addr addr, uint8_t * data,
 
         // Now do the access.
         if (fault == NoFault && !req->getFlags().isSet(Request::NO_ACCESS)) {
-            Packet pkt(req, MemCmd::ReadReq);
-            pkt.refineCommand();
+            Packet pkt(req, Packet::makeReadCmd(req));
             pkt.dataStatic(data);
 
             if (req->isMmappedIpr())
@@ -375,7 +366,7 @@ AtomicSimpleCPU::readMem(Addr addr, uint8_t * data,
         //If we don't need to access a second cache line, stop now.
         if (secondAddr <= addr)
         {
-            if (req->isLocked() && fault == NoFault) {
+            if (req->isLockedRMW() && fault == NoFault) {
                 assert(!locked);
                 locked = true;
             }
@@ -413,9 +404,8 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size,
     // use the CPU's statically allocated write request and packet objects
     Request *req = &data_write_req;
 
-    if (traceData) {
-        traceData->setAddr(addr);
-    }
+    if (traceData)
+        traceData->setMem(addr, size, flags);
 
     //The size of the data we're trying to read.
     int fullSize = size;
@@ -483,7 +473,7 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size,
         //stop now.
         if (fault != NoFault || secondAddr <= addr)
         {
-            if (req->isLocked() && fault == NoFault) {
+            if (req->isLockedRMW() && fault == NoFault) {
                 assert(locked);
                 locked = false;
             }
@@ -580,10 +570,7 @@ AtomicSimpleCPU::tick()
                 // keep an instruction count
                 if (fault == NoFault) {
                     countInst();
-                    if (!curStaticInst->isMicroop() ||
-                         curStaticInst->isLastMicroop()) {
-                        ppCommit->notify(std::make_pair(thread, curStaticInst));
-                    }
+                    ppCommit->notify(std::make_pair(thread, curStaticInst));
                 }
                 else if (traceData && !DTRACE(ExecFaulting)) {
                     delete traceData;

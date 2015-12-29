@@ -28,6 +28,8 @@
 
 #include "gpu/gpgpu-sim/cuda_gpu.hh"
 
+#include "gpu/gpgpu-sim/cuda_gpu.hh"
+
 #include "cuda-sim.h"
 
 #include "instructions.h"
@@ -94,6 +96,8 @@ void ptx_opcocde_latency_options (option_parser_t opp) {
 }
 
 static address_type get_converge_point(address_type pc);
+
+void sign_extend( ptx_reg_t &data, unsigned src_size, const operand_info &dst );
 
 void sign_extend( ptx_reg_t &data, unsigned src_size, const operand_info &dst );
 
@@ -735,6 +739,26 @@ void ptx_instruction::set_opcode_and_latency()
 		   break;
 	   }
 	   break;
+   case REM_OP:
+       // Integer only int div latency
+       op = SFU_OP;
+       switch(get_type()){
+       case F64_TYPE:
+       case FF64_TYPE:
+       case F32_TYPE:
+           panic("REM_OP must be int type, not: %d\n", get_type());
+           break;
+       case B32_TYPE:
+       case U32_TYPE:
+       case S32_TYPE:
+           latency = int_latency[4];
+           initiation_interval = int_init[4];
+           break;
+       default:
+           panic("Unknown REM_OP type: %d\n", get_type());
+           break;
+       }
+       break;
    case SQRT_OP: case SIN_OP: case COS_OP: case EX2_OP: case LG2_OP: case RSQRT_OP: case RCP_OP:
 	   //Using double to approximate those
 	  latency = dp_latency[2];
@@ -1400,6 +1424,22 @@ void ptx_thread_info::ptx_exec_inst( warp_inst_t &inst, unsigned lane_id)
          exit_impl(pI,this);
    }
    
+   unsigned vector_spec = pI->get_vector();
+   if (vector_spec) {
+      if (vector_spec == V2_TYPE) {
+         inst.vectorLength = 2;
+      }
+      else if (vector_spec == V3_TYPE) {
+         inst.vectorLength = 3;
+      }
+      else {
+         assert(vector_spec == V4_TYPE);
+         inst.vectorLength = 4;
+      }
+   } else {
+      inst.vectorLength = 1;
+   }
+
 
 
    const gpgpu_functional_sim_config &config = m_gpu->get_config();

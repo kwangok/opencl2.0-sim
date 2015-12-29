@@ -62,13 +62,12 @@
 
 namespace X86ISA {
 
-TLB::TLB(const Params *p) : BaseTLB(p), configAddress(0), size(p->size),
-    lruSeq(0)
+TLB::TLB(const Params *p)
+    : BaseTLB(p), configAddress(0), size(p->size),
+      tlb(size), lruSeq(0)
 {
     if (!size)
         fatal("TLBs must have a non-zero size.\n");
-    tlb = new TlbEntry[size];
-    std::memset(tlb, 0, sizeof(TlbEntry) * size);
 
     for (int x = 0; x < size; x++) {
         tlb[x].trieHandle = NULL;
@@ -206,7 +205,7 @@ TLB::translateInt(RequestPtr req, ThreadContext *tc)
             req->setFlags(Request::MMAPPED_IPR);
             req->setPaddr(MISCREG_PCI_CONFIG_ADDRESS * sizeof(MiscReg));
         } else if ((IOPort & ~mask(2)) == 0xCFC) {
-            req->setFlags(Request::UNCACHEABLE);
+            req->setFlags(Request::UNCACHEABLE | Request::STRICT_ORDER);
             Addr configAddress =
                 tc->readMiscRegNoEffect(MISCREG_PCI_CONFIG_ADDRESS);
             if (bits(configAddress, 31, 31)) {
@@ -217,7 +216,7 @@ TLB::translateInt(RequestPtr req, ThreadContext *tc)
                 req->setPaddr(PhysAddrPrefixIO | IOPort);
             }
         } else {
-            req->setFlags(Request::UNCACHEABLE);
+            req->setFlags(Request::UNCACHEABLE | Request::STRICT_ORDER);
             req->setPaddr(PhysAddrPrefixIO | IOPort);
         }
         return NoFault;
@@ -261,7 +260,7 @@ TLB::finalizePhysical(RequestPtr req, ThreadContext *tc, Mode mode) const
                 return new GeneralProtection(0);
             */
             // Force the access to be uncacheable.
-            req->setFlags(Request::UNCACHEABLE);
+            req->setFlags(Request::UNCACHEABLE | Request::STRICT_ORDER);
             req->setPaddr(x86LocalAPICAddress(tc->contextId(),
                                               paddr - apicRange.start()));
         }
@@ -401,7 +400,7 @@ TLB::translate(RequestPtr req, ThreadContext *tc, Translation *translation,
             DPRINTF(TLB, "Translated %#x -> %#x.\n", vaddr, paddr);
             req->setPaddr(paddr);
             if (entry->uncacheable)
-                req->setFlags(Request::UNCACHEABLE);
+                req->setFlags(Request::UNCACHEABLE | Request::STRICT_ORDER);
         } else {
             //Use the address which already has segmentation applied.
             DPRINTF(TLB, "Paging disabled.\n");
@@ -451,7 +450,7 @@ TLB::getWalker()
 }
 
 void
-TLB::serialize(std::ostream &os)
+TLB::serialize(CheckpointOut &cp) const
 {
     // Only store the entries in use.
     uint32_t _size = size - freeList.size();
@@ -459,18 +458,14 @@ TLB::serialize(std::ostream &os)
     SERIALIZE_SCALAR(lruSeq);
 
     uint32_t _count = 0;
-
     for (uint32_t x = 0; x < size; x++) {
-        if (tlb[x].trieHandle != NULL) {
-            os << "\n[" << csprintf("%s.Entry%d", name(), _count) << "]\n";
-            tlb[x].serialize(os);
-            _count++;
-        }
+        if (tlb[x].trieHandle != NULL)
+            tlb[x].serializeSection(cp, csprintf("Entry%d", _count++));
     }
 }
 
 void
-TLB::unserialize(Checkpoint *cp, const std::string &section)
+TLB::unserialize(CheckpointIn &cp)
 {
     // Do not allow to restore with a smaller tlb.
     uint32_t _size;
@@ -485,7 +480,7 @@ TLB::unserialize(Checkpoint *cp, const std::string &section)
         TlbEntry *newEntry = freeList.front();
         freeList.pop_front();
 
-        newEntry->unserialize(cp, csprintf("%s.Entry%d", name(), x));
+        newEntry->unserializeSection(cp, csprintf("Entry%d", x));
         newEntry->trieHandle = trie.insert(newEntry->vaddr,
             TlbEntryTrie::MaxBits - newEntry->logBytes, newEntry);
     }

@@ -45,8 +45,8 @@
 #ifndef __CPU_TRANSLATION_HH__
 #define __CPU_TRANSLATION_HH__
 
+#include "arch/generic/tlb.hh"
 #include "sim/faults.hh"
-#include "sim/tlb.hh"
 
 /**
  * This class captures the state of an address translation.  A translation
@@ -153,14 +153,14 @@ class WholeTranslationState
     }
 
     /**
-     * Check if this request is uncacheable.  We only need to check the main
-     * request because the flags will have been copied here on a split
-     * translation.
+     * Check if this request is strictly ordered device access.  We
+     * only need to check the main request because the flags will have
+     * been copied here on a split translation.
      */
     bool
-    isUncacheable() const
+    isStrictlyOrdered() const
     {
-        return mainReq->isUncacheable();
+        return mainReq->isStrictlyOrdered();
     }
 
     /**

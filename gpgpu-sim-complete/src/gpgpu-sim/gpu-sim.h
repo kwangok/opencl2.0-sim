@@ -38,7 +38,6 @@
 #include <list>
 #include <stdio.h>
 
-
 // constants for statistics printouts
 #define GPU_RSTAT_SHD_INFO 0x1
 #define GPU_RSTAT_BW_STAT  0x2
@@ -363,7 +362,7 @@ private:
 
 class gpgpu_sim : public gpgpu_t {
 public:
-   gpgpu_sim( const gpgpu_sim_config &config, int _sharedMemDelay = 1 );
+   gpgpu_sim( const gpgpu_sim_config &config, CudaGPU *cuda_gpu = NULL );
 
    void set_prop( struct cudaDeviceProp *prop );
 

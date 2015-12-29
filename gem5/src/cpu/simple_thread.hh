@@ -154,8 +154,8 @@ class SimpleThread : public ThreadState
 
     void copyState(ThreadContext *oldContext);
 
-    void serialize(std::ostream &os);
-    void unserialize(Checkpoint *cp, const std::string &section);
+    void serialize(CheckpointOut &cp) const M5_ATTR_OVERRIDE;
+    void unserialize(CheckpointIn &cp) M5_ATTR_OVERRIDE;
     void startup();
 
     /***************************************************************
@@ -219,8 +219,6 @@ class SimpleThread : public ThreadState
 
     /// Set the status to Halted.
     void halt();
-
-    virtual bool misspeculating();
 
     void copyArchRegs(ThreadContext *tc);
 
@@ -374,7 +372,7 @@ class SimpleThread : public ThreadState
     }
 
     MiscReg
-    readMiscRegNoEffect(int misc_reg, ThreadID tid = 0)
+    readMiscRegNoEffect(int misc_reg, ThreadID tid = 0) const
     {
         return isa->readMiscRegNoEffect(misc_reg);
     }
@@ -387,6 +385,12 @@ class SimpleThread : public ThreadState
 
     void
     setMiscRegNoEffect(int misc_reg, const MiscReg &val, ThreadID tid = 0)
+    {
+        return isa->setMiscRegNoEffect(misc_reg, val);
+    }
+
+    void
+    setMiscRegActuallyNoEffect(int misc_reg, const MiscReg &val, ThreadID tid = 0)
     {
         return isa->setMiscRegNoEffect(misc_reg, val);
     }
@@ -454,12 +458,5 @@ class SimpleThread : public ThreadState
 #endif
 };
 
-
-// for non-speculative execution context, spec_mode is always false
-inline bool
-SimpleThread::misspeculating()
-{
-    return false;
-}
 
 #endif // __CPU_CPU_EXEC_CONTEXT_HH__
