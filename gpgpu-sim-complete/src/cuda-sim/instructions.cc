@@ -767,7 +767,7 @@ void add_impl( const ptx_instruction *pI, ptx_thread_info *thread )
       carry = (data.u64 & 0x100000000)>>32;
       break;
    case U64_TYPE:
-      data.s64 = src1_data.s64 + src2_data.s64;
+      data.u64 = src1_data.u64 + src2_data.u64;
       break;
    case F16_TYPE: assert(0); break;
    case F32_TYPE: data.f32 = src1_data.f32 + src2_data.f32; break;
@@ -3078,8 +3078,8 @@ void sad_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    ptx_reg_t a, b, c, d;
    const operand_info &dst  = pI->dst();
    const operand_info &src1 = pI->src1();
-   const operand_info &src2 = pI->src1();
-   const operand_info &src3 = pI->src1();
+   const operand_info &src2 = pI->src2();
+   const operand_info &src3 = pI->src3();
 
    unsigned i_type = pI->get_type();
    a = thread->get_operand_value(src1, dst, i_type, thread, 1);
@@ -3545,16 +3545,26 @@ void slct_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 
    switch ( i_type ) {
    case B16_TYPE:
-   case U16_TYPE:              d.u16 = t?a.u16:b.u16; break;
+   case S16_TYPE:
+   case U16_TYPE:
+	   d.u16 = t ? a.u16 : b.u16;
+	   break;
    case F32_TYPE:
    case B32_TYPE:
-   case U32_TYPE: d.u32 = t?a.u32:b.u32; break;
-   case S32_TYPE: d.u32 = t?a.u32:b.u32; break;
+   case S32_TYPE:
+   case U32_TYPE:
+	   d.u32 = t ? a.u32 : b.u32;
+	   break;
    case F64_TYPE:
    case FF64_TYPE:
    case B64_TYPE:
-   case U64_TYPE: d.u64 = t?a.u64:b.u64; break;
-   default: assert(0); break;
+   case S64_TYPE:
+   case U64_TYPE:
+	   d.u64 = t ? a.u64 : b.u64;
+	   break;
+   default:
+	   assert(0);
+	   break;
    }
 
    thread->set_operand_value(dst,d, i_type, thread, pI);
