@@ -286,7 +286,7 @@ quiesceNs(ThreadContext *tc, uint64_t ns)
 
     BaseCPU *cpu = tc->getCpuPtr();
 
-    if (!cpu->params()->do_quiesce)
+    if (!cpu->params()->do_quiesce || ns == 0)
         return;
 
     EndQuiesceEvent *quiesceEvent = tc->getQuiesceEvent();
@@ -312,7 +312,7 @@ quiesceCycles(ThreadContext *tc, uint64_t cycles)
 
     BaseCPU *cpu = tc->getCpuPtr();
 
-    if (!cpu->params()->do_quiesce)
+    if (!cpu->params()->do_quiesce || cycles == 0)
         return;
 
     EndQuiesceEvent *quiesceEvent = tc->getQuiesceEvent();
@@ -726,7 +726,43 @@ workend(ThreadContext *tc, uint64_t workid, uint64_t threadid)
 void
 gpu(ThreadContext *tc, uint64_t gpusysno, uint64_t call_params)
 {
-    if (gpusysno > 85) {
+/* Jie */
+//    if (gpusysno > 85) {
+// clGetPlatformIDs,		/*  86 OpenCL  1 */
+// clGetDeviceIDs,		/*  87 OpenCL  2 */
+// clCreateContext,		/*  88 OpenCL  3 */
+// clCreateCommandQueue,	/*  89 OpenCL  4 */
+// clCreateProgramWithSource,	/*  90 OpenCL  5 */
+// clBuildProgram,		/*  91 OpenCL  6 */
+// clCreateBuffer,		/*  92 OpenCL  7 */
+// clCreateKernel,		/*  93 OpenCL  8 */
+// clSetKernelArg,		/*  94 OpenCL  9 */
+// clEnqueueNDRangeKernel,	/*  95 OpenCL 10 */
+// clEnqueueReadBuffer,		/*  96 OpenCL 11 */
+// clReleaseKernel,		/*  97 OpenCL 12 */
+// clReleaseProgram,		/*  98 OpenCL 13 */
+// clReleaseMemObject,		/*  99 OpenCL 14 */
+// clReleaseCommandQueue,	/* 100 OpenCL 15 */
+// clReleaseContext,		/* 101 OpenCL 16 */
+/* yamato */
+//    if (gpusysno > 101) {
+// clCreateProgramWithBinary,	/* 102 OpenCL 17 */
+// clEnqueueWriteBuffer,	/* 103 OpenCL 18 */
+// clFinish,			/* 104 OpenCL 19 */
+// clGetContextInfo,		/* 105 OpenCL 20 */
+// clGetDeviceInfo,		/* 106 OpenCL 21 */
+// clGetEventInfo,		/* 107 OpenCL 22 */
+// clGetEventProfilingInfo,	/* 108 OpenCL 23 */
+// clGetKernelWorkGroupInfo,	/* 109 OpenCL 24 */
+// clGetPlatformInfo,		/* 110 OpenCL 25 */
+// clGetProgramBuildInfo,	/* 111 OpenCL 26 */
+// clGetProgramInfo,		/* 112 OpenCL 27 */
+// clReleaseEvent,		/* 113 OpenCL 28 */
+// clWaitForEvents,		/* 114 OpenCL 29 */
+// clCreateContextFromType,	/* 115 OpenCL 30 */
+    if (gpusysno > 115) {
+/* yamato */
+/* Jie */
         warn("Ignoring gpu syscall %d\n", gpusysno);
         return;
     }
