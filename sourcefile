@@ -1,0 +1,8 @@
+export PATH=/usr/local/gcc-4.6.3/bin/:/usr/local/cuda-3.2/cuda/bin/:/usr/local/librarys/bin/:$PATH
+export LD_LIBRARY_PATH=/usr/local/gcc-4.6.3/lib64/:/usr/local/librarys/lib:$LD_LIBRARY_PATH
+export CUDAHOME=/usr/local/cuda-3.2/cuda
+export CUDA_INSTALL_PATH=/usr/local/cuda-3.2/cuda
+export NVIDIA_CUDA_SDK_LOCATION=/usr/local/cuda-3.2/NVIDIA_GPU_Computing_SDK/C
+export NVOPENCL_LIBDIR=/usr/lib64
+export GEM5GPU_ROOT=$PWD
+export GEM5GPU_CUDA_OR_OPENCL=OPENCL
