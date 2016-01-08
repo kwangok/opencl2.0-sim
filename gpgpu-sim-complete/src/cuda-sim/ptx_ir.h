@@ -169,7 +169,7 @@ public:
       m_function = NULL;
       m_reg_num=(unsigned)-1;
       m_arch_reg_num=(unsigned)-1;
-      m_address=(unsigned)-1;
+      m_address=(addr_t)-1;
       m_initializer.clear();
       if ( type ) m_is_shared = type->get_key().is_shared();
       if ( type ) m_is_const = type->get_key().is_const();
@@ -273,7 +273,8 @@ private:
    std::string m_name;
    std::string m_decl_location;
 
-   unsigned m_address;
+   // deicide: Change address size to 64 bit to match with gem5
+   addr_t m_address;
    function_info *m_function; // used for function symbols
 
    bool m_address_valid;

@@ -157,8 +157,10 @@ ptx_reg_t ptx_thread_info::get_operand_value( const operand_info &op, operand_in
             result.u64 = op.get_symbol()->get_address();
          } else {
             const char *name = op.name().c_str();
-            printf("GPGPU-Sim PTX: ERROR ** get_operand_value : unknown operand type for %s\n", name );
-            assert(0);
+            fprintf(stderr, "GPGPU-Sim PTX: ERROR ** get_operand_value : unknown operand type for %s\n", name );
+			// deicide: TEST
+			result.u64 = op.get_symbol()->get_address();
+            // assert(0);
          }
 
          if(op.get_operand_lohi() == 1) 
@@ -2185,8 +2187,10 @@ void decode_space( memory_space_t &space, ptx_thread_info *thread, const operand
       else if( ti.is_param_local() ) {
          space = param_space_local;
       } else {
-         printf("GPGPU-Sim PTX: ERROR ** cannot resolve .param space for '%s'\n", s->name().c_str() );
-         abort(); 
+         fprintf(stderr, "GPGPU-Sim PTX: ERROR ** cannot resolve .param space for '%s'\n", s->name().c_str() );
+		 // deicide: TEST
+		 space = param_space_kernel;
+         // abort(); 
       }
    }
    switch ( space.get_type() ) {
