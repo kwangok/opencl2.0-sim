@@ -292,6 +292,102 @@ cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind)
 
     return cudaSuccess;
 }
+
+extern CL_API_ENTRY void * CL_API_CALL
+clSVMAlloc(cl_context       context,
+           cl_svm_mem_flags flags,
+           size_t           size,
+           cl_uint          alignment) CL_API_SUFFIX__VERSION_2_0
+{
+  void * cl_ret;
+  cudaError_t cuda_ret = cudaMallocHelper((void**)&cl_ret, size, CUDA_MALLOC_DEVICE);
+  return cl_ret;
+}
+
+extern CL_API_ENTRY void CL_API_CALL
+clSVMFree(cl_context        context,
+          void *            svm_pointer) CL_API_SUFFIX__VERSION_2_0
+{
+  return ;
+}
+
+extern CL_API_ENTRY cl_int CL_API_CALL
+clSetKernelArgSVMPointer(cl_kernel    kernel,
+                         cl_uint      arg_index,
+                         const void * arg_value) CL_API_SUFFIX__VERSION_2_0
+{
+  gpusyscall_t call_params;
+  call_params.num_args = 4;
+  call_params.arg_lengths = new int[call_params.num_args];
+  call_params.arg_lengths[0] = sizeof(cl_kernel);
+  call_params.arg_lengths[1] = sizeof(cl_uint);
+  call_params.arg_lengths[2] = sizeof(size_t);
+  call_params.arg_lengths[3] = sizeof(const void*);
+  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
+  call_params.args = new char[call_params.total_bytes];
+  call_params.ret = new char[sizeof(cl_int)];
+
+  int* ret_spot = (int*)call_params.ret; // ???
+  *ret_spot = 0; // ???
+
+  size_t arg_size = sizeof(void *);
+  void * arg_value_addr = (void *)&arg_value;
+
+  int bytes_off = 0;
+  int lengths_off = 0;
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[0]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_index, call_params.arg_lengths[1]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_size, call_params.arg_lengths[2]);
+  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_value_addr, call_params.arg_lengths[3]);
+
+  m5_gpu(94, (uint64_t)&call_params);
+  cl_int ret = *((cl_int*)call_params.ret);
+
+  delete call_params.args;
+  delete call_params.arg_lengths;
+  delete call_params.ret;
+
+  return ret;
+}
+
+extern CL_API_ENTRY cl_int CL_API_CALL
+clEnqueueSVMMap(cl_command_queue  command_queue,
+                cl_bool           blocking_map,
+                cl_map_flags      flags,
+                void *            svm_ptr,
+                size_t            size,
+                cl_uint           num_events_in_wait_list,
+                const cl_event *  event_wait_list,
+                cl_event *        event) CL_API_SUFFIX__VERSION_2_0
+{
+  return CL_SUCCESS;
+}
+    
+extern CL_API_ENTRY cl_int CL_API_CALL
+clEnqueueSVMUnmap(cl_command_queue  command_queue,
+                  void *            svm_ptr,
+                  cl_uint           num_events_in_wait_list,
+                  const cl_event *  event_wait_list,
+                  cl_event *        event) CL_API_SUFFIX__VERSION_2_0
+{
+  return CL_SUCCESS;
+}
+
+extern CL_API_ENTRY cl_mem CL_API_CALL
+clCreatePipe(cl_context                 context,
+             cl_mem_flags               flags,
+             cl_uint                    pipe_packet_size,
+             cl_uint                    pipe_max_packets,
+             const cl_pipe_properties * properties,
+             cl_int *                   errcode_ret) CL_API_SUFFIX__VERSION_2_0
+{
+  cl_mem cl_ret;
+  cudaError_t cuda_ret = cudaMallocHelper((void**)&cl_ret, pipe_packet_size * pipe_max_packets, CUDA_MALLOC_DEVICE);
+  if ( errcode_ret != NULL )
+    if ( cuda_ret == cudaSuccess ) *errcode_ret = CL_SUCCESS;
+    else *errcode_ret = CL_INVALID_CONTEXT;
+  return cl_ret;
+}
 /* Jie */
 
 // TODO: Migrate into gem5-gpu:
