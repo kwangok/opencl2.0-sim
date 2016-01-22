@@ -1,6 +1,6 @@
 CXX=g++-4.4
 AMDAPP=${HOME}/AMD-APP-SDK-v3.0
-OPENCL=${OPENCL2.0-SIM}/benchmarks/libopencl
+OPENCL=${OPENCLSIM_ROOT}/benchmarks/libopencl
 
 all:
 	$(CXX) -c RecursiveGaussian_ProgramScope.cpp -I$(AMDAPP)/include -I$(AMDAPP)/include/SDKUtil -g -std=c++0x
