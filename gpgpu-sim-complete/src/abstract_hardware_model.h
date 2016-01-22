@@ -137,7 +137,13 @@ enum _memory_op_t {
 
 #if !defined(__VECTOR_TYPES_H__)
 struct dim3 {
-   unsigned int x, y, z;
+	dim3(int _x = 1, int _y = 1, int _z = 1)
+	{
+		x = _x;
+		y = _y;
+		z = _z;
+	}
+	unsigned int x, y, z;
 };
 #endif
 
@@ -159,6 +165,8 @@ public:
 //      m_param_mem=NULL;
 //   }
 	kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *entry );
+	// deicide: Handle for CTA padding in OpenCL 2.0
+	kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *entry, dim3 lastBlockDim );
 	~kernel_info_t();
 
 	void inc_running() { m_num_cores_running++; }
@@ -182,11 +190,20 @@ public:
 
 	size_t threads_per_cta() const
 	{
-		return m_block_dim.x * m_block_dim.y * m_block_dim.z;
+		if (m_use_last_cta)
+		 	return m_real_block_dim.x * m_real_block_dim.y * m_real_block_dim.z;
+		else
+			return m_block_dim.x * m_block_dim.y * m_block_dim.z;
 	} 
 
 	dim3 get_grid_dim() const { return m_grid_dim; }
-	dim3 get_cta_dim() const { return m_block_dim; }
+	dim3 get_cta_dim() const
+	{
+		if (m_use_last_cta)
+		 	return m_real_block_dim;
+		else
+			return m_block_dim;
+	}
 
 	void increment_cta_id() 
 	{ 
@@ -194,6 +211,12 @@ public:
 		m_next_tid.x=0;
 		m_next_tid.y=0;
 		m_next_tid.z=0;
+		if (m_use_last_cta)
+		{
+			m_real_block_dim.x = (m_next_cta.x == (m_grid_dim.x - 1)) ? m_last_block_dim.x : m_block_dim.x;
+			m_real_block_dim.y = (m_next_cta.y == (m_grid_dim.y - 1)) ? m_last_block_dim.y : m_block_dim.y;
+			m_real_block_dim.z = (m_next_cta.z == (m_grid_dim.z - 1)) ? m_last_block_dim.z : m_block_dim.z;
+		}
 	}
 	dim3 get_next_cta_id() const { return m_next_cta; }
 	bool no_more_ctas_to_run() const 
@@ -201,15 +224,33 @@ public:
 		return (m_next_cta.x >= m_grid_dim.x || m_next_cta.y >= m_grid_dim.y || m_next_cta.z >= m_grid_dim.z );
 	}
 
-	void increment_thread_id() { increment_x_then_y_then_z(m_next_tid,m_block_dim); }
+	void increment_thread_id()
+	{
+		if (m_use_last_cta)
+			increment_x_then_y_then_z(m_next_tid, m_real_block_dim);
+		else
+			increment_x_then_y_then_z(m_next_tid, m_block_dim);
+	}
 	dim3 get_next_thread_id_3d() const  { return m_next_tid; }
 	unsigned get_next_thread_id() const 
 	{ 
-		return m_next_tid.x + m_block_dim.x*m_next_tid.y + m_block_dim.x*m_block_dim.y*m_next_tid.z;
+		if (m_use_last_cta)
+			return m_next_tid.x + m_real_block_dim.x*m_next_tid.y + m_real_block_dim.x*m_real_block_dim.y*m_next_tid.z;
+		else
+			return m_next_tid.x + m_block_dim.x*m_next_tid.y + m_block_dim.x*m_block_dim.y*m_next_tid.z;
 	}
 	bool more_threads_in_cta() const 
 	{
-		return m_next_tid.z < m_block_dim.z && m_next_tid.y < m_block_dim.y && m_next_tid.x < m_block_dim.x;
+		if (m_use_last_cta)
+		{
+			return ((m_next_tid.z < m_real_block_dim.z) &&
+					(m_next_tid.y < m_real_block_dim.y) &&
+					(m_next_tid.x < m_real_block_dim.x));
+		}
+		else
+		{
+			return m_next_tid.z < m_block_dim.z && m_next_tid.y < m_block_dim.y && m_next_tid.x < m_block_dim.x;
+		}
 	}
 	unsigned get_uid() const { return m_uid; }
 	std::string name() const;
@@ -230,6 +271,10 @@ private:
 	dim3 m_block_dim;
 	dim3 m_next_cta;
 	dim3 m_next_tid;
+	// deicide
+	dim3 m_real_block_dim;
+	dim3 m_last_block_dim;
+	bool m_use_last_cta;
 
 	unsigned m_num_cores_running;
 

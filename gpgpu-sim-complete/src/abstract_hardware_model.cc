@@ -570,6 +570,31 @@ kernel_info_t::kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *
     m_param_mem = new memory_space_impl<8192>("param",64*1024);
 	// Initial for parent kernel
 	m_parent_kernel = NULL;
+	m_use_last_cta = false;
+}
+
+// deicide: Handle for CTA padding in OpenCL 2.0
+kernel_info_t::kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *entry, dim3 lastBlockDim )
+{
+	m_last_block_dim = lastBlockDim;
+
+    m_kernel_entry=entry;
+    m_grid_dim=gridDim;
+    m_block_dim=blockDim;
+    m_next_cta.x=0;
+    m_next_cta.y=0;
+    m_next_cta.z=0;
+    m_next_tid=m_next_cta;
+    m_num_cores_running=0;
+    m_uid = m_next_uid++;
+    m_param_mem = new memory_space_impl<8192>("param",64*1024);
+	// Initial for parent kernel
+	m_parent_kernel = NULL;
+	// m_last_cta = false;
+	m_use_last_cta = true;
+	m_real_block_dim.x = (m_next_cta.x == (gridDim.x - 1)) ? lastBlockDim.x : blockDim.x;
+	m_real_block_dim.y = (m_next_cta.y == (gridDim.y - 1)) ? lastBlockDim.y : blockDim.y;
+	m_real_block_dim.z = (m_next_cta.z == (gridDim.z - 1)) ? lastBlockDim.z : blockDim.z;
 }
 
 kernel_info_t::~kernel_info_t()

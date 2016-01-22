@@ -183,23 +183,28 @@ void register_ptx_function(const char *name, function_info *impl)
 kernel_info_t *gpgpu_cuda_ptx_sim_init_grid(gpgpu_ptx_sim_arg_list_t args,
                                             struct dim3 gridDim,
                                             struct dim3 blockDim,
-                                            function_info* entry)
+                                            function_info* entry,
+                                            struct dim3 lastBlockDim = dim3(1, 1, 1),
+                                            bool useLastBlockDim = false)
 {
-   kernel_info_t *result = new kernel_info_t(gridDim,blockDim,entry);
-   if (entry == NULL) {
-       panic("GPGPU-Sim PTX: ERROR launching kernel -- no PTX implementation found");
-   }
-   unsigned argcount=args.size();
-   unsigned argn=1;
-   for (gpgpu_ptx_sim_arg_list_t::iterator a = args.begin(); a != args.end(); a++) {
-      entry->add_param_data(argcount-argn, &(*a));
-      argn++;
-   }
-
-   entry->finalize(result->get_param_memory());
-   g_ptx_kernel_count++;
-
-   return result;
+    kernel_info_t *result;
+    if (useLastBlockDim)
+        result = new kernel_info_t(gridDim, blockDim, entry, lastBlockDim);
+    else
+        result = new kernel_info_t(gridDim, blockDim, entry);
+    if (entry == NULL) {
+        panic("GPGPU-Sim PTX: ERROR launching kernel -- no PTX implementation found");
+    }
+    unsigned argcount=args.size();
+    unsigned argn=1;
+    for (gpgpu_ptx_sim_arg_list_t::iterator a = args.begin(); a != args.end(); a++) {
+        entry->add_param_data(argcount-argn, &(*a));
+        argn++;
+    }
+    
+    entry->finalize(result->get_param_memory());
+    g_ptx_kernel_count++;
+    return result;
 }
 
 #if defined __APPLE__
@@ -2583,122 +2588,164 @@ void clSetKernelArg(ThreadContext *tc, gpusyscall_t *call_params) {
 }
 
 void clEnqueueNDRangeKernel(ThreadContext *tc, gpusyscall_t *call_params) {
-  GPUSyscallHelper helper(tc, call_params);
-  cl_command_queue command_queue = *((cl_command_queue*)helper.getParam(0));
-  cl_kernel kernel = *((cl_kernel*)helper.getParam(1));
-  cl_uint work_dim  = *((cl_uint*)helper.getParam(2));
-  Addr global_work_offset_addr = *((Addr*)helper.getParam(3, true));
-  Addr global_work_size_addr = *((Addr*)helper.getParam(4, true));
-  Addr local_work_size_addr = *((Addr*)helper.getParam(5, true));
+    GPUSyscallHelper helper(tc, call_params);
+    cl_command_queue command_queue = *((cl_command_queue*)helper.getParam(0));
+    cl_kernel kernel = *((cl_kernel*)helper.getParam(1));
+    cl_uint work_dim  = *((cl_uint*)helper.getParam(2));
+    Addr global_work_offset_addr = *((Addr*)helper.getParam(3, true));
+    Addr global_work_size_addr = *((Addr*)helper.getParam(4, true));
+    Addr local_work_size_addr = *((Addr*)helper.getParam(5, true));
 
-  CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
+    CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
 
-  const size_t * global_work_offset = new size_t[work_dim];
-  const size_t * global_work_size = new size_t[work_dim];
-  const size_t * local_work_size = new size_t[work_dim];
-  if ( global_work_offset_addr == NULL ) global_work_offset = NULL;
-  else helper.readBlob(global_work_offset_addr, (uint8_t*)global_work_offset, work_dim * sizeof(const size_t));
-  if ( global_work_size_addr == NULL ) global_work_size = NULL;
-  else helper.readBlob(global_work_size_addr, (uint8_t*)global_work_size, work_dim * sizeof(const size_t));
-  if ( local_work_size_addr == NULL ) local_work_size = NULL;
-  else helper.readBlob(local_work_size_addr, (uint8_t*)local_work_size, work_dim * sizeof(const size_t));
+    const size_t * global_work_offset = new size_t[work_dim];
+    const size_t * global_work_size = new size_t[work_dim];
+    const size_t * local_work_size = new size_t[work_dim];
+    if ( global_work_offset_addr == NULL ) global_work_offset = NULL;
+    else helper.readBlob(global_work_offset_addr, (uint8_t*)global_work_offset, work_dim * sizeof(const size_t));
+    if ( global_work_size_addr == NULL ) global_work_size = NULL;
+    else helper.readBlob(global_work_size_addr, (uint8_t*)global_work_size, work_dim * sizeof(const size_t));
+    if ( local_work_size_addr == NULL ) local_work_size = NULL;
+    else helper.readBlob(local_work_size_addr, (uint8_t*)local_work_size, work_dim * sizeof(const size_t));
 
-  int _global_size[3];
-  int zeros[3] = { 0, 0, 0};
-  printf("\n\n\n");
-  char *mode = getenv("PTX_SIM_MODE_FUNC");
-  if ( mode )
-    sscanf(mode,"%u", &g_ptx_sim_mode);
-  printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel '%s' (mode=%s)\n", kernel->name().c_str(), g_ptx_sim_mode?"functional simulation":"performance simulation");
-  if ( !work_dim || work_dim > 3 ) {
-    cl_int ret = CL_INVALID_WORK_DIMENSION;
-    helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
-    return ;
-  }
-  size_t _local_size[3];
-  if( local_work_size != NULL ) {
-    for ( unsigned d=0; d < work_dim; d++ ) 
-      _local_size[d]=local_work_size[d];
-  } else {
-    printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel automatic local work size selection:\n");
-    for ( unsigned d=0; d < work_dim; d++ ) {
-      if( d==0 ) {
-        if( global_work_size[d] <= cudaGPU->getMaxThreadsPerMultiprocessor()/* Jie : change to gem5-gpu mode *//*command_queue->get_device()->the_device()->threads_per_core()*//* Jie : change to gem5-gpu mode */ ) {
-          _local_size[d] = global_work_size[d];
-        }
-        else { 
-          // start with the maximum number of thread that a core may hold, 
-          // and decrement by 64 threadsuntil there is a local_work_size 
-          // that can perfectly divide the global_work_size. 
-          unsigned n_thread_per_core = cudaGPU->getMaxThreadsPerMultiprocessor()/* Jie : change to gem5-gpu mode *//*command_queue->get_device()->the_device()->threads_per_core()*//* Jie : change to gem5-gpu mode */;
-          size_t local_size_attempt = n_thread_per_core; 
-          while (local_size_attempt > 1 and (n_thread_per_core % 64 == 0)) {
-            if (global_work_size[d] % local_size_attempt == 0) {
-              break; 
+    int _global_size[3];
+    int zeros[3] = { 0, 0, 0};
+    printf("\n\n\n");
+    char *mode = getenv("PTX_SIM_MODE_FUNC");
+    if ( mode )
+        sscanf(mode,"%u", &g_ptx_sim_mode);
+    printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel '%s' (mode=%s)\n", kernel->name().c_str(), g_ptx_sim_mode?"functional simulation":"performance simulation");
+    if ( !work_dim || work_dim > 3 )
+    {
+        cl_int ret = CL_INVALID_WORK_DIMENSION;
+        helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+        return ;
+    }
+    size_t _local_size[3];
+    if( local_work_size != NULL )
+    {
+        for (unsigned d = 0; d < work_dim; ++d) 
+            _local_size[d] = local_work_size[d];
+    }
+    else
+    {
+        printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel automatic local work size selection:\n");
+        for (unsigned d = 0; d < work_dim; ++d)
+        {
+            if(d == 0)
+            {
+                if(global_work_size[d] <= cudaGPU->getMaxThreadsPerMultiprocessor()/* Jie : change to gem5-gpu mode *//*command_queue->get_device()->the_device()->threads_per_core()*//* Jie : change to gem5-gpu mode */)
+                {
+                    _local_size[d] = global_work_size[d];
+                }
+                else
+                { 
+                    // start with the maximum number of thread that a core may hold, 
+                    // and decrement by 64 threadsuntil there is a local_work_size 
+                    // that can perfectly divide the global_work_size. 
+                    unsigned n_thread_per_core = cudaGPU->getMaxThreadsPerMultiprocessor()/* Jie : change to gem5-gpu mode *//*command_queue->get_device()->the_device()->threads_per_core()*//* Jie : change to gem5-gpu mode */;
+                    size_t local_size_attempt = n_thread_per_core; 
+                    while (local_size_attempt > 1 and (n_thread_per_core % 64 == 0))
+                    {
+                        if (global_work_size[d] % local_size_attempt == 0)
+                        {
+                            break; 
+                        }
+                        local_size_attempt -= 64; 
+                    }
+                    if (local_size_attempt == 0) local_size_attempt = 1;
+                    _local_size[d] = local_size_attempt;
+                }
             }
-            local_size_attempt -= 64; 
-          }
-          if (local_size_attempt == 0) local_size_attempt = 1;
-          _local_size[d] = local_size_attempt;
+            else
+            {
+                _local_size[d] = 1;
+            }
+            printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel global_work_size[%u] = %zu\n", d, global_work_size[d]);
+            printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel local_work_size[%u]  = %zu\n", d, _local_size[d]);
         }
-      }
-      else {
-         _local_size[d] = 1;
-      }
-      printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel global_work_size[%u] = %zu\n", d, global_work_size[d] );
-      printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel local_work_size[%u]  = %zu\n", d, _local_size[d] );
     }
-  }
-  for ( unsigned d=0; d < work_dim; d++ ) {
-    _global_size[d] = (int)global_work_size[d];
-    if ( (global_work_size[d] % _local_size[d]) != 0 ) {
-      cl_int ret = CL_INVALID_WORK_GROUP_SIZE;
-      helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
-      return ;
+
+    // Automatic handle for (global_work_size % local_size) != 0
+    int last_local_size[3] = {1, 1, 1};
+
+    for (unsigned d = 0; d < work_dim; ++d)
+    {
+        _global_size[d] = (int)global_work_size[d];
+        if ((global_work_size[d] % _local_size[d]) != 0)
+        {
+            // Padding size
+            _global_size[d] = (int)(((global_work_size[d] / _local_size[d]) + 1) * _local_size[d]);
+            last_local_size[d] = global_work_size[d] % _local_size[d];
+            printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel new global_work_size[%u] = %d\n", d, _global_size[d]);
+            printf("GPGPU-Sim OpenCL API: last_local_size[%u] = %d\n", d, last_local_size[d]);
+        }
+        else
+        {
+            last_local_size[d] = _local_size[d];
+        }
     }
-  }
-  if (global_work_offset != NULL){
-    for ( unsigned d=0; d < work_dim; d++ ) {
-      if (global_work_offset[d] != 0){
-        printf("GPGPU-Sim: global id offset is not supported\n");
-        abort();
-      }
+    if (global_work_offset != NULL)
+    {
+        for (unsigned d = 0; d < work_dim; ++d)
+        {
+            if (global_work_offset[d] != 0)
+            {
+                printf("GPGPU-Sim: global id offset is not supported\n");
+                abort();
+            }
+        }
     }
-  }
-  assert( global_work_size[0] == _local_size[0] * (global_work_size[0]/_local_size[0]) ); // i.e., we can divide into equal CTAs
-  dim3 GridDim;
-  GridDim.x = global_work_size[0]/_local_size[0];
-  GridDim.y = (work_dim < 2)?1:(global_work_size[1]/_local_size[1]);
-  GridDim.z = (work_dim < 3)?1:(global_work_size[2]/_local_size[2]);
-  dim3 BlockDim;
-  BlockDim.x = _local_size[0];
-  BlockDim.y = (work_dim < 2)?1:_local_size[1];
-  BlockDim.z = (work_dim < 3)?1:_local_size[2];
-  gpgpu_ptx_sim_arg_list_t params;
-  cl_int err_val = kernel->bind_args(params);
-  if ( err_val != CL_SUCCESS ) {
-    cl_int ret = err_val;
+    assert(_global_size[0] == _local_size[0] * (_global_size[0]/_local_size[0])); // i.e., we can divide into equal CTAs
+    dim3 GridDim;
+    GridDim.x = _global_size[0]/_local_size[0];
+    GridDim.y = (work_dim < 2) ? 1 : (_global_size[1]/_local_size[1]);
+    GridDim.z = (work_dim < 3) ? 1 : (_global_size[2]/_local_size[2]);
+    dim3 BlockDim;
+    BlockDim.x = _local_size[0];
+    BlockDim.y = (work_dim < 2) ? 1 : _local_size[1];
+    BlockDim.z = (work_dim < 3) ? 1 : _local_size[2];
+    gpgpu_ptx_sim_arg_list_t params;
+    cl_int err_val = kernel->bind_args(params);
+    if ( err_val != CL_SUCCESS )
+    {
+        cl_int ret = err_val;
+        helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
+        return ;
+    }
+    gpgpu_t *gpu = command_queue->get_device()->the_device();
+    if (kernel->get_implementation()->get_ptx_version().ver() </* Jie : change 3.0 to 2.2 */2.2/* Jie : change 3.0 to 2.2 */)
+    {
+        gpgpu_ptx_sim_memcpy_symbol( "%_global_size", _global_size, 3 * sizeof(int), 0, 1, gpu );
+        gpgpu_ptx_sim_memcpy_symbol( "%_work_dim", &work_dim, 1 * sizeof(int), 0, 1, gpu  );
+        gpgpu_ptx_sim_memcpy_symbol( "%_global_num_groups", &GridDim, 3 * sizeof(int), 0, 1, gpu );
+        gpgpu_ptx_sim_memcpy_symbol( "%_global_launch_offset", zeros, 3 * sizeof(int), 0, 1, gpu );
+        gpgpu_ptx_sim_memcpy_symbol( "%_global_block_offset", zeros, 3 * sizeof(int), 0, 1, gpu );
+    }
+    // Set up edge case block size
+    dim3 LastBlockDim;
+    LastBlockDim.x = last_local_size[0];
+    LastBlockDim.y = last_local_size[1];
+    LastBlockDim.z = last_local_size[2];
+    bool useLastBlockDim = !(LastBlockDim.x == BlockDim.x && LastBlockDim.y == BlockDim.y && LastBlockDim.z == BlockDim.z);
+
+    kernel_info_t *grid = gpgpu_cuda_ptx_sim_init_grid(
+            params,
+            GridDim,
+            BlockDim,
+            kernel->get_implementation(),
+            LastBlockDim,
+            useLastBlockDim);
+
+    struct CUstream_st *stream = 0;
+    grid->set_inst_base_vaddr(cudaGPU->getInstBaseVaddr());
+    std::string kname = grid->name();
+    stream_operation op(grid, g_ptx_sim_mode, stream);
+    op.setThreadContext(tc);
+    g_stream_manager->push(op);
+    cl_int ret = CL_SUCCESS;
     helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
     return ;
-  }
-  gpgpu_t *gpu = command_queue->get_device()->the_device();
-  if (kernel->get_implementation()->get_ptx_version().ver() </* Jie : change 3.0 to 2.2 */2.2/* Jie : change 3.0 to 2.2 */){
-    gpgpu_ptx_sim_memcpy_symbol( "%_global_size", _global_size, 3 * sizeof(int), 0, 1, gpu );
-    gpgpu_ptx_sim_memcpy_symbol( "%_work_dim", &work_dim, 1 * sizeof(int), 0, 1, gpu  );
-    gpgpu_ptx_sim_memcpy_symbol( "%_global_num_groups", &GridDim, 3 * sizeof(int), 0, 1, gpu );
-    gpgpu_ptx_sim_memcpy_symbol( "%_global_launch_offset", zeros, 3 * sizeof(int), 0, 1, gpu );
-    gpgpu_ptx_sim_memcpy_symbol( "%_global_block_offset", zeros, 3 * sizeof(int), 0, 1, gpu );
-  }
-  kernel_info_t *grid = gpgpu_cuda_ptx_sim_init_grid(params,GridDim,BlockDim,kernel->get_implementation());
-  struct CUstream_st *stream = 0;
-  grid->set_inst_base_vaddr(cudaGPU->getInstBaseVaddr());
-  std::string kname = grid->name();
-  stream_operation op(grid, g_ptx_sim_mode, stream);
-  op.setThreadContext(tc);
-  g_stream_manager->push(op);
-  cl_int ret = CL_SUCCESS;
-  helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
-  return ;
 }
 
 void clEnqueueReadBuffer(ThreadContext *tc, gpusyscall_t *call_params) {
