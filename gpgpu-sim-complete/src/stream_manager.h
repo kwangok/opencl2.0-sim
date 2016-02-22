@@ -186,6 +186,8 @@ public:
 
     // For handling the gem5 thread context
     void setThreadContext(ThreadContext *_tc) { tc = _tc; }
+    // deicide: CDP
+    stream_operation_type get_type() { return m_type; }
 
 private:
     struct CUstream_st *m_stream;

@@ -858,15 +858,23 @@ void simt_stack::update( simt_mask_t &thread_done, addr_vector_t &next_pc, addre
 
 void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
 {
-    for ( unsigned t=0; t < m_warp_size; t++ ) {
-        if( inst.active(t) ) {
-            if(warpId==(unsigned (-1)))
+    for (unsigned t = 0; t < m_warp_size; ++t) {
+        if (inst.active(t)) {
+            if (warpId == (unsigned (-1)))
                 warpId = inst.warp_id();
-            unsigned tid=m_warp_size*warpId+t;
-            m_thread[tid]->ptx_exec_inst(inst,t);
+            unsigned tid = m_warp_size * warpId + t;
+            if (inst.m_is_cdp && (m_thread[tid]->m_send_words_left || m_thread[tid]->m_receive_words_left))
+            {
+                // CDP is still running, pass to gem5-gpu
+                m_thread[tid]->m_last_effective_address = m_thread[tid]->m_param_buffer + m_thread[tid]->m_param_offset;
+                m_thread[tid]->m_last_memory_space = global_space;
+                inst.set_addr(t, m_thread[tid]->m_last_effective_address);
+                continue;
+            }
+            m_thread[tid]->ptx_exec_inst(inst, t);
             
             //virtual function
-            checkExecutionStatusAndUpdate(inst,t,tid);
+            checkExecutionStatusAndUpdate(inst, t, tid);
         }
     } 
 }

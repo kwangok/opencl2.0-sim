@@ -42,6 +42,8 @@
 #include "params/CudaCore.hh"
 #include "sim/system.hh"
 
+#include "cuda-sim/cuda_device_runtime.h"
+
 using namespace std;
 
 CudaCore::CudaCore(const Params *p) :
@@ -308,7 +310,30 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
             Addr addr = inst.get_addr(lane);
 
             PacketPtr pkt;
-            if (inst.is_load()) {
+            if (inst.m_is_cdp) {
+                ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane);
+                if (thread->m_send_words_left == 0)
+                {
+                    // CDP done
+                    continue;
+                }
+                // deicide: CDP request
+                assert(inst.is_load());
+                // cudaLaunchDeviceV2
+                assert(inst.m_is_cdp == 4);
+                flags.set(Request::BYPASS_L1);
+                assert((thread->m_param_buffer + thread->m_param_offset) == addr);
+                RequestPtr req = new Request(asid, addr, size, flags,
+                        dataMasterId, inst.pc, id, inst.warp_id());
+                pkt = new Packet(req, MemCmd::ReadReq);
+                unsigned * offset = (unsigned*)malloc(sizeof(unsigned));
+                *offset = thread->m_param_offset;
+                pkt->dataDynamic(offset);
+                // Since only loads return to the CudaCore
+                pkt->senderState = new SenderState(inst);
+                thread->m_param_offset += 4;
+                thread->m_send_words_left--;
+            } else if (inst.is_load()) {
                 // Not all cache operators are currently supported in gem5-gpu.
                 // Verify that a supported cache operator is specified for this
                 // load instruction.
@@ -341,6 +366,10 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     // the register data to be used (e.g. atomicInc requires
                     // the saturating value up to which to count)
                     pkt->dataDynamic(pkt_data);
+                } else if (inst.m_is_cdp) {
+                    // cudaLaunchDeviceV2
+                    assert(inst.m_is_cdp == 4);
+                    // TODO: Load the parameter buffer and write it to child kernel's parameter memory
                 } else {
                     pkt->allocate();
                 }
@@ -431,7 +460,37 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
         uint8_t data[16];
         assert(pkt->getSize() <= sizeof(data));
 
-        if (inst.isatomic()) {
+        if (inst.m_is_cdp) {
+            assert(inst.m_is_cdp == 4);
+            unsigned * offset = pkt->getPtr<unsigned>();
+            ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane_id);
+            stream_operation device_launch_op = thread->m_device_launch_op;
+			memory_space *device_kernel_param_mem = (device_launch_op.get_kernel())->get_param_memory();
+            pkt->writeData(data);
+			device_kernel_param_mem->write(*offset, 4, data, NULL, NULL);
+            thread->m_receive_words_left--;
+            if (thread->m_receive_words_left == 0) {
+                assert(thread->m_send_words_left == 0);
+                const ptx_instruction * pI = thread->get_inst();
+                // Set retval0
+                const operand_info &actual_return_op = pI->operand_lookup(0);
+                // cudaError_t
+                const operand_info &target = pI->func_addr();
+                assert( target.is_function_address() );
+                const symbol * func_addr = target.get_symbol();
+                const function_info * target_func = func_addr->get_pc();
+                const symbol * formal_return = target_func->get_return_var();
+                unsigned int return_size = formal_return->get_size_in_bytes();
+                fprintf(stderr, "cudaLaunchDeviceV2 return value has size of %u\n", return_size);
+                assert(actual_return_op.is_param_local());
+                assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(cudaError_t));
+                cudaError_t error = cudaSuccess;
+                addr_t ret_param_addr = actual_return_op.get_symbol()->get_address();
+                thread->m_local_mem->write(ret_param_addr, return_size, &error, NULL, NULL);
+                g_cuda_device_launch_op.push_back(thread->m_device_launch_op);
+                thread->update_pc();
+            }
+        } if (inst.isatomic()) {
             assert(pkt->req->isSwap());
             AtomicOpRequest *lane_req = pkt->getPtr<AtomicOpRequest>();
             lane_req->writeData(data);

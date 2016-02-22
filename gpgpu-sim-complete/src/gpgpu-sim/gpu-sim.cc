@@ -63,6 +63,7 @@
 #include "power_stat.h"
 #include "visualizer.h"
 #include "stats.h"
+#include "../cuda-sim/cuda_device_runtime.h"
 
 #ifdef GPGPUSIM_POWER_MODEL
 #include "power_interface.h"
@@ -1254,6 +1255,9 @@ gpgpu_sim::core_cycle_start()
     }
     try_snap_shot(gpu_sim_cycle);
     spill_log_to_file (stdout, 0, gpu_sim_cycle);
+
+    // deicide: CDP
+    launch_one_device_kernel();
 }
 
 void

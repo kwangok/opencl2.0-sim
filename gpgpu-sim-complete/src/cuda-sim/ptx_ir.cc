@@ -1239,9 +1239,16 @@ ptx_instruction::ptx_instruction( int opcode,
        const function_info *target_func = func_addr->get_pc();
        std::string fname = target_func->get_name();
 
-       if (fname =="vprintf"){
+       if (fname =="vprintf") {
            m_is_printf = true;
+       } else if (fname == "cudaStreamCreateWithFlags") {
+           m_is_cdp = 1;
+       } else if (fname == "cudaGetParameterBufferV2") {
+           m_is_cdp = 2;
+       } else if (fname == "cudaLaunchDeviceV2") {
+           m_is_cdp = 4;
        }
+
 
    }
 }

@@ -29,6 +29,7 @@
 
 #include <stdlib.h>
 
+#include "../stream_manager.h"
 #include "../abstract_hardware_model.h"
 #include "../tr1_hash_map.h" 
 
@@ -430,10 +431,15 @@ public:
    memory_space   *m_local_mem;
    ptx_cta_info   *m_cta_info;
    ptx_reg_t m_last_set_operand_value;
-   /*
-	* deicide218: Carry register
-	*/
+   // deicide218: Carry register
    unsigned CC_CF;
+   // deicide: CDP
+   stream_operation m_device_launch_op; 
+   new_addr_type m_param_buffer;
+   unsigned m_param_offset;
+   unsigned m_device_kernel_arg_size;
+   unsigned m_send_words_left;
+   unsigned m_receive_words_left;
 
 private:
 

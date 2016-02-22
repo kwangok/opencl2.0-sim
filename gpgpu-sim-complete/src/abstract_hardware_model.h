@@ -850,6 +850,8 @@ public:
         m_mem_accesses_created=false;
         m_cache_hit=false;
         m_is_printf=false;
+        // deicide: CDP
+        m_is_cdp=0;
     }
     virtual ~warp_inst_t(){
     }
@@ -1041,6 +1043,10 @@ protected:
     std::list<mem_access_t> m_accessq;
 
     static unsigned sm_next_uid;
+
+    // deicide: CDP
+public:
+    int m_is_cdp;
 };
 
 void move_warp( warp_inst_t *&dst, warp_inst_t *&src );
@@ -1090,6 +1096,12 @@ class core_t {
         kernel_info_t * get_kernel_info(){ return m_kernel;}
         unsigned get_warp_size() const { return m_warp_size; }
         void writeRegister(const warp_inst_t &inst, unsigned warpSize, unsigned lane_id, char* data);
+        // deicide: For CDP
+        class ptx_thread_info * ptx_thread_lookup(unsigned hw_tid)
+        {
+            assert(hw_tid < (m_warp_count * m_warp_size));
+            return m_thread[hw_tid];
+        }
     protected:
         class gpgpu_sim *m_gpu;
         kernel_info_t *m_kernel;
