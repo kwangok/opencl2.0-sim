@@ -163,12 +163,14 @@ RangeMinimumQuery::setupCL(void)
     retValue = deviceInfo.setDeviceInfo(devices[sampleArgs->deviceId]);
     CHECK_ERROR(retValue, SDK_SUCCESS, "SDKDeviceInfo::setDeviceInfo() failed" );
 
+#if SUPPORT
 	// Check of OPENCL_C_VERSION if device version is 2.0 or higher
 	isOpenCL2_XSupported = deviceInfo.checkOpenCL2_XCompatibility();
     if (!isOpenCL2_XSupported)
 	{
 		OPENCL_EXPECTED_ERROR("Unsupported device! Required CL_DEVICE_OPENCL_C_VERSION 2.0 or higher");
 	}
+#endif
 
 	// Set parameters
     if(deviceInfo.maxComputeUnits > 1)
