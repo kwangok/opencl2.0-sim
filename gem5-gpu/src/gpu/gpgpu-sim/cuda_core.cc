@@ -44,6 +44,8 @@
 
 #include "cuda-sim/cuda_device_runtime.h"
 
+extern std::list<stream_operation> g_cuda_device_launch_op;
+
 using namespace std;
 
 CudaCore::CudaCore(const Params *p) :

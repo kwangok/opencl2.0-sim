@@ -41,6 +41,7 @@ public:
 };
 
 std::map<new_addr_type, device_launch_config_t> g_cuda_device_launch_param_map;
+std::list<stream_operation> g_cuda_device_launch_op;
 extern stream_manager *g_stream_manager;
 unsigned long long g_total_param_size = 0;
 unsigned long long g_max_total_param_size = 0;

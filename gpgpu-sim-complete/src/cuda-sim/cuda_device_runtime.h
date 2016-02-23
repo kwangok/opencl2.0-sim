@@ -1,9 +1,6 @@
 #ifndef CUDA_DEVICE_RUNTIME_INCLUDED
 #define CUDA_DEVICE_RUNTIME_INCLUDED
 
-#include <list>
-#include "../stream_manager.h"
-
 #define cudaStreamNonBlocking 0x01
 
 enum cudaError
@@ -65,8 +62,6 @@ enum cudaError
 };
 
 typedef enum cudaError cudaError_t;
-
-std::list<stream_operation> g_cuda_device_launch_op;
 
 void gpgpusim_cuda_getParameterBufferV2(
 		const class ptx_instruction * pI,
