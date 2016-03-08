@@ -1337,6 +1337,61 @@ clBuildProgram(cl_program           program,
     allocation_size += PAGE_SIZE_BYTES;
   }
   unsigned char* alloc_ptr = NULL;
+
+    // Second up-call to check for need to allocate GPU local memory
+    call_params.num_args = 0;
+    call_params.total_bytes = 0;
+    call_params.ret = new char[sizeof(unsigned long long)];
+    unsigned long long* ret_spot3 = (unsigned long long*)call_params.ret;
+    *ret_spot3 = 0;
+    m5_gpu(84, (uint64_t)&call_params);
+    unsigned long long allocate_local = *((unsigned long long*)call_params.ret);
+    delete call_params.ret;
+
+    if (allocate_local > 0) {
+        // allocate_local now stores the amount of memory that the simulator
+        // needs to allocate for GPU local memory. Allocate that memory, and
+        // pass the virtual address back to the simulator.
+        int error = posix_memalign((void**)&alloc_ptr, PAGE_SIZE_BYTES, allocation_size);
+        if (error) {
+          fprintf(stderr, "ERROR: cudaRegisterFatBinary2 failed with code: %d, Exiting...\n", error);
+          exit(-1);
+        }
+
+        call_params.num_args = 1;
+        call_params.arg_lengths = new int[call_params.num_args];
+        call_params.arg_lengths[0] = sizeof(void *);
+        call_params.total_bytes = call_params.arg_lengths[0];
+        call_params.args = new char[call_params.total_bytes];
+        call_params.ret = new char[sizeof(bool)];
+        bool* ret_spot4 = (bool*)call_params.ret;
+        *ret_spot4 = false;
+
+        bytes_off = 0;
+        lengths_off = 0;
+        pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&alloc_ptr, call_params.arg_lengths[0]);
+
+        // Send the local memory allocation pointer into the simulator, so it
+        // knows how to access it. The return value from this upcall is whether
+        // the simulator needs the CPU to touch the memory pages to ensure
+        // they are mapped by the OS.
+        m5_gpu(85, (uint64_t)&call_params);
+        bool map_local = *((bool*)call_params.ret);
+
+        delete call_params.args;
+        delete call_params.arg_lengths;
+        delete call_params.ret;
+
+        // The return from the upcall: If true, the simulator needs the GPU
+        // local memory pages to be mapped, so touch them.
+        if (map_local) {
+            touchPages(alloc_ptr, allocate_local);
+        }
+
+        alloc_ptr = NULL;
+    }
+
+  // Third up-call to allocate globals and constants
   if (allocation_size > 0) {
     int error = posix_memalign((void**)&alloc_ptr, PAGE_SIZE_BYTES, allocation_size);
     if (error) {
@@ -1349,7 +1404,6 @@ clBuildProgram(cl_program           program,
     memset(alloc_ptr, 0, allocation_size);
   }
 
-  // Second up-call after allocating memory for globals and constants:
   call_params.num_args = 1;
   call_params.arg_lengths = new int[call_params.num_args];
   call_params.arg_lengths[0] = sizeof(void *);
