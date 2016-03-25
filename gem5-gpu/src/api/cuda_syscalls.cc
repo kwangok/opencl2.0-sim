@@ -1361,6 +1361,9 @@ __cudaSetLocalAllocation(ThreadContext *tc, gpusyscall_t *call_params) {
     assert(!registering_local_alloc_ptr);
     registering_local_alloc_ptr = sim_alloc_ptr;
     cudaGPU->setLocalBaseVaddr(registering_local_alloc_ptr);
+    // deicide: Register page translation for GPU page table
+    unsigned long long local_alloc_size = get_local_alloc_size(cudaGPU);
+    cudaGPU->registerDeviceMemory(tc, registering_local_alloc_ptr, local_alloc_size);
 
     // TODO: Need to check if using host or GPU page mappings. If the GPU is
     // not able to access the host's pagetable, then the memory pages need to
