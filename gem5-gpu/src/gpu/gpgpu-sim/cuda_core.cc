@@ -327,13 +327,6 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
             if (!inst.m_is_cdp)
             {
                 addr = inst.get_addr(lane);
-                if (inst.pc == 0x120 || inst.pc == 0x0e8)
-                {
-                    inst.print_insn(stderr);
-                    assert(inst.is_store());
-                    assert(inst.space.get_type() == local_space || inst.space.get_type() == param_space_local);
-                    assert(!inst.m_is_cdp);
-                }
             }
             // deicide
 

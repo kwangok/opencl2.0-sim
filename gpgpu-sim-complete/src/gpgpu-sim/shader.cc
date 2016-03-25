@@ -1142,7 +1142,10 @@ unsigned shader_core_ctx::translate_local_memaddr( address_type localaddr, unsig
       }
    } else {
       // Sub-4B access, do only one access
-      assert(datasize > 0);
+      // deicide
+      // assert(datasize > 0);
+      if (datasize <= 0) datasize = 4;
+      // deicide
       num_accesses = 1;
       address_type local_word = localaddr/4;
       address_type local_word_offset = localaddr%4;
@@ -3445,7 +3448,7 @@ void shader_core_ctx::checkExecutionStatusAndUpdate(warp_inst_t &inst, unsigned 
 {
     if( inst.has_callback(t) ) 
            m_warp[inst.warp_id()].inc_n_atomic();
-        if (inst.space.is_local() && (inst.is_load() || inst.is_store())) {
+        if (inst.space.is_local() && (inst.is_load() || inst.is_store() || inst.m_is_cdp)) {
             new_addr_type localaddrs[MAX_ACCESSES_PER_INSN_PER_THREAD];
             unsigned num_addrs;
             num_addrs = translate_local_memaddr(inst.get_addr(t), tid, m_config->n_simt_clusters*m_config->n_simt_cores_per_cluster,

@@ -613,12 +613,7 @@ void ptx_instruction::set_opcode_and_latency()
        if (m_is_printf) {
            op = ALU_OP;
        } else if (m_is_cdp) {
-           if (m_is_cdp == 4) {
-               // cudaLaunchDeviceV2
-               op = LOAD_OP;
-           } else {
-               op = CALL_OPS;
-           }
+           op = LOAD_OP;
        } else {
            op = CALL_OPS;
        }

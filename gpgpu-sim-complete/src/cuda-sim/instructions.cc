@@ -4743,6 +4743,7 @@ void st_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 
    if (space.get_type() != global_space &&
        space.get_type() != const_space &&
+       space.get_type() != param_space_local &&
        space.get_type() != local_space) {
        size_t size;
        int t;
