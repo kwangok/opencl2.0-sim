@@ -1457,6 +1457,7 @@ bool ldst_unit::memory_cycle_gem5( warp_inst_t &inst, mem_stage_stall_type &stal
     if (inst.space.get_type() != global_space &&
         inst.space.get_type() != const_space &&
         inst.space.get_type() != local_space &&
+        inst.space.get_type() != param_space_local &&
         inst.op != BARRIER_OP &&
         inst.op != MEMORY_BARRIER_OP) {
         return memory_cycle(inst, stall_reason, access_type);

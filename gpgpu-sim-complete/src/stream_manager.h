@@ -57,7 +57,10 @@ enum stream_operation_type {
     stream_memcpy_from_symbol,
     stream_kernel_launch,
     stream_event,
-    stream_memset
+    stream_memset,
+#ifdef DEVICE_STREAM
+    stream_child_kernel_launch
+#endif
 }; 
 
 class stream_operation {
@@ -170,7 +173,7 @@ public:
         launchTime = curTick();
     }
 
-    bool is_kernel() const { return m_type == stream_kernel_launch; }
+    bool is_kernel() const { return (m_type == stream_kernel_launch || m_type == stream_child_kernel_launch); }
     bool is_mem() const {
         return m_type == stream_memcpy_host_to_device ||
                m_type == stream_memcpy_device_to_host ||
@@ -188,6 +191,7 @@ public:
     void setThreadContext(ThreadContext *_tc) { tc = _tc; }
     // deicide: CDP
     stream_operation_type get_type() { return m_type; }
+    void set_type(stream_operation_type type) { m_type = type; }
 
 private:
     struct CUstream_st *m_stream;

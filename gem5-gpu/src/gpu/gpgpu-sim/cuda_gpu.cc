@@ -148,6 +148,7 @@ CudaGPU::CudaGPU(const Params *p) :
     GPUExitCallback* gpuExitCB = new GPUExitCallback(this, p->stats_filename);
     registerExitCallback(gpuExitCB);
 
+    deviceKernelCount = 0;
 }
 
 void CudaGPU::serialize(std::ostream &os)
@@ -354,7 +355,15 @@ void CudaGPU::beginRunning(Tick stream_queued_time, struct CUstream_st *_stream)
     }
     numKernelsStarted++;
     if (running) {
-        panic("Should not already be running if we are starting\n");
+        if (_stream->getType() == stream_device)
+        {
+            // Intentionally does nothing
+            return;
+        }
+        else
+        {
+            panic("Should not already be running if we are starting\n");
+        }
     }
     running = true;
 
@@ -381,6 +390,7 @@ void CudaGPU::processFinishKernelEvent(int grid_id)
 {
     DPRINTF(CudaGPU, "GPU finished a kernel id %d\n", grid_id);
 
+    bool isDeviceStream = (streamManager->findStream(grid_id)->getType() == stream_device) ? true : false;
     streamManager->register_finished_kernel(grid_id);
 
     kernelTimes.push_back(curTick());
@@ -398,7 +408,14 @@ void CudaGPU::processFinishKernelEvent(int grid_id)
 
     running = false;
 
-    endStreamOperation();
+    if (isDeviceStream)
+    {
+        endDeviceStreamOperation();
+    }
+    else
+    {
+        endStreamOperation();
+    }
 }
 
 CudaCore *CudaGPU::getCudaCore(int coreId)
@@ -681,7 +698,13 @@ void CudaGPU::registerDeviceMemory(ThreadContext *tc, Addr vaddr, size_t size)
         if (FullSystem) {
             page_paddr = TheISA::vtophys(tc, page_vaddr);
         } else {
+            // deicide
+            if (!(tc->getProcessPtr()->pTable->translate(page_vaddr, page_paddr)))
+            {
+                tc->getProcessPtr()->allocateMem(page_vaddr, TheISA::PageBytes);
+            }
             tc->getProcessPtr()->pTable->translate(page_vaddr, page_paddr);
+            // deicide
         }
         pageTable.insert(page_vaddr, page_paddr);
     }

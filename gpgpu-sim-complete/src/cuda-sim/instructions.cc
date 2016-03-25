@@ -160,8 +160,8 @@ ptx_reg_t ptx_thread_info::get_operand_value( const operand_info &op, operand_in
             result.u64 = op.get_symbol()->get_address();
          } else if ( op.is_function_address() ) {
 			 // deicide: Get PC for kernel function
-			 result.u64 = op.get_symbol()->get_pc()->get_start_PC();
-			 printf("Get pc for kernel function %u\n", op.get_symbol()->get_pc()->get_start_PC());
+			 // result.u64 = op.get_symbol()->get_pc()->get_start_PC();
+			 result.u64 = (unsigned long long)(op.get_symbol()->get_pc());
 		 } else {
             const char *name = op.name().c_str();
             printf("GPGPU-Sim PTX: ERROR ** get_operand_value : unknown operand type for %s\n", name );
@@ -1721,6 +1721,9 @@ void call_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    } else if ( fname == "cudaLaunchDeviceV2" ) {
 	   gpgpusim_cuda_launchDeviceV2(pI, thread, target_func);
 	   return;
+   } else if ( fname == "cudaStreamCreateWithFlags" ) {
+       gpgpusim_cuda_streamCreateWithFlags(pI, thread, target_func);
+       return;
    }
 #endif
 
@@ -2407,22 +2410,27 @@ void cvt_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    thread->set_operand_value(dst, data, to_type, thread, pI );
 }
 
+/*
+ * deicide: Since now the memory system is replaced with ruby, cvta function is useless now.
+ */
 void cvta_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 { 
    ptx_reg_t data;
 
    const operand_info &dst  = pI->dst();
    const operand_info &src1 = pI->src1();
-   memory_space_t space = pI->get_space();
-   bool to_non_generic = pI->is_to();
+   // memory_space_t space = pI->get_space();
+   // bool to_non_generic = pI->is_to();
 
    unsigned i_type = pI->get_type();
    ptx_reg_t from_addr = thread->get_operand_value(src1,dst,i_type,thread,1);
    addr_t from_addr_hw = (addr_t)from_addr.u64;
-   addr_t to_addr_hw = 0;
-   unsigned smid = thread->get_hw_sid();
-   unsigned hwtid = thread->get_hw_tid();
+   // addr_t to_addr_hw = 0;
+   // unsigned smid = thread->get_hw_sid();
+   // unsigned hwtid = thread->get_hw_tid();
 
+   // deicide: cvta is not working cause gem5-gpu has its own memory systme?
+   /*
    if( to_non_generic ) {
       switch( space.get_type() ) {
       case shared_space: to_addr_hw = generic_to_shared( smid, from_addr_hw ); break;
@@ -2439,9 +2447,11 @@ void cvta_impl( const ptx_instruction *pI, ptx_thread_info *thread )
       default: abort(); break;
       }
    }
-   
+   */
+
    ptx_reg_t to_addr;
-   to_addr.u64 = to_addr_hw;
+   // to_addr.u64 = to_addr_hw;
+   to_addr.u64 = from_addr_hw;
    thread->set_reg(dst.get_symbol(),to_addr);
 }
 
@@ -2633,7 +2643,8 @@ void ld_exec( const ptx_instruction *pI, ptx_thread_info *thread )
 
    if (space.get_type() != global_space &&
        space.get_type() != const_space &&
-       space.get_type() != local_space) {
+       space.get_type() != local_space &&
+       space.get_type() != param_space_local) {
        size_t size;
        int t;
        data.u64=0;
@@ -2662,8 +2673,44 @@ void ld_exec( const ptx_instruction *pI, ptx_thread_info *thread )
              thread->set_vector_operand_values(dst,data1,data2,data2,data2);
        }
    }
-   thread->m_last_effective_address = addr;
-   thread->m_last_memory_space = space;
+   // deicide: Handle 8 byte local access
+   if ((space.get_type() == local_space || space.get_type() == param_space_local) &&
+       (type == B64_TYPE || type == U64_TYPE || type == S64_TYPE))
+   {
+       // deicide
+       if (thread->m_current_local_load_PC != (unsigned long long)-1)
+       {
+           if (thread->m_current_local_load_PC != pI->get_PC())
+           {
+               thread->m_last_effective_address = addr;
+               thread->m_last_memory_space = space;
+               // Fake writeback
+               data.u64 = 0;
+               thread->set_operand_value(dst, data, type, thread, pI);
+           }
+       }
+       else
+       {
+           thread->m_current_local_load_PC = pI->get_PC();
+       }
+       // deicide
+       if (thread->m_local_load_execution_step == 2)
+       {
+           thread->m_local_load_execution_step++;
+           return;
+       }
+       thread->m_last_memory_space = space;
+       if (thread->m_local_load_execution_step > 2) return;
+       if (thread->m_local_load_execution_step != thread->m_local_load_memory_step) return;
+       thread->m_last_effective_address = addr;
+       thread->m_local_load_execution_step++;
+   }
+   else
+   {
+       thread->m_last_memory_space = space;
+       thread->m_last_effective_address = addr;
+   }
+   // deicide
 }
 
 void ld_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
@@ -4731,8 +4778,43 @@ void st_impl( const ptx_instruction *pI, ptx_thread_info *thread )
           }
        }
    }
-   thread->m_last_effective_address = addr;
-   thread->m_last_memory_space = space; 
+   data = thread->get_operand_value(src1, dst, type, thread, 1);
+   // deicide: Handle 8 byte local access
+   if ((space.get_type() == local_space || space.get_type() == param_space_local) &&
+       (type == B64_TYPE || type == U64_TYPE || type == S64_TYPE))
+   {
+       // deicide
+       if (thread->m_current_local_store_PC != (unsigned long long)-1)
+       {
+           if (thread->m_current_local_store_PC != pI->get_PC())
+           {
+               thread->m_last_effective_address = addr;
+               thread->m_last_memory_space = space;
+           }
+       }
+       else
+       {
+           thread->m_current_local_store_PC = pI->get_PC();
+       }
+       // deicide
+       if (thread->m_local_store_execution_step == 2)
+       {
+           thread->m_local_store_execution_step++;
+           return;
+       }
+       thread->m_last_memory_space = space;
+       if (thread->m_local_store_execution_step > 2) return;
+       if (thread->m_local_store_execution_step != thread->m_local_store_memory_step) return;
+       thread->m_last_effective_address = addr;
+       data = thread->get_operand_value(src1, dst, type, thread, 1);
+       thread->m_local_store_execution_step++;
+   }
+   else
+   {
+       thread->m_last_memory_space = space;
+       thread->m_last_effective_address = addr;
+   }
+   // deicide
 }
 
 /*

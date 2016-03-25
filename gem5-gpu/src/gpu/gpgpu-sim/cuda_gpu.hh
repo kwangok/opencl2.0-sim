@@ -307,9 +307,36 @@ class CudaGPU : public ClockedObject
     /// The thread context, stream and thread ID currently running on the SPA
     ThreadContext *runningTC;
     struct CUstream_st *runningStream;
+    struct CUstream_st *runningDeviceStream;
     int runningTID;
+
+    // deicide: For device kernel
+    int deviceKernelCount;
+
     void beginStreamOperation(struct CUstream_st *_stream) {
         // We currently do not support multiple concurrent streams
+        if (_stream->getType() == stream_device)
+        {
+            // assert(runningDeviceStream == NULL);
+            runningDeviceStream = _stream;
+            /*
+            if (runningTC != NULL)
+            {
+                // assert(runningDeviceStream->getThreadContext() == runningTC);
+            }
+            else
+            {
+                runningTC = runningDeviceStream->getThreadContext();
+                runningTID = runningTC->threadId();
+            }
+            */
+            // assert(runningTC != NULL);
+            // assert(runningStream != NULL);
+            runningTC = runningDeviceStream->getThreadContext();
+            runningTID = runningTC->threadId();
+            deviceKernelCount++;
+            return;
+        }
         if (runningStream || runningTC) {
             panic("Already a stream operation running (only support one at a time)!");
         }
@@ -318,9 +345,22 @@ class CudaGPU : public ClockedObject
         runningTID = runningTC->threadId();
     }
     void endStreamOperation() {
-        runningStream = NULL;
-        runningTC = NULL;
-        runningTID = -1;
+        if (deviceKernelCount == 0)
+        {
+            runningStream = NULL;
+            runningTC = NULL;
+            runningTID = -1;
+        }
+    }
+    void endDeviceStreamOperation() {
+        deviceKernelCount--;
+        if (deviceKernelCount == 0)
+        {
+            runningStream = NULL;
+            runningDeviceStream = NULL;
+            runningTC = NULL;
+            runningTID = -1;
+        }
     }
 
     /// For statistics

@@ -148,6 +148,9 @@ void stream_operation::do_operation( gpgpu_sim *gpu )
         printf("Received stream_memcpy_from_symbol request, which is not implemented!\n");
         abort();
         break;
+#ifdef DEVICE_STREAM
+    case stream_child_kernel_launch:
+#endif
     case stream_kernel_launch:
         if( gpu->can_start_kernel() ) {
         	gpu->set_cache_config(m_kernel->name());
@@ -190,6 +193,9 @@ void stream_operation::print( FILE *fp ) const
     switch( m_type ) {
     case stream_event: fprintf(fp,"event"); break;
     case stream_kernel_launch: fprintf(fp,"kernel"); break;
+#ifdef DEVICE_STREAM
+    case stream_child_kernel_launch: fprintf(fp,"child kernel"); break;
+#endif
     case stream_memcpy_device_to_device: fprintf(fp,"memcpy device-to-device"); break;
     case stream_memcpy_device_to_host: fprintf(fp,"memcpy device-to-host"); break;
     case stream_memcpy_host_to_device: fprintf(fp,"memcpy host-to-device"); break;
@@ -205,6 +211,9 @@ stream_manager::stream_manager( gpgpu_sim *gpu, bool cuda_launch_blocking )
     m_gpu = gpu;
     m_service_stream_zero = false;
     m_cuda_launch_blocking = cuda_launch_blocking;
+#ifdef DEVICE_STREAM
+    m_device_stream_zero.setType(stream_device);
+#endif
 }
 
 bool stream_manager::operation( bool * sim)
@@ -283,10 +292,12 @@ stream_operation stream_manager::front()
 		else if (!m_device_stream_zero.empty() && !m_device_stream_zero.busy())
 		{
 			result = m_device_stream_zero.next();
+            assert(result.is_kernel());
 			if (result.is_kernel())
 			{
 				unsigned grid_id = result.get_kernel()->get_uid();
 				m_grid_id_to_stream[grid_id] = &m_device_stream_zero;
+                assert(m_grid_id_to_stream[grid_id] != NULL);
 			}
 		}
 #endif
@@ -297,6 +308,9 @@ stream_operation stream_manager::front()
     }
 	else
 	{
+#ifdef DEVICE_STREAM
+        bool done = false;
+#endif
         std::list<struct CUstream_st*>::iterator s;
         for (s = m_streams.begin();s != m_streams.end(); ++s)
 		{
@@ -304,6 +318,9 @@ stream_operation stream_manager::front()
             if (!stream->busy() && !stream->empty())
 			{
                 result = stream->next();
+#ifdef DEVICE_STREAM
+                done = true;
+#endif
                 if (result.is_kernel())
 				{
                     unsigned grid_id = result.get_kernel()->get_uid();
@@ -312,6 +329,27 @@ stream_operation stream_manager::front()
                 break;
             }
         }
+#ifdef DEVICE_STREAM
+        if (!done)
+        {
+            for (s = m_device_streams.begin(); s != m_device_streams.end(); ++s)
+            {
+                CUstream_st *stream = *s;
+                if (!stream->busy() && !stream->empty())
+                {
+                    result = stream->next();
+                    done = true;
+                    assert(result.is_kernel()); // device stream should contain only kernels
+                    if (result.is_kernel())
+                    {
+                        unsigned grid_id = result.get_kernel()->get_uid();
+                        m_grid_id_to_stream[grid_id] = stream;
+                    }
+                    break;
+                }
+            }
+        }
+#endif
     }
     return result;
 }
@@ -409,6 +447,16 @@ bool stream_manager::concurrent_streams_empty()
             result = false;
         }
     }
+#ifdef DEVICE_STREAM
+    for (s = m_device_streams.begin(); s != m_device_streams.end(); ++s)
+    {
+        struct CUstream_st *stream = *s;
+        if (!stream->empty())
+        {
+            result = false;
+        }
+    }
+#endif
     return result;
 }
 
@@ -457,7 +505,11 @@ void stream_manager::print_impl( FILE *fp)
     if( !m_stream_zero.empty() ) 
         m_stream_zero.print(fp);
 #ifdef DEVICE_STREAM
-    if( !m_device_stream_zero.empty() ) 
+    for (s = m_device_streams.begin(); s!=m_device_streams.end(); ++s) {
+        struct CUstream_st *stream = *s;
+        if (!stream->empty()) stream->print(fp);
+    }
+    if (!m_device_stream_zero.empty()) 
         m_device_stream_zero.print(fp);
 #endif
 }
@@ -469,8 +521,20 @@ void stream_manager::push( stream_operation op )
     if( stream && !m_cuda_launch_blocking ) {
         stream->push(op);
     } else {
-        op.set_stream(&m_stream_zero);
-        m_stream_zero.push(op);
+#ifdef DEVICE_STREAM
+        if (op.get_type() == stream_child_kernel_launch)
+        {
+            op.set_stream(&m_device_stream_zero);
+            m_device_stream_zero.push(op);
+        }
+        else
+        {
+#endif
+            op.set_stream(&m_stream_zero);
+            m_stream_zero.push(op);
+#ifdef DEVICE_STREAM
+        }
+#endif
     }
     if(g_debug_execution >= 3)
        print_impl(stdout);

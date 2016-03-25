@@ -1308,7 +1308,7 @@ private:
    static unsigned sm_next_uid;
 
    // Parameter buffer aligned size
-   unsigned m_args_aligned_size;
+   int m_args_aligned_size;
 };
 
 class arg_buffer_t {

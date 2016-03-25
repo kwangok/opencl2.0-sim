@@ -173,6 +173,22 @@ ptx_thread_info::ptx_thread_info( kernel_info_t &kernel )
    m_local_mem_stack_pointer = 0;
    m_gpu = NULL;
    m_last_set_operand_value=ptx_reg_t();
+
+   // deicide: CDP step
+   m_cdp_execution_step = 0;
+   m_cdp_execution_substep = 0;
+   m_cdp_memory_step = 0;
+   m_cdp_memory_substep = 0;
+   m_wait_for_cdp = false;
+   // deicide: Local memory stuff
+   m_local_load_execution_step = 0;
+   m_local_store_execution_step = 0;
+   m_local_load_memory_step = 0;
+   m_local_store_memory_step = 0;
+   m_wait_for_local_load = false;
+   m_wait_for_local_store = false;
+   m_current_local_load_PC = (unsigned long long)-1;
+   m_current_local_store_PC = (unsigned long long)-1;
 }
 
 const ptx_version &ptx_thread_info::get_ptx_version() const 

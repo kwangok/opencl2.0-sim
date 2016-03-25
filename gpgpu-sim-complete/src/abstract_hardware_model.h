@@ -588,7 +588,12 @@ public:
          return true; 
       return false;
    }
-   enum _memory_space_t get_type() const { return m_type; }
+   enum _memory_space_t get_type() const
+   {
+       // deicide: TEST
+       if (m_type == param_space_local) return local_space;
+       return m_type;
+   }
    unsigned get_bank() const { return m_bank; }
    void set_bank( unsigned b ) { m_bank = b; }
    bool is_const() const { return (m_type == const_space) || (m_type == param_space_kernel); }
@@ -901,7 +906,7 @@ public:
     void set_data( unsigned n, const uint8_t *_data )
     {
         assert( op == STORE_OP || memory_op == memory_store );
-        assert( space == global_space || space == const_space || space == local_space );
+        assert( space == global_space || space == const_space || space == local_space || space == param_space_local);
         assert( m_per_scalar_thread_valid );
         assert( !m_per_scalar_thread[n].data_valid );
         m_per_scalar_thread[n].data_valid = true;
@@ -972,10 +977,11 @@ public:
         return m_warp_active_mask[n] && m_per_scalar_thread_valid && 
             (m_per_scalar_thread[n].callback.function!=NULL);
     }
-    new_addr_type get_addr( unsigned n ) const
+    // deicide: Check each entry of memreqaddr
+    new_addr_type get_addr( unsigned n, int index = 0 ) const
     {
         assert( m_per_scalar_thread_valid );
-        return m_per_scalar_thread[n].memreqaddr[0];
+        return m_per_scalar_thread[n].memreqaddr[index];
     }
     const uint8_t *get_data( unsigned n ) const
     {
@@ -1047,6 +1053,7 @@ protected:
     // deicide: CDP
 public:
     int m_is_cdp;
+    int m_is_long_local_access;
 };
 
 void move_warp( warp_inst_t *&dst, warp_inst_t *&src );

@@ -180,8 +180,17 @@ void warp_inst_t::generate_mem_accesses()
     if( m_warp_active_mask.count() == 0 ) 
         return; // predicated off
     // In gem5-gpu, global, const and local references go through the gem5-gpu LSQ
-    if( space.get_type() == global_space || space.get_type() == const_space || space.get_type() == local_space )
+    if( space.get_type() == global_space || space.get_type() == const_space || space.get_type() == local_space || space.get_type() == param_space_local)
         return;
+
+    // deicide
+    if (m_is_cdp)
+    {
+        fprintf(stderr, "CDP memory accesses belong to param_space_local\n");
+        space = local_space;
+        return;
+    }
+    // deicide
 
     const size_t starting_queue_size = m_accessq.size();
 
@@ -636,6 +645,7 @@ void kernel_info_t::print_parent_info()
 #ifdef DEVICE_STREAM
 CUstream_st * kernel_info_t::create_stream_cta(dim3 ctaid)
 {
+    /*
 	std::map<dim3, CUstream_st *>::iterator it = m_cta_streams.find(ctaid);
 	if (it != m_cta_streams.end())
 	{
@@ -649,10 +659,13 @@ CUstream_st * kernel_info_t::create_stream_cta(dim3 ctaid)
 		m_cta_streams[ctaid] = stream;
 		return stream;
 	}
+    */
+    return NULL;
 }
 
 CUstream_st * kernel_info_t::get_default_stream_cta(dim3 ctaid)
 {
+    /*
 	if (cta_has_stream(ctaid))
 	{
 		return m_cta_streams[ctaid];
@@ -661,6 +674,8 @@ CUstream_st * kernel_info_t::get_default_stream_cta(dim3 ctaid)
 	{
 		return g_stream_manager->findStream(m_uid);
 	}
+    */
+    return NULL;
 }
 
 bool kernel_info_t::cta_has_stream(dim3 ctaid)
@@ -704,9 +719,9 @@ const simt_mask_t &simt_stack::get_active_mask() const
 
 void simt_stack::get_pdom_stack_top_info( unsigned *pc, unsigned *rpc ) const
 {
-   assert(m_stack.size() > 0);
-   *pc = m_stack.back().m_pc;
-   *rpc = m_stack.back().m_recvg_pc;
+    assert(m_stack.size() > 0);
+    *pc = m_stack.back().m_pc;
+    *rpc = m_stack.back().m_recvg_pc;
 }
 
 unsigned simt_stack::get_rp() const 
@@ -863,12 +878,25 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
             if (warpId == (unsigned (-1)))
                 warpId = inst.warp_id();
             unsigned tid = m_warp_size * warpId + t;
-            if (inst.m_is_cdp && (m_thread[tid]->m_send_words_left || m_thread[tid]->m_receive_words_left))
+            if (m_thread[tid]->m_wait_for_cdp)
             {
-                // CDP is still running, pass to gem5-gpu
-                m_thread[tid]->m_last_effective_address = m_thread[tid]->m_param_buffer + m_thread[tid]->m_param_offset;
-                m_thread[tid]->m_last_memory_space = global_space;
-                inst.set_addr(t, m_thread[tid]->m_last_effective_address);
+                if (inst.m_is_cdp == 1)
+                {
+                    // fprintf(stderr, "cudaStreamCreateWithFlag is still running, execute_warp_inst_t do nothing\n");
+                }
+                else if (inst.m_is_cdp == 2)
+                {
+                    // fprintf(stderr, "cudaGetParameterBufferV2 is still running, execute_warp_inst_t do nothing\n");
+                }
+                else if (inst.m_is_cdp == 4)
+                {
+                    // fprintf(stderr, "cudaLaunchDeviceV2 is still running, execute_warp_inst_t do nothing\n");
+                }
+                else
+                {
+                    fprintf(stderr, "Unknown CDP operation\n");
+                    abort();
+                }
                 continue;
             }
             m_thread[tid]->ptx_exec_inst(inst, t);
@@ -876,7 +904,7 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
             //virtual function
             checkExecutionStatusAndUpdate(inst, t, tid);
         }
-    } 
+    }
 }
 
 void core_t::writeRegister(const warp_inst_t &inst, unsigned warpSize, unsigned lane_id, char *data) {

@@ -1294,6 +1294,13 @@ int ptx_thread_info::readRegister(const warp_inst_t &inst, unsigned lane_id, cha
 
 void ptx_thread_info::writeRegister(const warp_inst_t &inst, unsigned lane_id, char *data)
 {
+    // deicide
+    if (m_thread_done)
+    {
+        fprintf(stderr, "Thread already exited, writeRegister does nothing\n");
+        return;
+    }
+    // deicide
    const ptx_instruction *pI = m_func_info->get_instruction(inst.pc);
 
    const operand_info &dst = pI->dst();
@@ -1466,6 +1473,15 @@ void ptx_thread_info::ptx_exec_inst( warp_inst_t &inst, unsigned lane_id)
       insn_data_size = datatype2size(to_type);
       insn_memory_op = pI->has_memory_read() ? memory_load : memory_store;
    }
+
+        // deicide
+        if (inst.m_is_cdp && insn_memaddr == 0xFEEBDAED)
+        {
+            insn_memaddr = last_eaddr();
+            insn_space = last_space();
+            insn_data_size = sizeof(unsigned int);
+        }
+        // deicide
    
    if ( pI->get_opcode() == ATOM_OP ) {
       insn_memaddr = last_eaddr();
@@ -1497,9 +1513,71 @@ void ptx_thread_info::ptx_exec_inst( warp_inst_t &inst, unsigned lane_id)
       if ( ptx_debug_exec_dump_cond<10>(get_uid(), pc) )
          dump_regs(stdout);
    }
-   if (!inst.m_is_cdp || !m_send_words_left)
-       update_pc();
-   g_ptx_sim_num_insn++;
+
+        if (inst.m_is_cdp == 1 && m_cdp_execution_step <= 3)
+        {
+            // fprintf(stderr, "cudaStreamCreateWithFlag is still running, don't update PC\n");
+        }
+        else if (inst.m_is_cdp == 2 && m_cdp_execution_step <= 4)
+        {
+            // fprintf(stderr, "cudaGetParameterBufferV2 is still running, don't update PC\n");
+        }
+        else if (inst.m_is_cdp == 4 && m_cdp_execution_step <= 2)
+        {
+            // fprintf(stderr, "cudaLaunchDeviceV2 is still running, don't update PC\n");
+        }
+        else if ((m_last_memory_space.get_type() == local_space || m_last_memory_space.get_type() == param_space_local) &&
+                inst.data_size > 4)
+        {
+            if (inst.is_load())
+            {
+                if (m_current_local_load_PC != inst.pc)
+                {
+                    // fprintf(stderr, "We currently don't allow multiple local long load\n");
+                }
+                else if (m_local_load_execution_step < 2)
+                {
+                    // fprintf(stderr, "Local load PC = 0x%lx is still running, don't update PC, step = %d\n", inst.pc, m_local_load_execution_step);
+                }
+                else
+                {
+                    // fprintf(stderr, "Local load ");
+                    // inst.print_insn(stderr);
+                    // fprintf(stderr, " has completed tid = (%u, %u, %u)\n", m_tid.x, m_tid.y, m_tid.z);
+                    update_pc();
+                    g_ptx_sim_num_insn++;
+                }
+            }
+            else if (inst.is_store())
+            {
+                if (m_current_local_store_PC != inst.pc)
+                {
+                    // fprintf(stderr, "We currently don't allow multiple local long store\n");
+                }
+                else if (m_local_store_execution_step < 2)
+                {
+                    // fprintf(stderr, "Local store PC = 0x%lx is still running, don't update PC, step = %d\n", inst.pc, m_local_store_execution_step);
+                }
+                else
+                {
+                    // fprintf(stderr, "Local store ");
+                    // inst.print_insn(stderr);
+                    // fprintf(stderr, " has completed tid = (%u, %u, %u)\n", m_tid.x, m_tid.y, m_tid.z);
+                    update_pc();
+                    g_ptx_sim_num_insn++;
+                }
+            }
+            else
+            {
+                fprintf(stderr, "What is this?\n");
+                abort();
+            }
+        }
+        else
+        {
+            update_pc();
+            g_ptx_sim_num_insn++;
+        }
    
    //not using it with functional simulation mode
    if(!(this->m_functionalSimulationMode))

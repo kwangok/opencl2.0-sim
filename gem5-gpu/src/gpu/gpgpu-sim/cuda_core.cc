@@ -254,6 +254,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
     assert(inst.space.get_type() == global_space ||
            inst.space.get_type() == const_space ||
            inst.space.get_type() == local_space ||
+           inst.space.get_type() == param_space_local ||
            inst.op == BARRIER_OP ||
            inst.op == MEMORY_BARRIER_OP);
     assert(inst.valid());
@@ -263,10 +264,22 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
 
     int size = inst.data_size;
     if (inst.is_load() || inst.is_store()) {
-        assert(size >= 1 && size <= 8);
+        // deicide
+        if (inst.m_is_cdp)
+        {
+            // fprintf(stderr, "CDP data size = %d\n", size);
+        }
+        else
+        {
+            assert(size >= 1 && size <= 8);
+        }
     }
     size *= inst.vectorLength;
-    assert(size <= 16);
+
+    // deicide
+    if (!inst.m_is_cdp) assert(size <= 16);
+    // deicide
+    //
     if (inst.op == BARRIER_OP || inst.op == MEMORY_BARRIER_OP) {
         if (inst.active_count() != inst.warp_size()) {
             warn_once("ShaderLSQ received partial-warp fence: Assuming you know what you're doing");
@@ -309,32 +322,261 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
 
     for (int lane = 0; lane < warpSize; lane++) {
         if (inst.active(lane)) {
-            Addr addr = inst.get_addr(lane);
+            // deicide
+            Addr addr = 0;
+            if (!inst.m_is_cdp)
+            {
+                addr = inst.get_addr(lane);
+                if (inst.pc == 0x120 || inst.pc == 0x0e8)
+                {
+                    inst.print_insn(stderr);
+                    assert(inst.is_store());
+                    assert(inst.space.get_type() == local_space || inst.space.get_type() == param_space_local);
+                    assert(!inst.m_is_cdp);
+                }
+            }
+            // deicide
 
             PacketPtr pkt;
-            if (inst.m_is_cdp) {
+            if (inst.m_is_cdp == 4) {
                 ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane);
-                if (thread->m_send_words_left == 0)
+                if (thread->m_wait_for_cdp) continue;
+                if (thread->m_cdp_memory_step == 0)
                 {
-                    // CDP done
+                    if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
+                    addr = inst.get_addr(lane);
+
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::ReadReq);
+                    pkt->allocate();
+                    thread->m_wait_for_cdp = true;
+                    // Since only loads return to the CudaCore
+                    pkt->senderState = new SenderState(inst);
+                }
+                else if (thread->m_cdp_memory_step == 1)
+                {
+                    if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
+                    addr = inst.get_addr(lane);
+
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::ReadReq);
+                    pkt->allocate();
+                    thread->m_wait_for_cdp = true;
+                    // Since only loads return to the CudaCore
+                    pkt->senderState = new SenderState(inst);
+                }
+                else if (thread->m_cdp_memory_step == 2)
+                {
+                    // Write return value
+                    if (thread->m_cdp_execution_step <= thread->m_cdp_memory_step) continue;
+                    addr = inst.get_addr(lane);
+
+                    RequestPtr req = new Request(asid, addr, sizeof(cudaError_t), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::WriteReq);
+                    unsigned int * word = new unsigned int;
+                    *word = *((unsigned int*)(thread->m_cdp_data));
+                    free(thread->m_cdp_data);
+                    pkt->dataDynamic(word);
+                    thread->m_cdp_memory_step = 3;
+                    thread->m_wait_for_cdp = false;
+                    // deicide: Reset step
+                    thread->m_cdp_execution_step = 0;
+                    thread->m_cdp_execution_substep = 0;
+                    thread->m_cdp_memory_step = 0;
+                    thread->m_cdp_memory_substep = 0;
+                }
+                else
+                {
                     continue;
                 }
-                // deicide: CDP request
-                assert(inst.is_load());
-                // cudaLaunchDeviceV2
-                assert(inst.m_is_cdp == 4);
-                flags.set(Request::BYPASS_L1);
-                assert((thread->m_param_buffer + thread->m_param_offset) == addr);
-                RequestPtr req = new Request(asid, addr, size, flags,
-                        dataMasterId, inst.pc, id, inst.warp_id());
-                pkt = new Packet(req, MemCmd::ReadReq);
-                unsigned * offset = (unsigned*)malloc(sizeof(unsigned));
-                *offset = thread->m_param_offset;
-                pkt->dataDynamic(offset);
-                // Since only loads return to the CudaCore
-                pkt->senderState = new SenderState(inst);
-                thread->m_param_offset += 4;
-                thread->m_send_words_left--;
+            } else if (inst.m_is_cdp == 1) {
+                ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane);
+                if (thread->m_wait_for_cdp) continue;
+                if (thread->m_cdp_memory_step == 0)
+                {
+                    // Read stream pointer
+                    if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
+                    addr = inst.get_addr(lane);
+
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::ReadReq);
+                    pkt->allocate();
+                    thread->m_wait_for_cdp = true;
+                    // Since only loads return to the CudaCore
+                    pkt->senderState = new SenderState(inst);
+                }
+                else if (thread->m_cdp_memory_step == 1)
+                {
+                    // Read stream creating flag
+                    if (thread->m_cdp_execution_step <= thread->m_cdp_memory_step) continue;
+                    addr = inst.get_addr(lane);
+
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::ReadReq);
+                    pkt->allocate();
+                    thread->m_wait_for_cdp = true;
+                    // Since only loads return to the CudaCore
+                    pkt->senderState = new SenderState(inst);
+                }
+                else if (thread->m_cdp_memory_step == 2)
+                {
+                    // Write stream hold to target address
+                    if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
+                    addr = inst.get_addr(lane);
+
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::WriteReq);
+                    unsigned int * word = new unsigned int;
+                    if (thread->m_cdp_memory_substep == 0)
+                    {
+                        *word = (unsigned int)((*((unsigned long long*)thread->m_cdp_data)) & 0xffffffff);
+                    }
+                    else if (thread->m_cdp_memory_substep == 1)
+                    {
+                        *word = (unsigned int)(((*((unsigned long long*)thread->m_cdp_data)) >> 32) & 0xffffffff);
+                        free(thread->m_cdp_data);
+                    }
+                    else
+                    {
+                        fprintf(stderr, "Unknown memory substep in cudaStreamCreateWithFlags memory step 2\n");
+                    }
+                    pkt->dataDynamic(word);
+                    // Write 2 words
+                    thread->m_cdp_memory_substep++;
+                    if (thread->m_cdp_memory_substep >= 2)
+                        thread->m_cdp_memory_step = 3;
+                    thread->m_wait_for_cdp = false;
+                }
+                else if (thread->m_cdp_memory_step == 3)
+                {
+                    // Write return value
+                    if (thread->m_cdp_execution_step <= thread->m_cdp_memory_step) continue;
+                    addr = inst.get_addr(lane);
+
+                    RequestPtr req = new Request(asid, addr, sizeof(cudaError_t), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::WriteReq);
+                    unsigned int * word = new unsigned int;
+                    *word = *((unsigned int*)(thread->m_cdp_data));
+                    free(thread->m_cdp_data);
+                    pkt->dataDynamic(word);
+                    thread->m_cdp_memory_step = 4;
+                    thread->m_wait_for_cdp = false;
+                    
+                    // deicide: Reset step
+                    thread->m_cdp_execution_step = 0;
+                    thread->m_cdp_execution_substep = 0;
+                    thread->m_cdp_memory_step = 0;
+                    thread->m_cdp_memory_substep = 0;
+                }
+                else
+                {
+                    continue;
+                }
+            } else if (inst.m_is_cdp == 2) {
+                ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane);
+                if (thread->m_wait_for_cdp)
+                {
+                    continue;
+                }
+                if (thread->m_cdp_memory_step == 0)
+                {
+                    // Read child kernel entry pointer
+                    if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
+                    addr = inst.get_addr(lane);
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned long), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::ReadReq);
+                    // Since only loads return to the CudaCore
+                    pkt->senderState = new SenderState(inst);
+                    pkt->allocate();
+                    thread->m_wait_for_cdp = true;
+                }
+                else if (thread->m_cdp_memory_step == 1)
+                {
+                    // Read grid dimension
+                    if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
+                    addr = inst.get_addr(lane);
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::ReadReq);
+                    // Since only loads return to the CudaCore
+                    pkt->senderState = new SenderState(inst);
+                    pkt->allocate();
+                    thread->m_wait_for_cdp = true;
+                }
+                else if (thread->m_cdp_memory_step == 2)
+                {
+                    // Read block dimension
+                    if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
+                    addr = inst.get_addr(lane);
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::ReadReq);
+                    // Since only loads return to the CudaCore
+                    pkt->senderState = new SenderState(inst);
+                    pkt->allocate();
+                    thread->m_wait_for_cdp = true;
+                }
+                else if (thread->m_cdp_memory_step == 3)
+                {
+                    // Read shared memory size
+                    if (thread->m_cdp_execution_step <= thread->m_cdp_memory_step) continue;
+                    addr = inst.get_addr(lane);
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::ReadReq);
+                    // Since only loads return to the CudaCore
+                    pkt->senderState = new SenderState(inst);
+                    pkt->allocate();
+                    thread->m_wait_for_cdp = true;
+                }
+                else if (thread->m_cdp_memory_step == 4)
+                {
+                    // Write return value (parameter buffer pointer)
+                    if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
+                    addr = inst.get_addr(lane);
+                    RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
+                            dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::WriteReq);
+                    unsigned int * word = new unsigned int;
+                    if (thread->m_cdp_memory_substep == 0)
+                    {
+                        *word = (unsigned int)((*((unsigned long long*)thread->m_cdp_data)) & 0xffffffff);
+                    }
+                    else if (thread->m_cdp_memory_substep == 1)
+                    {
+                        *word = (unsigned int)(((*((unsigned long long*)thread->m_cdp_data)) >> 32) & 0xffffffff);
+                        free(thread->m_cdp_data);
+                    }
+                    else
+                    {
+                        fprintf(stderr, "Unknown memory substep in cudaStreamCreateWithFlags memory step 2\n");
+                    }
+                    pkt->dataDynamic(word);
+                    // Write 2 words
+                    thread->m_cdp_memory_substep++;
+                    if (thread->m_cdp_memory_substep >= 2)
+                    {
+                        // deicide: Reset step
+                        thread->m_cdp_execution_step = 0;
+                        thread->m_cdp_execution_substep = 0;
+                        thread->m_cdp_memory_step = 0;
+                        thread->m_cdp_memory_substep = 0;
+                        // thread->m_cdp_memory_step = 5;
+                    }
+                    thread->m_wait_for_cdp = false;
+                }
+                else
+                {
+                    continue;
+                }
             } else if (inst.is_load()) {
                 // Not all cache operators are currently supported in gem5-gpu.
                 // Verify that a supported cache operator is specified for this
@@ -348,8 +590,35 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     panic("Unhandled cache operator (%d) on load\n",
                           inst.cache_op);
                 }
-                RequestPtr req = new Request(asid, addr, size, flags,
-                        dataMasterId, inst.pc, id, inst.warp_id());
+                // deicide: Handle 8 byte local memory access
+                RequestPtr req;
+                if ((inst.space.get_type() == local_space || inst.space.get_type() == param_space_local) &&
+                    size > 4)
+                {
+                    ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane);
+                    if (thread->m_current_local_load_PC != inst.pc)
+                    {
+                        continue;
+                    }
+                    if (thread->m_wait_for_local_load)
+                    {
+                        continue;
+                    }
+                    if (thread->m_local_load_execution_step <= thread->m_local_load_memory_step)
+                    {
+                        continue;
+                    }
+                    addr = inst.get_addr(lane, thread->m_local_load_memory_step);
+                    req = new Request(asid, addr, sizeof(unsigned int), flags,
+                                    dataMasterId, inst.pc, id, inst.warp_id());
+                    thread->m_wait_for_local_load = true;
+                }
+                else
+                {
+                    req = new Request(asid, addr, size, flags,
+                                    dataMasterId, inst.pc, id, inst.warp_id());
+                }
+                // deicide
                 pkt = new Packet(req, MemCmd::ReadReq);
                 if (inst.isatomic()) {
                     assert(flags.isSet(Request::MEM_SWAP));
@@ -368,10 +637,6 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     // the register data to be used (e.g. atomicInc requires
                     // the saturating value up to which to count)
                     pkt->dataDynamic(pkt_data);
-                } else if (inst.m_is_cdp) {
-                    // cudaLaunchDeviceV2
-                    assert(inst.m_is_cdp == 4);
-                    // TODO: Load the parameter buffer and write it to child kernel's parameter memory
                 } else {
                     pkt->allocate();
                 }
@@ -389,13 +654,63 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     panic("Unhandled cache operator (%d) on store\n",
                           inst.cache_op);
                 }
-                RequestPtr req = new Request(asid, addr, size, flags,
-                        dataMasterId, inst.pc, id, inst.warp_id());
-                pkt = new Packet(req, MemCmd::WriteReq);
-                pkt->allocate();
-                pkt->setData((uint8_t*)inst.get_data(lane));
-                DPRINTF(CudaCoreAccess, "Send store from lane %d address 0x%llx: data = %d\n",
-                        lane, pkt->req->getVaddr(), *(int*)inst.get_data(lane));
+                // deicide: Handle 8 byte local memory access
+                RequestPtr req;
+                if ((inst.space.get_type() == local_space || inst.space.get_type() == param_space_local) &&
+                    size > 4)
+                {
+                    ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane);
+                    if (thread->m_current_local_store_PC != inst.pc)
+                    {
+                        continue;
+                    }
+                    if (thread->m_wait_for_local_store)
+                    {
+                        continue;
+                    }
+                    if (thread->m_local_store_execution_step <= thread->m_local_store_memory_step)
+                    {
+                        continue;
+                    }
+                    addr = inst.get_addr(lane, thread->m_local_store_memory_step);
+                    req = new Request(asid, addr, sizeof(unsigned int), flags,
+                                    dataMasterId, inst.pc, id, inst.warp_id());
+                    thread->m_wait_for_local_store = false;
+
+                    pkt = new Packet(req, MemCmd::WriteReq);
+                    unsigned int * temp = new unsigned int;
+                    if (thread->m_local_store_memory_step == 0)
+                    {
+                        *temp = *((unsigned long long*)(inst.get_data(lane))) & 0xffffffff;
+                        thread->m_local_store_memory_step++;
+                    }
+                    else if (thread->m_local_store_memory_step == 1)
+                    {
+                        *temp = (*((unsigned long long*)(inst.get_data(lane))) >> 32) & 0xffffffff;
+
+                        // deicide
+                        thread->m_local_store_memory_step = 0;
+                        thread->m_local_store_execution_step = 0;
+                        thread->m_current_local_store_PC = (unsigned long long)-1;
+                    }
+                    else
+                    {
+                        fprintf(stderr, "Unexpected local memory step\n");
+                        abort();
+                    }
+                    pkt->dataDynamic(temp);
+                }
+                else
+                {
+                    req = new Request(asid, addr, size, flags,
+                                    dataMasterId, inst.pc, id, inst.warp_id());
+                    pkt = new Packet(req, MemCmd::WriteReq);
+                    pkt->allocate();
+                    pkt->setData((uint8_t*)inst.get_data(lane));
+                    DPRINTF(CudaCoreAccess, "Send store from lane %d address 0x%llx: data = %d\n",
+                            lane, pkt->req->getVaddr(), *(int*)inst.get_data(lane));
+                }
+                // deicide
             } else if (inst.op == BARRIER_OP || inst.op == MEMORY_BARRIER_OP) {
                 assert(!inst.isatomic());
                 // Setup Fence packet
@@ -462,43 +777,255 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
         uint8_t data[16];
         assert(pkt->getSize() <= sizeof(data));
 
-        if (inst.m_is_cdp) {
-            assert(inst.m_is_cdp == 4);
-            unsigned * offset = pkt->getPtr<unsigned>();
+        if (inst.m_is_cdp == 4) {
             ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane_id);
-            stream_operation device_launch_op = thread->m_device_launch_op;
-			memory_space *device_kernel_param_mem = (device_launch_op.get_kernel())->get_param_memory();
-            pkt->writeData(data);
-			device_kernel_param_mem->write(*offset, 4, data, NULL, NULL);
-            thread->m_receive_words_left--;
-            if (thread->m_receive_words_left == 0) {
-                assert(thread->m_send_words_left == 0);
-                const ptx_instruction * pI = thread->get_inst();
-                // Set retval0
-                const operand_info &actual_return_op = pI->operand_lookup(0);
-                // cudaError_t
-                const operand_info &target = pI->func_addr();
-                assert( target.is_function_address() );
-                const symbol * func_addr = target.get_symbol();
-                const function_info * target_func = func_addr->get_pc();
-                const symbol * formal_return = target_func->get_return_var();
-                unsigned int return_size = formal_return->get_size_in_bytes();
-                fprintf(stderr, "cudaLaunchDeviceV2 return value has size of %u\n", return_size);
-                assert(actual_return_op.is_param_local());
-                assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(cudaError_t));
-                cudaError_t error = cudaSuccess;
-                addr_t ret_param_addr = actual_return_op.get_symbol()->get_address();
-                thread->m_local_mem->write(ret_param_addr, return_size, &error, NULL, NULL);
-                g_cuda_device_launch_op.push_back(thread->m_device_launch_op);
-                thread->update_pc();
+            if (thread->m_cdp_memory_step == 0)
+            {
+                pkt->writeData(data);
+                if (thread->m_cdp_memory_substep == 0)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    thread->m_parameter_buffer |= temp;
+                    thread->m_cdp_memory_substep++;
+                }
+                else if (thread->m_cdp_memory_substep == 1)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    temp = temp << 32;
+                    thread->m_parameter_buffer |= temp;
+                    thread->m_cdp_memory_substep++;
+                }
+                else if ((thread->m_cdp_memory_substep - 2) < thread->m_device_kernel_arg_total_words)
+                {
+                    thread->m_device_grid->get_param_memory()->write((thread->m_cdp_memory_substep - 2) * 4, 4, (unsigned int*)data, NULL, NULL);
+                    thread->m_cdp_memory_substep++;
+                    if ((thread->m_cdp_memory_substep - 2) >= thread->m_device_kernel_arg_total_words)
+                    {
+                        thread->m_cdp_memory_substep = 0;
+                        thread->m_cdp_execution_substep = 0;
+                        thread->m_cdp_memory_step = 1;
+                    }
+                }
+                else
+                {
+                    fprintf(stderr, "Uknown cudaLaunchDeviceV2 memory substep for memory step 0\n");
+                }
             }
-        } if (inst.isatomic()) {
+            else if (thread->m_cdp_memory_step == 1)
+            {
+                pkt->writeData(data);
+                if (thread->m_cdp_memory_substep == 0)
+                {
+                    thread->m_child_stream_hold = 0llu;
+                    unsigned long long temp = *((unsigned int*)data);
+                    thread->m_child_stream_hold |= temp;
+                    thread->m_cdp_memory_substep++;
+                }
+                else if (thread->m_cdp_memory_substep == 1)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    temp = temp << 32;
+                    thread->m_child_stream_hold |= temp;
+                    thread->m_cdp_memory_substep = 0;
+                    thread->m_cdp_execution_substep = 0;
+                    thread->m_cdp_memory_step = 2;
+                }
+                else
+                {
+                    fprintf(stderr, "Uknown cudaLaunchDeviceV2 memory substep for memory step 1\n");
+                }
+            }
+            else
+            {
+                fprintf(stderr, "Unexpected cudaLaunchDeviceV2 memory step %d\n", thread->m_cdp_memory_step);
+                abort();
+            }
+            thread->m_wait_for_cdp = false;
+
+            delete pkt->senderState;
+            delete pkt->req;
+            delete pkt;
+            return true;
+        } else if (inst.m_is_cdp == 1) {
+            ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane_id);
+            if (thread->m_cdp_memory_step == 0)
+            {
+                pkt->writeData(data);
+                if (thread->m_cdp_memory_substep == 0)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    thread->m_child_stream_addr |= temp;
+                    thread->m_cdp_memory_substep++;
+                }
+                else if (thread->m_cdp_memory_substep == 1)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    temp = temp << 32;
+                    thread->m_child_stream_addr |= temp;
+                    thread->m_cdp_memory_substep = 0;
+                    thread->m_cdp_execution_substep = 0;
+                    thread->m_cdp_memory_step = 1;
+                }
+                else
+                {
+                    fprintf(stderr, "Uknown cudaGetParameterBufferV2 memory substep for memory step 0\n");
+                }
+            }
+            else if (thread->m_cdp_memory_step == 1)
+            {
+                pkt->writeData(data);
+                thread->m_child_stream_flag = *((unsigned int*)data);
+                thread->m_cdp_memory_step = 2;
+            }
+            else
+            {
+                fprintf(stderr, "Unexpected cdp step\n");
+                abort();
+            }
+            thread->m_wait_for_cdp = false;
+
+            delete pkt->senderState;
+            delete pkt->req;
+            delete pkt;
+            return true;
+        } else if (inst.m_is_cdp == 2) {
+            ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane_id);
+            if (thread->m_cdp_memory_step == 0)
+            {
+                pkt->writeData(data);
+                if (thread->m_cdp_memory_substep == 0)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    thread->m_child_kernel_entry |= temp;
+                    thread->m_cdp_memory_substep++;
+                }
+                else if (thread->m_cdp_memory_substep == 1)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    temp = temp << 32;
+                    thread->m_child_kernel_entry |= temp;
+                    thread->m_cdp_memory_substep = 0;
+                    thread->m_cdp_execution_substep = 0;
+                    thread->m_cdp_memory_step = 1;
+                }
+                else
+                {
+                    fprintf(stderr, "Uknown cudaGetParameterBufferV2 memory substep for memory step 0\n");
+                }
+            }
+            else if (thread->m_cdp_memory_step == 1)
+            {
+                pkt->writeData(data);
+                if (thread->m_cdp_memory_substep == 0)
+                {
+                    thread->m_grid_dim.x = *((unsigned int*)data);
+                    thread->m_cdp_memory_substep++;
+                }
+                else if (thread->m_cdp_memory_substep == 1)
+                {
+                    thread->m_grid_dim.y = *((unsigned int*)data);
+                    thread->m_cdp_memory_substep++;
+                }
+                else if (thread->m_cdp_memory_substep == 2)
+                {
+                    thread->m_grid_dim.z = *((unsigned int*)data);
+                    thread->m_cdp_memory_step = 2;
+                    thread->m_cdp_memory_substep = 0;
+                    thread->m_cdp_execution_substep = 0;
+                }
+                else
+                {
+                    fprintf(stderr, "Uknown cudaGetParameterBufferV2 memory substep for memory step 1\n");
+                }
+            }
+            else if (thread->m_cdp_memory_step == 2)
+            {
+                pkt->writeData(data);
+                if (thread->m_cdp_memory_substep == 0)
+                {
+                    thread->m_block_dim.x = *((unsigned int*)data);
+                    thread->m_cdp_memory_substep++;
+                }
+                else if (thread->m_cdp_memory_substep == 1)
+                {
+                    thread->m_block_dim.y = *((unsigned int*)data);
+                    thread->m_cdp_memory_substep++;
+                }
+                else if (thread->m_cdp_memory_substep == 2)
+                {
+                    thread->m_block_dim.z = *((unsigned int*)data);
+                    thread->m_cdp_memory_step = 3;
+                    thread->m_cdp_memory_substep = 0;
+                    thread->m_cdp_execution_substep = 0;
+                }
+                else
+                {
+                    fprintf(stderr, "Uknown cudaGetParameterBufferV2 memory substep for memory step 2\n");
+                }
+            }
+            else if (thread->m_cdp_memory_step == 3)
+            {
+                pkt->writeData(data);
+                thread->m_shared_mem_size = *((unsigned int*)data);
+                thread->m_cdp_memory_step = 4;
+            }
+            else
+            {
+                fprintf(stderr, "Unexpected cudaGetParameterBufferV2 memory step\n");
+                abort();
+            }
+            thread->m_wait_for_cdp = false;
+
+            delete pkt->senderState;
+            delete pkt->req;
+            delete pkt;
+            return true;
+        } else if (inst.isatomic()) {
             assert(pkt->req->isSwap());
             AtomicOpRequest *lane_req = pkt->getPtr<AtomicOpRequest>();
             lane_req->writeData(data);
         } else {
             pkt->writeData(data);
+            if ((inst.space.get_type() == local_space || inst.space.get_type() == param_space_local) &&
+                (inst.data_size > 4))
+            {
+                ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane_id);
+                if (thread->m_local_load_memory_step == 0)
+                {
+                    thread->m_local_long_data = 0llu;
+                    unsigned long long temp = *((unsigned int*)data);
+                    thread->m_local_long_data |= temp;
+                    thread->m_local_load_memory_step++;
+                    thread->m_wait_for_local_load = false;
+                }
+                else if (thread->m_local_load_memory_step == 1)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    temp = temp << 32;
+                    thread->m_local_long_data |= temp;
+                    thread->m_local_load_memory_step++;
+                    *((unsigned long long*)data) = thread->m_local_long_data;
+                    thread->m_wait_for_local_load = false;
+
+                    // deicide
+                    thread->m_local_load_execution_step = 0;
+                    thread->m_local_load_memory_step = 0;
+                    thread->m_current_local_load_PC = (unsigned long long)-1;
+                }
+                else
+                {
+                    fprintf(stderr, "Unexpected local memory step\n");
+                    abort();
+                }
+                shaderImpl->writeRegister(inst, warpSize, lane_id, (char*)&(thread->m_local_long_data));
+                
+                delete pkt->senderState;
+                delete pkt->req;
+                delete pkt;
+                return true;
+            }
         }
+
         DPRINTF(CudaCoreAccess, "Loaded data %d\n", *(int*)data);
         shaderImpl->writeRegister(inst, warpSize, lane_id, (char*)data);
     } else if (pkt->cmd == MemCmd::FenceResp) {
