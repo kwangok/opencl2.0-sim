@@ -103,8 +103,6 @@ enum { CUDA_MALLOC_DEVICE = 0,
        CUDA_FREE_HOST = 5
 };
 
-#define PAGE_SIZE_BYTES 4096
-
 void
 pack(char *bytes, int &bytes_off, int *lengths, int &lengths_off, char *arg, int arg_size)
 {
@@ -1338,6 +1336,7 @@ clBuildProgram(cl_program           program,
   }
   unsigned char* alloc_ptr = NULL;
 
+    // Local memory setting from here
     // Second up-call to check for need to allocate GPU local memory
     call_params.num_args = 0;
     call_params.total_bytes = 0;
@@ -1352,11 +1351,7 @@ clBuildProgram(cl_program           program,
         // allocate_local now stores the amount of memory that the simulator
         // needs to allocate for GPU local memory. Allocate that memory, and
         // pass the virtual address back to the simulator.
-        int error = posix_memalign((void**)&alloc_ptr, PAGE_SIZE_BYTES, allocation_size);
-        if (error) {
-          fprintf(stderr, "ERROR: cudaRegisterFatBinary2 failed with code: %d, Exiting...\n", error);
-          exit(-1);
-        }
+        alloc_ptr = (unsigned char*) checkedAlignedAlloc(allocate_local, PAGE_SIZE_BYTES);
 
         call_params.num_args = 1;
         call_params.arg_lengths = new int[call_params.num_args];
@@ -1382,9 +1377,12 @@ clBuildProgram(cl_program           program,
         delete call_params.arg_lengths;
         delete call_params.ret;
 
+        fprintf(stderr, "clBuildProgram allocated local from 0x%lx, size = %llu\n", alloc_ptr, allocate_local);
+
         // The return from the upcall: If true, the simulator needs the GPU
         // local memory pages to be mapped, so touch them.
-        if (map_local) {
+        // deicide: Currently we always touch local memory pages
+        if (1 || map_local) {
             touchPages(alloc_ptr, allocate_local);
         }
 
@@ -1404,6 +1402,7 @@ clBuildProgram(cl_program           program,
     memset(alloc_ptr, 0, allocation_size);
   }
 
+  // Second up-call after allocating memory for globals and constants:
   call_params.num_args = 1;
   call_params.arg_lengths = new int[call_params.num_args];
   call_params.arg_lengths[0] = sizeof(void *);
