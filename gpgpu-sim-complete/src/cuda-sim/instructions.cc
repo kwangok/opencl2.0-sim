@@ -156,8 +156,8 @@ ptx_reg_t ptx_thread_info::get_operand_value( const operand_info &op, operand_in
          } else if ( op.is_local() ) {
             result.u64 = op.get_symbol()->get_address();
          } else {
-            const char *name = op.name().c_str();
-            fprintf(stderr, "GPGPU-Sim PTX: ERROR ** get_operand_value : unknown operand type for %s\n", name );
+            // const char *name = op.name().c_str();
+            fprintf(stderr, "GPGPU-Sim PTX: WARNING ** get_operand_value : unknown operand type");
 			// deicide: TEST
 			result.u64 = op.get_symbol()->get_address();
             // assert(0);

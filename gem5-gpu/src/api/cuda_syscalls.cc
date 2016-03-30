@@ -3050,7 +3050,9 @@ void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 	case CL_DEVICE_SINGLE_FP_CONFIG: CL_INT_CASE(0); break;
 	case CL_DEVICE_MEM_BASE_ADDR_ALIGN: CL_INT_CASE(256*8); break;
 	default:
-		opencl_not_implemented(__my_func__,__LINE__);
+        DPRINTF(GPUSyscalls, "gem5 GPU Syscall: WARNING ** Not yet implemented OpenCL device info");
+        break;
+		// opencl_not_implemented(__my_func__,__LINE__);
 	}
 	cl_int ret = CL_SUCCESS;
 	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
