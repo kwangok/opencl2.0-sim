@@ -488,6 +488,24 @@ bool stream_manager::empty()
     return result;
 }
 
+#ifdef DEVICE_STREAM
+bool stream_manager::childStreamEmpty()
+{
+    std::list<struct CUstream_st *>::iterator s;
+    for (s = m_device_streams.begin(); s != m_device_streams.end(); ++s)
+    {
+        struct CUstream_st *stream = *s;
+        if (!stream->empty())
+        {
+            return false;
+        }
+    }
+    if ( !m_device_stream_zero.empty() )
+        return false;
+    return true;
+}
+#endif
+
 
 void stream_manager::print( FILE *fp)
 {

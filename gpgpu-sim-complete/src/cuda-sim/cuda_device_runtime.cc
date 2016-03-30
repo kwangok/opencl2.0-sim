@@ -56,7 +56,7 @@ touchPages(unsigned char *ptr, size_t size)
 }
 
 /*
- * TODO: Implement cudaGetParameterBufferV2 function
+ * This function implements PTX built-in function cudaGetParameterBufferV2
  *
  * extern __device__ __cudart_builtin__ void * CUDARTAPI
  * cudaGetParameterBufferV2(void *func, dim3 gridDimension, dim3 blockDimension, unsigned int sharedMemSize);
@@ -102,6 +102,7 @@ void gpgpusim_cuda_getParameterBufferV2(
 
     if (step == 0)
     {
+        // Step 0: Read out kernel function pointer from param0 in local memory (through gem5-gpu memory system)
         if (thread->m_cdp_execution_substep != thread->m_cdp_memory_substep) return;
         // Handle kernel function pointer
         assert(size == sizeof(function_info*));
@@ -114,6 +115,7 @@ void gpgpusim_cuda_getParameterBufferV2(
     }
     else if (step == 1)
     {
+        // Step 1: Read out grid dimension from param1 in local memory (through gem5-gpu memory system)
         if (thread->m_cdp_execution_substep != thread->m_cdp_memory_substep) return;
         // Handle grid dimension
         assert(size == sizeof(struct dim3));
@@ -125,6 +127,7 @@ void gpgpusim_cuda_getParameterBufferV2(
     }
     else if (step == 2)
     {
+        // Step 2: Read out block dimension from param2 in local memory (through gem5-gpu memory system)
         if (thread->m_cdp_execution_substep != thread->m_cdp_memory_substep) return;
         // Handle block dimension
         assert(size == sizeof(struct dim3));
@@ -136,6 +139,7 @@ void gpgpusim_cuda_getParameterBufferV2(
     }
     else if (step == 3)
     {
+        // Step 3: Read out shared memory size from param3 in local memory (through gem5-gpu memory system)
         if (thread->m_cdp_execution_step != thread->m_cdp_memory_step) return;
         // Handle shared memory size
         assert(size == sizeof(unsigned int));
@@ -145,6 +149,8 @@ void gpgpusim_cuda_getParameterBufferV2(
     }
     else if (step == 4)
     {
+        // Step 4: Allocate space in global memory for child kernel parameter and write it to return address
+        // TODO: Integrate this part with the original gpgpu-sim style set_data
         if (thread->m_cdp_execution_substep != thread->m_cdp_memory_substep) return;
         // Copy the buffer address to retval0
         // retval0
@@ -189,8 +195,10 @@ void gpgpusim_cuda_getParameterBufferV2(
             g_cuda_device_launch_param_map[(new_addr_type)param_buffer] = device_launch_config;
 
             // Set write data
-            thread->m_cdp_data = malloc(sizeof(unsigned long long));
-            *((unsigned long long*)(thread->m_cdp_data)) = (unsigned long long)param_buffer;
+            thread->m_cudaGetParameterBufferRet = malloc(sizeof(unsigned long long));
+            *((unsigned long long*)(thread->m_cudaGetParameterBufferRet)) = (unsigned long long)param_buffer;
+            // thread->m_cdp_data = malloc(sizeof(unsigned long long));
+            // *((unsigned long long*)(thread->m_cdp_data)) = (unsigned long long)param_buffer;
         }
 
         thread->m_last_effective_address = ret_param_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
@@ -250,6 +258,8 @@ void gpgpusim_cuda_launchDeviceV2(
 
     if (step == 0)
     {
+        // Step 0: Read out parameter buffer address from param0 in local memory (through gem5-gpu memory system)
+        // Then read out the parameter buffer content in global memory and write it to child kernel's parameter memory
         // Handle parameter buffer
         if (thread->m_cdp_execution_substep != thread->m_cdp_memory_substep) return;
         if (thread->m_cdp_execution_substep < 2)
@@ -293,6 +303,7 @@ void gpgpusim_cuda_launchDeviceV2(
     }
     else if (step == 1)
     {
+        // Step 1: Read out child kernel's stream hold from param1 in local memory (through gem5-gpu memory system)
         if (thread->m_cdp_execution_substep != thread->m_cdp_memory_substep) return;
         assert(size == sizeof(unsigned long long int));
 
@@ -304,13 +315,17 @@ void gpgpusim_cuda_launchDeviceV2(
     }
     else if (step == 2)
     {
+        // Step 2: Write the return value to return address
         if (thread->m_cdp_execution_substep != thread->m_cdp_memory_substep) return;
 
         assert(cta_map.find(thread->m_child_stream_hold) != cta_map.end());
         dim3 target_ctaid = cta_map[thread->m_child_stream_hold];
         assert(target_ctaid.x == thread->get_ctaid().x && target_ctaid.y == thread->get_ctaid().y && target_ctaid.z == thread->get_ctaid().z);
         kernel_info_t & parent_kernel = thread->get_kernel();
-        CUstream_st * child_stream = parent_kernel.get_default_stream_cta(thread->get_ctaid());
+        struct stream_group_id sg_id;
+        sg_id.kernel_id = parent_kernel.get_uid();
+        sg_id.cta_id    = thread->get_ctaid();
+        CUstream_st * child_stream = parent_kernel.get_default_stream_cta(sg_id);
         (thread->m_device_launch_op).set_stream(child_stream);
 
         g_cuda_device_launch_op.push_back(thread->m_device_launch_op);
@@ -404,10 +419,15 @@ void gpgpusim_cuda_streamCreateWithFlags(const ptx_instruction * pI, ptx_thread_
         if (thread->m_cdp_execution_substep == 0)
         {
             assert(thread->m_child_stream_flag == cudaStreamNonBlocking);
-            thread->get_kernel().create_stream_cta(thread->get_ctaid());
+            struct stream_group_id sg_id;
+            sg_id.kernel_id = thread->get_kernel().get_uid();
+            sg_id.cta_id    = thread->get_ctaid();
+            thread->get_kernel().create_stream_cta(sg_id);
             cta_map[cta_map_index_head] = thread->get_ctaid();
-            thread->m_cdp_data = malloc(sizeof(unsigned long long int));
-            *((unsigned long long int*)(thread->m_cdp_data)) = cta_map_index_head;
+            // thread->m_cdp_data = malloc(sizeof(unsigned long long int));
+            // *((unsigned long long int*)(thread->m_cdp_data)) = cta_map_index_head;
+            thread->m_cudaStreamCreateWithFlagsStream = malloc(sizeof(unsigned long long int));
+            *((unsigned long long int*)(thread->m_cudaStreamCreateWithFlagsStream)) = cta_map_index_head;
             cta_map_index_head++;
         }
         // Leave local memory write to gem5-gpu

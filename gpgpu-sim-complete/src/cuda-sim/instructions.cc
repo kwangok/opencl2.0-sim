@@ -1724,6 +1724,9 @@ void call_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    } else if ( fname == "cudaStreamCreateWithFlags" ) {
        gpgpusim_cuda_streamCreateWithFlags(pI, thread, target_func);
        return;
+   } else if ( fname == "cudaStreamDestroy" ) {
+       // Currently we only support 1 stream, so here it does nothing
+       return;
    }
 #endif
 

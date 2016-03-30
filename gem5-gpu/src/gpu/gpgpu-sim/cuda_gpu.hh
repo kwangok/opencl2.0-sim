@@ -307,7 +307,9 @@ class CudaGPU : public ClockedObject
     /// The thread context, stream and thread ID currently running on the SPA
     ThreadContext *runningTC;
     struct CUstream_st *runningStream;
-    struct CUstream_st *runningDeviceStream;
+    // Counter for each kernel in the device stream
+    std::map<CUstream_st* , int> runningDeviceStreamsKernelCount;
+    // struct CUstream_st *runningDeviceStream;
     int runningTID;
 
     // deicide: For device kernel
@@ -317,22 +319,16 @@ class CudaGPU : public ClockedObject
         // We currently do not support multiple concurrent streams
         if (_stream->getType() == stream_device)
         {
-            // assert(runningDeviceStream == NULL);
-            runningDeviceStream = _stream;
-            /*
-            if (runningTC != NULL)
+            if (runningDeviceStreamsKernelCount.find(_stream) == runningDeviceStreamsKernelCount.end())
             {
-                // assert(runningDeviceStream->getThreadContext() == runningTC);
+                runningDeviceStreamsKernelCount[_stream] = 1;
             }
             else
             {
-                runningTC = runningDeviceStream->getThreadContext();
-                runningTID = runningTC->threadId();
+                runningDeviceStreamsKernelCount[_stream]++;
             }
-            */
-            // assert(runningTC != NULL);
-            // assert(runningStream != NULL);
-            runningTC = runningDeviceStream->getThreadContext();
+            // runningDeviceStream = _stream;
+            runningTC = _stream->getThreadContext();
             runningTID = runningTC->threadId();
             deviceKernelCount++;
             return;
@@ -345,6 +341,8 @@ class CudaGPU : public ClockedObject
         runningTID = runningTC->threadId();
     }
     void endStreamOperation() {
+        // deicide: Check if all sub operations are done
+        if (!streamManager->childStreamEmpty()) return;
         if (deviceKernelCount == 0)
         {
             runningStream = NULL;
@@ -352,12 +350,21 @@ class CudaGPU : public ClockedObject
             runningTID = -1;
         }
     }
-    void endDeviceStreamOperation() {
+    void endDeviceStreamOperation(CUstream_st *_stream) {
         deviceKernelCount--;
+        assert(runningDeviceStreamsKernelCount.find(_stream) != runningDeviceStreamsKernelCount.end());
+        runningDeviceStreamsKernelCount[_stream]--;
+        // if (runningDeviceStreamsKernelCount[_stream] == 0)
+        if (_stream->empty())
+        {
+            runningDeviceStreamsKernelCount.erase(_stream);
+        }
+        // deicide: Check if all sub operations are done
+        if (!streamManager->childStreamEmpty()) return;
         if (deviceKernelCount == 0)
         {
             runningStream = NULL;
-            runningDeviceStream = NULL;
+            // runningDeviceStream = NULL;
             runningTC = NULL;
             runningTID = -1;
         }

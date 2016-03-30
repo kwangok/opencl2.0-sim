@@ -643,10 +643,9 @@ void kernel_info_t::print_parent_info()
 }
 
 #ifdef DEVICE_STREAM
-CUstream_st * kernel_info_t::create_stream_cta(dim3 ctaid)
+CUstream_st * kernel_info_t::create_stream_cta(struct stream_group_id sg_id)
 {
-    /*
-	std::map<dim3, CUstream_st *>::iterator it = m_cta_streams.find(ctaid);
+	std::map<struct stream_group_id, struct CUstream_st *>::iterator it = m_cta_streams.find(sg_id);
 	if (it != m_cta_streams.end())
 	{
 		return it->second;
@@ -656,31 +655,28 @@ CUstream_st * kernel_info_t::create_stream_cta(dim3 ctaid)
 		CUstream_st * stream = new CUstream_st(stream_device);
 		g_stream_manager->add_stream(stream);
 
-		m_cta_streams[ctaid] = stream;
+		m_cta_streams[sg_id] = stream;
 		return stream;
 	}
-    */
-    return NULL;
+    // return NULL;
 }
 
-CUstream_st * kernel_info_t::get_default_stream_cta(dim3 ctaid)
+CUstream_st * kernel_info_t::get_default_stream_cta(struct stream_group_id sg_id)
 {
-    /*
-	if (cta_has_stream(ctaid))
+	if (cta_has_stream(sg_id))
 	{
-		return m_cta_streams[ctaid];
+		return m_cta_streams[sg_id];
 	}
 	else
 	{
 		return g_stream_manager->findStream(m_uid);
 	}
-    */
-    return NULL;
+    // return NULL;
 }
 
-bool kernel_info_t::cta_has_stream(dim3 ctaid)
+bool kernel_info_t::cta_has_stream(struct stream_group_id sg_id)
 {
-	return (m_cta_streams.find(ctaid) != m_cta_streams.end());
+	return (m_cta_streams.find(sg_id) != m_cta_streams.end());
 }
 
 void kernel_info_t::destory_cta_streams()

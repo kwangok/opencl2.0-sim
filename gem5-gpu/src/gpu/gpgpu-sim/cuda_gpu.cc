@@ -354,16 +354,13 @@ void CudaGPU::beginRunning(Tick stream_queued_time, struct CUstream_st *_stream)
         Stats::reset();
     }
     numKernelsStarted++;
+    if (_stream->getType() == stream_device)
+    {
+        // Intentionally does nothing
+        return;
+    }
     if (running) {
-        if (_stream->getType() == stream_device)
-        {
-            // Intentionally does nothing
-            return;
-        }
-        else
-        {
-            panic("Should not already be running if we are starting\n");
-        }
+        panic("Should not already be running if we are starting\n");
     }
     running = true;
 
@@ -390,8 +387,12 @@ void CudaGPU::processFinishKernelEvent(int grid_id)
 {
     DPRINTF(CudaGPU, "GPU finished a kernel id %d\n", grid_id);
 
-    bool isDeviceStream = (streamManager->findStream(grid_id)->getType() == stream_device) ? true : false;
-    streamManager->register_finished_kernel(grid_id);
+    CUstream_st * stream = streamManager->findStream(grid_id);
+    bool isDeviceStream = (stream->getType() == stream_device) ? true : false;
+    if (!streamManager->register_finished_kernel(grid_id))
+    {
+        fprintf(stderr, "Child kernels are still running, don't finish kernel uid = %d\n", grid_id);
+    }
 
     kernelTimes.push_back(curTick());
     if (dumpKernelStats) {
@@ -410,7 +411,7 @@ void CudaGPU::processFinishKernelEvent(int grid_id)
 
     if (isDeviceStream)
     {
-        endDeviceStreamOperation();
+        endDeviceStreamOperation(stream);
     }
     else
     {

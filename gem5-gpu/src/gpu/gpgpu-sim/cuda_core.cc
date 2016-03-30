@@ -428,12 +428,12 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     unsigned int * word = new unsigned int;
                     if (thread->m_cdp_memory_substep == 0)
                     {
-                        *word = (unsigned int)((*((unsigned long long*)thread->m_cdp_data)) & 0xffffffff);
+                        *word = (unsigned int)((*((unsigned long long*)thread->m_cudaStreamCreateWithFlagsStream)) & 0xffffffff);
                     }
                     else if (thread->m_cdp_memory_substep == 1)
                     {
-                        *word = (unsigned int)(((*((unsigned long long*)thread->m_cdp_data)) >> 32) & 0xffffffff);
-                        free(thread->m_cdp_data);
+                        *word = (unsigned int)(((*((unsigned long long*)thread->m_cudaStreamCreateWithFlagsStream)) >> 32) & 0xffffffff);
+                        free(thread->m_cudaStreamCreateWithFlagsStream);
                     }
                     else
                     {
@@ -541,16 +541,16 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     unsigned int * word = new unsigned int;
                     if (thread->m_cdp_memory_substep == 0)
                     {
-                        *word = (unsigned int)((*((unsigned long long*)thread->m_cdp_data)) & 0xffffffff);
+                        *word = (unsigned int)((*((unsigned long long*)thread->m_cudaGetParameterBufferRet)) & 0xffffffff);
                     }
                     else if (thread->m_cdp_memory_substep == 1)
                     {
-                        *word = (unsigned int)(((*((unsigned long long*)thread->m_cdp_data)) >> 32) & 0xffffffff);
-                        free(thread->m_cdp_data);
+                        *word = (unsigned int)(((*((unsigned long long*)thread->m_cudaGetParameterBufferRet)) >> 32) & 0xffffffff);
+                        free(thread->m_cudaGetParameterBufferRet);
                     }
                     else
                     {
-                        fprintf(stderr, "Unknown memory substep in cudaStreamCreateWithFlags memory step 2\n");
+                        fprintf(stderr, "Unknown memory substep in cudaGetParameterBufferV2 memory step 2\n");
                     }
                     pkt->dataDynamic(word);
                     // Write 2 words
@@ -777,6 +777,8 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 pkt->writeData(data);
                 if (thread->m_cdp_memory_substep == 0)
                 {
+                    // deicide: Reset address
+                    thread->m_parameter_buffer = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_parameter_buffer |= temp;
                     thread->m_cdp_memory_substep++;
@@ -846,6 +848,8 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 pkt->writeData(data);
                 if (thread->m_cdp_memory_substep == 0)
                 {
+                    // deicide: Reset data
+                    thread->m_child_stream_addr = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_child_stream_addr |= temp;
                     thread->m_cdp_memory_substep++;
@@ -888,6 +892,8 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 pkt->writeData(data);
                 if (thread->m_cdp_memory_substep == 0)
                 {
+                    // deicide: Reset address
+                    thread->m_child_kernel_entry = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_child_kernel_entry |= temp;
                     thread->m_cdp_memory_substep++;

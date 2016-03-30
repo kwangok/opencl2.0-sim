@@ -319,6 +319,8 @@ public:
     bool concurrent_streams_empty();
     bool empty_protected();
     bool empty();
+    // deicide: Checking child stream status
+    bool childStreamEmpty();
     void print( FILE *fp);
     void push( stream_operation op );
     bool operation(bool * sim);

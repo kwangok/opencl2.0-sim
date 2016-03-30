@@ -442,6 +442,8 @@ public:
    unsigned m_child_stream_flag;
    bool m_wait_for_cdp;
    void * m_cdp_data;
+   void * m_cudaGetParameterBufferRet;
+   void * m_cudaStreamCreateWithFlagsStream;
    int m_cdp_execution_step;
    int m_cdp_execution_substep;
    int m_cdp_memory_step;

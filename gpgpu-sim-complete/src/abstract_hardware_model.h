@@ -143,6 +143,11 @@ struct dim3 {
 };
 #endif
 
+struct stream_group_id {
+    unsigned kernel_id;
+    struct dim3 cta_id;
+};
+
 void increment_x_then_y_then_z( dim3 &i, const dim3 &bound);
 
 // Headers for CDP
@@ -257,9 +262,9 @@ public:
 	void print_parent_info();
 	kernel_info_t * get_parent() { return m_parent_kernel; }
 #ifdef DEVICE_STREAM
-	struct CUstream_st * create_stream_cta(dim3 ctaid);
-	struct CUstream_st * get_default_stream_cta(dim3 ctaid);
-	bool cta_has_stream(dim3 ctaid);
+	struct CUstream_st * create_stream_cta(struct stream_group_id sg_id);
+	struct CUstream_st * get_default_stream_cta(struct stream_group_id sg_id);
+	bool cta_has_stream(struct stream_group_id sg_id);
 	void destory_cta_streams();
 #endif
 
@@ -269,13 +274,13 @@ private:
 	dim3 m_parent_tid;
 	std::list<kernel_info_t *> m_child_kernels; // Child kernel launched
 #ifdef DEVICE_STREAM
-	struct block_id_comp {
-		bool operator() (const dim3 & a, const dim3 & b) const
+	struct stream_group_id_comp {
+		bool operator() (const struct stream_group_id & a, const struct stream_group_id & b) const
 		{
-			return (a.x != b.x || a.y != b.y || a.z != b.z);
+			return (a.kernel_id != b.kernel_id || a.cta_id.x != b.cta_id.x || a.cta_id.y != b.cta_id.y || a.cta_id.z != b.cta_id.z);
 		}
 	};
-	std::map<dim3, struct CUstream_st *, block_id_comp> m_cta_streams;
+	std::map<struct stream_group_id, struct CUstream_st *, stream_group_id_comp> m_cta_streams;
 #endif
 
 // TODO: How to simulate clock?

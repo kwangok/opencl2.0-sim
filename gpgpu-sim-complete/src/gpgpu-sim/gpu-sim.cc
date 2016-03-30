@@ -79,6 +79,8 @@ class  gpgpu_sim_wrapper {};
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
+// deicide: For checking child stream progress
+extern stream_manager * g_stream_manager;
 
 bool g_interactive_debugger_enabled=false;
 
@@ -679,6 +681,8 @@ bool gpgpu_sim::active()
     if( icnt_busy() )
         return true;
     if( get_more_cta_left() )
+        return true;
+    if ( !g_stream_manager->childStreamEmpty() )
         return true;
     return false;
 }
