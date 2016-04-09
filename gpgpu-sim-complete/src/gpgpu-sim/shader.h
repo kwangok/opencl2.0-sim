@@ -1768,6 +1768,9 @@ public:
 
 	 void inc_simt_to_mem(unsigned n_flits){ m_stats->n_simt_to_mem[m_sid] += n_flits; }
 
+     // deicide: To determine if this instruction pc is out of bound
+     bool m_inst_out_of_bound;
+
 private:
      friend class ldst_unit;
 	 unsigned inactive_lanes_accesses_sfu(unsigned active_count,double latency){

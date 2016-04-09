@@ -307,6 +307,8 @@ shader_core_ctx::shader_core_ctx( class gpgpu_sim *gpu,
     
     m_last_inst_gpu_sim_cycle = 0;
     m_last_inst_gpu_tot_sim_cycle = 0;
+
+    m_inst_out_of_bound = false;
 }
 
 void shader_core_ctx::reinit(unsigned start_thread, unsigned end_thread, bool reset_not_completed ) 
@@ -599,7 +601,17 @@ void shader_core_ctx::decode()
                 tpc += m_inst_fetch_buffer.m_nbytes;
             }
         }
-        assert(ibuf_pos > 0);
+        // assert(ibuf_pos > 0);
+        if (ibuf_pos == 0)
+        {
+            // This case happens only when the last instruction of a kernel function is not "ret"
+            // TODO: Should assert the base_ibuf_pc > the kernel function's last PC
+            m_inst_out_of_bound = true;
+        }
+        else
+        {
+            m_inst_out_of_bound = false;
+        }
         m_inst_fetch_buffer.m_valid = false;
     }
 }
@@ -839,7 +851,20 @@ void scheduler_unit::cycle()
         unsigned checked=0;
         unsigned issued=0;
         unsigned max_issue = m_shader->m_config->gpgpu_max_insn_issue_per_warp;
-        while( !warp(warp_id).waiting() && !warp(warp_id).ibuffer_empty() && (checked < max_issue) && (checked <= issued) && (issued < max_issue) ) {
+        while( !warp(warp_id).waiting() && (checked < max_issue) && (checked <= issued) && (issued < max_issue) ) {
+            if (warp(warp_id).ibuffer_empty())
+            {
+                if (m_shader->m_inst_out_of_bound)
+                {
+                    // This happends only when the last instruction of the kernel function is not "ret"
+                    // TODO: Add assertion here
+                    unsigned pc, rpc;
+                    m_simt_stack[warp_id]->get_pdom_stack_top_info(&pc, &rpc);
+                    warp(warp_id).set_next_pc(pc);
+                    warp(warp_id).ibuffer_flush();
+                }
+                break;
+            }
             const warp_inst_t *pI = warp(warp_id).ibuffer_next_inst();
             bool valid = warp(warp_id).ibuffer_next_valid();
             bool warp_inst_issued = false;
