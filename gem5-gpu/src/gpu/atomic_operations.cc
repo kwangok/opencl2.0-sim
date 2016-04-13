@@ -251,6 +251,198 @@ AtomicOpRequest::doAtomicOperation(uint8_t *read_data, uint8_t *write_data)
 
         break;
       }
+	  case ATOMIC_LD_OP: {
+
+        switch (dataType) {
+          case U32_TYPE: 
+		  case S32_TYPE:
+	      case F32_TYPE:
+		  {
+            unsigned int mem_data = *((unsigned int*)read_data);
+            //unsigned int reg_data = *((unsigned int*)&data[0]);
+            unsigned int new_mem_data = mem_data;
+            *((unsigned int*)&data[0]) = mem_data;
+            *((unsigned int*)write_data) = new_mem_data;
+            break;
+          }
+
+          case INVALID_TYPE:
+          default:
+            panic("Unimplemented atomic LD type: %s", dataType);
+            break;
+        }
+
+        break;
+      }
+
+	  case ATOMIC_ST_OP: {
+
+        switch (dataType) {
+          case U32_TYPE: 
+		  case S32_TYPE:
+	      case F32_TYPE:
+		  {
+            unsigned int mem_data = *((unsigned int*)read_data);
+            //unsigned int reg_data = *((unsigned int*)&data[0]);
+            unsigned int new_mem_data = mem_data;
+            *((unsigned int*)&data[0]) = mem_data;
+            *((unsigned int*)write_data) = new_mem_data;
+            break;
+          }
+
+          case INVALID_TYPE:
+          default:
+            panic("Unimplemented atomic store type: %s", dataType);
+            break;
+        }
+
+        break;
+      }
+	  case ATOMIC_AND_OP: {
+        switch (dataType) {
+			case B32_TYPE:
+			case U32_TYPE: {
+              unsigned int mem_data = *((unsigned int*)read_data);
+              unsigned int reg_data = *((unsigned int*)&data[0]);
+              unsigned int new_mem_data = mem_data & reg_data;
+              *((unsigned int*)&data[0]) = mem_data;
+              *((unsigned int*)write_data) = new_mem_data;
+              DPRINTF(AtomicOperations,
+                      "Atomic AND(operand: %u, memory: %u) = %u\n",
+                      reg_data, mem_data, new_mem_data);
+              break;
+			}
+			case S32_TYPE:{
+              int mem_data = *((int*)read_data);
+              int reg_data = *((int*)&data[0]);
+              int new_mem_data = mem_data & reg_data;
+              *((int*)&data[0]) = mem_data;
+              *((int*)write_data) = new_mem_data;
+              DPRINTF(AtomicOperations,
+                      "Atomic AND(operand: %u, memory: %u) = %u\n",
+                      reg_data, mem_data, new_mem_data);
+              break;
+			}
+            case INVALID_TYPE:
+            default:
+              panic("Unimplemented atomic AND type: %s", dataType);
+            break;
+			  
+		}
+	  }
+	  case ATOMIC_OR_OP: {
+        switch (dataType) {
+			case B32_TYPE:
+			case U32_TYPE: {
+              unsigned int mem_data = *((unsigned int*)read_data);
+              unsigned int reg_data = *((unsigned int*)&data[0]);
+              unsigned int new_mem_data = mem_data | reg_data;
+              *((unsigned int*)&data[0]) = mem_data;
+              *((unsigned int*)write_data) = new_mem_data;
+              DPRINTF(AtomicOperations,
+                      "Atomic OR(operand: %u, memory: %u) = %u\n",
+                      reg_data, mem_data, new_mem_data);
+              break;
+			}
+			case S32_TYPE:{
+              int mem_data = *((int*)read_data);
+              int reg_data = *((int*)&data[0]);
+              int new_mem_data = mem_data | reg_data;
+              *((int*)&data[0]) = mem_data;
+              *((int*)write_data) = new_mem_data;
+              DPRINTF(AtomicOperations,
+                      "Atomic OR(operand: %u, memory: %u) = %u\n",
+                      reg_data, mem_data, new_mem_data);
+              break;
+			}
+            case INVALID_TYPE:
+            default:
+              panic("Unimplemented atomic OR type: %s", dataType);
+            break;
+			  
+		}
+	  }
+	  case ATOMIC_XOR_OP: {
+        switch (dataType) {
+			case B32_TYPE:
+			case U32_TYPE: {
+              unsigned int mem_data = *((unsigned int*)read_data);
+              unsigned int reg_data = *((unsigned int*)&data[0]);
+              unsigned int new_mem_data = mem_data ^ reg_data;
+              *((unsigned int*)&data[0]) = mem_data;
+              *((unsigned int*)write_data) = new_mem_data;
+              DPRINTF(AtomicOperations,
+                      "Atomic XOR(operand: %u, memory: %u) = %u\n",
+                      reg_data, mem_data, new_mem_data);
+              break;
+			}
+			case S32_TYPE:{
+              int mem_data = *((int*)read_data);
+              int reg_data = *((int*)&data[0]);
+              int new_mem_data = mem_data ^ reg_data;
+              *((int*)&data[0]) = mem_data;
+              *((int*)write_data) = new_mem_data;
+              DPRINTF(AtomicOperations,
+                      "Atomic XOR(operand: %u, memory: %u) = %u\n",
+                      reg_data, mem_data, new_mem_data);
+              break;
+			}
+            case INVALID_TYPE:
+            default:
+              panic("Unimplemented atomic XOR type: %s", dataType);
+            break;
+			  
+		}
+	  }
+	  case ATOMIC_SUB_OP: {
+
+        switch (dataType) {
+          case S32_TYPE: {
+            int mem_data = *((int*)read_data);
+            int reg_data = *((int*)&data[0]);
+            int new_mem_data = reg_data - mem_data;
+            *((int*)&data[0]) = mem_data;
+            *((int*)write_data) = new_mem_data;
+            DPRINTF(AtomicOperations,
+                    "Atomic add: %u - %u = %u\n",
+                    reg_data, mem_data, new_mem_data);
+            break;
+          }
+		//not sure
+          case U32_TYPE: {
+            unsigned int mem_data = *((unsigned int*)read_data);
+            unsigned int reg_data = *((unsigned int*)&data[0]);
+            int new_mem_data = reg_data - mem_data;
+            *((unsigned int*)&data[0]) = mem_data;
+            *((int*)write_data) = new_mem_data;
+            DPRINTF(AtomicOperations,
+                    "Atomic add: %u - %u = %u\n",
+                    reg_data, mem_data, new_mem_data);
+            break;
+          }
+
+          case F32_TYPE: {
+            float mem_data = *((float*)read_data);
+            float reg_data = *((float*)&data[0]);
+            float new_mem_data = reg_data - mem_data;
+            *((float*)&data[0]) = mem_data;
+            *((float*)write_data) = new_mem_data;
+            DPRINTF(AtomicOperations,
+                    "Atomic add: %f - %f = %f\n",
+                    reg_data, mem_data, new_mem_data);
+            break;
+          }
+
+          case INVALID_TYPE:
+          default:
+            panic("Unimplemented atomic sub type: %s", dataType);
+            break;
+        }
+
+        break;
+      }
+
+
 
       default:
         panic("Unimplemented atomic operation: %s", atomicOp);

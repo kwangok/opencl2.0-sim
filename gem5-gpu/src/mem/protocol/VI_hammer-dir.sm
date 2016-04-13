@@ -437,7 +437,7 @@ machine(Directory, "AMD Hammer-like protocol")
           trigger(Event:Memory_StoreSYS_Ack, in_msg.addr, pf_entry, tbe);
         } else if (in_msg.Type == MemoryRequestType:MEMORY_READ) {
           trigger(Event:Memory_Data, in_msg.addr, pf_entry, tbe);
-        } else if (else if (in_msg.Type == MemoryRequestType:MEMORY_WB) {
+        } else if (in_msg.Type == MemoryRequestType:MEMORY_WB) {
           trigger(Event:Memory_Ack, in_msg.addr, pf_entry, tbe);
         } else {
           DPRINTF(RubySlicc, "%d\n", in_msg.Type);

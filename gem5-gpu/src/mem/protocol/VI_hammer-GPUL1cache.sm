@@ -479,7 +479,7 @@ machine(GPUL1Cache, "VI GPU L1 Cache")
 
   // TRANSITIONS
 
-  transition({IV, IA}, {Load, Ifetch, Store, BypassLoad, Flush_line, Replacement, Atomic, Atomic_Store_CTA, Atomic_Store_GL, Atomic_Store_SYS, Atomic_Load_CTA, Atomic_Load_GL, ATOMIC_LD_SYS}) {} {
+  transition({IV, IA}, {Load, Ifetch, Store, BypassLoad, Flush_line, Replacement, Atomic, Atomic_Store_CTA, Atomic_Store_GL, Atomic_Store_SYS, Atomic_Load_CTA, Atomic_Load_GL, ATOMIC_Load_SYS}) {} {
     zz_stallAndWaitMandatoryQueue;
   }
 

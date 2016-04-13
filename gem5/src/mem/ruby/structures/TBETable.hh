@@ -60,58 +60,58 @@ class TBETable
     void echo(int message, const Addr& address) const {
         switch(message) {
             case 1:
-                fprintf(stderr, "GPUL1 : issue PUT_Atom_SYS to GPUL2, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL1 : issue PUT_Atom_SYS to GPUL2, address : 0x%lx\n", address);
                 break;
             case 2:
-                fprintf(stderr, "GPUL2 : issue storeMemory to DIR, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL2 : issue storeMemory to DIR, address : 0x%lx\n", address);
                 break;
             case 3:
-                fprintf(stderr, "DIR : receive STORE_MEM from GPUL2, address : %llu\n", address.getAddress());
+                fprintf(stderr, "DIR : receive STORE_MEM from GPUL2, address : 0x%lx\n", address);
                 break;
             case 6:
-                fprintf(stderr, "DIR : issue storeBypassMemory to DRAM, address : %llu\n", address.getAddress());
+                fprintf(stderr, "DIR : issue storeBypassMemory to DRAM, address : 0x%lx\n", address);
                 break;
             case 7:
-                fprintf(stderr, "DIR : receive Memory_StoreSYS_Ack from DRAM, address : %llu\n", address.getAddress());
+                fprintf(stderr, "DIR : receive Memory_StoreSYS_Ack from DRAM, address : 0x%lx\n", address);
                 break;
             case 8:
-                fprintf(stderr, "DIR : send WriteDoneAck to GPUL2, address : %llu\n", address.getAddress());
+                fprintf(stderr, "DIR : send WriteDoneAck to GPUL2, address : 0x%lx\n", address);
                 break;
             case 9:
-                fprintf(stderr, "GPUL2 : receive WriteDoneAck from DIR, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL2 : receive WriteDoneAck from DIR, address : 0x%lx\n", address);
                 break;
             case 10:
-                fprintf(stderr, "GPUL1 : issue PUT_Atom_GL to GPUL2, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL1 : issue PUT_Atom_GL to GPUL2, address : 0x%lx\n", address);
                 break;
             case 11:
-                fprintf(stderr, "GPUL2 : issue fetchMemory to DIR, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL2 : issue fetchMemory to DIR, address : 0x%lx\n", address);
                 break;
             case 12:
-                fprintf(stderr, "DIR : receive FETCH_MEM from GPUL2, address : %llu\n", address.getAddress());
+                fprintf(stderr, "DIR : receive FETCH_MEM from GPUL2, address : 0x%lx\n", address);
                 break;
             case 13:
-                fprintf(stderr, "DIR : issue queueMemoryFetchRequest to DRAM, address : %llu\n", address.getAddress());
+                fprintf(stderr, "DIR : issue queueMemoryFetchRequest to DRAM, address : 0x%lx\n", address);
                 break;
             case 14:
-                fprintf(stderr, "GPUL1 : issue GET_Atom_SYS to GPUL2, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL1 : issue GET_Atom_SYS to GPUL2, address : 0x%lx\n", address);
                 break;
             case 15:
-                fprintf(stderr, "DIR : receive DATA from DRAM, address : %llu\n", address.getAddress());
+                fprintf(stderr, "DIR : receive DATA from DRAM, address : 0x%lx\n", address);
                 break;
             case 16:
-                fprintf(stderr, "GPUL2 : receive DATA from DIR, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL2 : receive DATA from DIR, address : 0x%lx\n", address);
                 break;
             case 17:
-                fprintf(stderr, "GPUL1(I) : receive Load_Atomic_CTA, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL1(I) : receive Load_Atomic_CTA, address : 0x%lx\n", address);
                 break;
             case 18:
-                fprintf(stderr, "GPUL1(V_a) : receive Load_Atomic_CTA, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL1(V_a) : receive Load_Atomic_CTA, address : 0x%lx\n", address);
                 break;
             case 19:
-                fprintf(stderr, "GPUL2(I) : receive Load_Atomic_CTA/GL from GPUL1, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL2(I) : receive Load_Atomic_CTA/GL from GPUL1, address : 0x%lx\n", address);
                 break;
             case 20: 
-                fprintf(stderr, "GPUL2(AT) : receive Load_Atomic_CTA/GL from GPUL1, address : %llu\n", address.getAddress());
+                fprintf(stderr, "GPUL2(AT) : receive Load_Atomic_CTA/GL from GPUL1, address : 0x%lx\n", address);
                 break;
         }
     }

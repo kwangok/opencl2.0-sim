@@ -27,7 +27,14 @@ class AtomicOpRequest {
                      ATOMIC_ADD_OP,
                      ATOMIC_INC_OP,
                      ATOMIC_MAX_OP,
-                     ATOMIC_MIN_OP };
+                     ATOMIC_MIN_OP,
+					 // stevechen
+					 ATOMIC_AND_OP,
+					 ATOMIC_OR_OP,
+					 ATOMIC_XOR_OP,
+					 ATOMIC_SUB_OP,
+					 ATOMIC_LD_OP,
+					 ATOMIC_ST_OP  };
 
     // The data type on which the atomic operates
     enum DataType { INVALID_TYPE,
