@@ -430,9 +430,9 @@ machine(Directory, "AMD Hammer-like protocol")
         PfEntry pf_entry := getProbeFilterEntry(in_msg.addr);
         TBE tbe := TBEs[in_msg.addr];
         // NTU: Bypass message
-        if (tbe.ResponseType == CoherenceResponseType:DATA_EXCLUSIVE_BYPASS) {
+        if (TBEs.isPresent(in_msg.addr) && tbe.ResponseType == CoherenceResponseType:DATA_EXCLUSIVE_BYPASS) {
           trigger(Event:Memory_Fetch_Bypass, in_msg.addr, pf_entry, tbe);
-        } else if (tbe.ResponseType == CoherenceResponseType:DATA_EXCLUSIVE_STORE_BYPASS) {
+        } else if (TBEs.isPresent(in_msg.addr) && tbe.ResponseType == CoherenceResponseType:DATA_EXCLUSIVE_STORE_BYPASS) {
           TBEs.echo(7, in_msg.addr);
           trigger(Event:Memory_StoreSYS_Ack, in_msg.addr, pf_entry, tbe);
         } else if (in_msg.Type == MemoryRequestType:MEMORY_READ) {
