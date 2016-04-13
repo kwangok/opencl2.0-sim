@@ -147,6 +147,12 @@ class Request
         /** This request is for a memory swap. */
         MEM_SWAP                    = 0x00400000,
         MEM_SWAP_COND               = 0x00800000,
+        // stevechen: OpenCL scope flag here
+        CTA_SCOPE                   = 0x00001000,
+        /** TODO: This flag's value is the same as MMAPPED_IPR. Sanity
+         * check needs to be done */
+        GLOBAL_SCOPE                = 0x00002000,
+        SYSTEM_SCOPE                = 0x00004000,
 
         /** The request is a prefetch. */
         PREFETCH                    = 0x01000000,
@@ -658,6 +664,10 @@ class Request
     bool isSecure() const { return _flags.isSet(SECURE); }
     bool isPTWalk() const { return _flags.isSet(PT_WALK); }
     bool isBypassL1() const { return _flags.isSet(BYPASS_L1); }
+	// stevechen: OpenCL scope flag checking
+	bool isCtaScope() const { return _flags.isSet(CTA_SCOPE);}
+	bool isGlobalScope() const { return _flags.isSet(GLOBAL_SCOPE);}
+	bool isSystemScope() const { return _flags.isSet(SYSTEM_SCOPE);}
 };
 
 #endif // __MEM_REQUEST_HH__

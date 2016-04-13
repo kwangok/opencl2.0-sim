@@ -1036,6 +1036,7 @@ public:
     int vectorLength;
 
     int get_atomic() const { return m_atomic_spec; }
+    int get_atomic_scope() const { return m_atomic_scope; }
 
 protected:
 
@@ -1046,6 +1047,7 @@ protected:
     unsigned cycles; // used for implementing initiation interval delay
     bool m_isatomic;
     int m_atomic_spec;
+    int m_atomic_scope;
     bool m_is_printf;
     unsigned m_warp_id;
     unsigned m_dynamic_warp_id; 

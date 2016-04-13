@@ -42,6 +42,7 @@
 #include "mem/ruby/system/System.hh"
 #include "mem/packet.hh"
 #include "sim/system.hh"
+#include "gpu/atomic_operations.hh"
 
 using namespace std;
 
@@ -440,6 +441,10 @@ Sequencer::writeCallback(Addr address, DataBlock& data,
     assert((request->m_type == RubyRequestType_ST) ||
            (request->m_type == RubyRequestType_ST_Bypass) ||
            (request->m_type == RubyRequestType_ATOMIC) ||
+           // stevechen: atomic store request type here
+		   (request->m_type == RubyRequestType_ATOMIC_ST_CTA) || 
+		   (request->m_type == RubyRequestType_ATOMIC_ST_GL) || 
+		   (request->m_type == RubyRequestType_ATOMIC_ST_SYS) || 
            (request->m_type == RubyRequestType_RMW_Read) ||
            (request->m_type == RubyRequestType_RMW_Write) ||
            (request->m_type == RubyRequestType_Load_Linked) ||
@@ -639,7 +644,28 @@ Sequencer::makeRequest(PacketPtr pkt)
             //
             assert(pkt->isRead() && pkt->isWrite());
             assert(primary_type == RubyRequestType_Locked_RMW_Write);
-            secondary_type = RubyRequestType_ATOMIC;
+            // stevechen: Atomics & scope handle here
+			AtomicOpRequest** atomic_op = (AtomicOpRequest**) pkt->getPtr<uint8_t*>();
+			if (atomic_op[0]->atomicOp == AtomicOpRequest::ATOMIC_ST_OP) {
+				if(pkt->req->isCtaScope()) {
+					secondary_type = RubyRequestType_ATOMIC_ST_CTA;
+				} else if (pkt->req->isGlobalScope()) {
+					secondary_type = RubyRequestType_ATOMIC_ST_GL;
+				} else if (pkt->req->isSystemScope()) {
+					secondary_type = RubyRequestType_ATOMIC_ST_SYS;
+				}
+			} else if (atomic_op[0]->atomicOp == AtomicOpRequest::ATOMIC_LD_OP) {
+				if(pkt->req->isCtaScope()) {
+					secondary_type = RubyRequestType_ATOMIC_LD_CTA;
+				} else if (pkt->req->isGlobalScope()) {
+					secondary_type = RubyRequestType_ATOMIC_LD_GL;
+				} else if (pkt->req->isSystemScope()) {
+					secondary_type = RubyRequestType_ATOMIC_LD_SYS;
+				}
+			} else {
+                // deicide: If it's not atomic load/store, it should be normal atomic op
+				secondary_type = RubyRequestType_ATOMIC;
+			}
         }
     } else {
         if (pkt->isRead()) {

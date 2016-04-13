@@ -165,6 +165,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %token ATOMIC_DEC
 %token ATOMIC_MIN
 %token ATOMIC_MAX
+%token ATOMIC_LD
+%token ATOMIC_ST
 %token  LEFT_ANGLE_BRACKET
 %token  RIGHT_ANGLE_BRACKET
 %token  LEFT_PAREN
@@ -450,6 +452,9 @@ atomic_operation_spec: ATOMIC_AND { add_option(ATOMIC_AND); }
 	| ATOMIC_DEC { add_option(ATOMIC_DEC); } 
 	| ATOMIC_MIN { add_option(ATOMIC_MIN); } 
 	| ATOMIC_MAX { add_option(ATOMIC_MAX); } 
+    // stevechen: Add rule for atomic load/store
+    | ATOMIC_LD  { add_option(ATOMIC_LD); }
+    | ATOMIC_ST  { add_option(ATOMIC_ST); }
 	;
 
 rounding_mode: floating_point_rounding_mode

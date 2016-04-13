@@ -278,7 +278,10 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                inst.get_atomic() == ATOMIC_MAX ||
                inst.get_atomic() == ATOMIC_MIN ||
                inst.get_atomic() == ATOMIC_ADD ||
-               inst.get_atomic() == ATOMIC_CAS);
+               inst.get_atomic() == ATOMIC_CAS ||
+               // stevechen: Add atomic load/store check
+               inst.get_atomic() == ATOMIC_LD  ||
+               inst.get_atomic() == ATOMIC_ST);
         assert(inst.data_type == S32_TYPE ||
                inst.data_type == U32_TYPE ||
                inst.data_type == F32_TYPE ||
@@ -291,6 +294,13 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
         //       This makes them read-modify-conditional-write operations, but
         //       for ease of development, use the MEM_SWAP designator for now.
         flags.set(Request::MEM_SWAP);
+		if (inst.get_atomic_scope() == GLOBAL_OPTION) {
+			flags.set(Request::GLOBAL_SCOPE);
+		} else if (inst.get_atomic_scope() == CTA_OPTION) {
+			flags.set(Request::CTA_SCOPE);
+		} else if (inst.get_atomic_scope() == SYS_OPTION) {
+			flags.set(Request::SYSTEM_SCOPE);
+		}
     }
 
     if (inst.space.get_type() == const_space) {

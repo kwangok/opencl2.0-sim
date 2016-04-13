@@ -47,6 +47,15 @@ machine(GPUL2Cache, "Simple write back L2 cache")
 
     M_W, AccessPermission:Read_Only, "M^W", desc="Issued GetS, received exclusive data, waiting for acks";
     MM_W, AccessPermission:Read_Write, "MM^W", desc="Issued GetX, received exclusive data";
+
+	// NTU
+	IA, AccessPermission:Busy, "IA", desc="Issued fetchMemory";
+	ISA, AccessPermission:Busy, "ISA", desc="Issued storeMemory";
+	IAL, AccessPermission:Busy, "IAL", desc="Issued fetchMemory for load cta/gl, waiting for exclusive data from DRAM , then store data at cache block and send data back to L1";
+	IALB, AccessPermission:Busy, "IALB", desc="Issued fetchMemory for load sys, waiting for exclusive data from DRAM, bypass load at L2, and send data back to L1 directly";
+	AT, AccessPermission:Read_Only, desc="";
+	ATM, AccessPermission:Read_Write, desc="";
+	ATI, AccessPermission:Busy, desc="";
   }
 
   // EVENTS
@@ -55,6 +64,14 @@ machine(GPUL2Cache, "Simple write back L2 cache")
     Get,          desc="Get request from L1";
     Store,        desc="Put request from L1";
     Replacement,  desc="Replace a block";
+	// NTU
+	Store_CTA,    desc="Put request at CTA level from L1";
+	Store_GL,    desc="Put request at GL level from L1";
+	Store_SYS,    desc="Put request at SYS level from L1";	
+	Load_CTA,    desc="Get request at CTA level from L1";
+	Load_GL,    desc="Get request at GL level from L1";
+	Load_SYS,    desc="Get request at SYS level from L1";
+    Writedone_Ack, desc="Write to memory";
 
     // From CPU caches
     Other_GETX,      desc="A GetX from another processor";
@@ -124,6 +141,7 @@ machine(GPUL2Cache, "Simple write back L2 cache")
     void allocate(Addr);
     void deallocate(Addr);
     bool isPresent(Addr);
+    void echo(int, Addr);
   }
 
 
@@ -224,6 +242,20 @@ machine(GPUL2Cache, "Simple write back L2 cache")
       return Event:Get;
     } else if (type == CoherenceRequestTypeVI:PUT) {
       return Event:Store;
+	} else if(type == CoherenceRequestTypeVI:PUT_Atom_CTA) {
+      // NTU
+	  return Event:Store_CTA;
+	} else if(type == CoherenceRequestTypeVI:PUT_Atom_GL) {
+	  return Event:Store_GL;
+	} else if(type == CoherenceRequestTypeVI:PUT_Atom_SYS) {
+	  return Event:Store_SYS;
+	} else if(type == CoherenceRequestTypeVI:GET_Atom_CTA) {
+	  return Event:Load_CTA;
+	} else if(type == CoherenceRequestTypeVI:GET_Atom_GL) {
+	  return Event:Load_GL;
+	} else if(type == CoherenceRequestTypeVI:GET_Atom_SYS) {
+	  return Event:Load_SYS;
+      //
     } else {
       error("Invalid L1 request type");
     }
@@ -304,6 +336,8 @@ machine(GPUL2Cache, "Simple write back L2 cache")
           trigger(Event:Shared_Data, in_msg.addr, cache_entry, tbe);
         } else if (in_msg.Type == CoherenceResponseType:DATA_EXCLUSIVE) {
           trigger(Event:Exclusive_Data, in_msg.addr, cache_entry, tbe);
+		} else if (in_msg.Type == CoherenceResponseType:DATA_EXCLUSIVE_BYPASS) {
+		  trigger(Event:Exclusive_Data, in_msg.addr, cache_entry, tbe);
         } else {
           error("Unexpected message");
         }
@@ -336,6 +370,10 @@ machine(GPUL2Cache, "Simple write back L2 cache")
           trigger(Event:Writeback_Nack, in_msg.addr, cache_entry, tbe);
         } else if (in_msg.Type == CoherenceRequestType:BLOCK_ACK) {
           trigger(Event:Block_Ack, in_msg.addr, cache_entry, tbe);
+        // NTU
+		} else if (in_msg.Type == CoherenceRequestType:WD_ACK) {
+          TBEs.echo(9, in_msg.addr);
+		  trigger(Event:Writedone_Ack, in_msg.addr, cache_entry, tbe);
         } else {
           error("Unexpected message");
         }
@@ -365,6 +403,45 @@ machine(GPUL2Cache, "Simple write back L2 cache")
   }
 
   // ACTIONS
+  
+  // NTU
+  action(fm_fetchMemory, "fm", desc="fetch memory") {
+    enqueue(requestNetwork_out, RequestMsg, l2_request_latency) {
+      assert(is_valid(tbe));
+      out_msg.addr := address;
+      out_msg.Type := CoherenceRequestType:FETCH_MEM;
+      out_msg.Requestor := machineID;
+      out_msg.Destination.add(map_Address_to_Directory(address));
+      out_msg.MessageSize := MessageSizeType:Request_Control;
+      out_msg.InitialRequestTime := curCycle();
+    }
+  }
+  action(sm_storeMemory, "sm", desc="store memory") {
+    enqueue(requestNetwork_out, RequestMsg, l2_request_latency) {
+      assert(is_valid(tbe));
+      out_msg.addr := address;
+      out_msg.Type := CoherenceRequestType:STORE_MEM;
+      out_msg.Requestor := machineID;
+      out_msg.Destination.add(map_Address_to_Directory(address));
+      out_msg.MessageSize := MessageSizeType:Request_Control;
+      out_msg.InitialRequestTime := curCycle();
+      TBEs.echo(2, address);
+    }
+  }
+    // NTU Bobolu
+  action(db_debugMessage, "db", desc="show debug message") {
+    TBEs.echo(11, address);
+  }
+  action(db2_debugMessage, "db2", desc="show debug message") {
+    TBEs.echo(16, address);
+  }
+  action(db3_debugMessage, "db3", desc="show debug message") {
+    TBEs.echo(19, address);
+  }
+  action(db4_debugMessage, "db4", desc="show debug message") {
+    TBEs.echo(20, address);
+  }
+  //
 
   action(a_issueGETS, "a", desc="Issue GETS") {
     enqueue(requestNetwork_out, RequestMsg, l2_request_latency) {
@@ -942,7 +1019,9 @@ machine(GPUL2Cache, "Simple write back L2 cache")
 
   // TRANSITIONS
 
-  transition({IM, IS, OI, MI, II}, {Get, Store, Replacement}) {} {
+  // transition({IM, IS, OI, MI, II}, {Get, Store, Replacement}) {} {
+  // NTU
+  transition({IM, IS, OI, MI, II, IA, ISA, IAL, IALB, ATI}, {Get, Store, Replacement, Store_CTA, Store_GL, Store_SYS, Load_CTA, Load_GL, Load_SYS}) {} {
     zz_stallAndWaitRequestQueue;
   }
 
@@ -962,6 +1041,165 @@ machine(GPUL2Cache, "Simple write back L2 cache")
     uu_profileWriteMiss;
     rq_popL1IncomingQueue;
   }
+
+  // NTU
+  transition(I, {Store_CTA, Store_GL}, IA) {TagArrayRead, TagArrayWrite} {
+    ii_allocateL2CacheBlock;
+    i_allocateTBE;
+    es_recordRequestor;
+    fm_fetchMemory;
+    uu_profileWriteMiss;
+    rq_popL1IncomingQueue;
+    // NTU Bobolu
+    db_debugMessage;
+  }
+
+  transition(IA, Exclusive_Data, ATM) {DataArrayWrite} {
+    u_writeDataToCache;
+    sx_external_store_hit;
+    aes_ackExternalStore;
+    n_popResponseQueue;
+    kd_wakeUpDependents;
+  }
+
+  transition(ATM, {Store_CTA, Store_GL}) {TagArrayRead, DataArrayWrite} {
+    hh_store_hit;
+    as_ackStore;
+    rq_popL1IncomingQueue;
+  }
+
+  transition(ATM, {Load_CTA, Load_GL}) {TagArrayRead, DataArrayRead} {
+    h_load_hit;
+    rq_popL1IncomingQueue;
+  }
+
+  transition(I, Store_SYS, ISA) {TagArrayRead, TagArrayWrite} {
+    ii_allocateL2CacheBlock;
+    i_allocateTBE;
+    es_recordRequestor;
+    sm_storeMemory;
+    uu_profileWriteMiss;
+    rq_popL1IncomingQueue;
+  }
+
+  transition(ISA, Writedone_Ack, I) {} {
+    aes_ackExternalStore;
+    s_deallocateTBE;
+    rr_deallocateL2CacheBlock;
+    //n_popResponseQueue;
+    
+    // NTU Bobolu
+    l_popForwardQueue;
+
+    kd_wakeUpDependents;
+  }
+
+  transition(ATM, Store_SYS, ISA) {} {
+    rr_deallocateL2CacheBlock;
+    ka_wakeUpAllDependents;
+    i_allocateTBE;
+    es_recordRequestor;
+    sm_storeMemory;
+    uu_profileWriteMiss;
+    rq_popL1IncomingQueue;
+  }
+
+  transition(ATM, Load_SYS, IALB) {TagArrayRead, TagArrayWrite, DataArrayRead} {
+    vv_profileReadMiss;
+    i_allocateTBE;
+    rr_deallocateL2CacheBlock;
+    fm_fetchMemory;
+    rq_popL1IncomingQueue;
+  }
+
+  transition(I, {Load_CTA, Load_GL}, IAL) {TagArrayRead, TagArrayWrite} {
+    ii_allocateL2CacheBlock;
+    i_allocateTBE;
+    es_recordRequestor;
+    fm_fetchMemory;
+    vv_profileReadMiss;
+    rq_popL1IncomingQueue;
+    db3_debugMessage;
+  }
+
+  transition(IAL, Exclusive_Data, AT) {DataArrayWrite} {
+    u_writeDataToCache;
+    hx_external_load_hit;
+    s_deallocateTBE;
+    n_popResponseQueue;
+    kd_wakeUpDependents;
+  }
+
+  transition(AT, {Load_CTA, Load_GL}) {TagArrayRead, DataArrayRead} {
+    h_load_hit;
+    rq_popL1IncomingQueue;
+    db4_debugMessage;
+  }
+
+  transition(AT, {Store_CTA, Store_GL}, ATM) {TagArrayRead, DataArrayWrite} {
+    hh_store_hit;
+    as_ackStore;
+    rq_popL1IncomingQueue;
+  }
+
+  transition(AT, Load_SYS, IALB) {TagArrayRead, TagArrayWrite, DataArrayRead} {
+    vv_profileReadMiss;
+    i_allocateTBE;
+    rr_deallocateL2CacheBlock;
+    fm_fetchMemory;
+    rq_popL1IncomingQueue;
+  }
+
+  transition(I, Load_SYS, IALB) {TagArrayRead} {
+    vv_profileReadMiss;
+    ii_allocateL2CacheBlock;
+    i_allocateTBE;
+    // NTU Bobolu
+    es_recordRequestor;
+    //
+    fm_fetchMemory;
+    rq_popL1IncomingQueue;
+    // NTU Bobolu
+    db_debugMessage;
+  }
+
+  transition(IALB, Exclusive_Data, I) {
+    hx_external_load_hit; 
+    s_deallocateTBE;
+    n_popResponseQueue;
+    kd_wakeUpDependents;
+    // NTU Bobolu
+    db2_debugMessage;
+  }
+
+  transition(AT, Store_SYS, ISA) {} {
+    rr_deallocateL2CacheBlock;
+    ka_wakeUpAllDependents;
+    i_allocateTBE;
+    es_recordRequestor;
+    sm_storeMemory;
+    uu_profileWriteMiss;
+    rq_popL1IncomingQueue;
+  }
+ 
+  transition(AT, Replacement, I) {TagArrayRead, TagArrayWrite} {
+    rr_deallocateL2CacheBlock;
+    ka_wakeUpAllDependents;
+  }
+
+  transition(ATM, Replacement, ATI) {TagArrayRead, DataArrayRead} {
+    i_allocateTBE;
+    sm_storeMemory;
+    rr_deallocateL2CacheBlock;
+    ka_wakeUpAllDependents;
+  }
+
+  transition(ATI, Writedone_Ack, I) {TagArrayWrite} {
+    s_deallocateTBE;
+    n_popResponseQueue;
+    kd_wakeUpDependents;
+  }
+//
 
   transition({S,MM,O,M}, Get) {TagArrayRead, DataArrayRead} {
     h_load_hit;

@@ -41,12 +41,24 @@ enumeration(CoherenceRequestType, desc="...") {
   GETF,      desc="Issue exclusive for Flushing";
   BLOCK_ACK, desc="Dir Block ack";
   INV,       desc="Invalidate";
+  // NTU
+  FETCH_MEM, desc="fetch memory";
+  STORE_MEM, desc="store memory";
+  WD_ACK,    desc="WriteDone ack";
 }
 enumeration(CoherenceRequestTypeVI, desc="...") {
     GET,       desc="Get";
     PUT,       desc="Put";
     GET_Atom,  desc="Get atomic access";
     PUT_Atom,  desc="Put atomic access";
+    // NTU
+    PUT_Atom_CTA, desc="Put atomic access at CTA scope";
+    PUT_Atom_GL, desc="Put atomic access at GLABOL scope";
+    PUT_Atom_SYS, desc="Put atomic access at SYSTEM scope";
+    GET_Atom_CTA, desc="Get atomic access at CTA scope";
+    GET_Atom_GL, desc="Get atomic access at GL scope";
+    GET_Atom_SYS, desc="Get atomic access at SYS scope";
+    //
 }
 
 // CoherenceResponseType
@@ -56,6 +68,9 @@ enumeration(CoherenceResponseType, desc="...") {
   DATA,               desc="Data, responder does not have a copy";
   DATA_SHARED,        desc="Data, responder has a shared copy";
   DATA_EXCLUSIVE,     desc="Data, responder was exclusive, gave us a copy, and they went to invalid";
+  // NTU
+  DATA_EXCLUSIVE_BYPASS, desc="Data, responder was exclusive";
+  DATA_EXCLUSIVE_STORE_BYPASS, desc="Data responder was exclusive but not upload to L2";
   WB_CLEAN,           desc="Clean writeback";
   WB_DIRTY,           desc="Dirty writeback";
   WB_EXCLUSIVE_CLEAN, desc="Clean writeback of exclusive data";
@@ -100,6 +115,9 @@ structure(RequestMsg, desc="...", interface="Message") {
   MachineID Requestor,            desc="Node who initiated the request";
   NetDest MergedRequestors,    desc="Merge set of read requestors";
   NetDest Destination,             desc="Multicast destination mask";
+  // NTU Bobolu
+  DataBlock DataBlk,           desc="data for the cache line";
+  //
   MessageSizeType MessageSize, desc="size category of the message";
   bool DirectedProbe, default="false", desc="probe filter directed probe";
   Cycles InitialRequestTime, default="Cycles(0)", desc="time the initial requests was sent from the L1Cache";

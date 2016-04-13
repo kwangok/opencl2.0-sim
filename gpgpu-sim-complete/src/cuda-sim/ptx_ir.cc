@@ -1036,6 +1036,7 @@ ptx_instruction::ptx_instruction( int opcode,
    m_geom_spec = 0;
    m_vector_spec = 0;
    m_atomic_spec = 0;
+   m_atomic_scope = 0;
    m_membar_level = 0;
    m_inst_size = 8; // bytes
 
@@ -1118,6 +1119,8 @@ ptx_instruction::ptx_instruction( int opcode,
       case ATOMIC_DEC:
       case ATOMIC_MIN:
       case ATOMIC_MAX:
+      case ATOMIC_LD:
+      case ATOMIC_ST:
          m_atomic_spec = last_ptx_inst_option;
          break;
       case APPROX_OPTION:
@@ -1134,14 +1137,23 @@ ptx_instruction::ptx_instruction( int opcode,
          m_vote_mode = vote_ballot;
          break;
       case GLOBAL_OPTION:
+      {
          m_membar_level = GLOBAL_OPTION;
+         m_atomic_scope = GLOBAL_OPTION;
          break;
+      }
       case CTA_OPTION:
+      {
          m_membar_level = CTA_OPTION;
+         m_atomic_scope = CTA_OPTION;
          break;
+      }
       case SYS_OPTION:
+      {
          m_membar_level = SYS_OPTION;
+         m_atomic_scope = SYS_OPTION;
          break;
+      }
       case FTZ_OPTION:
          break;
       case EXIT_OPTION:

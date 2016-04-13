@@ -110,6 +110,9 @@ machine(Directory, "AMD Hammer-like protocol")
     Unblock,                   desc="An unblock message arrives";
     UnblockS,                   desc="An unblock message arrives";
     UnblockM,                   desc="An unblock message arrives";
+	// NTU
+	FETCH_MEM, 					desc="A FETCH_MEM arrives";
+	STORE_MEM,                  desc="A STORE_MEM arrives";
     Writeback_Clean,           desc="The final part of a PutX (no data)";
     Writeback_Dirty,           desc="The final part of a PutX (data)";
     Writeback_Exclusive_Clean, desc="The final part of a PutX (no data, exclusive)";
@@ -125,6 +128,9 @@ machine(Directory, "AMD Hammer-like protocol")
     // Memory Controller
     Memory_Data, desc="Fetched data from memory arrives";
     Memory_Ack, desc="Writeback Ack from memory arrives";
+    // NTU: load bypass directory
+    Memory_Fetch_Bypass, desc="Fetched data from memory arrives but bypass here";
+    Memory_StoreSYS_Ack, desc="Store data finished but bypass here";
 
     // Cache responses required to handle DMA
     Ack,             desc="Received an ack message";
@@ -184,6 +190,7 @@ machine(Directory, "AMD Hammer-like protocol")
     void allocate(Addr);
     void deallocate(Addr);
     bool isPresent(Addr);
+    void echo(int, Addr);
   }
 
   void set_cache_entry(AbstractCacheEntry b);
@@ -300,6 +307,9 @@ machine(Directory, "AMD Hammer-like protocol")
       return Event:GETX;
     } else if (type == CoherenceRequestType:GETF) {
       return Event:GETF;
+    } else if (type == CoherenceRequestType:FETCH_MEM) {
+      // NTU
+      return Event:FETCH_MEM;
     } else {
       error("Invalid CoherenceRequestType");
     }
@@ -419,9 +429,15 @@ machine(Directory, "AMD Hammer-like protocol")
       peek(memQueue_in, MemoryMsg) {
         PfEntry pf_entry := getProbeFilterEntry(in_msg.addr);
         TBE tbe := TBEs[in_msg.addr];
-        if (in_msg.Type == MemoryRequestType:MEMORY_READ) {
+        // NTU: Bypass message
+        if (tbe.ResponseType == CoherenceResponseType:DATA_EXCLUSIVE_BYPASS) {
+          trigger(Event:Memory_Fetch_Bypass, in_msg.addr, pf_entry, tbe);
+        } else if (tbe.ResponseType == CoherenceResponseType:DATA_EXCLUSIVE_STORE_BYPASS) {
+          TBEs.echo(7, in_msg.addr);
+          trigger(Event:Memory_StoreSYS_Ack, in_msg.addr, pf_entry, tbe);
+        } else if (in_msg.Type == MemoryRequestType:MEMORY_READ) {
           trigger(Event:Memory_Data, in_msg.addr, pf_entry, tbe);
-        } else if (in_msg.Type == MemoryRequestType:MEMORY_WB) {
+        } else if (else if (in_msg.Type == MemoryRequestType:MEMORY_WB) {
           trigger(Event:Memory_Ack, in_msg.addr, pf_entry, tbe);
         } else {
           DPRINTF(RubySlicc, "%d\n", in_msg.Type);
@@ -440,6 +456,13 @@ machine(Directory, "AMD Hammer-like protocol")
           trigger(Event:PUT, in_msg.addr, pf_entry, tbe);
         } else if (in_msg.Type == CoherenceRequestType:PUTF) {
           trigger(Event:PUTF, in_msg.addr, pf_entry, tbe);
+          // NTU
+		} else if (in_msg.Type == CoherenceRequestType:FETCH_MEM) {
+          TBEs.echo(12, in_msg.addr);
+          trigger(Event:FETCH_MEM, in_msg.addr, pf_entry, tbe);
+		} else if (in_msg.Type == CoherenceRequestType:STORE_MEM) {
+          TBEs.echo(3, in_msg.addr);
+          trigger(Event:STORE_MEM, in_msg.addr, pf_entry, tbe);
         } else {
           if (probe_filter_enabled || full_bit_dir_enabled) {
             if (is_valid(pf_entry)) {
@@ -483,6 +506,21 @@ machine(Directory, "AMD Hammer-like protocol")
 
   // Actions
 
+// NTU Bobolu
+  action(db_debugMessage, "db", desc="show debug message") {
+    TBEs.echo(6, address);
+  }
+  action(db2_debugMessage, "db2", desc="show debug message") {
+    TBEs.echo(8, address);
+  }
+  action(db3_debugMessage, "db3", desc="show debug message") {
+    TBEs.echo(13, address);
+  }
+  action(db4_debugMessage, "db4", desc="show debug message") {
+    TBEs.echo(15, address);
+  }
+
+//
   action(r_setMRU, "\rr", desc="manually set the MRU bit for pf entry" ) {
     if (probe_filter_enabled || full_bit_dir_enabled) {
       assert(is_valid(cache_entry));
@@ -522,6 +560,19 @@ machine(Directory, "AMD Hammer-like protocol")
       assert(probeFilter.isTagPresent(address));
       peek(unblockNetwork_in, ResponseMsg) {
         cache_entry.Sharers.add(in_msg.Sender);
+      }
+    }
+  }
+// NTU
+  action(ad_sendWriteDoneAck, "ad", desc="Send writeDone ack to requestor") {
+    // NTU Bobolu
+    peek(memQueue_in, MemoryMsg) {
+      enqueue(forwardNetwork_out, RequestMsg, from_memory_controller_latency) {
+        out_msg.addr := address;
+        out_msg.Type := CoherenceRequestType:WD_ACK;
+        out_msg.Requestor := in_msg.OriginalRequestorMachId;
+        out_msg.Destination.add(in_msg.OriginalRequestorMachId);
+        out_msg.MessageSize := MessageSizeType:Writeback_Control;
       }
     }
   }
@@ -775,7 +826,9 @@ machine(Directory, "AMD Hammer-like protocol")
         out_msg.Acks := tbe.Acks;
         out_msg.SilentAcks := tbe.SilentAcks;
         DPRINTF(RubySlicc, "%d\n", out_msg.Acks);
-        assert(out_msg.Acks > 0);
+        // NTU Bobolu
+        // To bypass directory, we don't need other's ack
+        // assert(out_msg.Acks > 0);
         out_msg.MessageSize := MessageSizeType:Response_Data;
       }
     }
@@ -833,6 +886,20 @@ machine(Directory, "AMD Hammer-like protocol")
       assert(is_valid(tbe));
       tbe.ResponseType := CoherenceResponseType:DATA_EXCLUSIVE;
     }
+  }
+// NTU
+  action(rb_recordBypassInTBE, "rb", desc="Record Bypassdir in TBE") {
+    peek(requestQueue_in, RequestMsg) {
+	  assert(is_valid(tbe));
+	  tbe.ResponseType := CoherenceResponseType:DATA_EXCLUSIVE_BYPASS;
+	}
+  }
+  
+  action(bd_recordBypass_ST_InTBE, "bd", desc="Record Bypassdir in TBE") {
+    peek(requestQueue_in, RequestMsg) {
+	  assert(is_valid(tbe));
+	  tbe.ResponseType := CoherenceResponseType:DATA_EXCLUSIVE_STORE_BYPASS;
+	}
   }
 
   action(r_recordDataInTBE, "rt", desc="Record Data in TBE") {
@@ -1237,6 +1304,14 @@ machine(Directory, "AMD Hammer-like protocol")
     }
   }
 
+// NTU Bobolu
+  action(sb_storeBypassMemory, "sb", desc="Bypass directory, write data to memory") {
+     peek(requestQueue_in, RequestMsg) {
+        queueMemoryWrite(in_msg.Requestor, address, to_memory_controller_latency,
+                         in_msg.DataBlk);
+     }
+  }
+
   action(l_queueMemoryWBRequest, "lq", desc="Write PUTX data to memory") {
     peek(unblockNetwork_in, ResponseMsg) {
       queueMemoryWrite(in_msg.Sender, address, to_memory_controller_latency,
@@ -1277,6 +1352,41 @@ machine(Directory, "AMD Hammer-like protocol")
   }
 
   // TRANSITIONS
+
+  // NTU
+  transition({NX, NO, S, O, E, O_R, S_R, NO_R, NO_B, NO_B_X, NO_B_S, NO_B_S_W, O_B, NO_B_W, O_B_W, NO_W, O_W, NO_DW_B_W, NO_DR_B_W, NO_DR_B_D, NO_DR_B, NO_DW_W, O_DR_B_W, O_DR_B, WB, WB_O_W, WB_E_W, NO_F, NO_F_W}, FETCH_MEM) {
+    v_allocateTBE;
+    rb_recordBypassInTBE;
+    qf_queueMemoryFetchRequest;
+	i_popIncomingRequestQueue;
+    // NTU Bobolu
+    db3_debugMessage;
+  }
+
+  transition({NX, NO, S, O, E, O_R, S_R, NO_R, NO_B, NO_B_X, NO_B_S, NO_B_S_W, O_B, NO_B_W, O_B_W, NO_W, O_W, NO_DW_B_W, NO_DR_B_W, NO_DR_B_D, NO_DR_B, NO_DW_W, O_DR_B_W, O_DR_B, WB, WB_O_W, WB_E_W, NO_F, NO_F_W}, Memory_Fetch_Bypass) {
+    d_sendData;
+    w_deallocateTBE;
+    l_popMemQueue;
+    // NTU Bobolu
+    db4_debugMessage;
+  }
+
+  transition({NX, NO, S, O, E, O_R, S_R, NO_R, NO_B, NO_B_X, NO_B_S, NO_B_S_W, O_B, NO_B_W, O_B_W, NO_W, O_W, NO_DW_B_W, NO_DR_B_W, NO_DR_B_D, NO_DR_B, NO_DW_W, O_DR_B_W, O_DR_B, WB, WB_O_W, WB_E_W, NO_F, NO_F_W}, STORE_MEM) {
+    v_allocateTBE;
+	bd_recordBypass_ST_InTBE;
+    //l_queueMemoryWBRequest;
+    sb_storeBypassMemory
+	i_popIncomingRequestQueue;
+    db_debugMessage;
+  }
+
+  transition({NX, NO, S, O, E, O_R, S_R, NO_R, NO_B, NO_B_X, NO_B_S, NO_B_S_W, O_B, NO_B_W, O_B_W, NO_W, O_W, NO_DW_B_W, NO_DR_B_W, NO_DR_B_D, NO_DR_B, NO_DW_W, O_DR_B_W, O_DR_B, WB, WB_O_W, WB_E_W, NO_F, NO_F_W}, Memory_StoreSYS_Ack) {
+    ad_sendWriteDoneAck; 
+	w_deallocateTBE;
+    l_popMemQueue;
+    db2_debugMessage;
+  }
+  // NTU
 
   // Transitions out of E state
   transition(E, GETX, NO_B_W) {PfRead, PfWrite} {
