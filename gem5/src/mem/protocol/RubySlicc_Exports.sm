@@ -142,6 +142,13 @@ enumeration(RubyRequestType, desc="...", default="RubyRequestType_NULL") {
   Release,           desc="Release operation";
   Acquire,           desc="Acquire opertion";
   AcquireRelease,    desc="Acquire and Release opertion";
+  // NTU
+  ATOMIC_ST_CTA,        desc="Atomic Store at cta level";
+  ATOMIC_ST_GL,         desc="Atomic Store at gl level";
+  ATOMIC_ST_SYS,        desc="Atomic Store at sys level";
+  ATOMIC_LD_CTA,        desc="Atomic Load at cta level";
+  ATOMIC_LD_GL,         desc="Atomic Load at gl level";
+  ATOMIC_LD_SYS,        desc="Atomic Load at sys level";
 }
 
 enumeration(SequencerRequestType, desc="...", default="SequencerRequestType_NULL") {
