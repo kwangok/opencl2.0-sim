@@ -258,11 +258,41 @@ unsigned ptx_thread_info::get_builtin( int builtin_id, unsigned dim_mod )
       return m_gridid;
    case LANEID_REG:
       return m_tid.x % m_core->get_warp_size();
-   case LANEMASK_EQ_REG: feature_not_implemented( "%lanemask_eq" ); return 0;
-   case LANEMASK_LE_REG: feature_not_implemented( "%lanemask_le" ); return 0;
-   case LANEMASK_LT_REG: feature_not_implemented( "%lanemask_lt" ); return 0;
-   case LANEMASK_GE_REG: feature_not_implemented( "%lanemask_ge" ); return 0;
-   case LANEMASK_GT_REG: feature_not_implemented( "%lanemask_gt" ); return 0;
+   // deicide: lanemask implementation, not been tested yet
+   case LANEMASK_EQ_REG:
+   {
+       unsigned mask = 0, position = m_hw_tid % (get_gpu()->wrp_size());
+       mask |= 1 << position;
+       return mask;
+   }
+   case LANEMASK_LE_REG:
+   {
+       unsigned mask = 0, position = m_hw_tid % (get_gpu()->wrp_size());
+       for (unsigned i = 0; i <= position; ++i)
+           mask |= 1 << i;
+       return mask;
+   }
+   case LANEMASK_LT_REG:
+   {
+       unsigned mask = 0, position = m_hw_tid % (get_gpu()->wrp_size());
+       for (unsigned i = 0; i < position; ++i)
+           mask |= 1 << i;
+       return mask;
+   }
+   case LANEMASK_GE_REG:
+   {
+       unsigned mask = 0, position = m_hw_tid % (get_gpu()->wrp_size());
+       for (unsigned i = (get_gpu()->wrp_size() - 1); i >= position; --i)
+           mask |= 1 << i;
+       return mask;
+   }
+   case LANEMASK_GT_REG:
+   {
+       unsigned mask = 0, position = m_hw_tid % (get_gpu()->wrp_size());
+       for (unsigned i = (get_gpu()->wrp_size() - 1); i > position; --i)
+           mask |= 1 << i;
+       return mask;
+   }
    case NCTAID_REG:
       assert( dim_mod < 3 );
       if( dim_mod == 0 ) return m_nctaid.x;

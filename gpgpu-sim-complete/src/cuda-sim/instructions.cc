@@ -3891,6 +3891,8 @@ void shfl_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 	if (!pval) j = lane_id;
 	targetLane[lane_id] = ((pval << 8) & j);
 
+    threads_in_warp.push_back(thread);
+
 	// Let the last thread do the things for the whole warp
 	if (thread->get_hw_tid() == last_tid)
 	{
