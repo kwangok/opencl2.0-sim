@@ -73,6 +73,10 @@ class CudaCore : public MemObject
             return AtomicOpRequest::ATOMIC_MIN_OP;
           case ATOMIC_MAX:
             return AtomicOpRequest::ATOMIC_MAX_OP;
+          case ATOMIC_LD:
+            return AtomicOpRequest::ATOMIC_LD_OP;
+          case ATOMIC_ST:
+            return AtomicOpRequest::ATOMIC_ST_OP;
           default:
             panic("Unknown atomic type: %llu\n", gpgpu_sim_value);
             break;

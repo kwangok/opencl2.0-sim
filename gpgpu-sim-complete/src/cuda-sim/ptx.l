@@ -329,6 +329,8 @@ breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
 \.dec	TC; return ATOMIC_DEC;
 \.min	TC; return ATOMIC_MIN;
 \.max	TC; return ATOMIC_MAX;
+\.load	TC; return ATOMIC_LD;
+\.store	TC; return ATOMIC_ST;
 
 \.1d	TC; return GEOM_MODIFIER_1D;
 \.2d	TC; return GEOM_MODIFIER_2D;
