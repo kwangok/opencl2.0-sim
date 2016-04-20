@@ -1037,6 +1037,7 @@ public:
 
     int get_atomic() const { return m_atomic_spec; }
     int get_atomic_scope() const { return m_atomic_scope; }
+    int get_memory_order() const { return m_memory_order; }
 
 protected:
 
@@ -1048,6 +1049,8 @@ protected:
     bool m_isatomic;
     int m_atomic_spec;
     int m_atomic_scope;
+    // TODO: memory order currently is not supported
+    int m_memory_order;
     bool m_is_printf;
     unsigned m_warp_id;
     unsigned m_dynamic_warp_id; 

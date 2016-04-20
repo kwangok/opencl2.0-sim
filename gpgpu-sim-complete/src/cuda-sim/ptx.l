@@ -303,6 +303,10 @@ breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
 \.gl    TC; return GLOBAL_OPTION;
 \.cta   TC; return CTA_OPTION;
 \.sys   TC; return SYS_OPTION;
+\.rlx   TC; return RLX_OPTION;
+\.scacq TC; return SCACQ_OPTION;
+\.screl TC; return SCREL_OPTION;
+\.scar  TC; return SCAR_OPTION;
 
 \.exit   TC; return EXIT_OPTION;
 
@@ -329,8 +333,8 @@ breakaddr  TC; ptx_lval.int_value = BREAKADDR_OP; return OPCODE;
 \.dec	TC; return ATOMIC_DEC;
 \.min	TC; return ATOMIC_MIN;
 \.max	TC; return ATOMIC_MAX;
-\.load	TC; return ATOMIC_LD;
-\.store	TC; return ATOMIC_ST;
+\.ld	TC; return ATOMIC_LD;
+\.st	TC; return ATOMIC_ST;
 
 \.1d	TC; return GEOM_MODIFIER_1D;
 \.2d	TC; return GEOM_MODIFIER_2D;

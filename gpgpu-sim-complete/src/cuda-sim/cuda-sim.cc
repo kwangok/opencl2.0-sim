@@ -1556,13 +1556,20 @@ void ptx_thread_info::ptx_exec_inst( warp_inst_t &inst, unsigned lane_id)
          // Need to save data to be written for stores
          uint8_t data[MAX_DATA_BYTES_PER_INSN_PER_THREAD];
          if ( pI->get_opcode() == ATOM_OP ) {
-             unsigned data_src_reg = 2; // Use the second operand as data source
-             readRegister(inst, lane_id, (char*)&data[0], data_src_reg);
-             if (pI->get_atomic() == ATOMIC_CAS) {
-                 data_src_reg = 3; // Third operand is second data source
-                 // There can be at most 2 atomic inst operands of at most
-                 // 64b or 8B each. Store second operand at byte offet 8
-                 readRegister(inst, lane_id, (char*)&data[8], data_src_reg);
+             // deicide: atomic load/store only take 1 source operand
+             if (pI->get_atomic() == ATOMIC_LD) {
+                 readRegister(inst, lane_id, (char*)&data[0]);
+             } else if (pI->get_atomic() == ATOMIC_ST) {
+                 readRegister(inst, lane_id, (char*)&data[0], 0);
+             } else {
+                 unsigned data_src_reg = 2; // Use the second operand as data source
+                 readRegister(inst, lane_id, (char*)&data[0], data_src_reg);
+                 if (pI->get_atomic() == ATOMIC_CAS) {
+                     data_src_reg = 3; // Third operand is second data source
+                     // There can be at most 2 atomic inst operands of at most
+                     // 64b or 8B each. Store second operand at byte offet 8
+                     readRegister(inst, lane_id, (char*)&data[8], data_src_reg);
+                 }
              }
          } else {
              readRegister(inst, lane_id, (char*)&data[0]);

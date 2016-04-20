@@ -1038,6 +1038,7 @@ ptx_instruction::ptx_instruction( int opcode,
    m_atomic_spec = 0;
    m_atomic_scope = 0;
    m_membar_level = 0;
+   m_memory_order = 0;
    m_inst_size = 8; // bytes
 
    std::list<int>::const_iterator i;
@@ -1137,23 +1138,20 @@ ptx_instruction::ptx_instruction( int opcode,
          m_vote_mode = vote_ballot;
          break;
       case GLOBAL_OPTION:
-      {
-         m_membar_level = GLOBAL_OPTION;
-         m_atomic_scope = GLOBAL_OPTION;
-         break;
-      }
       case CTA_OPTION:
-      {
-         m_membar_level = CTA_OPTION;
-         m_atomic_scope = CTA_OPTION;
-         break;
-      }
       case SYS_OPTION:
       {
-         m_membar_level = SYS_OPTION;
-         m_atomic_scope = SYS_OPTION;
+         m_membar_level = last_ptx_inst_option;
+         m_atomic_scope = last_ptx_inst_option;
          break;
       }
+      case RLX_OPTION:
+      case SCACQ_OPTION:
+      case SCREL_OPTION:
+      case SCAR_OPTION:
+         m_memory_order = last_ptx_inst_option;
+         fprintf(stderr, "GPGPU-Sim PTX: WARNING ** memory order currently is not supported, ignore this option\n");
+         break;
       case FTZ_OPTION:
          break;
       case EXIT_OPTION:

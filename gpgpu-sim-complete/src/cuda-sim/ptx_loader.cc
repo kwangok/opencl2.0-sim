@@ -199,7 +199,7 @@ void gpgpu_ptxinfo_load_from_string( const char *p_for_info, unsigned source_num
     fd=mkstemp(fname2); 
     close(fd);
     char commandline2[4096];
-    snprintf(commandline2,4096,"cat %s | sed 's/.version 1.5/.version 1.4/' | sed 's/, texmode_independent//' | sed 's/\\(\\.extern \\.const\\[1\\] .b8 \\w\\+\\)\\[\\]/\\1\\[1\\]/' | sed 's/const\\[.\\]/const\\[0\\]/g' > %s", fname, fname2);
+    snprintf(commandline2,4096,"cat %s | sed 's/.version 1.5/.version 1.4/' | sed 's/, texmode_independent//' | sed 's/\\(\\.extern \\.const\\[1\\] .b8 \\w\\+\\)\\[\\]/\\1\\[1\\]/' | sed 's/const\\[.\\]/const\\[0\\]/g' | sed 's/.rlx\\|.scacq\\|.screl\\|.scar//' | sed 's/atom.global.gl\\|atom.global.cta\\|atom.global.sys/atom.global/' | sed 's/atom.shared.gl\\|atom.shared.cta\\|atom.shared.sys/atom.shared/' | sed 's/atom.global.st/st.global/' | sed 's/atom.shared.st/st.shared/' | sed 's/atom.global.ld/ld.global/' | sed 's/atom.shared.ld/ld.shared/' > %s", fname, fname2);
     printf("Running: %s\n", commandline2);
     int result = system(commandline2);
     if( result != 0 ) {

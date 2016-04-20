@@ -1152,13 +1152,26 @@ void atom_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    // obtain memory space of the operation 
    memory_space_t space = pI->get_space(); 
 
-   // get the memory address
-   const operand_info &src1 = pI->src1();
-   // const operand_info &dst  = pI->dst();  // not needed for effective address calculation 
-   unsigned i_type = pI->get_type();
-   ptx_reg_t src1_data;
-   src1_data = thread->get_operand_value(src1, src1, i_type, thread, 1);
-   addr_t effective_address = src1_data.u64; 
+   addr_t effective_address;
+   // deicide: atomic store's target address is in dst register
+   if (pI->get_atomic() == ATOMIC_ST)
+   {
+       const operand_info &dst = pI->dst();
+       unsigned i_type = pI->get_type();
+       ptx_reg_t dst_data;
+       dst_data = thread->get_operand_value(dst, dst, i_type, thread, 1);
+       effective_address = dst_data.u64;
+   }
+   else
+   {
+       // get the memory address
+       const operand_info &src1 = pI->src1();
+       // const operand_info &dst  = pI->dst();  // not needed for effective address calculation 
+       unsigned i_type = pI->get_type();
+       ptx_reg_t src1_data;
+       src1_data = thread->get_operand_value(src1, src1, i_type, thread, 1);
+       effective_address = src1_data.u64;
+   }
 
    addr_t effective_address_final; 
 

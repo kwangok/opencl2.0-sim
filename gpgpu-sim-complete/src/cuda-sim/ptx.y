@@ -179,6 +179,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %token  GLOBAL_OPTION
 %token  CTA_OPTION
 %token  SYS_OPTION
+%token  RLX_OPTION
+%token  SCACQ_OPTION
+%token  SCREL_OPTION
+%token  SCAR_OPTION
 %token  EXIT_OPTION
 %token  ABS_OPTION
 %token  TO_OPTION
@@ -420,6 +424,10 @@ option: type_spec
 	| GLOBAL_OPTION { add_option(GLOBAL_OPTION); }
 	| CTA_OPTION { add_option(CTA_OPTION); }
 	| SYS_OPTION { add_option(SYS_OPTION); }
+    | RLX_OPTION { add_option(RLX_OPTION); }
+    | SCACQ_OPTION { add_option(SCACQ_OPTION); }
+    | SCREL_OPTION { add_option(SCREL_OPTION); }
+    | SCAR_OPTION { add_option(SCAR_OPTION); }
 	| GEOM_MODIFIER_1D { add_option(GEOM_MODIFIER_1D); }
 	| GEOM_MODIFIER_2D { add_option(GEOM_MODIFIER_2D); }
 	| GEOM_MODIFIER_3D { add_option(GEOM_MODIFIER_3D); }
