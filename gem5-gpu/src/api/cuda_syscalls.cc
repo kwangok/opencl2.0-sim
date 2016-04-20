@@ -2820,10 +2820,13 @@ void clReleaseContext(ThreadContext *tc, gpusyscall_t *call_params) {
 	  } \
 
 void clFinish(ThreadContext *tc, gpusyscall_t *call_params) {
-	GPUSyscallHelper helper(tc, call_params);
-	cl_int ret = CL_SUCCESS;
-	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
-	return ;
+    // deicide: clFinish will block CPU thread until kernel is done
+    GPUSyscallHelper helper(tc, call_params);
+    DPRINTF(GPUSyscalls, "gem5 GPU Syscall: clFinish(), tc = %x\n", tc);
+    CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
+    bool suspend = cudaGPU->needsToBlock();
+    helper.setReturn((uint8_t*)&suspend, sizeof(bool));
+    return ;
 }
 
 void clGetContextInfo(ThreadContext *tc, gpusyscall_t *call_params) {

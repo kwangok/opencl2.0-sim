@@ -2149,13 +2149,18 @@ clFinish(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0
   *ret_spot = 0; // ???
 
   m5_gpu(104, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+  bool block_thread = *((bool*)call_params.ret);
 
   delete call_params.args;
   delete call_params.arg_lengths;
   delete call_params.ret;
 
-  return ret;
+  // deicide: clFinish will block CPU thread until kernel is done
+  if (block_thread) {
+      blockThread();
+  }
+
+  return CL_SUCCESS;
 /* yamato */
     return CL_SUCCESS;
 }
