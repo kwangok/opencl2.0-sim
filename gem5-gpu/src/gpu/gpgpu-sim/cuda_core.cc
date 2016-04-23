@@ -269,6 +269,10 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
         {
             // fprintf(stderr, "CDP data size = %d\n", size);
         }
+        else if (inst.m_is_printf)
+        {
+            // fprintf(stderr, "vprintf data size = %d\n", size);
+        }
         else
         {
             assert(size >= 1 && size <= 8);
@@ -277,7 +281,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
     size *= inst.vectorLength;
 
     // deicide
-    if (!inst.m_is_cdp) assert(size <= 16);
+    if (!inst.m_is_cdp && !inst.m_is_printf) assert(size <= 16);
     // deicide
     //
     if (inst.op == BARRIER_OP || inst.op == MEMORY_BARRIER_OP) {
@@ -324,7 +328,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
         if (inst.active(lane)) {
             // deicide
             Addr addr = 0;
-            if (!inst.m_is_cdp)
+            if (!inst.m_is_cdp && !inst.m_is_printf)
             {
                 addr = inst.get_addr(lane);
             }
@@ -569,6 +573,101 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 else
                 {
                     continue;
+                }
+            } else if (inst.m_is_printf) {
+                ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane);
+                if (thread->m_wait_for_vprintf)
+                {
+                    continue;
+                }
+                if (thread->m_vprintf_execution_substep <= thread->m_vprintf_memory_substep)
+                {
+                    continue;
+                }
+                if (thread->m_vprintf_memory_step >= 2)
+                {
+                    continue;
+                }
+                // deicide
+                if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+                {
+                    fprintf(stderr, "In CudaCore line %d: hw_tid = %u, hw_sid = %u get_addr pc = 0x%llx, thread address = %p, inst address = %p\n", __LINE__, thread->get_hw_tid(), thread->get_hw_sid(), inst.pc, thread, &inst);
+                }
+                // deicide
+                // deicide
+                if (inst.get_addr(lane) == (new_addr_type)-1)
+                {
+                    fprintf(stderr, "get_addr failed, drop the memory request\n");
+                    continue;
+                }
+                // deicide
+                addr = inst.get_addr(lane);
+                if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+                {
+                    fprintf(stderr, "Request address = 0x%lx\n", addr);
+                }
+                // deicide
+                RequestPtr req;
+                if (thread->m_vprintf_memory_step == 0)
+                {
+                    if (thread->m_vprintf_memory_substep == 0 || thread->m_vprintf_memory_substep == 1)
+                    {
+                        // addr = inst.get_addr(lane);
+                        req = new Request(asid, addr, sizeof(unsigned int), flags,
+                                    dataMasterId, inst.pc, id, inst.warp_id());
+                    }
+                    else
+                    {
+                        // addr = thread->m_fmtstr_addr + (thread->m_cdp_memory_substep - 2) * 4;
+                        req = new Request(asid, addr, sizeof(char), flags,
+                                    dataMasterId, inst.pc, id, inst.warp_id());
+                    }
+                    // deicide
+                    if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+                    {
+                        fprintf(stderr, "vprintf memory step %d substep %d sent read request to addr 0x%lx\n", thread->m_vprintf_memory_step, thread->m_vprintf_memory_substep, addr);
+                    }
+                    // deicide
+                }
+                else if (thread->m_vprintf_memory_step == 1)
+                {
+                    // addr = inst.get_addr(lane);
+                    req = new Request(asid, addr, sizeof(unsigned int), flags,
+                                dataMasterId, inst.pc, id, inst.warp_id());
+                    // deicide
+                    if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+                    {
+                        fprintf(stderr, "vprintf memory step %d substep %d sent read request to addr 0x%lx\n", thread->m_vprintf_memory_step, thread->m_vprintf_memory_substep, addr);
+                    }
+                    // deicide
+                }
+                else
+                {
+                    fprintf(stderr, "Unknown vprintf step\n");
+                    continue;
+                }
+                if (thread->m_vprintf_execution_step == 2)
+                {
+                    pkt = new Packet(req, MemCmd::WriteReq);
+                    int * word = new int;
+                    *word = *((int*)(thread->m_vprintf_data));
+                    free(thread->m_vprintf_data);
+                    pkt->dataDynamic(word);
+                    thread->m_vprintf_memory_step = 2;
+                    thread->m_wait_for_vprintf = false;
+                    // deicide: Reset step
+                    thread->m_vprintf_execution_step = 0;
+                    thread->m_vprintf_execution_substep = 0;
+                    thread->m_vprintf_memory_step = 0;
+                    thread->m_vprintf_memory_substep = 0;
+                }
+                else
+                {
+                    pkt = new Packet(req, MemCmd::ReadReq);
+                    pkt->allocate();
+                    thread->m_wait_for_vprintf = true;
+                    // Since only loads return to the CudaCore
+                    pkt->senderState = new SenderState(inst);
                 }
             } else if (inst.is_load()) {
                 // Not all cache operators are currently supported in gem5-gpu.
@@ -974,6 +1073,112 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 abort();
             }
             thread->m_wait_for_cdp = false;
+
+            delete pkt->senderState;
+            delete pkt->req;
+            delete pkt;
+            return true;
+        } else if (inst.m_is_printf) {
+            ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane_id);
+            if (thread->m_vprintf_memory_step == 0)
+            {
+                pkt->writeData(data);
+                if (thread->m_vprintf_memory_substep == 0)
+                {
+                    // deicide: Reset data
+                    thread->m_fmtstr_addr = 0llu;
+                    unsigned long long temp = *((unsigned int*)data);
+                    thread->m_fmtstr_addr |= temp;
+                    // deicide
+                    if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+                    {
+                        fprintf(stderr, "In CudaCore line %d: vprintf memory step %d substep %d done\n", __LINE__, thread->m_vprintf_memory_step, thread->m_vprintf_memory_substep);
+                    }
+                    // deicide
+                    thread->m_vprintf_memory_substep++;
+                }
+                else if (thread->m_vprintf_memory_substep == 1)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    temp = temp << 32;
+                    thread->m_fmtstr_addr |= temp;
+                    thread->m_vprintf_memory_substep++;
+                    // deicide
+                    if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+                    {
+                        fprintf(stderr, "In CudaCore line %d: receive fmtstr address = 0x%llx pc = 0x%llx\n", __LINE__, thread->m_fmtstr_addr, inst.pc);
+                    }
+                    // deicide
+                }
+                else
+                {
+                    char c = *((char*)data);
+                    (thread->m_fmtstr).push_back(c);
+                    // deicide
+                    if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+                    {
+                        fprintf(stderr, "In CudaCore line %d: memory step %d substep %d receive character = %c pc = 0x%llx\n", __LINE__, thread->m_vprintf_memory_step, thread->m_vprintf_memory_substep, c, inst.pc);
+                    }
+                    // deicide
+                    thread->m_vprintf_memory_substep++;
+                    if (c == '\0')
+                    {
+                        thread->m_vprintf_execution_substep = 0;
+                        thread->m_vprintf_execution_step = 1;
+                        thread->m_vprintf_memory_substep = 0;
+                        thread->m_vprintf_memory_step = 1;
+                    }
+                }
+            }
+            else if (thread->m_vprintf_memory_step == 1)
+            {
+                pkt->writeData(data);
+                if (thread->m_vprintf_memory_substep == 0)
+                {
+                    // deicide: Reset data
+                    thread->m_arg_list_addr = 0llu;
+                    unsigned long long temp = *((unsigned int*)data);
+                    thread->m_arg_list_addr |= temp;
+                    thread->m_vprintf_memory_substep++;
+                }
+                else if (thread->m_vprintf_memory_substep == 1)
+                {
+                    unsigned long long temp = *((unsigned int*)data);
+                    temp = temp << 32;
+                    thread->m_arg_list_addr |= temp;
+                    thread->m_vprintf_memory_substep++;
+                    // deicide
+                    if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+                    {
+                        fprintf(stderr, "In CudaCore line %d: receive arg_list address = 0x%llx pc = 0x%llx\n", __LINE__, thread->m_arg_list_addr, inst.pc);
+                    }
+                    // deicide
+                }
+                else
+                {
+                    unsigned int word = *((unsigned int*)data);
+                    unsigned int char_mask = 0xff;
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        char c = (word & char_mask) >> (8 * i);
+                        // deicide
+                        if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+                        {
+                            fprintf(stderr, "In CudaCore line %d: memory step %d substep %d receive character = %c pc = 0x%llx\n", __LINE__, thread->m_vprintf_memory_step, thread->m_vprintf_memory_substep, c, inst.pc);
+                        }
+                        // deicide
+                        (thread->m_arg_list).push_back(c);
+                        char_mask = char_mask << 8;
+                    }
+                    thread->m_vprintf_memory_substep++;
+                }
+            }
+            else
+            {
+                fprintf(stderr, "Unexpected vprintf step\n");
+                abort();
+            }
+            thread->m_wait_for_vprintf = false;
 
             delete pkt->senderState;
             delete pkt->req;

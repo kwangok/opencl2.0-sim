@@ -30,85 +30,198 @@
 
 void decode_space( memory_space_t &space, ptx_thread_info *thread, const operand_info &op, memory_space *&mem, addr_t &addr);
 
-void my_cuda_printf(const char *fmtstr,const char *arg_list)
+int my_cuda_printf(const char *fmtstr, const char *arg_list)
 {
    FILE *fp = stdout;
-   unsigned i=0,j=0;
-   unsigned arg_offset=0;
+   unsigned i = 0, j = 0;
+   unsigned arg_offset = 0;
    char buf[64];
-   bool in_fmt=false;
-   while( fmtstr[i] ) {
+   bool in_fmt = false;
+   int ret_value = 0;
+   while (fmtstr[i]) {
       char c = fmtstr[i++];
-      if( !in_fmt ) {
-         if( c != '%' ) {
-            fprintf(fp,"%c",c);
+      if (!in_fmt) {
+         if (c != '%') {
+            ret_value += fprintf(fp, "%c", c);
          } else {
-            in_fmt=true;
+            in_fmt = true;
             buf[0] = c;
-            j=1;
+            j = 1;
          }
       } else {
-         if(!( c == 'u' || c == 'f' || c == 'd' )) {
+         if (!(c == 'u' || c == 'f' || c == 'd')) {
             printf("GPGPU-Sim PTX: ERROR ** printf parsing support is limited to %%u, %%f, %%d at present");
             abort();
          }
          buf[j] = c;
          buf[j+1] = 0;
-         void* ptr = (void*)&arg_list[arg_offset];
+         void * ptr = (void*)&arg_list[arg_offset];
          //unsigned long long value = ((unsigned long long*)arg_list)[arg_offset];
-         if( c == 'u' || c == 'd' ) {
-            fprintf(fp,buf,*((unsigned long long*)ptr));
-         } else if( c == 'f' ) {
+         if (c == 'u' || c == 'd') {
+            ret_value += fprintf(fp, buf, *((unsigned long long*)ptr));
+         } else if (c == 'f') {
             double tmp = *((double*)ptr);
-            fprintf(fp,buf,tmp);
+            ret_value += fprintf(fp, buf, tmp);
          }
          arg_offset++;
-         in_fmt=false;
+         in_fmt = false;
       }
    }
+   return ret_value;
 }
 
 void gpgpusim_cuda_vprintf(const ptx_instruction * pI, ptx_thread_info * thread, const function_info * target_func ) 
 {
-      char *fmtstr = NULL;
-      char *arg_list = NULL;
-      unsigned n_return = target_func->has_return();
-      unsigned n_args = target_func->num_args();
-      assert( n_args == 2 );
-      for( unsigned arg=0; arg < n_args; arg ++ ) {
-         const operand_info &actual_param_op = pI->operand_lookup(n_return+1+arg);
-         const symbol *formal_param = target_func->get_arg(arg);
-         unsigned size=formal_param->get_size_in_bytes();
-         assert( formal_param->is_param_local() );
-         assert( actual_param_op.is_param_local() );
-         addr_t from_addr = actual_param_op.get_symbol()->get_address();
-         unsigned long long buffer[1024];
-         assert(size<1024*sizeof(unsigned long long));
-         thread->m_local_mem->read(from_addr,size,buffer);
-         addr_t addr = (addr_t)buffer[0]; // should be pointer to generic memory location
-         memory_space *mem=NULL;
-         memory_space_t space = generic_space;
-         decode_space(space,thread,actual_param_op,mem,addr); // figure out which space
-         if( arg == 0 ) {
-            unsigned len = 0;
-            char b = 0;
-            do { // figure out length
-               mem->read(addr+len,1,&b);
-               len++;
-            } while(b);
-            fmtstr = (char*)malloc(len+64);
-            for( int i=0; i < len; i++ ) 
-               mem->read(addr+i,1,fmtstr+i);
-            //mem->read(addr,len,fmtstr);
-         } else {
-            unsigned len = thread->get_finfo()->local_mem_framesize();
-            arg_list = (char*)malloc(len+64);
-            for( int i=0; i < len; i++ ) 
-               mem->read(addr+i,1,arg_list+i);
-            //mem->read(addr,len,arg_list);
-         }
-      }
-      my_cuda_printf(fmtstr,arg_list);
-      free(fmtstr);
-      free(arg_list);
+    char *fmtstr = NULL;
+    char *arg_list = NULL;
+    unsigned n_return = target_func->has_return();
+    unsigned n_args = target_func->num_args();
+    assert( n_args == 2 );
+
+    int step = thread->m_vprintf_execution_step;
+    int arg = step;
+    addr_t from_addr = 0;
+    unsigned size;
+
+    if (step < 2)
+    {
+        const operand_info &actual_param_op = pI->operand_lookup(n_return+1+arg);
+        const symbol *formal_param = target_func->get_arg(arg);
+        unsigned size=formal_param->get_size_in_bytes();
+        assert( formal_param->is_param_local() );
+        assert( actual_param_op.is_param_local() );
+        from_addr = actual_param_op.get_symbol()->get_address();
+    }
+
+    if (step == 0)
+    {
+        if (thread->m_vprintf_execution_substep != thread->m_vprintf_memory_substep) return;
+        if (thread->m_vprintf_execution_substep == 0)
+        {
+            thread->m_last_effective_address = from_addr;
+            thread->m_last_memory_space = local_space;
+            thread->m_vprintf_execution_substep = 1;
+            // deicide
+            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+            {
+                fprintf(stderr, "vprintf step 0 substep 0 sent read request to addr 0x%lx, thread address = %p\n", thread->m_last_effective_address, thread);
+            }
+            // deicide
+        }
+        else if (thread->m_vprintf_execution_substep == 1)
+        {
+            thread->m_last_effective_address = from_addr + 4;
+            thread->m_last_memory_space = local_space;
+            thread->m_vprintf_execution_substep = 2;
+            // deicide
+            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+            {
+                fprintf(stderr, "vprintf step 0 substep 1 sent read request to addr 0x%lx, thread address = %p\n", thread->m_last_effective_address, thread);
+            }
+            // deicide
+        }
+        else
+        {
+            if (thread->m_vprintf_execution_substep == 2) (thread->m_fmtstr).clear();
+            thread->m_last_effective_address = thread->m_fmtstr_addr + (thread->m_fmtstr).size();
+            thread->m_last_memory_space = global_space;
+            // deicide
+            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+            {
+                fprintf(stderr, "fmtstr address = 0x%llx\n", thread->m_fmtstr_addr);
+                fprintf(stderr, "vprintf step 0 substep %d sent read request to addr 0x%lx, thread address = %p\n", thread->m_vprintf_execution_substep, thread->m_last_effective_address, thread);
+            }
+            // deicide
+            thread->m_vprintf_execution_substep++;
+        }
+    }
+    else if (step == 1)
+    {
+        if (thread->m_vprintf_execution_substep != thread->m_vprintf_memory_substep) return;
+        if (thread->m_vprintf_execution_substep == 0)
+        {
+            // deicide
+            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+            {
+                fprintf(stderr, "fmtstr:\n");
+                std::vector<char>::iterator it;
+                for (it = (thread->m_fmtstr).begin(); it != (thread->m_fmtstr).end(); ++it)
+                {
+                    fprintf(stderr, "%c", *it);
+                }
+            }
+            // deicide
+            thread->m_last_effective_address = from_addr;
+            thread->m_last_memory_space = local_space;
+            thread->m_vprintf_execution_substep = 1;
+        }
+        else if (thread->m_vprintf_execution_substep == 1)
+        {
+            thread->m_last_effective_address = from_addr + 4;
+            thread->m_last_memory_space = local_space;
+            thread->m_vprintf_execution_substep = 2;
+        }
+        else
+        {
+            if (thread->m_vprintf_execution_substep == 2) (thread->m_arg_list).clear();
+            // deicide
+            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+            {
+                fprintf(stderr, "local_mem_framesize = %d\n", thread->get_finfo()->local_mem_framesize());
+            }
+            // deicide
+            if (thread->m_arg_list.size() >= thread->get_finfo()->local_mem_framesize())
+            {
+                // Print out content
+                char * fmtstr   = (char*)malloc((thread->m_fmtstr).size() * sizeof(char));
+                char * arg_list = (char*)malloc((thread->m_arg_list).size() * sizeof(char));
+                std::vector<char>::iterator it;
+                int i;
+                for (it = (thread->m_fmtstr).begin(), i = 0; it != (thread->m_fmtstr).end(); ++it, ++i)
+                {
+                    fmtstr[i] = *it;
+                }
+                for (it = (thread->m_arg_list).begin(), i = 0; it != (thread->m_arg_list).end(); ++it, ++i)
+                {
+                    arg_list[i] = *it;
+                }
+                int ret = my_cuda_printf(fmtstr,arg_list);
+                free(fmtstr);
+                free(arg_list);
+                // Set retval0
+                const operand_info &actual_return_op = pI->operand_lookup(0);
+                // cudaError_t
+                const symbol *formal_return = target_func->get_return_var();
+                unsigned int return_size = formal_return->get_size_in_bytes();
+                assert(actual_return_op.is_param_local());
+                assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(int));
+                thread->m_vprintf_data = malloc(sizeof(int));
+                *((int*)(thread->m_vprintf_data)) = ret;
+                addr_t ret_param_addr = actual_return_op.get_symbol()->get_address();
+                thread->m_last_effective_address = ret_param_addr;
+                thread->m_last_memory_space = param_space_local;
+                thread->m_vprintf_execution_step = 2;
+                return;
+            }
+            thread->m_last_effective_address = thread->m_arg_list_addr + (thread->m_arg_list).size();
+            // deicide
+            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
+            {
+                fprintf(stderr, "vprintf step 1 substep %d sent read request to addr 0x%lx, thread address = %p\n", thread->m_vprintf_execution_substep, thread->m_last_effective_address, thread);
+            }
+            // deicide
+            // thread->m_last_memory_space = global_space;
+            thread->m_last_memory_space = local_space;
+            thread->m_vprintf_execution_substep++;
+        }
+    }
+    else if (step == 2)
+    {
+        fprintf(stderr, "vprintf done\n");
+    }
+    else
+    {
+        fprintf(stderr, "Unknown step for vprintf\n");
+    }
 }
+

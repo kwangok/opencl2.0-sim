@@ -611,7 +611,7 @@ void ptx_instruction::set_opcode_and_latency()
    case CALLP_OP: case CALL_OP:
    {
        if (m_is_printf) {
-           op = ALU_OP;
+           op = LOAD_OP;
        } else if (m_is_cdp) {
            op = LOAD_OP;
        } else {
@@ -1470,7 +1470,7 @@ void ptx_thread_info::ptx_exec_inst( warp_inst_t &inst, unsigned lane_id)
    }
 
         // deicide
-        if (inst.m_is_cdp && insn_memaddr == 0xFEEBDAED)
+        if ((inst.m_is_cdp || inst.m_is_printf) && insn_memaddr == 0xFEEBDAED)
         {
             insn_memaddr = last_eaddr();
             insn_space = last_space();
@@ -1520,6 +1520,10 @@ void ptx_thread_info::ptx_exec_inst( warp_inst_t &inst, unsigned lane_id)
         else if (inst.m_is_cdp == 4 && m_cdp_execution_step <= 2)
         {
             // fprintf(stderr, "cudaLaunchDeviceV2 is still running, don't update PC\n");
+        }
+        else if (inst.m_is_printf && m_vprintf_execution_step <= 1)
+        {
+            // fprintf(stderr, "vprintf is still running, don't update PC\n");
         }
         else if ((m_last_memory_space.get_type() == local_space || m_last_memory_space.get_type() == param_space_local) &&
                 inst.data_size > 4)

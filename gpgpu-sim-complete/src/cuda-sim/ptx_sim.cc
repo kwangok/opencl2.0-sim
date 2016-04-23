@@ -189,6 +189,12 @@ ptx_thread_info::ptx_thread_info( kernel_info_t &kernel )
    m_wait_for_local_store = false;
    m_current_local_load_PC = (unsigned long long)-1;
    m_current_local_store_PC = (unsigned long long)-1;
+   // deicide: vprintf step
+   m_vprintf_execution_step = 0;
+   m_vprintf_execution_substep = 0;
+   m_vprintf_memory_step = 0;
+   m_vprintf_memory_substep = 0;
+   m_wait_for_vprintf = false;
 }
 
 const ptx_version &ptx_thread_info::get_ptx_version() const 

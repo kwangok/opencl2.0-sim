@@ -3448,7 +3448,7 @@ void shader_core_ctx::checkExecutionStatusAndUpdate(warp_inst_t &inst, unsigned 
 {
     if( inst.has_callback(t) ) 
            m_warp[inst.warp_id()].inc_n_atomic();
-        if (inst.space.is_local() && (inst.is_load() || inst.is_store() || inst.m_is_cdp)) {
+        if (inst.space.is_local() && (inst.is_load() || inst.is_store() || inst.m_is_cdp || inst.m_is_printf)) {
             new_addr_type localaddrs[MAX_ACCESSES_PER_INSN_PER_THREAD];
             unsigned num_addrs;
             num_addrs = translate_local_memaddr(inst.get_addr(t), tid, m_config->n_simt_clusters*m_config->n_simt_cores_per_cluster,

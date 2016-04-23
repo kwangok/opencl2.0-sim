@@ -468,6 +468,17 @@ public:
    unsigned long long m_local_long_data;
    unsigned long long m_current_local_load_PC;
    unsigned long long m_current_local_store_PC;
+   // deicide: For vprintf
+   bool m_wait_for_vprintf;
+   void * m_vprintf_data;
+   int m_vprintf_execution_step;
+   int m_vprintf_execution_substep;
+   int m_vprintf_memory_step;
+   int m_vprintf_memory_substep;
+   unsigned long long m_fmtstr_addr;
+   unsigned long long m_arg_list_addr;
+   std::vector<char> m_fmtstr;
+   std::vector<char> m_arg_list;
 
 private:
 

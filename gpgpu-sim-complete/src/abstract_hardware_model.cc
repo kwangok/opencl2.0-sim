@@ -184,7 +184,7 @@ void warp_inst_t::generate_mem_accesses()
         return;
 
     // deicide
-    if (m_is_cdp)
+    if (m_is_cdp || m_is_printf)
     {
         fprintf(stderr, "CDP memory accesses belong to param_space_local\n");
         space = local_space;
@@ -893,6 +893,11 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
                     fprintf(stderr, "Unknown CDP operation\n");
                     abort();
                 }
+                continue;
+            }
+            else if (m_thread[tid]->m_wait_for_vprintf)
+            {
+                // fprintf(stderr, "vprintf is still running, execute_warp_inst_t do nothing\n");
                 continue;
             }
             m_thread[tid]->ptx_exec_inst(inst, t);

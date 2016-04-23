@@ -1249,7 +1249,7 @@ ptx_instruction::ptx_instruction( int opcode,
            m_is_cdp = 4;
        }
 
-       if (m_is_cdp) m_space_spec = param_space_local;
+       if (m_is_cdp || m_is_printf) m_space_spec = param_space_local;
 
 
    }

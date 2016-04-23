@@ -985,7 +985,8 @@ public:
     // deicide: Check each entry of memreqaddr
     new_addr_type get_addr( unsigned n, int index = 0 ) const
     {
-        assert( m_per_scalar_thread_valid );
+        // assert( m_per_scalar_thread_valid );
+        if (!m_per_scalar_thread_valid) return (new_addr_type)-1;
         return m_per_scalar_thread[n].memreqaddr[index];
     }
     const uint8_t *get_data( unsigned n ) const
@@ -1030,7 +1031,6 @@ protected:
     unsigned cycles; // used for implementing initiation interval delay
     bool m_isatomic;
     int m_atomic_spec;
-    bool m_is_printf;
     unsigned m_warp_id;
     unsigned m_dynamic_warp_id; 
     const core_config *m_config; 
@@ -1055,8 +1055,9 @@ protected:
 
     static unsigned sm_next_uid;
 
-    // deicide: CDP
 public:
+    bool m_is_printf;
+    // deicide: CDP
     int m_is_cdp;
     int m_is_long_local_access;
 };
