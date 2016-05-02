@@ -15,43 +15,35 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ********************************************************************/
 
 
-#include "BuiltInScan.hpp"
+#include "CalcPie.hpp"
 
 #define SUPPORT 0
 
-int BuiltInScan::setupBuiltInScan()
+int CalcPie::setupCalcPie()
 {
     // allocate and init memory used by host
     cl_uint sizeBytes = length * sizeof(cl_float);
 
-    input = (cl_float *) malloc(sizeBytes);
-    CHECK_ALLOCATION(input, "Failed to allocate host memory. (input)");
+    randomX = (cl_float *) malloc(sizeBytes);
+    CHECK_ALLOCATION(randomX, "Failed to allocate host memory. (input)");
+
+    randomY = (cl_float *) malloc(sizeBytes);
+    CHECK_ALLOCATION(randomY, "Failed to allocate host memory. (input)");
 
     // random initialisation of input
-    fillRandom<cl_float>(input, length, 1, 0, 10);
-
-    if(sampleArgs->verify)
-    {
-        verificationOutput = (cl_float *) malloc(sizeBytes);
-        CHECK_ALLOCATION(verificationOutput,
-                         "Failed to allocate host memory. (verificationOutput)");
-        memset(verificationOutput, 0, sizeBytes);
-    }
-
-    // Unless quiet mode has been enabled, print the INPUT array
-    if(!sampleArgs->quiet)
-    {
-        printArray<cl_float>("Input : ", input, length, 1);
+    for (cl_uint i=0;i<length;i++) {
+		randomX[i] = (float)rand()/(float)RAND_MAX;
+		randomY[i] = (float)rand()/(float)RAND_MAX;
     }
 
     return SDK_SUCCESS;
 }
 
 int
-BuiltInScan::genBinaryImage()
+CalcPie::genBinaryImage()
 {
     bifData binaryData;
-    binaryData.kernelName = std::string("BuiltInScan_Kernels.cl");
+    binaryData.kernelName = std::string("CalcPie_Kernels.cl");
     binaryData.flagsStr = std::string("");
     if(sampleArgs->isComplierFlagsSpecified())
     {
@@ -63,7 +55,7 @@ BuiltInScan::genBinaryImage()
 }
 
 int
-BuiltInScan::setupCL(void)
+CalcPie::setupCL(void)
 {
     cl_int status = 0;
     cl_device_type dType;
@@ -117,13 +109,13 @@ BuiltInScan::setupCL(void)
     status = deviceInfo.setDeviceInfo(devices[sampleArgs->deviceId]);
     CHECK_ERROR(status, SDK_SUCCESS, "SDKDeviceInfo::setDeviceInfo() failed");
 
-    int majorRev, minorRev;
-    if (sscanf(deviceInfo.deviceVersion, "OpenCL %d.%d", &majorRev, &minorRev) == 2) 
-    {
-        if (majorRev < 2) {
-            OPENCL_EXPECTED_ERROR("Unsupported device! Required CL_DEVICE_OPENCL_C_VERSION 2.0 or higher");
-        }
-    }
+	// Check 2.x compatibility
+	bool check2_x = deviceInfo.checkOpenCL2_XCompatibility();
+
+	if (!check2_x)
+	{
+		OPENCL_EXPECTED_ERROR("Unsupported device! Required CL_DEVICE_OPENCL_C_VERSION 2.0 or higher");
+	}
 #endif
 
     // Create command queue
@@ -133,20 +125,20 @@ BuiltInScan::setupCL(void)
 #else
     commandQueue = clCreateCommandQueue(context,
 #endif
-            devices[sampleArgs->deviceId],
+                                        devices[sampleArgs->deviceId],
 #if SUPPORT
-            prop,
+                                        prop,
 #else
-            NULL,
+                                        NULL,
 #endif
-            &status);
+                                        &status);
     CHECK_OPENCL_ERROR(status, "clCreateCommandQueue failed.");
 
 
 
     // create a CL program using the kernel source
     buildProgramData buildData;
-    buildData.kernelName = std::string("BuiltInScan_Kernels.cl");
+    buildData.kernelName = std::string("CalcPie_Kernels.cl");
     buildData.devices = devices;
     buildData.deviceId = sampleArgs->deviceId;
     buildData.flagsStr = std::string("");
@@ -165,124 +157,99 @@ BuiltInScan::setupCL(void)
     CHECK_ERROR(retValue, SDK_SUCCESS, "buildOpenCLProgram() failed");
 
     // get a kernel object handle for a kernel with the given name
-    group_kernel = clCreateKernel(program, "group_scan_kernel", &status);
-    CHECK_OPENCL_ERROR(status, "clCreateKernel::group_scan_kernel failed.");
-
-    global_kernel = clCreateKernel(program, "global_scan_kernel", &status);
-    CHECK_OPENCL_ERROR(status, "clCreateKernel::global_scan_kernel failed.");
+    calc_pie_kernel = clCreateKernel(program, "calc_pie_kernel", &status);
+    CHECK_OPENCL_ERROR(status, "clCreateKernel::calc_pie_kernel failed.");
 
     /* get default work group size */
-    status =  kernelInfo.setKernelWorkGroupInfo(group_kernel,
+    status =  kernelInfo.setKernelWorkGroupInfo(calc_pie_kernel,
               devices[sampleArgs->deviceId]);
     CHECK_ERROR(status, SDK_SUCCESS, "setKErnelWorkGroupInfo() failed");
 
-    //sanity check on length
-#if SUPPORT
-    cl_uint wg_size = kernelInfo.kernelWorkGroupSize;
-#else
-    cl_uint wg_size = ((length/4) <= 32) ? 32 : (length/4);
-#endif
-    cl_int  rounded_length;
-
-    if((length%wg_size) || (length <= 0))
-    {
-
-        rounded_length = ((length/wg_size) + 1)*wg_size;
-
-        std::cout << "----------------------------------";
-        std::cout << "----------------------------------" <<std::endl;
-        std::cout << "MESSAGE: Input length should be positive multiple of " << wg_size;
-        std::cout << "." << std::endl;
-
-        std::cout << "         Given(or default) input length " << length;
-        std::cout << " is rounded to " << rounded_length;
-        std::cout << "." << std::endl;
-        std::cout << "----------------------------------";
-        std::cout << "----------------------------------" <<std::endl;
-
-        length = rounded_length;
-    }
-
-    inputBuffer = clCreateBuffer(
+    randomXBuffer = clCreateBuffer(
                       context,
                       CL_MEM_READ_ONLY,
                       sizeof(cl_float) * length,
                       NULL,
                       &status);
-    CHECK_OPENCL_ERROR(status, "clCreateBuffer failed. (inputBuffer)");
+    CHECK_OPENCL_ERROR(status, "clCreateBuffer failed. (randomBuffer)");
 
-    outputBuffer = clCreateBuffer(
-                       context,
-                       CL_MEM_WRITE_ONLY,
-                       sizeof(cl_float) * length,
-                       NULL,
-                       &status);
-    CHECK_OPENCL_ERROR(status, "clCreateBuffer failed. (outputBuffer)");
+    randomYBuffer = clCreateBuffer(
+                      context,
+                      CL_MEM_READ_ONLY,
+                      sizeof(cl_float) * length,
+                      NULL,
+                      &status);
+    CHECK_OPENCL_ERROR(status, "clCreateBuffer failed. (randomBuffer)");
+
+    insideBuffer = clCreateBuffer(
+                      context,
+                      CL_MEM_READ_WRITE,
+                      sizeof(cl_int),
+                      NULL,
+                      &status);
+    CHECK_OPENCL_ERROR(status, "clCreateBuffer failed. (insideBuffer)");
 
     return SDK_SUCCESS;
 }
 
-cl_uint 
-BuiltInScan::findStages(cl_uint data_size, cl_uint wg_size)
-{
-    if (data_size <= wg_size)
-        return 0;
-
-    //assumption is that work group size is a power of two
-    unsigned int log2wg = 0;
-
-    unsigned int n = 1;
-    while (n < wg_size)
-    {
-        log2wg += 1;
-        n <<= 1;
-    }
-
-    unsigned int log2data = 0;
-
-    n = 1;
-    while (n < data_size)
-    {
-        log2data += 1;
-        n <<= 1;
-    }
-
-    return (cl_uint)(log2data - log2wg); 
-}
-
 int
-BuiltInScan::runGroupKernel()
+CalcPie::runCalcPieKernel()
 {
     size_t dataSize      = length;
 #if SUPPORT
     size_t localThreads  = kernelInfo.kernelWorkGroupSize;
 #else
-    size_t localThreads  = ((dataSize/4) <= 32) ? 32 : (dataSize/4);
+    size_t localThreads  = (dataSize/4 <= 32) ? 32 : (length/4);
 #endif
     size_t globalThreads = dataSize;
+    cl_event writeEvt;
 
     // Set appropriate arguments to the kernel
-    // 1st argument to the kernel - inputBuffer
+    // 1st argument to the kernel - randomBuffer
     int status = clSetKernelArg(
-            group_kernel,
-            0,
-            sizeof(cl_mem),
-            (void *)&inputBuffer);
-    CHECK_OPENCL_ERROR(status, "clSetKernelArg failed.(inputBuffer)");
+				calc_pie_kernel,
+				0,
+				sizeof(cl_mem),
+				(void *)&randomXBuffer);
+    CHECK_OPENCL_ERROR(status, "clSetKernelArg failed.(randomBuffer)");
 
-    // 2nd argument to the kernel - outputBuffer
     status = clSetKernelArg(
-            group_kernel,
-            1,
-            sizeof(cl_mem),
-            (void *)&outputBuffer);
-    CHECK_OPENCL_ERROR(status, "clSetKernelArg failed.(outputBuffer)");
+				calc_pie_kernel,
+				1,
+				sizeof(cl_mem),
+				(void *)&randomYBuffer);
+    CHECK_OPENCL_ERROR(status, "clSetKernelArg failed.(randomBuffer)");
+
+    // 2nd argument to the kernel - output buffer which holds "inside" hit count
+    status = clSetKernelArg(
+			    calc_pie_kernel,
+			    2,
+			    sizeof(cl_mem),
+			    (void *)&insideBuffer);
+    CHECK_OPENCL_ERROR(status, "clSetKernelArg failed.(inside_count)");
+    
+    inside = 0;
+    status = clEnqueueWriteBuffer(
+                 commandQueue,
+                 insideBuffer,
+                 CL_FALSE,
+                 0,
+                 sizeof(cl_int),
+                 &inside,
+                 0,
+                 NULL,
+                 &writeEvt);
+
+    status = waitForEventAndRelease(&writeEvt);
+    CHECK_ERROR(status, SDK_SUCCESS, "WaitForEventAndRelease(writeEvt) Failed");
+
+    CHECK_OPENCL_ERROR(status, "clEnqueueWriteBuffer failed.(randomBuffer)");
 
     // Enqueue a kernel run call
     cl_event ndrEvt;
     status = clEnqueueNDRangeKernel(
                  commandQueue,
-                 group_kernel,
+                 calc_pie_kernel,
                  1,
                  NULL,
                  &globalThreads,
@@ -298,98 +265,44 @@ BuiltInScan::runGroupKernel()
     status = waitForEventAndRelease(&ndrEvt);
     CHECK_ERROR(status, SDK_SUCCESS, "WaitForEventAndRelease(ndrEvt) Failed");
 
-    return SDK_SUCCESS;
-}
-
-int
-BuiltInScan::runGlobalKernel()
-{
-#if SUPPORT
-    size_t localThreads  = kernelInfo.kernelWorkGroupSize;
-#else
-    size_t localThreads  = ((length/4) <= 32) ? 32 : (length/4);
-#endif
-
-    // Set number of threads needed for global_kernel.
-    size_t globalThreads = length/2;
-
-    //find number of stages
-    cl_uint stages = (cl_uint)findStages(length,localThreads);
-
-    // Set appropriate arguments to the kernel
-    // 1st argument to the kernel - Global Buffer
-    for(cl_uint k = 0; k < stages; ++k)
-    {
-        int status = clSetKernelArg(global_kernel,
-                0,
-                sizeof(cl_mem),
-                (void *)&outputBuffer);
-        CHECK_OPENCL_ERROR(status, "clSetKernelArg failed.(outputBuffer)");
-
-        // 2nd argument to the kernel - offset
-        status = clSetKernelArg(global_kernel,
-                1,
-                sizeof(cl_int),
-                (void*)&k);
-        CHECK_OPENCL_ERROR(status, "clSetKernelArg failed.(offset)");
-
-        // Run the kernel
-        cl_event ndrEvt;
-        status = clEnqueueNDRangeKernel(
-                commandQueue,
-                global_kernel,
-                1,
-                NULL,
-                &globalThreads,
-                &localThreads,
-                0,
-                NULL,
-                &ndrEvt);
-        CHECK_OPENCL_ERROR(status, "clEnqueueNDRangeKernel failed.");
-
-        status = clFlush(commandQueue);
-        CHECK_OPENCL_ERROR(status, "clFlush failed.(commandQueue)");
-
-        status = waitForEventAndRelease(&ndrEvt);
-        CHECK_ERROR(status, SDK_SUCCESS, "WaitForEventAndRelease(ndrEvt) Failed");
-    }
+    // deicide
+    status = clFinish(commandQueue);
+    CHECK_OPENCL_ERROR(status, "clFinish failed.(commandQueue)");
+    // deicide
 
     return SDK_SUCCESS;
 }
 
 int
-BuiltInScan::runCLKernels(void)
+CalcPie::runCLKernels(void)
 {
     cl_int status;
 
-    status =  kernelInfo.setKernelWorkGroupInfo(group_kernel,
+    status =  kernelInfo.setKernelWorkGroupInfo(calc_pie_kernel,
               devices[sampleArgs->deviceId]);
     CHECK_ERROR(status, SDK_SUCCESS, "setKErnelWorkGroupInfo() failed");
 
     //run the work-group level scan kernel
-    status = runGroupKernel();
-
-    //run global kernels for stage decided by input length
-    status = runGlobalKernel();
+    status = runCalcPieKernel();
 
     return SDK_SUCCESS;
 }
 
 void
-BuiltInScan::builtInScanCPUReference(
-    cl_float * output,
-    cl_float * input,
-    const cl_uint length)
+CalcPie::calcPieCPUReference(cl_float *pie)
 {
-    output[0] = input[0];
+    int insidecnt = 0;
+	for (cl_uint i = 0; i < length; i++)
+	{
+		float r = sqrt((randomX[i] * randomX[i]) + (randomY[i] * randomY[i]));
+		if (r <= 1)
+			insidecnt++;
+	}
 
-    for(cl_uint i = 1; i< length; ++i)
-    {
-        output[i] = input[i] + output[i-1];
-    }
+	*pie = (cl_float)(insidecnt * 4) / length;
 }
 
-int BuiltInScan::initialize()
+int CalcPie::initialize()
 {
     // Call base class Initialize to get default configuration
     if(sampleArgs->initialize() != SDK_SUCCESS)
@@ -423,63 +336,86 @@ int BuiltInScan::initialize()
     return SDK_SUCCESS;
 }
 
-int BuiltInScan::setup()
+int CalcPie::setup()
 {
-
+    int status;
     int timer = sampleTimer->createTimer();
     sampleTimer->resetTimer(timer);
     sampleTimer->startTimer(timer);
 
-    int retStatus = setupCL();
-    if(retStatus != SDK_SUCCESS)
+    status = setupCL();
+    if (status != SDK_SUCCESS)
     {
-        return retStatus;
+        return status;
     }
 
     sampleTimer->stopTimer(timer);
     setupTime = (cl_double)sampleTimer->readTimer(timer);
 
-    if(setupBuiltInScan() != SDK_SUCCESS)
+    if(setupCalcPie() != SDK_SUCCESS)
     {
         return SDK_FAILURE;
     }
 
     // Move data host to device
-    cl_event writeEvt;
-    cl_int   status;
+    cl_event writeEvtX;
+	cl_event writeEvtY;
+
     status = clEnqueueWriteBuffer(
                  commandQueue,
-                 inputBuffer,
+                 randomXBuffer,
                  CL_FALSE,
                  0,
                  sizeof(cl_float) * length,
-                 input,
+                 randomX,
                  0,
                  NULL,
-                 &writeEvt);
+                 &writeEvtX);
 
-    CHECK_OPENCL_ERROR(status, "clEnqueueWriteBuffer failed.(inputBuffer)");
+    CHECK_OPENCL_ERROR(status, "clEnqueueWriteBuffer failed.(randomBuffer)");
+
+	status = clFlush(commandQueue);
+    CHECK_OPENCL_ERROR(status, "clFlush failed.(commandQueue)");
+
+    status = waitForEventAndRelease(&writeEvtX);
+    CHECK_ERROR(status, SDK_SUCCESS, "WaitForEventAndRelease(writeEvtX) Failed");
+
+    status = clEnqueueWriteBuffer(
+                 commandQueue,
+                 randomYBuffer,
+                 CL_FALSE,
+                 0,
+                 sizeof(cl_float) * length,
+                 randomY,
+                 0,
+                 NULL,
+                 &writeEvtY);
+
+    CHECK_OPENCL_ERROR(status, "clEnqueueWriteBuffer failed.(randomBuffer)");
+
+
     status = clFlush(commandQueue);
     CHECK_OPENCL_ERROR(status, "clFlush failed.(commandQueue)");
-    status = waitForEventAndRelease(&writeEvt);
-    CHECK_ERROR(status, SDK_SUCCESS, "WaitForEventAndRelease(writeEvt) Failed");
+
+    status = waitForEventAndRelease(&writeEvtY);
+    CHECK_ERROR(status, SDK_SUCCESS, "WaitForEventAndRelease(writeEvtY) Failed");
 
     return SDK_SUCCESS;
 }
 
 
-int BuiltInScan::run()
+int CalcPie::run()
 {
     int status = 0;
 
     //warm up run
     if(runCLKernels() != SDK_SUCCESS)
-    {
-        return SDK_FAILURE;
-    }
-
+      {
+	return SDK_FAILURE;
+      }
+    
     std::cout << "Executing kernel for " << iterations
-        << " iterations" << std::endl;
+              << " iterations" << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
 
     int timer = sampleTimer->createTimer();
@@ -501,50 +437,55 @@ int BuiltInScan::run()
     return SDK_SUCCESS;
 }
 
-int BuiltInScan::verifyResults()
+int CalcPie::verifyResults()
 {
-    int status = SDK_SUCCESS;
-    if(sampleArgs->verify)
-    {
-        // Read the device output buffer
-        cl_float *ptrOutBuff;
-        int status = mapBuffer(outputBuffer, 
-                ptrOutBuff,  
-                length * sizeof(cl_float),
-                CL_MAP_READ);
-        CHECK_ERROR(status, SDK_SUCCESS, 
-                "Failed to map device buffer.(resultBuf)");
+  int status = SDK_SUCCESS;
+  
+  if(sampleArgs->verify)
+  {
+      // Read the device output buffer
+      cl_float pieValue, gpuPie;
+      cl_int *gpuInsideCount;
+      int status = mapBuffer(insideBuffer,
+                             gpuInsideCount,
+                             sizeof(cl_int),
+                             CL_MAP_READ);
+      CHECK_ERROR(status, SDK_SUCCESS,
+                  "Failed to map device buffer.(resultBuf)");
+      gpuPie = (cl_float)(*gpuInsideCount * 4)/length;
 
-        // reference implementation
-        builtInScanCPUReference(verificationOutput, input, length);
+	  status = unmapBuffer(insideBuffer, gpuInsideCount);
+	  CHECK_ERROR(status, SDK_SUCCESS,
+                  "Failed to unmap device buffer.(resultBuf)");
 
-        // compare the results and see if they match
-        float epsilon = length * 1e-7f;
-        if(compare(ptrOutBuff, verificationOutput, length, epsilon))
-        {
-            std::cout << "Passed!\n" << std::endl;
-            status = SDK_SUCCESS;
-        }
-        else
-        {
-            std::cout << "Failed\n" << std::endl;
-            status = SDK_FAILURE;
-        }
+      // reference implementation
+      calcPieCPUReference(&pieValue);
 
-        if(!sampleArgs->quiet)
-        {
-            printArray<cl_float>("Output : ", ptrOutBuff, length, 1);
-        }
+      if(!sampleArgs->quiet)
+      {
+		std::cout << "GPUInsideCount: " << *gpuInsideCount;
+        std::cout << " CPUValue :"  << pieValue << " GPUValue: " << gpuPie << std::endl;
+      }
 
-        // un-map outputBuffer
-        int result = unmapBuffer(outputBuffer, ptrOutBuff);
-        CHECK_ERROR(result, SDK_SUCCESS,
-                "Failed to unmap device buffer.(resultCountBuf)");
-    }
-    return status;
+      // compare the results and see if they match
+      float epsilon = 1e-2f;
+      if(::fabs(gpuPie - pieValue) <=  epsilon)
+      {
+		std::cout << "Passed!\n" << std::endl;
+		status = SDK_SUCCESS;
+      }
+      else
+	  {
+		std::cout << "Failed\n" << std::endl;
+        status = SDK_FAILURE;
+	  }
+      
+  }
+
+  return status;
 }
 
-void BuiltInScan::printStats()
+void CalcPie::printStats()
 {
     if(sampleArgs->timing)
     {
@@ -567,25 +508,25 @@ void BuiltInScan::printStats()
     }
 }
 
-int BuiltInScan::cleanup()
+int CalcPie::cleanup()
 {
     // Releases OpenCL resources (Context, Memory etc.)
     cl_int status = 0;
 
-    status = clReleaseKernel(group_kernel);
-    CHECK_OPENCL_ERROR(status, "clReleaseKernel failed.(program)");
+    status = clReleaseKernel(calc_pie_kernel);
+    CHECK_OPENCL_ERROR(status, "clReleaseKernel failed.(calc_pie_kernel)");
 
-    status = clReleaseKernel(global_kernel);
-    CHECK_OPENCL_ERROR(status, "clReleaseKernel failed.(program)");
-
-    status = clReleaseProgram(program);
+	status = clReleaseProgram(program);
     CHECK_OPENCL_ERROR(status, "clReleaseProgram failed.(program)");
 
-    status = clReleaseMemObject(inputBuffer);
-    CHECK_OPENCL_ERROR(status, "clReleaseMemObject failed.(inputBuffer)");
+    status = clReleaseMemObject(randomXBuffer);
+    CHECK_OPENCL_ERROR(status, "clReleaseMemObject failed.(randomBuffer)");
 
-    status = clReleaseMemObject(outputBuffer);
-    CHECK_OPENCL_ERROR(status, "clReleaseMemObject failed.(outputBuffer)");
+    status = clReleaseMemObject(randomYBuffer);
+    CHECK_OPENCL_ERROR(status, "clReleaseMemObject failed.(randomBuffer)");
+	
+	status = clReleaseMemObject(insideBuffer);
+    CHECK_OPENCL_ERROR(status, "clReleaseMemObject failed.(insideBuffer)");
 
     status = clReleaseCommandQueue(commandQueue);
     CHECK_OPENCL_ERROR(status, "clReleaseCommandQueue failed.(commandQueue)");
@@ -593,12 +534,16 @@ int BuiltInScan::cleanup()
     status = clReleaseContext(context);
     CHECK_OPENCL_ERROR(status, "clReleaseContext failed.(context)");
 
+	// release program resources
+    FREE(randomX);
+    FREE(randomY);
+
     return SDK_SUCCESS;
 }
 
 template<typename T>
-int BuiltInScan::mapBuffer(cl_mem deviceBuffer, T* &hostPointer,
-        size_t sizeInBytes, cl_map_flags flags)
+int CalcPie::mapBuffer(cl_mem deviceBuffer, T* &hostPointer,
+                         size_t sizeInBytes, cl_map_flags flags)
 {
 #if SUPPORT
     cl_int status;
@@ -623,7 +568,7 @@ int BuiltInScan::mapBuffer(cl_mem deviceBuffer, T* &hostPointer,
 }
 
 int
-BuiltInScan::unmapBuffer(cl_mem deviceBuffer, void* hostPointer)
+CalcPie::unmapBuffer(cl_mem deviceBuffer, void* hostPointer)
 {
 #if SUPPORT
     cl_int status;
@@ -644,50 +589,52 @@ BuiltInScan::unmapBuffer(cl_mem deviceBuffer, void* hostPointer)
 int
 main(int argc, char * argv[])
 {
+
+    CalcPie clCalcPie;
     int status = 0;
-    BuiltInScan clBuiltInScan;
+
     // Initialize
-    if(clBuiltInScan.initialize() != SDK_SUCCESS)
+    if(clCalcPie.initialize() != SDK_SUCCESS)
     {
         return SDK_FAILURE;
     }
 
-    if(clBuiltInScan.sampleArgs->parseCommandLine(argc, argv) != SDK_SUCCESS)
+    if(clCalcPie.sampleArgs->parseCommandLine(argc, argv) != SDK_SUCCESS)
     {
-        return SDK_EXPECTED_FAILURE;
+        return SDK_FAILURE;
     }
 
-    if(clBuiltInScan.sampleArgs->isDumpBinaryEnabled())
+    if(clCalcPie.sampleArgs->isDumpBinaryEnabled())
     {
         //GenBinaryImage
-        return clBuiltInScan.genBinaryImage();
+        return clCalcPie.genBinaryImage();
     }
 
     // Setup
-    status = clBuiltInScan.setup();
+    status = clCalcPie.setup();
     if(status != SDK_SUCCESS)
     {
         return status;
     }
 
     // Run
-    if(clBuiltInScan.run() != SDK_SUCCESS)
+    if(clCalcPie.run() != SDK_SUCCESS)
     {
         return SDK_FAILURE;
     }
 
     // VerifyResults
-    if(clBuiltInScan.verifyResults() != SDK_SUCCESS)
+    if(clCalcPie.verifyResults() != SDK_SUCCESS)
     {
         return SDK_FAILURE;
     }
 
     // Cleanup
-    if (clBuiltInScan.cleanup() != SDK_SUCCESS)
+    if (clCalcPie.cleanup() != SDK_SUCCESS)
     {
         return SDK_FAILURE;
     }
 
-    clBuiltInScan.printStats();
+    clCalcPie.printStats();
     return SDK_SUCCESS;
 }

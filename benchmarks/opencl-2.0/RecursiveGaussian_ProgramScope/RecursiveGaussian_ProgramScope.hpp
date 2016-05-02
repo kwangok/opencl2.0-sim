@@ -30,7 +30,7 @@ using namespace appsdk;
 #define INPUT_IMAGE "RecursiveGaussian_ProgramScope_Input.bmp"
 #define OUTPUT_IMAGE "RecursiveGaussian_ProgramScope_Output.bmp"
 #define OCL2_0_FLAGS "RecursiveGaussian_ProgramScope_oclflag.txt"
-#define SAMPLE_VERSION "AMD-APP-SDK-v3.0.124.1"
+#define SAMPLE_VERSION "AMD-APP-SDK-v3.0.130.1"
 
 #define GROUP_SIZE 256
 

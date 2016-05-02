@@ -1,4 +1,4 @@
-CXX=g++-4.4
+CXX=g++
 AMDAPP=${HOME}/AMD-APP-SDK-v3.0
 OPENCL=${OPENCLSIM_ROOT}/benchmarks/libopencl
 

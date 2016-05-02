@@ -15,43 +15,41 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ********************************************************************/
 
 
-#ifndef _BUILT_IN_SCAN_H_
-#define _BUILT_IN_SCAN_H_
+#ifndef _FINEGRAIN_SVM_H_
+#define _FINEGRAIN_SVM_H_
 
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <atomic>
 #include "CLUtil.hpp"
 
 using namespace appsdk;
 
 #define SAMPLE_VERSION "AMD-APP-SDK-v3.0.130.2"
-#define OCL_COMPILER_FLAGS  "BuiltInScan_OclFlags.txt"
+#define OCL_COMPILER_FLAGS  "FineGrainSVM_OclFlags.txt"
 
 /**
- * BuiltInScan
+ * FineGrainSVM
  * Class implements OpenCL Prefix Sum sample
  */
 
-class BuiltInScan
+class FineGrainSVM
 {
         cl_uint
         seed;      /**< Seed value for random number generation */
         cl_double           setupTime;      /**< Time for setting up OpenCL */
         cl_double          kernelTime;      /**< Time for kernel execution */
         cl_uint                 length;     /**< length of the input array */
-        cl_float               *input;      /**< Input array */
-        cl_float  *verificationOutput;      /**< Output array for reference implementation */
+        cl_int               *buffer;      /**< Input array */
+        cl_int               *atomicBuffer;      /**< Input array */
         cl_context            context;      /**< CL context */
         cl_device_id         *devices;      /**< CL device list */
-        cl_mem            inputBuffer;      /**< CL memory buffer */
-        cl_mem           outputBuffer;      /**< CL memory output Buffer */
         cl_command_queue commandQueue;      /**< CL command queue */
         cl_program            program;      /**< CL program  */
-        cl_kernel        group_kernel;      /**< CL kernel */
-        cl_kernel       global_kernel;      /**< CL kernel */
+        cl_kernel        fine_grain_ldstore;      /**< CL kernel */
         int
         iterations;      /**< Number of iterations for kernel execution */
         SDKDeviceInfo deviceInfo;/**< Structure to store device information*/
@@ -71,13 +69,11 @@ cl_uint         stages;
         *
         *******************************************************************************
         */
-        BuiltInScan()
+        FineGrainSVM()
             : seed(123),
               setupTime(0),
               kernelTime(0),
               length(1024),
-              input(NULL),
-              verificationOutput(NULL),
               devices(NULL),
               iterations(1)
         {
@@ -93,22 +89,20 @@ cl_uint         stages;
         * @brief Cleanup the member objects.
         *******************************************************************************
         */
-        ~BuiltInScan()
+        ~FineGrainSVM()
         {
             // release program resources
-            FREE(input);
-            FREE(verificationOutput);
             FREE(devices);
         }
 
         /**
         *******************************************************************************
-        * @fn setupBuiltInScan
+        * @fn setupFineGrainSVM
         * @brief Allocate and initialize host memory array with random values
         * @return SDK_SUCCESS on success and SDK_FAILURE on failure
         *******************************************************************************
         */
-        int setupBuiltInScan();
+        int setupFineGrainSVM();
 
         /**
         *******************************************************************************
@@ -133,7 +127,7 @@ cl_uint         stages;
 
         /**
         *******************************************************************************
-        * @fn builtInScanCPUReference
+        * @fn fineGrainSVMCPUReference
         * @brief Reference CPU implementation of Prefix Sum.
         *
         * @param output the array that stores the prefix sum
@@ -141,9 +135,7 @@ cl_uint         stages;
         * @param length length of the input array
         *******************************************************************************
         */
-        void builtInScanCPUReference(cl_float * output,
-				     cl_float * input,
-				     const cl_uint length);
+        void fineGrainSVMCPUReference(cl_float * output);
 
         /**
         *******************************************************************************
@@ -213,36 +205,6 @@ cl_uint         stages;
 
         /**
         *******************************************************************************
-        * @fn mapBuffer
-        * @brief A common function to map cl_mem object to host
-        *
-        * @param[in] deviceBuffer : Device buffer
-        * @param[out] hostPointer : Host pointer
-        * @param[in] sizeInBytes : Number of bytes to map
-        * @param[in] flags : map flags
-        *
-        * @return SDK_SUCCESS on success and SDK_FAILURE on failure
-        *******************************************************************************
-        */
-        template<typename T>
-        int mapBuffer(cl_mem deviceBuffer, T* &hostPointer, size_t sizeInBytes,
-                      cl_map_flags flags);
-
-        /**
-        *******************************************************************************
-        * @fn unmapBuffer
-        * @brief A common function to unmap cl_mem object from host
-        *
-        * @param[in] deviceBuffer : Device buffer
-        * @param[in] hostPointer : Host pointer
-        *
-        * @return SDK_SUCCESS on success and SDK_FAILURE on failure
-        *******************************************************************************
-        */
-        int unmapBuffer(cl_mem deviceBuffer, void* hostPointer);
-
-        /**
-        *******************************************************************************
         * @fn runGroupKernel
         * @brief Run group prefixsum CL kernel. The kernel make prefix sum on individual work groups.
         *
@@ -251,24 +213,7 @@ cl_uint         stages;
         * @return SDK_SUCCESS on success and SDK_FAILURE on failure
         *******************************************************************************
         */
-        int runGroupKernel();
+        int runFineGrainSVMKernel();
 
-        /**
-        *******************************************************************************
-        * @fn runGlobalKernel
-        * @brief Run global prefixsum CL kernel. The kernel updates all elements.
-        *
-        * @param[in] offset : Distance between two consecutive index.
-        *
-        * @return SDK_SUCCESS on success and SDK_FAILURE on failure
-        *******************************************************************************
-        */
-        int runGlobalKernel();
-
-        /***
-	 *findStages
-	 *finds number of stages required for global scan
-	 ***/
-        cl_uint findStages(cl_uint data_size, cl_uint wg_size);
 };
 #endif

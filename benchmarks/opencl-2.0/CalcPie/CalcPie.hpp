@@ -15,8 +15,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ********************************************************************/
 
 
-#ifndef _BUILT_IN_SCAN_H_
-#define _BUILT_IN_SCAN_H_
+#ifndef _CALC_PIE_H_
+#define _CALC_PIE_H_
 
 
 #include <stdio.h>
@@ -28,30 +28,31 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace appsdk;
 
 #define SAMPLE_VERSION "AMD-APP-SDK-v3.0.130.2"
-#define OCL_COMPILER_FLAGS  "BuiltInScan_OclFlags.txt"
+#define OCL_COMPILER_FLAGS  "CalcPie_OclFlags.txt"
 
 /**
- * BuiltInScan
+ * CalcPie
  * Class implements OpenCL Prefix Sum sample
  */
 
-class BuiltInScan
+class CalcPie
 {
         cl_uint
         seed;      /**< Seed value for random number generation */
         cl_double           setupTime;      /**< Time for setting up OpenCL */
         cl_double          kernelTime;      /**< Time for kernel execution */
         cl_uint                 length;     /**< length of the input array */
-        cl_float               *input;      /**< Input array */
-        cl_float  *verificationOutput;      /**< Output array for reference implementation */
+        cl_float               *randomX;      /**< Input array */
+        cl_float               *randomY;      /**< Input array */
         cl_context            context;      /**< CL context */
         cl_device_id         *devices;      /**< CL device list */
-        cl_mem            inputBuffer;      /**< CL memory buffer */
-        cl_mem           outputBuffer;      /**< CL memory output Buffer */
+        cl_mem            randomXBuffer;      /**< CL memory buffer */
+        cl_mem            randomYBuffer;      /**< CL memory buffer */
+        cl_mem           insideBuffer;      /**< CL memory output Buffer */
+        cl_int		inside;
         cl_command_queue commandQueue;      /**< CL command queue */
         cl_program            program;      /**< CL program  */
-        cl_kernel        group_kernel;      /**< CL kernel */
-        cl_kernel       global_kernel;      /**< CL kernel */
+        cl_kernel        calc_pie_kernel;      /**< CL kernel */
         int
         iterations;      /**< Number of iterations for kernel execution */
         SDKDeviceInfo deviceInfo;/**< Structure to store device information*/
@@ -71,13 +72,11 @@ cl_uint         stages;
         *
         *******************************************************************************
         */
-        BuiltInScan()
+        CalcPie()
             : seed(123),
               setupTime(0),
               kernelTime(0),
               length(1024),
-              input(NULL),
-              verificationOutput(NULL),
               devices(NULL),
               iterations(1)
         {
@@ -93,22 +92,19 @@ cl_uint         stages;
         * @brief Cleanup the member objects.
         *******************************************************************************
         */
-        ~BuiltInScan()
+        ~CalcPie()
         {
-            // release program resources
-            FREE(input);
-            FREE(verificationOutput);
             FREE(devices);
         }
 
         /**
         *******************************************************************************
-        * @fn setupBuiltInScan
+        * @fn setupCalcPie
         * @brief Allocate and initialize host memory array with random values
         * @return SDK_SUCCESS on success and SDK_FAILURE on failure
         *******************************************************************************
         */
-        int setupBuiltInScan();
+        int setupCalcPie();
 
         /**
         *******************************************************************************
@@ -133,7 +129,7 @@ cl_uint         stages;
 
         /**
         *******************************************************************************
-        * @fn builtInScanCPUReference
+        * @fn calcPieCPUReference
         * @brief Reference CPU implementation of Prefix Sum.
         *
         * @param output the array that stores the prefix sum
@@ -141,9 +137,7 @@ cl_uint         stages;
         * @param length length of the input array
         *******************************************************************************
         */
-        void builtInScanCPUReference(cl_float * output,
-				     cl_float * input,
-				     const cl_uint length);
+        void calcPieCPUReference(cl_float * output);
 
         /**
         *******************************************************************************
@@ -251,24 +245,7 @@ cl_uint         stages;
         * @return SDK_SUCCESS on success and SDK_FAILURE on failure
         *******************************************************************************
         */
-        int runGroupKernel();
+        int runCalcPieKernel();
 
-        /**
-        *******************************************************************************
-        * @fn runGlobalKernel
-        * @brief Run global prefixsum CL kernel. The kernel updates all elements.
-        *
-        * @param[in] offset : Distance between two consecutive index.
-        *
-        * @return SDK_SUCCESS on success and SDK_FAILURE on failure
-        *******************************************************************************
-        */
-        int runGlobalKernel();
-
-        /***
-	 *findStages
-	 *finds number of stages required for global scan
-	 ***/
-        cl_uint findStages(cl_uint data_size, cl_uint wg_size);
 };
 #endif
