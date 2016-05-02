@@ -142,7 +142,41 @@ symbol *symbol_table::add_variable( const char *identifier, const type_info *typ
 {
    char buf[1024];
    std::string key(identifier);
-   assert( m_symbols.find(key) == m_symbols.end() );
+   // deicide: Handle duplicates
+   if (m_symbols.find(key) != m_symbols.end())
+   {
+       symbol *old = m_symbols[key];
+       if (size <= old->get_size_in_bytes())
+       {
+           return NULL;
+       }
+       const type_info * old_type = old->type();
+       if (old_type != NULL && old_type->get_key().is_global())
+       {
+           for (std::list<symbol*>::iterator it = m_globals.begin(); it != m_globals.end(); ++it)
+           {
+               if ((*it)->name() == key)
+               {
+                   m_globals.erase(it);
+                   break;
+               }
+           }
+       }
+       if (old_type != NULL && old_type->get_key().is_const())
+       {
+           for (std::list<symbol*>::iterator it = m_consts.begin(); it != m_consts.end(); ++it)
+           {
+               if ((*it)->name() == key)
+               {
+                   m_consts.erase(it);
+                   break;
+               }
+           }
+       }
+       delete old;
+       m_symbols.erase(key);
+   }
+   // assert( m_symbols.find(key) == m_symbols.end() );
    snprintf(buf,1024,"%s:%u",filename,line);
    symbol *s = new symbol(identifier,type,buf,size);
    m_symbols[ key ] = s;

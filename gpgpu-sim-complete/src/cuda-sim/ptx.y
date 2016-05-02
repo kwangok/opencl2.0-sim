@@ -280,6 +280,7 @@ ptr_space_spec: GLOBAL_DIRECTIVE { add_ptr_spec(global_space); }
               | LOCAL_DIRECTIVE  { add_ptr_spec(local_space); }
               | SHARED_DIRECTIVE { add_ptr_spec(shared_space); }
 			  | CONST_DIRECTIVE { add_ptr_spec(const_space); } // Added by Yi-Chang
+			  | WEAK_DIRECTIVE ptr_space_spec // deicide
 
 ptr_align_spec: ALIGN_DIRECTIVE INT_OPERAND
 
@@ -358,6 +359,7 @@ addressable_spec: CONST_DIRECTIVE {  add_space_spec(const_space,$1); }
 	| SHARED_DIRECTIVE 	  {  add_space_spec(shared_space,0); }
 	| SURF_DIRECTIVE 	  {  add_space_spec(surf_space,0); }
 	| TEX_DIRECTIVE 	  {  add_space_spec(tex_space,0); }
+    | WEAK_DIRECTIVE addressable_spec // deicide
 	;
 
 type_spec: scalar_type 

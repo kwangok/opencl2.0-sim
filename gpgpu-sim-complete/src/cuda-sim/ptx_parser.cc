@@ -368,13 +368,8 @@ void add_identifier( const char *identifier, int array_dim, unsigned array_ident
 
    bool duplicates = check_for_duplicates( identifier );
    if( duplicates ) {
-      symbol *s = g_current_symbol_table->lookup(identifier);
-      g_last_symbol = s;
       if( g_func_decl ) 
          return;
-      std::string msg = std::string(identifier) + " was declared previous at " + s->decl_location() + " skipping new declaration"; 
-      printf("GPGPU-Sim PTX: Warning %s\n", msg.c_str());
-      return;
    }
 
    assert( g_var_type != NULL );
@@ -391,6 +386,14 @@ void add_identifier( const char *identifier, int array_dim, unsigned array_ident
       break;
    }
    g_last_symbol = g_current_symbol_table->add_variable(identifier,type,num_bits/8,g_filename,ptx_lineno);
+   if (!g_last_symbol)
+   {
+      symbol *s = g_current_symbol_table->lookup(identifier);
+      g_last_symbol = s;
+      std::string msg = std::string(identifier) + " was declared previous at " + s->decl_location() + " skipping new declaration"; 
+      printf("GPGPU-Sim PTX: Warning %s\n", msg.c_str());
+      return;
+   }
    switch ( ti.get_memory_space().get_type() ) {
    case reg_space: {
       regnum = g_current_symbol_table->next_reg_num();
