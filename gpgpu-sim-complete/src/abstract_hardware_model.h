@@ -277,8 +277,16 @@ private:
 	struct stream_group_id_comp {
 		bool operator() (const struct stream_group_id & a, const struct stream_group_id & b) const
 		{
-			return (a.kernel_id != b.kernel_id || a.cta_id.x != b.cta_id.x || a.cta_id.y != b.cta_id.y || a.cta_id.z != b.cta_id.z);
-		}
+            if (a.kernel_id < b.kernel_id) return true;
+            else if (a.kernel_id > b.kernel_id) return false;
+            else if (a.cta_id.z < b.cta_id.z) return true;
+            else if (a.cta_id.z > b.cta_id.z) return false;
+            else if (a.cta_id.y < b.cta_id.y) return true;
+            else if (a.cta_id.y > b.cta_id.y) return false;
+            else if (a.cta_id.x < b.cta_id.x) return true;
+            else if (a.cta_id.x > b.cta_id.x) return false;
+            else return false;
+        }
 	};
 	std::map<struct stream_group_id, struct CUstream_st *, stream_group_id_comp> m_cta_streams;
 #endif

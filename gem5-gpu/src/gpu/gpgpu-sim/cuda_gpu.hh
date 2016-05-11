@@ -363,6 +363,15 @@ class CudaGPU : public ClockedObject
         if (!streamManager->childStreamEmpty()) return;
         if (deviceKernelCount == 0)
         {
+            // deicide: Check if host launched kernel is still running
+            if (_stream->getType() == stream_device)
+            {
+                if (!streamManager->hostKernelDone())
+                {
+                    DPRINTF(CudaGPU, "Parent kernel is still running, do not set runningTC NULL\n");
+                    return;
+                }
+            }
             runningStream = NULL;
             // runningDeviceStream = NULL;
             runningTC = NULL;

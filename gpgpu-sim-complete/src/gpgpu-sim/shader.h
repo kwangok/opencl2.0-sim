@@ -1764,6 +1764,9 @@ public:
 
 	 void inc_simt_to_mem(unsigned n_flits){ m_stats->n_simt_to_mem[m_sid] += n_flits; }
 
+     // Returns numbers of addresses in translated_addrs
+     unsigned translate_local_memaddr( address_type localaddr, unsigned tid, unsigned num_shader, unsigned datasize, new_addr_type* translated_addrs );
+
 private:
      friend class ldst_unit;
 	 unsigned inactive_lanes_accesses_sfu(unsigned active_count,double latency){
@@ -1788,9 +1791,6 @@ private:
     friend class LooseRoundRobbinScheduler;
     void issue_warp( register_set& warp, const warp_inst_t *pI, const active_mask_t &active_mask, unsigned warp_id );
     void func_exec_inst( warp_inst_t &inst );
-
-     // Returns numbers of addresses in translated_addrs
-    unsigned translate_local_memaddr( address_type localaddr, unsigned tid, unsigned num_shader, unsigned datasize, new_addr_type* translated_addrs );
 
     void read_operands();
     

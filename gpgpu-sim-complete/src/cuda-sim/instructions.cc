@@ -2697,15 +2697,16 @@ void ld_exec( const ptx_instruction *pI, ptx_thread_info *thread )
            thread->m_current_local_load_PC = pI->get_PC();
        }
        // deicide
+       thread->m_last_memory_space = space;
+       if (thread->m_local_load_execution_step > 2) return;
+       if (thread->m_local_load_execution_step != thread->m_local_load_memory_step) return;
        if (thread->m_local_load_execution_step == 2)
        {
            thread->m_local_load_execution_step++;
            return;
        }
-       thread->m_last_memory_space = space;
-       if (thread->m_local_load_execution_step > 2) return;
-       if (thread->m_local_load_execution_step != thread->m_local_load_memory_step) return;
        thread->m_last_effective_address = addr;
+       thread->m_local_load_expected_address = thread->m_last_effective_address;
        thread->m_local_load_execution_step++;
    }
    else
@@ -4803,15 +4804,16 @@ void st_impl( const ptx_instruction *pI, ptx_thread_info *thread )
            thread->m_current_local_store_PC = pI->get_PC();
        }
        // deicide
+       thread->m_last_memory_space = space;
+       if (thread->m_local_store_execution_step > 2) return;
+       if (thread->m_local_store_execution_step != thread->m_local_store_memory_step) return;
        if (thread->m_local_store_execution_step == 2)
        {
            thread->m_local_store_execution_step++;
            return;
        }
-       thread->m_last_memory_space = space;
-       if (thread->m_local_store_execution_step > 2) return;
-       if (thread->m_local_store_execution_step != thread->m_local_store_memory_step) return;
        thread->m_last_effective_address = addr;
+       thread->m_local_store_expected_address = thread->m_last_effective_address;
        data = thread->get_operand_value(src1, dst, type, thread, 1);
        thread->m_local_store_execution_step++;
    }

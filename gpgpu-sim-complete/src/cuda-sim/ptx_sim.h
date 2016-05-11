@@ -424,6 +424,9 @@ public:
 
 public:
    addr_t         m_last_effective_address;
+   addr_t         m_cdp_expected_address;
+   addr_t         m_local_load_expected_address;
+   addr_t         m_local_store_expected_address;
    bool        m_branch_taken;
    memory_space_t m_last_memory_space;
    dram_callback_t   m_last_dram_callback; 

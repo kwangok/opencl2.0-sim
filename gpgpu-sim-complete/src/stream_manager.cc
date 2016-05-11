@@ -89,6 +89,11 @@ void CUstream_st::record_next_done()
     m_pending=false;
 }
 
+// deicide: Cancel the stream operation when GPU is full
+void CUstream_st::cancel_next()
+{
+    m_pending = false;
+}
 
 stream_operation CUstream_st::next()
 {
@@ -100,7 +105,10 @@ stream_operation CUstream_st::next()
 
 void CUstream_st::print(FILE *fp)
 {
-    fprintf(fp,"GPGPU-Sim API:    stream %u has %zu operations\n", m_uid, m_operations.size() );
+    if (m_type == stream_host)
+        fprintf(fp,"GPGPU-Sim API:    host stream %u has %zu operations\n", m_uid, m_operations.size() );
+    else
+        fprintf(fp,"GPGPU-Sim API:    device stream %u has %zu operations\n", m_uid, m_operations.size() );
     std::list<stream_operation>::iterator i;
     unsigned n=0;
     for( i=m_operations.begin(); i!=m_operations.end(); i++ ) {
@@ -161,6 +169,10 @@ void stream_operation::do_operation( gpgpu_sim *gpu )
                 gpu->launch( m_kernel );
                 gpu->gem5CudaGPU->beginRunning(launchTime, m_stream);
             }
+        } else {
+            // deicide: Cancel stream operation if GPU is full
+            // TODO: Model timing
+            m_stream->cancel_next();
         }
         break;
     case stream_event: {
@@ -504,6 +516,25 @@ bool stream_manager::childStreamEmpty()
         return false;
     return true;
 }
+
+bool stream_manager::hostKernelDone()
+{
+    for (std::list<struct CUstream_st*>::iterator it = m_streams.begin(); it != m_streams.end(); ++it)
+    {
+        struct CUstream_st * stream = *it;
+        if (!stream->empty())
+        {
+            assert(stream->next().is_kernel());
+            return stream->next().get_kernel()->done();
+        }
+    }
+    if (!m_stream_zero.empty())
+    {
+        assert(m_stream_zero.next().is_kernel());
+        return m_stream_zero.next().get_kernel()->done();
+    }
+    return true;
+}
 #endif
 
 
@@ -536,7 +567,7 @@ void stream_manager::push( stream_operation op )
 {
     struct CUstream_st *stream = op.get_stream();
 
-    if( stream && !m_cuda_launch_blocking ) {
+    if( stream && (!m_cuda_launch_blocking || op.get_type() == stream_child_kernel_launch) ) {
         stream->push(op);
     } else {
 #ifdef DEVICE_STREAM

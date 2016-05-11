@@ -280,6 +280,7 @@ public:
     void synchronize();
     void push( const stream_operation &op );
     void record_next_done();
+    void cancel_next();
     stream_operation next();
     stream_operation &front() { return m_operations.front(); }
     void print( FILE *fp );
@@ -321,6 +322,8 @@ public:
     bool empty();
     // deicide: Checking child stream status
     bool childStreamEmpty();
+    // deicide: Checking host kernel status
+    bool hostKernelDone();
     void print( FILE *fp);
     void push( stream_operation op );
     bool operation(bool * sim);

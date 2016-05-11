@@ -108,6 +108,7 @@ void gpgpusim_cuda_getParameterBufferV2(
         assert(size == sizeof(function_info*));
         // Leave local memory read to gem5-gpu
         thread->m_last_effective_address = from_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = local_space;
         thread->m_cdp_execution_substep++;
         if (thread->m_cdp_execution_substep >= 2)
@@ -120,6 +121,7 @@ void gpgpusim_cuda_getParameterBufferV2(
         // Handle grid dimension
         assert(size == sizeof(struct dim3));
         thread->m_last_effective_address = from_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = local_space;
         thread->m_cdp_execution_substep++;
         if (thread->m_cdp_execution_substep >= 3)
@@ -132,6 +134,7 @@ void gpgpusim_cuda_getParameterBufferV2(
         // Handle block dimension
         assert(size == sizeof(struct dim3));
         thread->m_last_effective_address = from_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = local_space;
         thread->m_cdp_execution_substep++;
         if (thread->m_cdp_execution_substep >= 3)
@@ -144,6 +147,7 @@ void gpgpusim_cuda_getParameterBufferV2(
         // Handle shared memory size
         assert(size == sizeof(unsigned int));
         thread->m_last_effective_address = from_addr;
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = local_space;
         thread->m_cdp_execution_step = 4;
     }
@@ -159,7 +163,7 @@ void gpgpusim_cuda_getParameterBufferV2(
         const symbol * formal_return = target_func->get_return_var();
         unsigned int return_size = formal_return->get_size_in_bytes();
         assert(actual_return_op.is_param_local());
-        assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(void *));
+        // assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(void *));
         addr_t ret_param_addr = actual_return_op.get_symbol()->get_address();
         if (thread->m_cdp_execution_substep == 0)
         {
@@ -168,7 +172,7 @@ void gpgpusim_cuda_getParameterBufferV2(
             function_info * child_kernel_entry = (function_info*)(thread->m_child_kernel_entry);
             unsigned child_kernel_arg_size = child_kernel_entry->get_args_aligned_size();
 
-            void * param_buffer;
+            void * param_buffer = NULL;
             int error = posix_memalign((void**)&param_buffer, 128, child_kernel_arg_size);
             if (error) {
                 fprintf(stderr, "ERROR: cudaMalloc failed with code: %d, Exiting...\n", error);
@@ -202,6 +206,7 @@ void gpgpusim_cuda_getParameterBufferV2(
         }
 
         thread->m_last_effective_address = ret_param_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = local_space;
         thread->m_cdp_execution_substep++;
         if (thread->m_cdp_execution_substep >= 2)
@@ -266,6 +271,7 @@ void gpgpusim_cuda_launchDeviceV2(
         {
             assert(size == sizeof(new_addr_type));
             thread->m_last_effective_address = from_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
+            thread->m_cdp_expected_address = thread->m_last_effective_address;
             thread->m_last_memory_space = local_space;
             thread->m_cdp_execution_substep++;
         }
@@ -289,12 +295,14 @@ void gpgpusim_cuda_launchDeviceV2(
             if (device_kernel_entry->get_args_aligned_size() % 4 != 0) thread->m_device_kernel_arg_total_words++;
 
             thread->m_last_effective_address = thread->m_parameter_buffer;
+            thread->m_cdp_expected_address = thread->m_last_effective_address;
             thread->m_last_memory_space = global_space;
             thread->m_cdp_execution_substep++;
         }
         else
         {
             thread->m_last_effective_address = thread->m_parameter_buffer + ((thread->m_cdp_execution_substep - 2) * sizeof(unsigned int));
+            thread->m_cdp_expected_address = thread->m_last_effective_address;
             thread->m_last_memory_space = global_space;
             thread->m_cdp_execution_substep++;
             if ((thread->m_cdp_execution_substep - 2) >= thread->m_device_kernel_arg_total_words)
@@ -308,6 +316,7 @@ void gpgpusim_cuda_launchDeviceV2(
         assert(size == sizeof(unsigned long long int));
 
         thread->m_last_effective_address = from_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = local_space;
         thread->m_cdp_execution_substep++;
         // Load 2 words
@@ -326,6 +335,8 @@ void gpgpusim_cuda_launchDeviceV2(
         sg_id.kernel_id = parent_kernel.get_uid();
         sg_id.cta_id    = thread->get_ctaid();
         CUstream_st * child_stream = parent_kernel.get_default_stream_cta(sg_id);
+        // Must be a device stream
+        assert(child_stream->getType() == stream_device);
         (thread->m_device_launch_op).set_stream(child_stream);
 
         g_cuda_device_launch_op.push_back(thread->m_device_launch_op);
@@ -336,11 +347,12 @@ void gpgpusim_cuda_launchDeviceV2(
         const symbol *formal_return = target_func->get_return_var();
         unsigned int return_size = formal_return->get_size_in_bytes();
         assert(actual_return_op.is_param_local());
-        assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(cudaError_t));
+        // assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(cudaError_t));
         thread->m_cdp_data = malloc(sizeof(cudaError_t));
         *((cudaError_t*)(thread->m_cdp_data)) = cudaSuccess;
         addr_t ret_param_addr = actual_return_op.get_symbol()->get_address();
         thread->m_last_effective_address = ret_param_addr;
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = param_space_local;
         thread->m_cdp_execution_step = 3;
     }
@@ -394,6 +406,7 @@ void gpgpusim_cuda_streamCreateWithFlags(const ptx_instruction * pI, ptx_thread_
         assert(size == sizeof(struct CUstream_st *));
         // Leave local memory read to gem5-gpu
         thread->m_last_effective_address = from_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = local_space;
         thread->m_cdp_execution_substep++;
         // Load 2 words
@@ -406,6 +419,7 @@ void gpgpusim_cuda_streamCreateWithFlags(const ptx_instruction * pI, ptx_thread_
         assert(size == sizeof(unsigned int));
         // Leave local memory read to gem5-gpu
         thread->m_last_effective_address = from_addr;
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = local_space;
         thread->m_cdp_execution_step = 2;
     }
@@ -432,6 +446,7 @@ void gpgpusim_cuda_streamCreateWithFlags(const ptx_instruction * pI, ptx_thread_
         }
         // Leave local memory write to gem5-gpu
         thread->m_last_effective_address = thread->m_child_stream_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = local_space;
         thread->m_cdp_execution_substep++;
         if (thread->m_cdp_execution_substep >= 2)
@@ -445,11 +460,12 @@ void gpgpusim_cuda_streamCreateWithFlags(const ptx_instruction * pI, ptx_thread_
         const symbol *formal_return = target_func->get_return_var();
         unsigned int return_size = formal_return->get_size_in_bytes();
         assert(actual_return_op.is_param_local());
-        assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(cudaError_t));
+        // assert(actual_return_op.get_symbol()->get_size_in_bytes() == return_size && return_size == sizeof(cudaError_t));
         thread->m_cdp_data = malloc(sizeof(cudaError_t));
         *((cudaError_t*)(thread->m_cdp_data)) = cudaSuccess;
         addr_t ret_param_addr = actual_return_op.get_symbol()->get_address();
         thread->m_last_effective_address = ret_param_addr;
+        thread->m_cdp_expected_address = thread->m_last_effective_address;
         thread->m_last_memory_space = param_space_local;
         thread->m_cdp_execution_step = 4;
     }
