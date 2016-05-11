@@ -368,7 +368,7 @@ class CudaGPU : public ClockedObject
             {
                 if (!streamManager->hostKernelDone())
                 {
-                    DPRINTF(CudaGPU, "Parent kernel is still running, do not set runningTC NULL\n");
+                    printf("Parent kernel is still running, do not set runningTC NULL\n");
                     return;
                 }
             }
