@@ -17,7 +17,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "CalcPie.hpp"
 
-#define SUPPORT 0
+// gem5 profiling stuff
+#ifdef GEM5_FUSION
+#include <stdint.h>
+extern "C" {
+void m5_work_begin(uint64_t workid, uint64_t threadid);
+void m5_work_end(uint64_t workid, uint64_t threadid);
+}
+#endif
 
 int CalcPie::setupCalcPie()
 {
@@ -104,7 +111,7 @@ CalcPie::setupCL(void)
                         sampleArgs->isDeviceIdEnabled());
     CHECK_ERROR(status, SDK_SUCCESS, "getDevices() failed");
 
-#if SUPPORT
+#ifdef SUPPORT
     // Set device info of given cl_device_id
     status = deviceInfo.setDeviceInfo(devices[sampleArgs->deviceId]);
     CHECK_ERROR(status, SDK_SUCCESS, "SDKDeviceInfo::setDeviceInfo() failed");
@@ -119,14 +126,14 @@ CalcPie::setupCL(void)
 #endif
 
     // Create command queue
-#if SUPPORT
+#ifdef SUPPORT
     cl_queue_properties prop[] = {0};
     commandQueue = clCreateCommandQueueWithProperties(context,
 #else
     commandQueue = clCreateCommandQueue(context,
 #endif
                                         devices[sampleArgs->deviceId],
-#if SUPPORT
+#ifdef SUPPORT
                                         prop,
 #else
                                         NULL,
@@ -196,7 +203,7 @@ int
 CalcPie::runCalcPieKernel()
 {
     size_t dataSize      = length;
-#if SUPPORT
+#ifdef SUPPORT
     size_t localThreads  = kernelInfo.kernelWorkGroupSize;
 #else
     size_t localThreads  = (dataSize/4 <= 32) ? 32 : (length/4);
@@ -282,8 +289,14 @@ CalcPie::runCLKernels(void)
               devices[sampleArgs->deviceId]);
     CHECK_ERROR(status, SDK_SUCCESS, "setKErnelWorkGroupInfo() failed");
 
-    //run the work-group level scan kernel
+    // Run the work-group level scan kernel
+#ifdef GEM5_FUSION
+    m5_work_begin(0, 0);
+#endif
     status = runCalcPieKernel();
+#ifdef GEM5_FUSION
+    m5_work_end(0, 0);
+#endif
 
     return SDK_SUCCESS;
 }
@@ -545,7 +558,7 @@ template<typename T>
 int CalcPie::mapBuffer(cl_mem deviceBuffer, T* &hostPointer,
                          size_t sizeInBytes, cl_map_flags flags)
 {
-#if SUPPORT
+#ifdef SUPPORT
     cl_int status;
     hostPointer = (T*) clEnqueueMapBuffer(commandQueue,
                                           deviceBuffer,
@@ -570,7 +583,7 @@ int CalcPie::mapBuffer(cl_mem deviceBuffer, T* &hostPointer,
 int
 CalcPie::unmapBuffer(cl_mem deviceBuffer, void* hostPointer)
 {
-#if SUPPORT
+#ifdef SUPPORT
     cl_int status;
     status = clEnqueueUnmapMemObject(commandQueue,
                                      deviceBuffer,

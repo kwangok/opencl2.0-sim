@@ -16,7 +16,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "RangeMinimumQuery.hpp"
 
-#define SUPPORT 0
+// gem5 profiling stuff
+#ifdef GEM5_FUSION
+#include <stdint.h>
+extern "C" {
+void m5_work_begin(uint64_t workid, uint64_t threadid);
+void m5_work_end(uint64_t workid, uint64_t threadid);
+}
+#endif
 
 int
 RangeMinimumQuery::getMinAlignment(unsigned int* minAlignment)
@@ -163,7 +170,7 @@ RangeMinimumQuery::setupCL(void)
     retValue = deviceInfo.setDeviceInfo(devices[sampleArgs->deviceId]);
     CHECK_ERROR(retValue, SDK_SUCCESS, "SDKDeviceInfo::setDeviceInfo() failed" );
 
-#if SUPPORT
+#ifdef SUPPORT
 	// Check of OPENCL_C_VERSION if device version is 2.0 or higher
 	isOpenCL2_XSupported = deviceInfo.checkOpenCL2_XCompatibility();
     if (!isOpenCL2_XSupported)
@@ -231,7 +238,7 @@ RangeMinimumQuery::setupCL(void)
 		std::cout << "\t Total Number of array elemments is : " << numInputs << std::endl << std::endl;
     }
 
-#if SUPPORT
+#ifdef SUPPORT
 	cl_queue_properties *props = NULL;
 	commandQueue = clCreateCommandQueueWithProperties(context, devices[sampleArgs->deviceId], props, &status);
 #else
@@ -268,7 +275,7 @@ RangeMinimumQuery::setupCL(void)
     CHECK_OPENCL_ERROR(status, "clCreateKernel failed.(reduceRMQ).");
 
 	// Create device buffer for output array
-#if SUPPORT
+#ifdef SUPPORT
     outputBuffer = clCreateBuffer(context, CL_MEM_USE_HOST_PTR, numWorkGroups*sizeof(int), (void *)output, &status);
 #else
     outputBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, numWorkGroups*sizeof(int), NULL, &status);
@@ -388,6 +395,7 @@ RangeMinimumQuery::cpuRefImplementation()
 
 int RangeMinimumQuery::verifyResults()
 {
+#ifndef PROFILE
     if(sampleArgs->verify)
     {
 
@@ -408,6 +416,7 @@ int RangeMinimumQuery::verifyResults()
 	        return SDK_SUCCESS;
 	    }
     }
+#endif
     return SDK_SUCCESS;
 }
 
@@ -437,7 +446,7 @@ int RangeMinimumQuery::runKernels(void)
 
 	// read data from output buffer
 	void *ptr;
-#if SUPPORT
+#ifdef SUPPORT
     cl_map_flags mapFlags = CL_MAP_READ;
     cl_event event;
 	ptr = (void *)clEnqueueMapBuffer(commandQueue, 
@@ -465,6 +474,7 @@ int RangeMinimumQuery::runKernels(void)
 	CHECK_OPENCL_ERROR(status, "clEnqueueReadBuffer(commandQueue) Failed.");
 #endif
 
+#ifndef PROFILE
 	// Calculate actual output
 	actOut = 0;
 	RMQIndex = startIndex;
@@ -483,6 +493,7 @@ int RangeMinimumQuery::runKernels(void)
     {
 		std::cout << "\n\nRMQ for input arr[" << startIndex << "," << endIndex << "] is " << RMQIndex << " \nAnd Minimum value within this range is " << minElement << "\n" << std::endl;
 	}
+#endif
 
     return SDK_SUCCESS;
 }
@@ -493,6 +504,7 @@ RangeMinimumQuery::run()
     int status = SDK_SUCCESS;
 
 	// Warm up
+#ifndef PROFILE
     for(int i = 0; i < 2 && iterations != 1; i++)
     {
         if(runKernels() != SDK_SUCCESS)
@@ -500,6 +512,7 @@ RangeMinimumQuery::run()
             return SDK_FAILURE;
         }
     }
+#endif
 
     std::cout << "\n Executing kernel for " << iterations
                       << " iterations" << std::endl;
@@ -508,6 +521,9 @@ RangeMinimumQuery::run()
     sampleTimer->resetTimer(timer);
     sampleTimer->startTimer(timer);
 
+#ifdef GEM5_FUSION
+    m5_work_begin(0, 0);
+#endif
     for(int i = 0; i < iterations; i++)
     {
 		if (runKernels() != SDK_SUCCESS)
@@ -515,6 +531,9 @@ RangeMinimumQuery::run()
 			return SDK_FAILURE;
 		}
     }
+#ifdef GEM5_FUSION
+    m5_work_end(0, 0);
+#endif
 
     sampleTimer->stopTimer(timer);
     seqTime = sampleTimer-> readTimer(timer) * 1000;

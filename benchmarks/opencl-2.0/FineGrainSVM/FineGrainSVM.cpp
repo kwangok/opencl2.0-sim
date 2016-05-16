@@ -17,7 +17,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "FineGrainSVM.hpp"
 
-#define SUPPORT 0
+// gem5 profiling stuff
+#ifdef GEM5_FUSION
+#include <stdint.h>
+extern "C" {
+void m5_work_begin(uint64_t workid, uint64_t threadid);
+void m5_work_end(uint64_t workid, uint64_t threadid);
+}
+#endif
 
 int FineGrainSVM::setupFineGrainSVM()
 {
@@ -105,7 +112,7 @@ FineGrainSVM::setupCL(void)
     status = deviceInfo.setDeviceInfo(devices[sampleArgs->deviceId]);
     CHECK_ERROR(status, SDK_SUCCESS, "SDKDeviceInfo::setDeviceInfo() failed");
 
-#if SUPPORT
+#ifdef SUPPORT
 	//check 2.x compatibility
 	bool check2_x = deviceInfo.checkOpenCL2_XCompatibility();
 
@@ -123,14 +130,14 @@ FineGrainSVM::setupCL(void)
 #endif
 
     // Create command queue
-#if SUPPORT
+#ifdef SUPPORT
     cl_queue_properties prop[] = {0};
     commandQueue = clCreateCommandQueueWithProperties(context,
 #else
     commandQueue = clCreateCommandQueue(context,
 #endif
                                         devices[sampleArgs->deviceId],
-#if SUPPORT
+#ifdef SUPPORT
                                         prop,
 #else
                                         NULL,
@@ -174,14 +181,13 @@ int
 FineGrainSVM::runFineGrainSVMKernel()
 {
     size_t dataSize      = length;
-#if SUPPORT
+#ifdef SUPPORT
     size_t localThreads  = kernelInfo.kernelWorkGroupSize;
 #else
     size_t localThreads  = (dataSize/4 <= 32) ? 32 : (dataSize/4);
 #endif
     size_t globalThreads = dataSize;
     
-    printf("localThreads = %zu, globalThreads = %zu\n", localThreads, globalThreads);
     // Set appropriate arguments to the kernel
     // 1st argument to the kernel - randomBuffer
     int status = clSetKernelArgSVMPointer(
@@ -317,6 +323,9 @@ int FineGrainSVM::run()
     sampleTimer->resetTimer(timer);
     sampleTimer->startTimer(timer);
 
+#ifdef GEM5_FUSION
+    m5_work_begin(0, 0);
+#endif
     for(int i = 0; i < iterations; i++)
     {
         // Arguments are set and execution call is enqueued on command buffer
@@ -325,6 +334,9 @@ int FineGrainSVM::run()
             return SDK_FAILURE;
         }
     }
+#ifdef GEM5_FUSION
+    m5_work_end(0, 0);
+#endif
 
     sampleTimer->stopTimer(timer);
     kernelTime = (double)(sampleTimer->readTimer(timer));

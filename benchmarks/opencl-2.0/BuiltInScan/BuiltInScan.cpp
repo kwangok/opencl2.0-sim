@@ -17,7 +17,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "BuiltInScan.hpp"
 
-#define SUPPORT 0
+// gem5 profiling stuff
+#ifdef GEM5_FUSION
+#include <stdint.h>
+extern "C" {
+void m5_work_begin(uint64_t workid, uint64_t threadid);
+void m5_work_end(uint64_t workid, uint64_t threadid);
+}
+#endif
 
 int BuiltInScan::setupBuiltInScan()
 {
@@ -112,7 +119,7 @@ BuiltInScan::setupCL(void)
                         sampleArgs->isDeviceIdEnabled());
     CHECK_ERROR(status, SDK_SUCCESS, "getDevices() failed");
 
-#if SUPPORT
+#ifdef SUPPORT
     // Set device info of given cl_device_id
     status = deviceInfo.setDeviceInfo(devices[sampleArgs->deviceId]);
     CHECK_ERROR(status, SDK_SUCCESS, "SDKDeviceInfo::setDeviceInfo() failed");
@@ -127,14 +134,14 @@ BuiltInScan::setupCL(void)
 #endif
 
     // Create command queue
-#if SUPPORT
+#ifdef SUPPORT
     cl_queue_properties prop[] = {0};
     commandQueue = clCreateCommandQueueWithProperties(context,
 #else
     commandQueue = clCreateCommandQueue(context,
 #endif
             devices[sampleArgs->deviceId],
-#if SUPPORT
+#ifdef SUPPORT
             prop,
 #else
             NULL,
@@ -177,7 +184,7 @@ BuiltInScan::setupCL(void)
     CHECK_ERROR(status, SDK_SUCCESS, "setKErnelWorkGroupInfo() failed");
 
     //sanity check on length
-#if SUPPORT
+#ifdef SUPPORT
     cl_uint wg_size = kernelInfo.kernelWorkGroupSize;
 #else
     cl_uint wg_size = ((length/4) <= 32) ? 32 : (length/4);
@@ -254,7 +261,7 @@ int
 BuiltInScan::runGroupKernel()
 {
     size_t dataSize      = length;
-#if SUPPORT
+#ifdef SUPPORT
     size_t localThreads  = kernelInfo.kernelWorkGroupSize;
 #else
     size_t localThreads  = ((dataSize/4) <= 32) ? 32 : (dataSize/4);
@@ -304,7 +311,7 @@ BuiltInScan::runGroupKernel()
 int
 BuiltInScan::runGlobalKernel()
 {
-#if SUPPORT
+#ifdef SUPPORT
     size_t localThreads  = kernelInfo.kernelWorkGroupSize;
 #else
     size_t localThreads  = ((length/4) <= 32) ? 32 : (length/4);
@@ -366,11 +373,17 @@ BuiltInScan::runCLKernels(void)
               devices[sampleArgs->deviceId]);
     CHECK_ERROR(status, SDK_SUCCESS, "setKErnelWorkGroupInfo() failed");
 
-    //run the work-group level scan kernel
+#ifdef GEM5_FUSION
+    m5_work_begin(0, 0);
+#endif
+    // Run the work-group level scan kernel
     status = runGroupKernel();
 
-    //run global kernels for stage decided by input length
+    // Run global kernels for stage decided by input length
     status = runGlobalKernel();
+#ifdef GEM5_FUSION
+    m5_work_end(0, 0);
+#endif
 
     return SDK_SUCCESS;
 }
@@ -600,7 +613,7 @@ template<typename T>
 int BuiltInScan::mapBuffer(cl_mem deviceBuffer, T* &hostPointer,
         size_t sizeInBytes, cl_map_flags flags)
 {
-#if SUPPORT
+#ifdef SUPPORT
     cl_int status;
     hostPointer = (T*) clEnqueueMapBuffer(commandQueue,
                                           deviceBuffer,
@@ -625,7 +638,7 @@ int BuiltInScan::mapBuffer(cl_mem deviceBuffer, T* &hostPointer,
 int
 BuiltInScan::unmapBuffer(cl_mem deviceBuffer, void* hostPointer)
 {
-#if SUPPORT
+#ifdef SUPPORT
     cl_int status;
     status = clEnqueueUnmapMemObject(commandQueue,
                                      deviceBuffer,

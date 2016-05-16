@@ -18,7 +18,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "RecursiveGaussian_ProgramScope.hpp"
 #include <cmath>
 
-#define SUPPORTED 0
+// gem5 profiling stuff
+#ifdef GEM5_FUSION
+#include <stdint.h>
+extern "C" {
+void m5_work_begin(uint64_t workid, uint64_t threadid);
+void m5_work_end(uint64_t workid, uint64_t threadid);
+}
+#endif
 
 int
 RecursiveGaussian::readInputImage(std::string inputImageName)
@@ -237,7 +244,7 @@ RecursiveGaussian::setupCL()
     CHECK_ERROR(status, SDK_SUCCESS, "getDevices() failed");
 
 	//Set device info of given cl_device_id
-#if SUPPORTED
+#ifdef SUPPORT
 	status = deviceInfo.setDeviceInfo(devices[sampleArgs->deviceId]);
 	CHECK_OPENCL_ERROR(status, "deviceInfo.setDeviceInfo failed");
 
@@ -255,7 +262,7 @@ RecursiveGaussian::setupCL()
     {
 		// The block is to move the declaration of prop closer to its use
         const cl_queue_properties prop = 0;
-#if SUPPORTED
+#ifdef SUPPORT
         commandQueue = clCreateCommandQueueWithProperties(
 #else
         commandQueue = clCreateCommandQueue(
@@ -338,7 +345,7 @@ RecursiveGaussian::setupCL()
     CHECK_ERROR(status, SDK_SUCCESS,
                 "RGKernelInfo.setKernelWorkGroupInfo() failed");
 
-#if SUPPORTED
+#ifdef SUPPORT
     // Calculate block size according to required work-group size by kernel
     if((blockSizeX * blockSizeY) > RGKernelInfo.kernelWorkGroupSize)
     {
@@ -363,13 +370,6 @@ RecursiveGaussian::runCLKernels()
 {
     cl_int status = CL_SUCCESS;
     cl_int eventStatus = CL_QUEUED;
-
-    // initialize Gaussian parameters
-    float fSigma = 10.0f;               // filter sigma (blur factor)
-    int iOrder = 0;                     // filter order
-
-    // compute gaussian parameters
-    computeGaussParms(fSigma, iOrder, &oclGP);
 
     // Write inputImageData to inputImageBuffer on device
     cl_event writeEvt;
@@ -427,7 +427,7 @@ RecursiveGaussian::runCLKernels()
     size_t globalThreads[] = {width, 1};
     size_t localThreads[] = {blockSizeX, blockSizeY};
 
-#if SUPPORTED
+#ifdef SUPPORT
     if(localThreads[0] > deviceInfo.maxWorkItemSizes[0] ||
             localThreads[0] > deviceInfo.maxWorkGroupSize)
     {
@@ -500,7 +500,7 @@ RecursiveGaussian::runCLKernels()
     size_t localThreadsT[] = {blockSize, blockSize};
     size_t globalThreadsT[] = {width, height};
 
-#if SUPPORTED
+#ifdef SUPPORT
     if(localThreadsT[0] > deviceInfo.maxWorkItemSizes[0] ||
             localThreadsT[1] > deviceInfo.maxWorkItemSizes[1] ||
             localThreadsT[0] * localThreadsT[1] > deviceInfo.maxWorkGroupSize)
@@ -726,6 +726,15 @@ int
 RecursiveGaussian::run()
 {
     int status = 0;
+
+    // Initialize Gaussian parameters
+    float fSigma = 10.0f;               // Filter sigma (blur factor)
+    int iOrder = 0;                     // Filter order
+
+    // Compute gaussian parameters
+    computeGaussParms(fSigma, iOrder, &oclGP);
+
+#ifndef PROFILE
     for(int i = 0; i < 2 && iterations != 1; i++)
     {
         // Set kernel arguments and run kernel
@@ -734,8 +743,9 @@ RecursiveGaussian::run()
             return SDK_FAILURE;
         }
     }
+#endif
 
-    // create and initialize timers
+    // Create and initialize timers
     std::cout << "Executing kernel for " <<
               iterations << " iterations" << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
@@ -744,6 +754,9 @@ RecursiveGaussian::run()
     sampleTimer->resetTimer(timer);
     sampleTimer->startTimer(timer);
 
+#ifdef GEM5_FUSION
+    m5_work_begin(0, 0);
+#endif
     for(int i = 0; i < iterations; i++)
     {
         // Set kernel arguments and run kernel
@@ -751,8 +764,10 @@ RecursiveGaussian::run()
         {
             return SDK_FAILURE;
         }
-
     }
+#ifdef GEM5_FUSION
+    m5_work_end(0, 0);
+#endif
 
     sampleTimer->stopTimer(timer);
     // Compute kernel time
