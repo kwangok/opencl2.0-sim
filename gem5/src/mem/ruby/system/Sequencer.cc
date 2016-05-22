@@ -646,13 +646,14 @@ Sequencer::makeRequest(PacketPtr pkt)
             assert(primary_type == RubyRequestType_Locked_RMW_Write);
             // stevechen: Atomics & scope handle here
 			AtomicOpRequest** atomic_op = (AtomicOpRequest**) pkt->getPtr<uint8_t*>();
-			if (atomic_op[0]->atomicOp == AtomicOpRequest::ATOMIC_ST_OP) {
+			if (atomic_op[0]->atomicOp != AtomicOpRequest::ATOMIC_LD_OP &&
+                atomic_op[0]->atomicOp != AtomicOpRequest::ATOMIC_INVALID_OP) {
 				if(pkt->req->isCtaScope()) {
 					secondary_type = RubyRequestType_ATOMIC_ST_CTA;
 				} else if (pkt->req->isGlobalScope()) {
 					secondary_type = RubyRequestType_ATOMIC_ST_GL;
 				} else if (pkt->req->isSystemScope()) {
-					secondary_type = RubyRequestType_ATOMIC_ST_SYS;
+					secondary_type = RubyRequestType_ATOMIC;
 				}
 			} else if (atomic_op[0]->atomicOp == AtomicOpRequest::ATOMIC_LD_OP) {
 				if(pkt->req->isCtaScope()) {
@@ -660,7 +661,7 @@ Sequencer::makeRequest(PacketPtr pkt)
 				} else if (pkt->req->isGlobalScope()) {
 					secondary_type = RubyRequestType_ATOMIC_LD_GL;
 				} else if (pkt->req->isSystemScope()) {
-					secondary_type = RubyRequestType_ATOMIC_LD_SYS;
+					secondary_type = RubyRequestType_ATOMIC;
 				}
 			} else {
                 // deicide: If it's not atomic load/store, it should be normal atomic op

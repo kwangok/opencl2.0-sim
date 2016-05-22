@@ -295,6 +295,16 @@ WarpInstBuffer::generateCoalescedAccesses(Addr addr, size_t size,
         // Set this request to be a locked read-modify-write (swap)
         flags.set(Request::LOCKED_RMW | Request::MEM_SWAP);
 
+        // deicide: Set the scope information for atomic requests
+        PacketPtr sample_pkt = laneRequestPkts[active_lanes.front()];
+        if (sample_pkt->req->isCtaScope()) {
+            flags.set(Request::CTA_SCOPE);
+        } else if (sample_pkt->req->isGlobalScope()) {
+            flags.set(Request::GLOBAL_SCOPE);
+        } else if (sample_pkt->req->isSystemScope()) {
+            flags.set(Request::SYSTEM_SCOPE);
+        }
+
         // The maximum number of atomic operations that can be sent to each
         // cache subblock (i.e. (1) above)
         // TODO: If desired, this can be parameterized to test performance of

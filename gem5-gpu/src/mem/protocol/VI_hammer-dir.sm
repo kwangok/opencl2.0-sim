@@ -329,7 +329,7 @@ machine(Directory, "AMD Hammer-like protocol")
 
   bool checkResourceAvailable(RequestType type, Addr addr) {
     if (type == RequestType:PfRead || type == RequestType:PfWrite) {
-      return probeFilter.checkResourceAvailable(CacheResourceType:TagArray, addr);
+      return probeFilter.checkResourceAvailable(CacheResourceType:DataArray, addr);
     } else {
       error("Bad request type passed to checkResourceAvailable");
     }
