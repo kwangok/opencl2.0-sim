@@ -197,13 +197,7 @@ public:
 	} 
 
 	dim3 get_grid_dim() const { return m_grid_dim; }
-	dim3 get_cta_dim() const
-	{
-		if (m_use_last_cta)
-		 	return m_real_block_dim;
-		else
-			return m_block_dim;
-	}
+	dim3 get_cta_dim() const { return m_block_dim; }
 
 	void increment_cta_id() 
 	{ 
