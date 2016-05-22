@@ -701,14 +701,39 @@ void function_info::find_ipostdominators( )
       }
    }
    unsigned num_ipdoms=0;
-   for ( int n = m_basic_blocks.size()-1; n >=0;--n) {
-      assert( m_basic_blocks[n]->Tmp_ids.size() <= 1 ); 
-         // if the above assert fails we have an error in either postdominator 
-         // computation, the flow graph does not have a unique exit, or some other error
-      if( !m_basic_blocks[n]->Tmp_ids.empty() ) {
-         m_basic_blocks[n]->immediatepostdominator_id = *m_basic_blocks[n]->Tmp_ids.begin();
-         num_ipdoms++;
-      }
+   // TODO: Finding post-dom for intra-warp dependent branching
+   if (m_name == "binTreeInsert")
+   {
+       int ret_index = -1;
+       for (int n = m_basic_blocks.size() - 1; n >= 0; --n)
+       {
+           if (m_basic_blocks[n]->ptx_end != NULL && m_basic_blocks[n]->ptx_end->get_opcode() == RET_OP)
+           {
+               ret_index = n;
+               break;
+           }
+       }
+       assert(ret_index >= 0);
+       for (int n = m_basic_blocks.size() - 1; n >= 0; --n)
+       {
+           if (!m_basic_blocks[n]->Tmp_ids.empty())
+           {
+               m_basic_blocks[n]->immediatepostdominator_id = ret_index;
+               num_ipdoms++;
+           }
+       }
+   }
+   else
+   {
+       for ( int n = m_basic_blocks.size()-1; n >=0;--n) {
+           assert( m_basic_blocks[n]->Tmp_ids.size() <= 1 ); 
+           // if the above assert fails we have an error in either postdominator 
+           // computation, the flow graph does not have a unique exit, or some other error
+           if( !m_basic_blocks[n]->Tmp_ids.empty() ) {
+               m_basic_blocks[n]->immediatepostdominator_id = *m_basic_blocks[n]->Tmp_ids.begin();
+               num_ipdoms++;
+           }
+       }
    }
    assert( num_ipdoms == m_basic_blocks.size()-1 ); 
       // the exit node does not have an immediate post dominator, but everyone else should
