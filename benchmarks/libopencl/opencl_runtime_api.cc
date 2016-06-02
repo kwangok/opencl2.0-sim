@@ -82,11 +82,11 @@ extern "C" {
 # if defined __cplusplus ? __GNUC_PREREQ (2, 6) : __GNUC_PREREQ (2, 4)
 #   define __my_func__    __func__
 # else
-#  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
-#   define __my_func__    __my_func__
-#  else
-#   define __my_func__    ((__const char *) 0)
-#  endif
+#   if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#     define __my_func__    __my_func__
+#   else
+#     define __my_func__    ((__const char *) 0)
+#   endif
 # endif
 
 #define CL_USE_DEPRECATED_OPENCL_1_0_APIS
@@ -102,8 +102,6 @@ enum { CUDA_MALLOC_DEVICE = 0,
        CUDA_FREE_DEVICE = 4,
        CUDA_FREE_HOST = 5
 };
-
-#define PAGE_SIZE_BYTES 4096
 
 void
 pack(char *bytes, int &bytes_off, int *lengths, int &lengths_off, char *arg, int arg_size)
@@ -291,6 +289,102 @@ cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind)
     }
 
     return cudaSuccess;
+}
+
+extern CL_API_ENTRY void * CL_API_CALL
+clSVMAlloc(cl_context       context,
+           cl_svm_mem_flags flags,
+           size_t           size,
+           cl_uint          alignment) CL_API_SUFFIX__VERSION_2_0
+{
+    void * cl_ret;
+    cudaError_t cuda_ret = cudaMallocHelper((void**)&cl_ret, size, CUDA_MALLOC_DEVICE);
+    return cl_ret;
+}
+
+extern CL_API_ENTRY void CL_API_CALL
+clSVMFree(cl_context        context,
+          void *            svm_pointer) CL_API_SUFFIX__VERSION_2_0
+{
+    return ;
+}
+
+extern CL_API_ENTRY cl_int CL_API_CALL
+clSetKernelArgSVMPointer(cl_kernel    kernel,
+                         cl_uint      arg_index,
+                         const void * arg_value) CL_API_SUFFIX__VERSION_2_0
+{
+    gpusyscall_t call_params;
+    call_params.num_args = 4;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_kernel);
+    call_params.arg_lengths[1] = sizeof(cl_uint);
+    call_params.arg_lengths[2] = sizeof(size_t);
+    call_params.arg_lengths[3] = sizeof(const void*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
+
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
+
+    size_t arg_size = sizeof(void *);
+    void * arg_value_addr = (void *)&arg_value;
+
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_index, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_size, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_value_addr, call_params.arg_lengths[3]);
+
+    m5_gpu(94, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
+
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
+
+    return ret;
+}
+
+extern CL_API_ENTRY cl_int CL_API_CALL
+clEnqueueSVMMap(cl_command_queue  command_queue,
+                cl_bool           blocking_map,
+                cl_map_flags      flags,
+                void *            svm_ptr,
+                size_t            size,
+                cl_uint           num_events_in_wait_list,
+                const cl_event *  event_wait_list,
+                cl_event *        event) CL_API_SUFFIX__VERSION_2_0
+{
+    return CL_SUCCESS;
+}
+    
+extern CL_API_ENTRY cl_int CL_API_CALL
+clEnqueueSVMUnmap(cl_command_queue  command_queue,
+                  void *            svm_ptr,
+                  cl_uint           num_events_in_wait_list,
+                  const cl_event *  event_wait_list,
+                  cl_event *        event) CL_API_SUFFIX__VERSION_2_0
+{
+    return CL_SUCCESS;
+}
+
+extern CL_API_ENTRY cl_mem CL_API_CALL
+clCreatePipe(cl_context                 context,
+             cl_mem_flags               flags,
+             cl_uint                    pipe_packet_size,
+             cl_uint                    pipe_max_packets,
+             const cl_pipe_properties * properties,
+             cl_int *                   errcode_ret) CL_API_SUFFIX__VERSION_2_0
+{
+    cl_mem cl_ret;
+    cudaError_t cuda_ret = cudaMallocHelper((void**)&cl_ret, pipe_packet_size * pipe_max_packets, CUDA_MALLOC_DEVICE);
+    if ( errcode_ret != NULL )
+        if ( cuda_ret == cudaSuccess ) *errcode_ret = CL_SUCCESS;
+        else *errcode_ret = CL_INVALID_CONTEXT;
+    return cl_ret;
 }
 /* Jie */
 
@@ -853,48 +947,48 @@ clCreateContextFromType(const cl_context_properties * properties,
                         void *                  user_data,
                         cl_int *                errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* yamato */
-  gpusyscall_t call_params;
-  call_params.num_args = 3;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(const cl_context_properties*);
-  call_params.arg_lengths[1] = sizeof(cl_device_type);
-  call_params.arg_lengths[2] = sizeof(cl_int*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_context)];
+    /* yamato */
+    gpusyscall_t call_params;
+    call_params.num_args = 3;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(const cl_context_properties*);
+    call_params.arg_lengths[1] = sizeof(cl_device_type);
+    call_params.arg_lengths[2] = sizeof(cl_int*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_context)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&properties, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device_type, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[2]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&properties, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device_type, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[2]);
 
-  m5_gpu(115, (uint64_t)&call_params);
-  cl_context ret = *((cl_context*)call_params.ret);
+    m5_gpu(115, (uint64_t)&call_params);
+    cl_context ret = *((cl_context*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* yamato */
+    return ret;
+    /* yamato */
     //_cl_device_id *gpu = GPGPUSim_Init();
 
     switch (device_type) {
-      case CL_DEVICE_TYPE_GPU:
-      case CL_DEVICE_TYPE_ACCELERATOR:
-      case CL_DEVICE_TYPE_DEFAULT:
-      case CL_DEVICE_TYPE_ALL:
-        break; // GPGPU-Sim qualifies as these types of device.
-      default:
-        printf("GPGPU-Sim OpenCL API: unsupported device type %lx\n", device_type);
-        setErrCode(errcode_ret, CL_DEVICE_NOT_FOUND);
-        return NULL;
-        break;
+        case CL_DEVICE_TYPE_GPU:
+        case CL_DEVICE_TYPE_ACCELERATOR:
+        case CL_DEVICE_TYPE_DEFAULT:
+        case CL_DEVICE_TYPE_ALL:
+            break; // GPGPU-Sim qualifies as these types of device.
+        default:
+            printf("GPGPU-Sim OpenCL API: unsupported device type %lx\n", device_type);
+            setErrCode(errcode_ret, CL_DEVICE_NOT_FOUND);
+            return NULL;
+            break;
     }
 
     if (properties != NULL) {
@@ -934,10 +1028,10 @@ clGetEventProfilingInfo(cl_event            /* event */,
 /* yamato */
 extern CL_API_ENTRY cl_int CL_API_CALL
 clGetEventInfo(cl_event            /* event */,
-			   cl_event_info       /* param_name */,
-			   size_t              /* param_value_size */,
-			   void *              /* param_value */,
-			   size_t *            /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0{
+               cl_event_info       /* param_name */,
+               size_t              /* param_value_size */,
+               void *              /* param_value */,
+               size_t *            /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0{
     opencl_not_finished(__my_func__, __LINE__);
     return CL_SUCCESS;
 }
@@ -946,9 +1040,9 @@ extern CL_API_ENTRY cl_int CL_API_CALL
 clGetProgramBuildInfo(cl_program            /* program */,
                       cl_device_id          /* device */,
                       cl_program_build_info /* param_name */,
-                      size_t              	/* param_value_size */,
-                      void *              	/* param_value */,
-                      size_t *            	/* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0{
+                      size_t                /* param_value_size */,
+                      void *                /* param_value */,
+                      size_t *              /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0{
     opencl_not_finished(__my_func__, __LINE__);
     return CL_SUCCESS;
 }
@@ -964,33 +1058,33 @@ clCreateContext( const cl_context_properties * properties,
                   void *                  user_data,
                   cl_int *                errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 2;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(const cl_context_properties*);
-  call_params.arg_lengths[1] = sizeof(cl_int*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_context)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 2;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(const cl_context_properties*);
+    call_params.arg_lengths[1] = sizeof(cl_int*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_context)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&properties, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[1]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&properties, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[1]);
 
-  m5_gpu(88, (uint64_t)&call_params);
-  cl_context ret = *((cl_context*)call_params.ret);
+    m5_gpu(88, (uint64_t)&call_params);
+    cl_context ret = *((cl_context*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     //struct _cl_device_id *gpu = GPGPUSim_Init();
     if (properties != NULL) {
         if (properties[0] != CL_CONTEXT_PLATFORM || properties[1] != (cl_context_properties)&g_gpgpu_sim_platform_id) {
@@ -1012,42 +1106,43 @@ clGetContextInfo(cl_context         context,
                  void *             param_value,
                  size_t *           param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* yamato */
-  gpusyscall_t call_params;
-  call_params.num_args = 5;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_context);
-  call_params.arg_lengths[1] = sizeof(cl_context_info);
-  call_params.arg_lengths[2] = sizeof(void *);
-  call_params.arg_lengths[3] = sizeof(size_t *);
-  call_params.arg_lengths[4] = sizeof(size_t);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* yamato */
+    gpusyscall_t call_params;
+    call_params.num_args = 5;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_context);
+    call_params.arg_lengths[1] = sizeof(cl_context_info);
+    call_params.arg_lengths[2] = sizeof(void *);
+    call_params.arg_lengths[3] = sizeof(size_t *);
+    call_params.arg_lengths[4] = sizeof(size_t);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&context, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[3]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[4]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&context, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[3]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[4]);
 
-  m5_gpu(105, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(105, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* yamato */
+    return ret;
+    /* yamato */
     if (context == NULL) return CL_INVALID_CONTEXT;
-    switch(param_name) {
-      case CL_CONTEXT_DEVICES: {
+    switch (param_name) {
+    case CL_CONTEXT_DEVICES:
+    {
         unsigned ngpu=0;
         cl_device_id device_id = context->get_first_device();
         while (device_id != NULL) {
@@ -1058,14 +1153,14 @@ clGetContextInfo(cl_context         context,
         }
         if (param_value_size_ret) *param_value_size_ret = ngpu * sizeof(cl_device_id);
         break;
-      }
-      case CL_CONTEXT_REFERENCE_COUNT:
+    }
+    case CL_CONTEXT_REFERENCE_COUNT:
         opencl_not_finished(__my_func__,__LINE__);
         break;
-      case CL_CONTEXT_PROPERTIES:
+    case CL_CONTEXT_PROPERTIES:
         opencl_not_finished(__my_func__,__LINE__);
         break;
-      default:
+    default:
         opencl_not_finished(__my_func__,__LINE__);
         break;
     }
@@ -1078,37 +1173,37 @@ clCreateCommandQueue(cl_context                     context,
                      cl_command_queue_properties    properties,
                      cl_int *                       errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 4;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_context);
-  call_params.arg_lengths[1] = sizeof(cl_device_id);
-  call_params.arg_lengths[2] = sizeof(cl_command_queue_properties);
-  call_params.arg_lengths[3] = sizeof(cl_int*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_command_queue)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 4;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_context);
+    call_params.arg_lengths[1] = sizeof(cl_device_id);
+    call_params.arg_lengths[2] = sizeof(cl_command_queue_properties);
+    call_params.arg_lengths[3] = sizeof(cl_int*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_command_queue)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&context, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&properties, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[3]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&context, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&properties, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[3]);
 
-  m5_gpu(89, (uint64_t)&call_params);
-  cl_command_queue ret = *((cl_command_queue*)call_params.ret);
+    m5_gpu(89, (uint64_t)&call_params);
+    cl_command_queue ret = *((cl_command_queue*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     if (!context) { setErrCode(errcode_ret, CL_INVALID_CONTEXT);   return NULL; }
     gem5gpu_opencl_warning(__my_func__,__LINE__, "assuming device_id is in context");
     if ((properties & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE))
@@ -1126,16 +1221,16 @@ clCreateBuffer(cl_context   context,
                void *       host_ptr,
                cl_int *     errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  cl_mem cl_ret;
-  cudaError_t cuda_ret = cudaMallocHelper((void**)&cl_ret, size, CUDA_MALLOC_DEVICE);
-  if ( errcode_ret != NULL )
-    if ( cuda_ret == cudaSuccess ) *errcode_ret = CL_SUCCESS;
-    else *errcode_ret = CL_INVALID_CONTEXT;
-  if ( host_ptr != NULL )
-    cudaMemcpy(cl_ret, host_ptr, size, cudaMemcpyHostToDevice);
-  return cl_ret;
-/* Jie */
+    /* Jie */
+    cl_mem cl_ret;
+    cudaError_t cuda_ret = cudaMallocHelper((void**)&cl_ret, size, CUDA_MALLOC_DEVICE);
+    if ( errcode_ret != NULL )
+        if ( cuda_ret == cudaSuccess ) *errcode_ret = CL_SUCCESS;
+        else *errcode_ret = CL_INVALID_CONTEXT;
+    if ( host_ptr != NULL )
+        cudaMemcpy(cl_ret, host_ptr, size, cudaMemcpyHostToDevice);
+    return cl_ret;
+    /* Jie */
     if (!context) { setErrCode(errcode_ret, CL_INVALID_CONTEXT);   return NULL; }
     return context->CreateBuffer(flags,size,host_ptr,errcode_ret);
 }
@@ -1147,43 +1242,43 @@ clCreateProgramWithSource(cl_context        context,
                           const size_t *    lengths,
                           cl_int *          errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 5;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_context);
-  call_params.arg_lengths[1] = sizeof(cl_uint);
-  call_params.arg_lengths[2] = sizeof(char*);
-  call_params.arg_lengths[3] = sizeof(const size_t*);
-  call_params.arg_lengths[4] = sizeof(cl_int*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_program)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 5;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_context);
+    call_params.arg_lengths[1] = sizeof(cl_uint);
+    call_params.arg_lengths[2] = sizeof(char*);
+    call_params.arg_lengths[3] = sizeof(const size_t*);
+    call_params.arg_lengths[4] = sizeof(cl_int*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_program)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  const size_t * length = new size_t(strlen(*strings));
-  char * stringsData = new char[*length];
-  strcpy( stringsData, *strings );
+    const size_t * length = new size_t(strlen(*strings));
+    char * stringsData = new char[*length];
+    strcpy( stringsData, *strings );
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&context, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&count, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&stringsData, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&length, call_params.arg_lengths[3]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[4]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&context, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&count, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&stringsData, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&length, call_params.arg_lengths[3]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[4]);
 
-  m5_gpu(90, (uint64_t)&call_params);
-  cl_program ret = *((cl_program*)call_params.ret);
+    m5_gpu(90, (uint64_t)&call_params);
+    cl_program ret = *((cl_program*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     if (!context) { setErrCode(errcode_ret, CL_INVALID_CONTEXT);   return NULL; }
     setErrCode(errcode_ret, CL_SUCCESS);
     return new _cl_program(context,count,strings,lengths);
@@ -1198,84 +1293,139 @@ clBuildProgram(cl_program           program,
                void (*pfn_notify)(cl_program /* program */, void * /* user_data */),
                void *               user_data) CL_API_SUFFIX__VERSION_1_0
 {
- /* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 3;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_program);
-  call_params.arg_lengths[1] = sizeof(const char*);
-  call_params.arg_lengths[2] = sizeof(cl_int*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 3;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_program);
+    call_params.arg_lengths[1] = sizeof(const char*);
+    call_params.arg_lengths[2] = sizeof(cl_int*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = -1; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = -1;
 
-  char * option = new char[99];
-  strcpy(option, ((options != NULL) ? options : ""));
-  cl_int * ret = new cl_int;
+    char * option = new char[99];
+    strcpy(option, ((options != NULL) ? options : ""));
+    cl_int * ret = new cl_int;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&program, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&option, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&ret, call_params.arg_lengths[2]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&program, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&option, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&ret, call_params.arg_lengths[2]);
 
-  m5_gpu(91, (uint64_t)&call_params);
-  int allocation_size = *((int*)call_params.ret);
+    m5_gpu(91, (uint64_t)&call_params);
+    int allocation_size = *((int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  if (allocation_size < 0) {
-    printf("gem5 + GPGPU-Sim CUDA RT: Problem with const allocation... Exiting\n");
-    exit(-1);
-  }
-
-  // Allocate memory for globals and constants:
-  int padding = allocation_size % PAGE_SIZE_BYTES;
-  if (padding > 0) {
-    allocation_size -= padding;
-    allocation_size += PAGE_SIZE_BYTES;
-  }
-  unsigned char* alloc_ptr = NULL;
-  if (allocation_size > 0) {
-    int error = posix_memalign((void**)&alloc_ptr, PAGE_SIZE_BYTES, allocation_size);
-    if (error) {
-      fprintf(stderr, "ERROR: cudaRegisterFatBinary2 failed with code: %d, Exiting...\n", error);
-      exit(-1);
+    if (allocation_size < 0) {
+        printf("gem5 + GPGPU-Sim CUDA RT: Problem with const allocation... Exiting\n");
+        exit(-1);
     }
 
-    // Const memory space is default allocated to 0, and this touches
-    // all pages to ensure OS mapping... Double win
-    memset(alloc_ptr, 0, allocation_size);
-  }
+    // Allocate memory for globals and constants:
+    int padding = allocation_size % PAGE_SIZE_BYTES;
+    if (padding > 0) {
+        allocation_size -= padding;
+        allocation_size += PAGE_SIZE_BYTES;
+    }
+    unsigned char* alloc_ptr = NULL;
 
-  // Second up-call after allocating memory for globals and constants:
-  call_params.num_args = 1;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(void *);
-  call_params.total_bytes = call_params.arg_lengths[0];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(void**)];
-  void*** ret_spot2 = (void***)call_params.ret;
-  *ret_spot2 = NULL;
+    // Local memory setting from here
+    // Second up-call to check for need to allocate GPU local memory
+    call_params.num_args = 0;
+    call_params.total_bytes = 0;
+    call_params.ret = new char[sizeof(unsigned long long)];
+    unsigned long long* ret_spot3 = (unsigned long long*)call_params.ret;
+    *ret_spot3 = 0;
+    m5_gpu(84, (uint64_t)&call_params);
+    unsigned long long allocate_local = *((unsigned long long*)call_params.ret);
+    delete call_params.ret;
 
-  bytes_off = 0;
-  lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&alloc_ptr, call_params.arg_lengths[0]);
+    if (allocate_local > 0) {
+        // allocate_local now stores the amount of memory that the simulator
+        // needs to allocate for GPU local memory. Allocate that memory, and
+        // pass the virtual address back to the simulator.
+        alloc_ptr = (unsigned char*) checkedAlignedAlloc(allocate_local, PAGE_SIZE_BYTES);
 
-  m5_gpu(81, (uint64_t)&call_params);
-  // void** ret = *((void***)call_params.ret);
+        call_params.num_args = 1;
+        call_params.arg_lengths = new int[call_params.num_args];
+        call_params.arg_lengths[0] = sizeof(void *);
+        call_params.total_bytes = call_params.arg_lengths[0];
+        call_params.args = new char[call_params.total_bytes];
+        call_params.ret = new char[sizeof(bool)];
+        bool* ret_spot4 = (bool*)call_params.ret;
+        *ret_spot4 = false;
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+        bytes_off = 0;
+        lengths_off = 0;
+        pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&alloc_ptr, call_params.arg_lengths[0]);
 
-  return *ret;
-/* Jie */
+        // Send the local memory allocation pointer into the simulator, so it
+        // knows how to access it. The return value from this upcall is whether
+        // the simulator needs the CPU to touch the memory pages to ensure
+        // they are mapped by the OS.
+        m5_gpu(85, (uint64_t)&call_params);
+        bool map_local = *((bool*)call_params.ret);
+
+        delete call_params.args;
+        delete call_params.arg_lengths;
+        delete call_params.ret;
+
+        fprintf(stderr, "clBuildProgram allocated local from 0x%lx, size = %llu\n", alloc_ptr, allocate_local);
+
+        // The return from the upcall: If true, the simulator needs the GPU
+        // local memory pages to be mapped, so touch them.
+        // deicide: Currently we always touch local memory pages
+        if (1 || map_local) {
+            touchPages(alloc_ptr, allocate_local);
+        }
+
+        alloc_ptr = NULL;
+    }
+
+    // Third up-call to allocate globals and constants
+    if (allocation_size > 0) {
+        int error = posix_memalign((void**)&alloc_ptr, PAGE_SIZE_BYTES, allocation_size);
+        if (error) {
+            fprintf(stderr, "ERROR: cudaRegisterFatBinary2 failed with code: %d, Exiting...\n", error);
+            exit(-1);
+        }
+
+        // Const memory space is default allocated to 0, and this touches
+        // all pages to ensure OS mapping... Double win
+        memset(alloc_ptr, 0, allocation_size);
+    }
+
+    // Second up-call after allocating memory for globals and constants:
+    call_params.num_args = 1;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(void *);
+    call_params.total_bytes = call_params.arg_lengths[0];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(void**)];
+    void*** ret_spot2 = (void***)call_params.ret;
+    *ret_spot2 = NULL;
+
+    bytes_off = 0;
+    lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&alloc_ptr, call_params.arg_lengths[0]);
+
+    m5_gpu(81, (uint64_t)&call_params);
+    // void** ret = *((void***)call_params.ret);
+
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
+
+    return *ret;
+    /* Jie */
     if (!program) return CL_INVALID_PROGRAM;
     program->Build(options);
     return CL_SUCCESS;
@@ -1286,39 +1436,39 @@ clCreateKernel(cl_program      program,
                const char *    kernel_name,
                cl_int *        errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 4;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_program);
-  call_params.arg_lengths[1] = sizeof(int);
-  call_params.arg_lengths[2] = sizeof(const char*);
-  call_params.arg_lengths[3] = sizeof(cl_int*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_kernel)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 4;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_program);
+    call_params.arg_lengths[1] = sizeof(int);
+    call_params.arg_lengths[2] = sizeof(const char*);
+    call_params.arg_lengths[3] = sizeof(cl_int*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_kernel)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int kernel_name_length = strlen(kernel_name)+1;
+    int kernel_name_length = strlen(kernel_name)+1;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&program, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel_name_length, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel_name, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[3]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&program, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel_name_length, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel_name, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&errcode_ret, call_params.arg_lengths[3]);
 
-  m5_gpu(93, (uint64_t)&call_params);
-  cl_kernel ret = *((cl_kernel*)call_params.ret);
+    m5_gpu(93, (uint64_t)&call_params);
+    cl_kernel ret = *((cl_kernel*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     if (kernel_name == NULL) {
         setErrCode(errcode_ret, CL_INVALID_KERNEL_NAME);
         return NULL;
@@ -1333,37 +1483,37 @@ clSetKernelArg(cl_kernel    kernel,
                size_t       arg_size,
                const void * arg_value) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 4;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_kernel);
-  call_params.arg_lengths[1] = sizeof(cl_uint);
-  call_params.arg_lengths[2] = sizeof(size_t);
-  call_params.arg_lengths[3] = sizeof(const void*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 4;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_kernel);
+    call_params.arg_lengths[1] = sizeof(cl_uint);
+    call_params.arg_lengths[2] = sizeof(size_t);
+    call_params.arg_lengths[3] = sizeof(const void*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_index, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_size, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_value, call_params.arg_lengths[3]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_index, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_size, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&arg_value, call_params.arg_lengths[3]);
 
-  m5_gpu(94, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(94, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     kernel->SetKernelArg(arg_index,arg_size,arg_value);
     return CL_SUCCESS;
 }
@@ -1379,41 +1529,41 @@ clEnqueueNDRangeKernel(cl_command_queue command_queue,
                        const cl_event * event_wait_list,
                        cl_event *       event) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 6;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_command_queue);
-  call_params.arg_lengths[1] = sizeof(cl_kernel);
-  call_params.arg_lengths[2] = sizeof(cl_uint);
-  call_params.arg_lengths[3] = sizeof(const size_t*);
-  call_params.arg_lengths[4] = sizeof(const size_t*);
-  call_params.arg_lengths[5] = sizeof(const size_t*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4]+call_params.arg_lengths[5];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 6;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_command_queue);
+    call_params.arg_lengths[1] = sizeof(cl_kernel);
+    call_params.arg_lengths[2] = sizeof(cl_uint);
+    call_params.arg_lengths[3] = sizeof(const size_t*);
+    call_params.arg_lengths[4] = sizeof(const size_t*);
+    call_params.arg_lengths[5] = sizeof(const size_t*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4]+call_params.arg_lengths[5];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&command_queue, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&work_dim, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&global_work_offset, call_params.arg_lengths[3]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&global_work_size, call_params.arg_lengths[4]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&local_work_size, call_params.arg_lengths[5]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&command_queue, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&work_dim, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&global_work_offset, call_params.arg_lengths[3]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&global_work_size, call_params.arg_lengths[4]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&local_work_size, call_params.arg_lengths[5]);
 
-  m5_gpu(95, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(95, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     int _global_size[3];
     //int zeros[3] = {0, 0, 0};
     printf("\n\n\n");
@@ -1515,10 +1665,10 @@ clEnqueueReadBuffer(cl_command_queue    command_queue,
                     const cl_event *    event_wait_list,
                     cl_event *          event) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  cudaMemcpy(ptr, buffer, cb, cudaMemcpyDeviceToHost);
-  return CL_SUCCESS;
-/* Jie */
+    /* Jie */
+    cudaMemcpy(ptr, buffer, cb, cudaMemcpyDeviceToHost);
+    return CL_SUCCESS;
+    /* Jie */
     opencl_not_implemented(__my_func__,__LINE__);
     //if (!blocking_read)
     //    gpgpusim_opencl_warning(__my_func__,__LINE__, "non-blocking read treated as blocking read");
@@ -1538,10 +1688,10 @@ clEnqueueWriteBuffer(cl_command_queue   command_queue,
                      const cl_event *   event_wait_list,
                      cl_event *         event) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  cudaMemcpy(buffer, ptr, cb, cudaMemcpyHostToDevice);
-  return CL_SUCCESS;
-/* Jie */
+    /* Jie */
+    cudaMemcpy(buffer, ptr, cb, cudaMemcpyHostToDevice);
+    return CL_SUCCESS;
+    /* Jie */
     opencl_not_implemented(__my_func__,__LINE__);
     //if (!blocking_write)
     //    gpgpusim_opencl_warning(__my_func__,__LINE__, "non-blocking write treated as blocking write");
@@ -1553,165 +1703,165 @@ clEnqueueWriteBuffer(cl_command_queue   command_queue,
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseMemObject(cl_mem /* memobj */) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 0;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.total_bytes = 0;
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 0;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.total_bytes = 0;
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  m5_gpu(99, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(99, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseKernel(cl_kernel   /* kernel */) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 0;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.total_bytes = 0;
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 0;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.total_bytes = 0;
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  m5_gpu(97, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(97, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 0;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.total_bytes = 0;
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 0;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.total_bytes = 0;
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  m5_gpu(98, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(98, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseCommandQueue(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 0;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.total_bytes = 0;
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 0;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.total_bytes = 0;
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  m5_gpu(100, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(100, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseContext(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 0;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.total_bytes = 0;
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 0;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.total_bytes = 0;
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  m5_gpu(101, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(101, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clGetPlatformIDs(cl_uint num_entries, cl_platform_id *platforms, cl_uint *num_platforms) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 3;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_uint);
-  call_params.arg_lengths[1] = sizeof(cl_platform_id*);
-  call_params.arg_lengths[2] = sizeof(cl_uint*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 3;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_uint);
+    call_params.arg_lengths[1] = sizeof(cl_platform_id*);
+    call_params.arg_lengths[2] = sizeof(cl_uint*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_entries, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&platforms, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_platforms, call_params.arg_lengths[2]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_entries, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&platforms, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_platforms, call_params.arg_lengths[2]);
 
-  m5_gpu(86, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(86, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     if (((num_entries == 0) && (platforms != NULL)) ||
         ((num_platforms == NULL) && (platforms == NULL)))
         return CL_INVALID_VALUE;
@@ -1764,49 +1914,49 @@ clGetPlatformInfo(cl_platform_id   platform,
                   void *           param_value,
                   size_t *         param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* yamato */
-  gpusyscall_t call_params;
-  call_params.num_args = 5;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_platform_id);
-  call_params.arg_lengths[1] = sizeof(cl_platform_info);
-  call_params.arg_lengths[2] = sizeof(void *);
-  call_params.arg_lengths[3] = sizeof(size_t);
-  call_params.arg_lengths[4] = sizeof(size_t *);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* yamato */
+    gpusyscall_t call_params;
+    call_params.num_args = 5;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_platform_id);
+    call_params.arg_lengths[1] = sizeof(cl_platform_info);
+    call_params.arg_lengths[2] = sizeof(void *);
+    call_params.arg_lengths[3] = sizeof(size_t);
+    call_params.arg_lengths[4] = sizeof(size_t *);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&platform, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[3]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[4]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&platform, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[3]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[4]);
 
-  m5_gpu(110, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(110, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* yamato */
+    return ret;
+    /* yamato */
     if (platform == NULL || platform->m_uid != 0)
         return CL_INVALID_PLATFORM;
     char *buf = (char*)param_value;
     switch(param_name) {
-      case CL_PLATFORM_PROFILE:    CL_STRING_CASE("FULL_PROFILE"); break;
-      case CL_PLATFORM_VERSION:    CL_STRING_CASE("OpenCL 1.0"); break;
-      case CL_PLATFORM_NAME:       CL_STRING_CASE("gem5-gpu"); break;
-      case CL_PLATFORM_VENDOR:     CL_STRING_CASE("gem5-gpu.cs.wisc.edu"); break;
-      case CL_PLATFORM_EXTENSIONS: CL_STRING_CASE(" "); break;
-      default:
+    case CL_PLATFORM_PROFILE:    CL_STRING_CASE("FULL_PROFILE"); break;
+    case CL_PLATFORM_VERSION:    CL_STRING_CASE("OpenCL 1.0"); break;
+    case CL_PLATFORM_NAME:       CL_STRING_CASE("gem5-gpu"); break;
+    case CL_PLATFORM_VENDOR:     CL_STRING_CASE("gem5-gpu.cs.wisc.edu"); break;
+    case CL_PLATFORM_EXTENSIONS: CL_STRING_CASE(" "); break;
+    default:
         return CL_INVALID_VALUE;
     }
     return CL_SUCCESS;
@@ -1821,62 +1971,62 @@ clGetDeviceIDs(cl_platform_id   platform,
                cl_device_id *   devices,
                cl_uint *        num_devices) CL_API_SUFFIX__VERSION_1_0
 {
-/* Jie */
-  gpusyscall_t call_params;
-  call_params.num_args = 5;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_platform_id);
-  call_params.arg_lengths[1] = sizeof(cl_device_type);
-  call_params.arg_lengths[2] = sizeof(cl_uint);
-  call_params.arg_lengths[3] = sizeof(cl_device_id*);
-  call_params.arg_lengths[4] = sizeof(cl_uint*);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* Jie */
+    gpusyscall_t call_params;
+    call_params.num_args = 5;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_platform_id);
+    call_params.arg_lengths[1] = sizeof(cl_device_type);
+    call_params.arg_lengths[2] = sizeof(cl_uint);
+    call_params.arg_lengths[3] = sizeof(cl_device_id*);
+    call_params.arg_lengths[4] = sizeof(cl_uint*);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&platform, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device_type, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_entries, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&devices, call_params.arg_lengths[3]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_devices, call_params.arg_lengths[4]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&platform, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device_type, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_entries, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&devices, call_params.arg_lengths[3]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&num_devices, call_params.arg_lengths[4]);
 
-  m5_gpu(87, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(87, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* Jie */
+    return ret;
+    /* Jie */
     if (platform == NULL || platform->m_uid != 0)
         return CL_INVALID_PLATFORM;
     if ((num_entries == 0 && devices != NULL) ||
         (num_devices == NULL && devices == NULL))
         return CL_INVALID_VALUE;
 
-    switch(device_type) {
-      case CL_DEVICE_TYPE_CPU:
+    switch (device_type) {
+    case CL_DEVICE_TYPE_CPU:
         // Some benchmarks (e.g. ComD benchmark from Mantevo package) looks for CPU and GPU to choose among, so it is not wise to abort execution because of GPGPUsim is not a CPU !.
         printf("GPGPU-Sim OpenCL API: unsupported device type %lx\n", device_type);
         return CL_DEVICE_NOT_FOUND;
         break;
-      case CL_DEVICE_TYPE_DEFAULT:
-      case CL_DEVICE_TYPE_GPU:
-      case CL_DEVICE_TYPE_ACCELERATOR:
-      case CL_DEVICE_TYPE_ALL:
+    case CL_DEVICE_TYPE_DEFAULT:
+    case CL_DEVICE_TYPE_GPU:
+    case CL_DEVICE_TYPE_ACCELERATOR:
+    case CL_DEVICE_TYPE_ALL:
         opencl_not_implemented(__my_func__,__LINE__);
         //if (devices != NULL)
         //   devices[0] = GPGPUSim_Init();
         if (num_devices)
             *num_devices = NUM_DEVICES;
         break;
-      default:
+    default:
         return CL_INVALID_DEVICE_TYPE;
     }
     return CL_SUCCESS;
@@ -1889,55 +2039,55 @@ clGetDeviceInfo(cl_device_id    device,
                 void *          param_value,
                 size_t *        param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* yamato */
-  gpusyscall_t call_params;
-  call_params.num_args = 5;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_device_id);
-  call_params.arg_lengths[1] = sizeof(cl_device_info);
-  call_params.arg_lengths[2] = sizeof(size_t);
-  call_params.arg_lengths[3] = sizeof(void *);
-  call_params.arg_lengths[4] = sizeof(size_t *);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* yamato */
+    gpusyscall_t call_params;
+    call_params.num_args = 5;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_device_id);
+    call_params.arg_lengths[1] = sizeof(cl_device_info);
+    call_params.arg_lengths[2] = sizeof(size_t);
+    call_params.arg_lengths[3] = sizeof(void *);
+    call_params.arg_lengths[4] = sizeof(size_t *);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[3]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[4]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[3]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[4]);
 
-  m5_gpu(106, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(106, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* yamato */
+    return ret;
+    /* yamato */
     opencl_not_implemented(__my_func__,__LINE__);
     //if (device != GPGPUSim_Init())
     //    return CL_INVALID_DEVICE;
     char *buf = (char*)param_value;
-    switch(param_name) {
-      case CL_DEVICE_NAME: CL_STRING_CASE("GPGPU-Sim"); break;
-      case CL_DEVICE_GLOBAL_MEM_SIZE: CL_ULONG_CASE(1024*1024*1024); break;
-      case CL_DEVICE_MAX_COMPUTE_UNITS: opencl_not_implemented(__my_func__,__LINE__); break;
-      case CL_DEVICE_MAX_CLOCK_FREQUENCY: opencl_not_implemented(__my_func__,__LINE__); break;
-      case CL_DEVICE_VENDOR:CL_STRING_CASE("GPGPU-Sim.org"); break;
-      case CL_DEVICE_VERSION: CL_STRING_CASE("OpenCL 1.0"); break;
-      case CL_DRIVER_VERSION: CL_STRING_CASE("1.0"); break;
-      case CL_DEVICE_TYPE: CL_CASE(cl_device_type, CL_DEVICE_TYPE_GPU); break;
-      case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS: CL_INT_CASE(3); break;
-      case CL_DEVICE_MAX_WORK_ITEM_SIZES:
-        if (param_value && param_value_size < 3*sizeof(size_t)) return CL_INVALID_VALUE; \
+    switch (param_name) {
+    case CL_DEVICE_NAME: CL_STRING_CASE("GPGPU-Sim"); break;
+    case CL_DEVICE_GLOBAL_MEM_SIZE: CL_ULONG_CASE(1024*1024*1024); break;
+    case CL_DEVICE_MAX_COMPUTE_UNITS: opencl_not_implemented(__my_func__,__LINE__); break;
+    case CL_DEVICE_MAX_CLOCK_FREQUENCY: opencl_not_implemented(__my_func__,__LINE__); break;
+    case CL_DEVICE_VENDOR:CL_STRING_CASE("GPGPU-Sim.org"); break;
+    case CL_DEVICE_VERSION: CL_STRING_CASE("OpenCL 1.0"); break;
+    case CL_DRIVER_VERSION: CL_STRING_CASE("1.0"); break;
+    case CL_DEVICE_TYPE: CL_CASE(cl_device_type, CL_DEVICE_TYPE_GPU); break;
+    case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS: CL_INT_CASE(3); break;
+    case CL_DEVICE_MAX_WORK_ITEM_SIZES:
+        if (param_value && param_value_size < 3*sizeof(size_t)) return CL_INVALID_VALUE;
         if (param_value) {
             opencl_not_implemented(__my_func__,__LINE__);
             unsigned n_thread_per_shader = 0; //device->the_device()->threads_per_core();
@@ -1947,38 +2097,38 @@ clGetDeviceInfo(cl_device_id    device,
         }
         if (param_value_size_ret) *param_value_size_ret = 3*sizeof(cl_uint);
         break;
-      case CL_DEVICE_MAX_WORK_GROUP_SIZE: opencl_not_implemented(__my_func__,__LINE__); break;
-      case CL_DEVICE_ADDRESS_BITS: CL_INT_CASE(32); break;
-      case CL_DEVICE_AVAILABLE: CL_BOOL_CASE(CL_TRUE); break;
-      case CL_DEVICE_COMPILER_AVAILABLE: CL_BOOL_CASE(CL_TRUE); break;
-      case CL_DEVICE_IMAGE_SUPPORT: CL_INT_CASE(CL_TRUE); break;
-      case CL_DEVICE_MAX_READ_IMAGE_ARGS: CL_INT_CASE(128); break;
-      case CL_DEVICE_MAX_WRITE_IMAGE_ARGS: CL_INT_CASE(8); break;
-      case CL_DEVICE_IMAGE2D_MAX_HEIGHT: CL_INT_CASE(8192); break;
-      case CL_DEVICE_IMAGE2D_MAX_WIDTH: CL_INT_CASE(8192); break;
-      case CL_DEVICE_IMAGE3D_MAX_HEIGHT: CL_INT_CASE(2048); break;
-      case CL_DEVICE_IMAGE3D_MAX_WIDTH: CL_INT_CASE(2048); break;
-      case CL_DEVICE_IMAGE3D_MAX_DEPTH: CL_INT_CASE(2048); break;
-      case CL_DEVICE_MAX_MEM_ALLOC_SIZE: CL_INT_CASE(128*1024*1024); break;
-      case CL_DEVICE_ERROR_CORRECTION_SUPPORT: CL_INT_CASE(0); break;
-      case CL_DEVICE_LOCAL_MEM_TYPE: CL_INT_CASE(CL_LOCAL); break;
-      case CL_DEVICE_LOCAL_MEM_SIZE: opencl_not_implemented(__my_func__,__LINE__); break;
-      case CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE: CL_ULONG_CASE(64 * 1024); break;
-      case CL_DEVICE_QUEUE_PROPERTIES: CL_INT_CASE(CL_QUEUE_PROFILING_ENABLE); break;
-      case CL_DEVICE_EXTENSIONS:
+    case CL_DEVICE_MAX_WORK_GROUP_SIZE: opencl_not_implemented(__my_func__,__LINE__); break;
+    case CL_DEVICE_ADDRESS_BITS: CL_INT_CASE(32); break;
+    case CL_DEVICE_AVAILABLE: CL_BOOL_CASE(CL_TRUE); break;
+    case CL_DEVICE_COMPILER_AVAILABLE: CL_BOOL_CASE(CL_TRUE); break;
+    case CL_DEVICE_IMAGE_SUPPORT: CL_INT_CASE(CL_TRUE); break;
+    case CL_DEVICE_MAX_READ_IMAGE_ARGS: CL_INT_CASE(128); break;
+    case CL_DEVICE_MAX_WRITE_IMAGE_ARGS: CL_INT_CASE(8); break;
+    case CL_DEVICE_IMAGE2D_MAX_HEIGHT: CL_INT_CASE(8192); break;
+    case CL_DEVICE_IMAGE2D_MAX_WIDTH: CL_INT_CASE(8192); break;
+    case CL_DEVICE_IMAGE3D_MAX_HEIGHT: CL_INT_CASE(2048); break;
+    case CL_DEVICE_IMAGE3D_MAX_WIDTH: CL_INT_CASE(2048); break;
+    case CL_DEVICE_IMAGE3D_MAX_DEPTH: CL_INT_CASE(2048); break;
+    case CL_DEVICE_MAX_MEM_ALLOC_SIZE: CL_INT_CASE(128*1024*1024); break;
+    case CL_DEVICE_ERROR_CORRECTION_SUPPORT: CL_INT_CASE(0); break;
+    case CL_DEVICE_LOCAL_MEM_TYPE: CL_INT_CASE(CL_LOCAL); break;
+    case CL_DEVICE_LOCAL_MEM_SIZE: opencl_not_implemented(__my_func__,__LINE__); break;
+    case CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE: CL_ULONG_CASE(64 * 1024); break;
+    case CL_DEVICE_QUEUE_PROPERTIES: CL_INT_CASE(CL_QUEUE_PROFILING_ENABLE); break;
+    case CL_DEVICE_EXTENSIONS:
         if (param_value && (param_value_size < 1)) return CL_INVALID_VALUE;
         if (param_value) buf[0]=0;
         if (param_value_size_ret) *param_value_size_ret = 1;
         break;
-      case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR: CL_INT_CASE(1); break;
-      case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT: CL_INT_CASE(1); break;
-      case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT: CL_INT_CASE(1); break;
-      case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG: CL_INT_CASE(1); break;
-      case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT: CL_INT_CASE(1); break;
-      case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE: CL_INT_CASE(0); break;
-      case CL_DEVICE_SINGLE_FP_CONFIG: CL_INT_CASE(0); break;
-      case CL_DEVICE_MEM_BASE_ADDR_ALIGN: CL_INT_CASE(256*8); break;
-      default:
+    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR: CL_INT_CASE(1); break;
+    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT: CL_INT_CASE(1); break;
+    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT: CL_INT_CASE(1); break;
+    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG: CL_INT_CASE(1); break;
+    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT: CL_INT_CASE(1); break;
+    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE: CL_INT_CASE(0); break;
+    case CL_DEVICE_SINGLE_FP_CONFIG: CL_INT_CASE(0); break;
+    case CL_DEVICE_MEM_BASE_ADDR_ALIGN: CL_INT_CASE(256*8); break;
+    default:
         opencl_not_implemented(__my_func__,__LINE__);
         break;
     }
@@ -1988,26 +2138,29 @@ clGetDeviceInfo(cl_device_id    device,
 extern CL_API_ENTRY cl_int CL_API_CALL
 clFinish(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0
 {
-/* yamato */
-  gpusyscall_t call_params;
-  call_params.num_args = 0;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.total_bytes = 0;
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* yamato */
+    gpusyscall_t call_params;
+    call_params.num_args = 0;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.total_bytes = 0;
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  m5_gpu(104, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(104, (uint64_t)&call_params);
+    bool block_thread = *((bool*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* yamato */
+    // clFinish will block CPU thread until kernel is done
+    if (block_thread) {
+        blockThread();
+    }
+
     return CL_SUCCESS;
 }
 
@@ -2018,56 +2171,56 @@ clGetProgramInfo(cl_program         program,
                  void *             param_value,
                  size_t *           param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* yamato */
-  gpusyscall_t call_params;
-  call_params.num_args = 5;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_program);
-  call_params.arg_lengths[1] = sizeof(cl_program_info);
-  call_params.arg_lengths[2] = sizeof(size_t);
-  call_params.arg_lengths[3] = sizeof(void *);
-  call_params.arg_lengths[4] = sizeof(size_t *);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* yamato */
+    gpusyscall_t call_params;
+    call_params.num_args = 5;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_program);
+    call_params.arg_lengths[1] = sizeof(cl_program_info);
+    call_params.arg_lengths[2] = sizeof(size_t);
+    call_params.arg_lengths[3] = sizeof(void *);
+    call_params.arg_lengths[4] = sizeof(size_t *);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&program, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[3]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[4]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&program, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[3]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[4]);
 
-  m5_gpu(112, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(112, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* yamato */
+    return ret;
+    /* yamato */
     if (program == NULL)
         return CL_INVALID_PROGRAM;
     char *tmp=NULL;
     size_t len=0;
     switch(param_name) {
-      case CL_PROGRAM_REFERENCE_COUNT:
+    case CL_PROGRAM_REFERENCE_COUNT:
         CL_INT_CASE(1);
         break;
-      case CL_PROGRAM_CONTEXT:
+    case CL_PROGRAM_CONTEXT:
         if (param_value && param_value_size < sizeof(cl_context)) return CL_INVALID_VALUE;
         if (param_value) *((cl_context*)param_value) = program->get_context();
         if (param_value_size_ret) *param_value_size_ret = sizeof(cl_context);
         break;
-      case CL_PROGRAM_NUM_DEVICES:
+    case CL_PROGRAM_NUM_DEVICES:
         CL_INT_CASE(NUM_DEVICES);
         break;
-      case CL_PROGRAM_DEVICES:
+    case CL_PROGRAM_DEVICES:
         if (param_value && param_value_size < NUM_DEVICES * sizeof(cl_device_id))
             return CL_INVALID_VALUE;
         if (param_value) {
@@ -2077,21 +2230,21 @@ clGetProgramInfo(cl_program         program,
         }
         if (param_value_size_ret) *param_value_size_ret = sizeof(cl_device_id);
         break;
-      case CL_PROGRAM_SOURCE:
+    case CL_PROGRAM_SOURCE:
         opencl_not_implemented(__my_func__,__LINE__);
         break;
-      case CL_PROGRAM_BINARY_SIZES:
+    case CL_PROGRAM_BINARY_SIZES:
         if (param_value && param_value_size < NUM_DEVICES * sizeof(size_t)) return CL_INVALID_VALUE;
         if (param_value) *((size_t*)param_value) = program->get_ptx_size();
         if (param_value_size_ret) *param_value_size_ret = NUM_DEVICES*sizeof(size_t);
         break;
-      case CL_PROGRAM_BINARIES:
+    case CL_PROGRAM_BINARIES:
         len = program->get_ptx_size();
         tmp = program->get_ptx();
         if (param_value) memcpy(((char**)param_value)[0], tmp, len);
         if (param_value_size_ret) *param_value_size_ret = len;
         break;
-      default:
+    default:
         return CL_INVALID_VALUE;
         break;
     }
@@ -2138,52 +2291,52 @@ clGetKernelWorkGroupInfo(cl_kernel                  kernel,
                          void *                     param_value,
                          size_t *                   param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-/* yamato */
-  gpusyscall_t call_params;
-  call_params.num_args = 6;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.arg_lengths[0] = sizeof(cl_kernel);
-  call_params.arg_lengths[1] = sizeof(cl_device_id);
-  call_params.arg_lengths[2] = sizeof(cl_kernel_work_group_info);
-  call_params.arg_lengths[3] = sizeof(void *);
-  call_params.arg_lengths[4] = sizeof(size_t);
-  call_params.arg_lengths[5] = sizeof(size_t *);
-  call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4]+call_params.arg_lengths[5];
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* yamato */
+    gpusyscall_t call_params;
+    call_params.num_args = 6;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.arg_lengths[0] = sizeof(cl_kernel);
+    call_params.arg_lengths[1] = sizeof(cl_device_id);
+    call_params.arg_lengths[2] = sizeof(cl_kernel_work_group_info);
+    call_params.arg_lengths[3] = sizeof(void *);
+    call_params.arg_lengths[4] = sizeof(size_t);
+    call_params.arg_lengths[5] = sizeof(size_t *);
+    call_params.total_bytes = call_params.arg_lengths[0]+call_params.arg_lengths[1]+call_params.arg_lengths[2]+call_params.arg_lengths[3]+call_params.arg_lengths[4]+call_params.arg_lengths[5];
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  int bytes_off = 0;
-  int lengths_off = 0;
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[0]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device, call_params.arg_lengths[1]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[2]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[3]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[4]);
-  pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[5]);
+    int bytes_off = 0;
+    int lengths_off = 0;
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&kernel, call_params.arg_lengths[0]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&device, call_params.arg_lengths[1]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_name, call_params.arg_lengths[2]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value, call_params.arg_lengths[3]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size, call_params.arg_lengths[4]);
+    pack(call_params.args, bytes_off, call_params.arg_lengths, lengths_off, (char *)&param_value_size_ret, call_params.arg_lengths[5]);
 
-  m5_gpu(109, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(109, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* yamato */
+    return ret;
+    /* yamato */
     if (kernel == NULL)
         return CL_INVALID_KERNEL;
     switch(param_name) {
-      case CL_KERNEL_WORK_GROUP_SIZE:
+    case CL_KERNEL_WORK_GROUP_SIZE:
         CL_SIZE_CASE(kernel->get_workgroup_size(device));
         break;
-      case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
-      case CL_KERNEL_LOCAL_MEM_SIZE:
+    case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
+    case CL_KERNEL_LOCAL_MEM_SIZE:
         opencl_not_implemented(__my_func__,__LINE__);
         break;
-      default:
+    default:
         return CL_INVALID_VALUE;
         break;
     }
@@ -2194,52 +2347,52 @@ extern CL_API_ENTRY cl_int CL_API_CALL
 clWaitForEvents(cl_uint             /* num_events */,
                 const cl_event *    /* event_list */) CL_API_SUFFIX__VERSION_1_0
 {
-/* yamato */
-  gpusyscall_t call_params;
-  call_params.num_args = 0;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.total_bytes = 0;
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* yamato */
+    gpusyscall_t call_params;
+    call_params.num_args = 0;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.total_bytes = 0;
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  m5_gpu(114, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(114, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* yamato */
+    return ret;
+    /* yamato */
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseEvent(cl_event /* event */) CL_API_SUFFIX__VERSION_1_0
 {
-/* yamato */
-  gpusyscall_t call_params;
-  call_params.num_args = 0;
-  call_params.arg_lengths = new int[call_params.num_args];
-  call_params.total_bytes = 0;
-  call_params.args = new char[call_params.total_bytes];
-  call_params.ret = new char[sizeof(cl_int)];
+    /* yamato */
+    gpusyscall_t call_params;
+    call_params.num_args = 0;
+    call_params.arg_lengths = new int[call_params.num_args];
+    call_params.total_bytes = 0;
+    call_params.args = new char[call_params.total_bytes];
+    call_params.ret = new char[sizeof(cl_int)];
 
-  int* ret_spot = (int*)call_params.ret; // ???
-  *ret_spot = 0; // ???
+    int* ret_spot = (int*)call_params.ret;
+    *ret_spot = 0;
 
-  m5_gpu(113, (uint64_t)&call_params);
-  cl_int ret = *((cl_int*)call_params.ret);
+    m5_gpu(113, (uint64_t)&call_params);
+    cl_int ret = *((cl_int*)call_params.ret);
 
-  delete call_params.args;
-  delete call_params.arg_lengths;
-  delete call_params.ret;
+    delete call_params.args;
+    delete call_params.arg_lengths;
+    delete call_params.ret;
 
-  return ret;
-/* yamato */
+    return ret;
+    /* yamato */
     return CL_SUCCESS;
 }
 
@@ -2253,11 +2406,11 @@ clGetCommandQueueInfo(cl_command_queue      command_queue,
     if (command_queue == NULL)
         return CL_INVALID_COMMAND_QUEUE;
     switch(param_name) {
-      case CL_QUEUE_CONTEXT: CL_CASE(cl_context, command_queue->get_context()); break;
-      case CL_QUEUE_DEVICE: CL_CASE(cl_device_id, command_queue->get_device()); break;
-      case CL_QUEUE_REFERENCE_COUNT: CL_CASE(cl_uint,1); break;
-      case CL_QUEUE_PROPERTIES: CL_CASE(cl_command_queue_properties, command_queue->get_properties()); break;
-      default:
+    case CL_QUEUE_CONTEXT: CL_CASE(cl_context, command_queue->get_context()); break;
+    case CL_QUEUE_DEVICE: CL_CASE(cl_device_id, command_queue->get_device()); break;
+    case CL_QUEUE_REFERENCE_COUNT: CL_CASE(cl_uint,1); break;
+    case CL_QUEUE_PROPERTIES: CL_CASE(cl_command_queue_properties, command_queue->get_properties()); break;
+    default:
         return CL_INVALID_VALUE;
     }
     return CL_SUCCESS;
@@ -2393,3 +2546,4 @@ clSetCommandQueueProperty(cl_command_queue command_queue,
     // TODO: do something here
     return CL_SUCCESS;
 }
+

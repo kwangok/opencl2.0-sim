@@ -512,30 +512,10 @@ cudaMemcpyToSymbol(ThreadContext *tc, gpusyscall_t *call_params) {
     helper.setReturn((uint8_t*)&suspend, sizeof(bool));
 }
 
+//__host__ cudaError_t CUDARTAPI cudaMemcpyFromSymbol(void *dst, const char *symbol, size_t count, size_t offset __dv(0), enum cudaMemcpyKind kind __dv(cudaMemcpyDeviceToHost)) {
 void
 cudaMemcpyFromSymbol(ThreadContext *tc, gpusyscall_t *call_params) {
-    GPUSyscallHelper helper(tc, call_params);
-
-    Addr sim_dst = *((Addr*)helper.getParam(0, true));
-    Addr sim_symbol = *((Addr*)helper.getParam(1, true));
-    size_t sim_count = *((size_t*)helper.getParam(2));
-    size_t sim_offset = *((size_t*)helper.getParam(3));
-    enum cudaMemcpyKind sim_kind = *((enum cudaMemcpyKind*)helper.getParam(4));
-
-    CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
-
-    DPRINTF(GPUSyscalls, "gem5 GPU Syscall: cudaMemcpyToSymbol(symbol = %x, src = %x, count = %d, offset = %d, kind = %s)\n",
-            sim_symbol, sim_dst, sim_count, sim_offset, cudaMemcpyKindStrings[sim_kind]);
-
-    assert(sim_kind == cudaMemcpyDeviceToHost);
-    stream_operation mem_op((const char*)sim_symbol, (void*)sim_dst, sim_count, sim_offset, NULL);
-    mem_op.setThreadContext(tc);
-    g_stream_manager->push(mem_op);
-
-    bool suspend = cudaGPU->needsToBlock();
-    assert(suspend);
-    g_last_cudaError = cudaSuccess;
-    helper.setReturn((uint8_t*)&suspend, sizeof(bool));
+    cuda_not_implemented(__my_func__,__LINE__);
 }
 
 /*******************************************************************************
@@ -616,10 +596,8 @@ cudaMemset(ThreadContext *tc, gpusyscall_t *call_params)
 
     CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
 
-    if (!cudaGPU->isManagingGPUMemory() && !cudaGPU->isAccessingHostPagetable()) {
-        // Signal to libcuda that it should handle the memset. This is required
-        // if the copy engine may be unable to access the CPU's pagetable to get
-        // address translations (unified memory without access host pagetable)
+    if (!cudaGPU->isManagingGPUMemory()) {
+        // Signal to libcuda that it should handle the memset
         g_last_cudaError = cudaErrorApiFailureBase;
         helper.setReturn((uint8_t*)&g_last_cudaError, sizeof(cudaError_t));
     } else {
@@ -628,9 +606,6 @@ cudaMemset(ThreadContext *tc, gpusyscall_t *call_params)
         g_stream_manager->push(mem_op);
         g_last_cudaError = cudaSuccess;
         helper.setReturn((uint8_t*)&g_last_cudaError, sizeof(cudaError_t));
-
-        bool suspend = cudaGPU->needsToBlock();
-        assert(suspend);
     }
 }
 
@@ -901,8 +876,6 @@ cudaFuncGetAttributes(ThreadContext *tc, gpusyscall_t *call_params)
 
     Addr sim_attr = *((Addr*)helper.getParam(0, true));
     Addr sim_hostFun = *((Addr*)helper.getParam(1, true));
-
-    DPRINTF(GPUSyscalls, "gem5 GPU Syscall: cudaFuncGetAttributes(attr* = %x, hostFun* = %x)\n", sim_attr, sim_hostFun);
 
     CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
     function_info *entry = cudaGPU->get_kernel((const char*)sim_hostFun);
@@ -1393,6 +1366,9 @@ __cudaSetLocalAllocation(ThreadContext *tc, gpusyscall_t *call_params) {
     assert(!registering_local_alloc_ptr);
     registering_local_alloc_ptr = sim_alloc_ptr;
     cudaGPU->setLocalBaseVaddr(registering_local_alloc_ptr);
+    // deicide: Register page translation for GPU page table
+    unsigned long long local_alloc_size = get_local_alloc_size(cudaGPU);
+    cudaGPU->registerDeviceMemory(tc, registering_local_alloc_ptr, local_alloc_size);
 
     // TODO: Need to check if using host or GPU page mappings. If the GPU is
     // not able to access the host's pagetable, then the memory pages need to
@@ -2895,10 +2871,20 @@ void clReleaseContext(ThreadContext *tc, gpusyscall_t *call_params) {
 	  } \
 
 void clFinish(ThreadContext *tc, gpusyscall_t *call_params) {
+<<<<<<< HEAD
 	GPUSyscallHelper helper(tc, call_params);
 	cl_int ret = CL_SUCCESS;
 	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
 	return ;
+=======
+    // deicide: clFinish will block CPU thread until kernel is done
+    GPUSyscallHelper helper(tc, call_params);
+    DPRINTF(GPUSyscalls, "gem5 GPU Syscall: clFinish(), tc = %x\n", tc);
+    CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
+    bool suspend = cudaGPU->needsToBlock();
+    helper.setReturn((uint8_t*)&suspend, sizeof(bool));
+    return ;
+>>>>>>> origin/OpenCL-1.X
 }
 
 void clGetContextInfo(ThreadContext *tc, gpusyscall_t *call_params) {
@@ -3050,9 +3036,13 @@ void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 	case CL_DEVICE_SINGLE_FP_CONFIG: CL_INT_CASE(0); break;
 	case CL_DEVICE_MEM_BASE_ADDR_ALIGN: CL_INT_CASE(256*8); break;
 	default:
+<<<<<<< HEAD
         DPRINTF(GPUSyscalls, "gem5 GPU Syscall: WARNING ** Not yet implemented OpenCL device info");
         break;
 		// opencl_not_implemented(__my_func__,__LINE__);
+=======
+		opencl_not_implemented(__my_func__,__LINE__);
+>>>>>>> origin/OpenCL-1.X
 	}
 	cl_int ret = CL_SUCCESS;
 	helper.setReturn((uint8_t*)&ret, sizeof(cl_int));
