@@ -221,7 +221,7 @@ CudaCore::handleRetry()
             instPort.sendTimingReq(retry_pkt);
         }
     } else {
-        panic("Access should never fail on a retry!");
+        // panic("Access should never fail on a retry!");
     }
 }
 

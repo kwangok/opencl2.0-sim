@@ -215,7 +215,9 @@ void gpgpu_ptxinfo_load_from_string( const char *p_for_info, unsigned source_num
     char extra_flags[1024];
     extra_flags[0]=0;
 
-#if CUDART_VERSION >= 3000
+#if 1
+    snprintf(extra_flags,1024,"--gpu-name=sm_35 -c");
+#elif CUDART_VERSION >= 3000
     snprintf(extra_flags,1024,"--gpu-name=sm_20");
 #endif
 

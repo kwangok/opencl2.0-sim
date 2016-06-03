@@ -30,8 +30,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_PTXINFO_CUDA_SIM_PTXINFO_TAB_H_INCLUDED
-# define YY_PTXINFO_CUDA_SIM_PTXINFO_TAB_H_INCLUDED
+#ifndef YY_PTXINFO_PTXINFO_TAB_H_INCLUDED
+# define YY_PTXINFO_PTXINFO_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -55,17 +55,18 @@ extern int ptxinfo_debug;
     LMEM = 265,
     SMEM = 266,
     CMEM = 267,
-    IDENTIFIER = 268,
-    PLUS = 269,
-    COMMA = 270,
-    LEFT_SQUARE_BRACKET = 271,
-    RIGHT_SQUARE_BRACKET = 272,
-    COLON = 273,
-    SEMICOLON = 274,
-    QUOTE = 275,
-    LINE = 276,
-    WARNING = 277,
-    FOR = 278
+    GMEM = 268,
+    IDENTIFIER = 269,
+    PLUS = 270,
+    COMMA = 271,
+    LEFT_SQUARE_BRACKET = 272,
+    RIGHT_SQUARE_BRACKET = 273,
+    COLON = 274,
+    SEMICOLON = 275,
+    QUOTE = 276,
+    LINE = 277,
+    WARNING = 278,
+    FOR = 279
   };
 #endif
 
@@ -79,7 +80,7 @@ union YYSTYPE
   int    int_value;
   char * string_value;
 
-#line 83 "ptxinfo.tab.h" /* yacc.c:1909  */
+#line 84 "ptxinfo.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -90,4 +91,4 @@ extern YYSTYPE ptxinfo_lval;
 
 int ptxinfo_parse (void);
 
-#endif /* !YY_PTXINFO_CUDA_SIM_PTXINFO_TAB_H_INCLUDED  */
+#endif /* !YY_PTXINFO_PTXINFO_TAB_H_INCLUDED  */
