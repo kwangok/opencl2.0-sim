@@ -24,7 +24,8 @@
 -gpgpu_clock_domains %freq%:1400.0:700.0:1848.0
 
 # shader core pipeline config
--gpgpu_shader_registers 32768
+#-gpgpu_shader_registers 32768 # use default
+-gpgpu_shader_registers 327680
 
 # This implies a maximum of 48 warps/SM
 -gpgpu_shader_core_pipeline %threads_per_sm%:%warp_size%

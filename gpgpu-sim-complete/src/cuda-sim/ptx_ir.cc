@@ -1040,6 +1040,7 @@ ptx_instruction::ptx_instruction( int opcode,
    m_inst_size = 8; // bytes
    m_shiftamt_option = false;
    m_ftz = false;
+   m_carry_flag = false
 
    std::list<int>::const_iterator i;
    unsigned n=1;
@@ -1200,6 +1201,7 @@ ptx_instruction::ptx_instruction( int opcode,
 		 break;
 	  case CARRY_FLAG:
 		 m_carry_flag = true;
+         break;
       default:
          assert(0);
          break;

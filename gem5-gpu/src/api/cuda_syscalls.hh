@@ -256,7 +256,9 @@ void cudaGLMapBufferObject(ThreadContext *tc, gpusyscall_t *call_params);
 void cudaGLUnmapBufferObject(ThreadContext *tc, gpusyscall_t *call_params);
 void cudaGLUnregisterBufferObject(ThreadContext *tc, gpusyscall_t *call_params);
 
-/* Jie */
+/*******************************
+   OpenCL API GEM5 HANDLERS
+********************************/
 void clGetPlatformIDs(ThreadContext *tc, gpusyscall_t *call_params);
 void clGetDeviceIDs(ThreadContext *tc, gpusyscall_t *call_params);
 void clCreateContext(ThreadContext *tc, gpusyscall_t *call_params);
@@ -273,7 +275,6 @@ void clReleaseProgram(ThreadContext *tc, gpusyscall_t *call_params);
 void clReleaseMemObject(ThreadContext *tc, gpusyscall_t *call_params);
 void clReleaseCommandQueue(ThreadContext *tc, gpusyscall_t *call_params);
 void clReleaseContext(ThreadContext *tc, gpusyscall_t *call_params);
-/* yamato */
 void clCreateProgramWithBinary(ThreadContext *tc, gpusyscall_t *call_params);
 void clEnqueueWriteBuffer(ThreadContext *tc, gpusyscall_t *call_params);
 void clFinish(ThreadContext *tc, gpusyscall_t *call_params);
@@ -288,8 +289,6 @@ void clGetProgramInfo(ThreadContext *tc, gpusyscall_t *call_params);
 void clReleaseEvent(ThreadContext *tc, gpusyscall_t *call_params);
 void clWaitForEvents(ThreadContext *tc, gpusyscall_t *call_params);
 void clCreateContextFromType(ThreadContext *tc, gpusyscall_t *call_params);
-/* yamato */
-/* Jie */
 
 #if (CUDART_VERSION >= 2010)
 
@@ -405,8 +404,6 @@ cudaFunc_t gpgpu_funcs[] = {
         cudaRegisterDeviceMemory,    /* 82 */
         cudaBlockThread,    /* 83 */
         __cudaCheckAllocateLocal,    /* 84 */
-/* Jie */
-//	__cudaSetLocalAllocation    /* 85 */
         __cudaSetLocalAllocation,    /* 85 */
         clGetPlatformIDs,		/*  86 OpenCL  1 */
         clGetDeviceIDs,			/*  87 OpenCL  2 */
@@ -423,8 +420,6 @@ cudaFunc_t gpgpu_funcs[] = {
         clReleaseProgram,		/*  98 OpenCL 13 */
         clReleaseMemObject,		/*  99 OpenCL 14 */
         clReleaseCommandQueue,		/* 100 OpenCL 15 */
-/* yamato */
-//      clReleaseContext		/* 101 OpenCL 16 */
         clReleaseContext,		/* 101 OpenCL 16 */
         clCreateProgramWithBinary,	/* 102 OpenCL 17 */
         clEnqueueWriteBuffer,		/* 103 OpenCL 18 */
@@ -440,8 +435,6 @@ cudaFunc_t gpgpu_funcs[] = {
         clReleaseEvent,			/* 113 OpenCL 28 */
         clWaitForEvents,		/* 114 OpenCL 29 */
         clCreateContextFromType		/* 115 OpenCL 30 */
-/* yamato */
-/* Jie */
 };
 
 #endif

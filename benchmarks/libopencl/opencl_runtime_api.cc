@@ -92,7 +92,8 @@ extern "C" {
 #define CL_USE_DEPRECATED_OPENCL_1_0_APIS
 #include <CL/cl.h>
 
-/* Jie */
+// Some feature and method is call cuda_syscall needs.
+// Copy form cuda_runtime_api.cc.
 #include "builtin_types.h"
 
 typedef enum cudaError cudaError_t;
@@ -291,6 +292,7 @@ cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind)
     return cudaSuccess;
 }
 
+// OpenCL 2.0 API
 extern CL_API_ENTRY void * CL_API_CALL
 clSVMAlloc(cl_context       context,
            cl_svm_mem_flags flags,
@@ -386,7 +388,6 @@ clCreatePipe(cl_context                 context,
         else *errcode_ret = CL_INVALID_CONTEXT;
     return cl_ret;
 }
-/* Jie */
 
 // TODO: Migrate into gem5-gpu:
 class function_info;
@@ -947,7 +948,6 @@ clCreateContextFromType(const cl_context_properties * properties,
                         void *                  user_data,
                         cl_int *                errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* yamato */
     gpusyscall_t call_params;
     call_params.num_args = 3;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -975,31 +975,6 @@ clCreateContextFromType(const cl_context_properties * properties,
     delete call_params.ret;
 
     return ret;
-    /* yamato */
-    //_cl_device_id *gpu = GPGPUSim_Init();
-
-    switch (device_type) {
-        case CL_DEVICE_TYPE_GPU:
-        case CL_DEVICE_TYPE_ACCELERATOR:
-        case CL_DEVICE_TYPE_DEFAULT:
-        case CL_DEVICE_TYPE_ALL:
-            break; // GPGPU-Sim qualifies as these types of device.
-        default:
-            printf("GPGPU-Sim OpenCL API: unsupported device type %lx\n", device_type);
-            setErrCode(errcode_ret, CL_DEVICE_NOT_FOUND);
-            return NULL;
-            break;
-    }
-
-    if (properties != NULL) {
-        printf("GPGPU-Sim OpenCL API: do not know how to use properties in %s\n", __my_func__);
-        //exit(1); // Temporarily commented out to allow the AMD Sample applications to run.
-    }
-
-    setErrCode(errcode_ret, CL_SUCCESS);
-    cl_context ctx = NULL; //new _cl_context(gpu);
-    opencl_not_implemented(__my_func__,__LINE__);
-    return ctx;
 }
 
 /***************************** Unimplemented shell functions *******************************************/
@@ -1025,7 +1000,6 @@ clGetEventProfilingInfo(cl_event            /* event */,
     gem5gpu_opencl_warning(__my_func__,__LINE__, "GPGPUsim - OpenCLFunction is not implemented. Returning CL_SUCCESS");
     return CL_SUCCESS;
 }
-/* yamato */
 extern CL_API_ENTRY cl_int CL_API_CALL
 clGetEventInfo(cl_event            /* event */,
                cl_event_info       /* param_name */,
@@ -1046,7 +1020,6 @@ clGetProgramBuildInfo(cl_program            /* program */,
     opencl_not_finished(__my_func__, __LINE__);
     return CL_SUCCESS;
 }
-/* yamato */
 /*******************************************************************************************************/
 
 
@@ -1058,7 +1031,6 @@ clCreateContext( const cl_context_properties * properties,
                   void *                  user_data,
                   cl_int *                errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 2;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1084,19 +1056,6 @@ clCreateContext( const cl_context_properties * properties,
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    //struct _cl_device_id *gpu = GPGPUSim_Init();
-    if (properties != NULL) {
-        if (properties[0] != CL_CONTEXT_PLATFORM || properties[1] != (cl_context_properties)&g_gpgpu_sim_platform_id) {
-            setErrCode(errcode_ret, CL_INVALID_PLATFORM);
-            return NULL;
-        }
-    }
-    setErrCode(errcode_ret, CL_SUCCESS);
-
-    cl_context ctx = NULL; //new _cl_context(gpu);
-    opencl_not_implemented(__my_func__,__LINE__);
-    return ctx;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
@@ -1106,7 +1065,6 @@ clGetContextInfo(cl_context         context,
                  void *             param_value,
                  size_t *           param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* yamato */
     gpusyscall_t call_params;
     call_params.num_args = 5;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1138,33 +1096,6 @@ clGetContextInfo(cl_context         context,
     delete call_params.ret;
 
     return ret;
-    /* yamato */
-    if (context == NULL) return CL_INVALID_CONTEXT;
-    switch (param_name) {
-    case CL_CONTEXT_DEVICES:
-    {
-        unsigned ngpu=0;
-        cl_device_id device_id = context->get_first_device();
-        while (device_id != NULL) {
-            if (param_value)
-                ((cl_device_id*)param_value)[ngpu] = device_id;
-            device_id = device_id->next();
-            ngpu++;
-        }
-        if (param_value_size_ret) *param_value_size_ret = ngpu * sizeof(cl_device_id);
-        break;
-    }
-    case CL_CONTEXT_REFERENCE_COUNT:
-        opencl_not_finished(__my_func__,__LINE__);
-        break;
-    case CL_CONTEXT_PROPERTIES:
-        opencl_not_finished(__my_func__,__LINE__);
-        break;
-    default:
-        opencl_not_finished(__my_func__,__LINE__);
-        break;
-    }
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_command_queue CL_API_CALL
@@ -1173,7 +1104,6 @@ clCreateCommandQueue(cl_context                     context,
                      cl_command_queue_properties    properties,
                      cl_int *                       errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 4;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1203,15 +1133,6 @@ clCreateCommandQueue(cl_context                     context,
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    if (!context) { setErrCode(errcode_ret, CL_INVALID_CONTEXT);   return NULL; }
-    gem5gpu_opencl_warning(__my_func__,__LINE__, "assuming device_id is in context");
-    if ((properties & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE))
-        gem5gpu_opencl_warning(__my_func__,__LINE__, "ignoring command queue property");
-    if ((properties & CL_QUEUE_PROFILING_ENABLE))
-        gem5gpu_opencl_warning(__my_func__,__LINE__, "ignoring command queue property");
-    setErrCode(errcode_ret, CL_SUCCESS);
-    return new _cl_command_queue(context,device,properties);
 }
 
 extern CL_API_ENTRY cl_mem CL_API_CALL
@@ -1221,7 +1142,7 @@ clCreateBuffer(cl_context   context,
                void *       host_ptr,
                cl_int *     errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
+// Use the Cuda API to implemented
     cl_mem cl_ret;
     cudaError_t cuda_ret = cudaMallocHelper((void**)&cl_ret, size, CUDA_MALLOC_DEVICE);
     if ( errcode_ret != NULL )
@@ -1230,9 +1151,6 @@ clCreateBuffer(cl_context   context,
     if ( host_ptr != NULL )
         cudaMemcpy(cl_ret, host_ptr, size, cudaMemcpyHostToDevice);
     return cl_ret;
-    /* Jie */
-    if (!context) { setErrCode(errcode_ret, CL_INVALID_CONTEXT);   return NULL; }
-    return context->CreateBuffer(flags,size,host_ptr,errcode_ret);
 }
 
 extern CL_API_ENTRY cl_program CL_API_CALL
@@ -1242,7 +1160,6 @@ clCreateProgramWithSource(cl_context        context,
                           const size_t *    lengths,
                           cl_int *          errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 5;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1278,10 +1195,6 @@ clCreateProgramWithSource(cl_context        context,
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    if (!context) { setErrCode(errcode_ret, CL_INVALID_CONTEXT);   return NULL; }
-    setErrCode(errcode_ret, CL_SUCCESS);
-    return new _cl_program(context,count,strings,lengths);
 }
 
 
@@ -1293,7 +1206,6 @@ clBuildProgram(cl_program           program,
                void (*pfn_notify)(cl_program /* program */, void * /* user_data */),
                void *               user_data) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 3;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1425,10 +1337,6 @@ clBuildProgram(cl_program           program,
     delete call_params.ret;
 
     return *ret;
-    /* Jie */
-    if (!program) return CL_INVALID_PROGRAM;
-    program->Build(options);
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_kernel CL_API_CALL
@@ -1436,7 +1344,6 @@ clCreateKernel(cl_program      program,
                const char *    kernel_name,
                cl_int *        errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 4;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1468,13 +1375,6 @@ clCreateKernel(cl_program      program,
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    if (kernel_name == NULL) {
-        setErrCode(errcode_ret, CL_INVALID_KERNEL_NAME);
-        return NULL;
-    }
-    cl_kernel kobj = program->CreateKernel(kernel_name,errcode_ret);
-    return kobj;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
@@ -1483,7 +1383,6 @@ clSetKernelArg(cl_kernel    kernel,
                size_t       arg_size,
                const void * arg_value) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 4;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1513,9 +1412,6 @@ clSetKernelArg(cl_kernel    kernel,
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    kernel->SetKernelArg(arg_index,arg_size,arg_value);
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
@@ -1529,7 +1425,6 @@ clEnqueueNDRangeKernel(cl_command_queue command_queue,
                        const cl_event * event_wait_list,
                        cl_event *       event) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 6;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1563,95 +1458,6 @@ clEnqueueNDRangeKernel(cl_command_queue command_queue,
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    int _global_size[3];
-    //int zeros[3] = {0, 0, 0};
-    printf("\n\n\n");
-    //char *mode = getenv("PTX_SIM_MODE_FUNC");
-    opencl_not_implemented(__my_func__,__LINE__);
-    //if (mode)
-    //    sscanf(mode,"%u", &g_ptx_sim_mode);
-    //printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel '%s' (mode=%s)\n", kernel->name().c_str(),
-    //       g_ptx_sim_mode?"functional simulation":"performance simulation");
-    if (!work_dim || work_dim > 3) return CL_INVALID_WORK_DIMENSION;
-    size_t _local_size[3];
-    if (local_work_size != NULL) {
-        for (unsigned d=0; d < work_dim; d++)
-            _local_size[d]=local_work_size[d];
-    } else {
-        printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel automatic local work size selection:\n");
-        for (unsigned d=0; d < work_dim; d++) {
-            if (d==0) {
-                opencl_not_implemented(__my_func__,__LINE__);
-                if (global_work_size[d] <= 0) { //command_queue->get_device()->the_device()->threads_per_core()) {
-                    _local_size[d] = global_work_size[d];
-                } else {
-                    // start with the maximum number of thread that a core may hold,
-                    // and decrement by 64 threadsuntil there is a local_work_size
-                    // that can perfectly divide the global_work_size.
-                    opencl_not_implemented(__my_func__,__LINE__);
-                    unsigned n_thread_per_core = 0; //command_queue->get_device()->the_device()->threads_per_core();
-                    size_t local_size_attempt = n_thread_per_core;
-                    while (local_size_attempt > 1 and (n_thread_per_core % 64 == 0)) {
-                        if (global_work_size[d] % local_size_attempt == 0) {
-                            break;
-                        }
-                        local_size_attempt -= 64;
-                    }
-                    if (local_size_attempt == 0) local_size_attempt = 1;
-                    _local_size[d] = local_size_attempt;
-                }
-            } else {
-                _local_size[d] = 1;
-            }
-            printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel global_work_size[%u] = %zu\n", d, global_work_size[d]);
-            printf("GPGPU-Sim OpenCL API: clEnqueueNDRangeKernel local_work_size[%u]  = %zu\n", d, _local_size[d]);
-        }
-    }
-    for (unsigned d=0; d < work_dim; d++) {
-        _global_size[d] = (int)global_work_size[d];
-        if ((global_work_size[d] % _local_size[d]) != 0)
-            return CL_INVALID_WORK_GROUP_SIZE;
-    }
-    if (global_work_offset != NULL){
-        for (unsigned d=0; d < work_dim; d++) {
-            if (global_work_offset[d] != 0){
-                printf("GPGPU-Sim: global id offset is not supported\n");
-                abort();
-            }
-        }
-    }
-    assert(global_work_size[0] == _local_size[0] * (global_work_size[0]/_local_size[0])); // i.e., we can divide into equal CTAs
-    opencl_not_implemented(__my_func__,__LINE__);
-    //dim3 GridDim;
-    //GridDim.x = global_work_size[0]/_local_size[0];
-    //GridDim.y = (work_dim < 2)?1:(global_work_size[1]/_local_size[1]);
-    //GridDim.z = (work_dim < 3)?1:(global_work_size[2]/_local_size[2]);
-    //dim3 BlockDim;
-    //BlockDim.x = _local_size[0];
-    //BlockDim.y = (work_dim < 2)?1:_local_size[1];
-    //BlockDim.z = (work_dim < 3)?1:_local_size[2];
-
-    //gpgpu_ptx_sim_arg_list_t params;
-    cl_int err_val = kernel->bind_args(/*params*/);
-    if (err_val != CL_SUCCESS)
-        return err_val;
-
-    opencl_not_implemented(__my_func__,__LINE__);
-    //gpgpu_t *gpu = command_queue->get_device()->the_device();
-    //if (kernel->get_implementation()->get_ptx_version().ver() < 3.0){
-    //    gpgpu_ptx_sim_memcpy_symbol("%_global_size", _global_size, 3 * sizeof(int), 0, 1, gpu);
-    //    gpgpu_ptx_sim_memcpy_symbol("%_work_dim", &work_dim, 1 * sizeof(int), 0, 1, gpu );
-    //    gpgpu_ptx_sim_memcpy_symbol("%_global_num_groups", &GridDim, 3 * sizeof(int), 0, 1, gpu);
-    //    gpgpu_ptx_sim_memcpy_symbol("%_global_launch_offset", zeros, 3 * sizeof(int), 0, 1, gpu);
-    //    gpgpu_ptx_sim_memcpy_symbol("%_global_block_offset", zeros, 3 * sizeof(int), 0, 1, gpu);
-    //}
-    //kernel_info_t *grid = gpgpu_opencl_ptx_sim_init_grid(kernel->get_implementation(),params,GridDim,BlockDim,gpu);
-    //if (g_ptx_sim_mode)
-    //    gpgpu_opencl_ptx_sim_main_func(grid);
-    //else
-    //    gpgpu_opencl_ptx_sim_main_perf(grid);
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
@@ -1665,15 +1471,7 @@ clEnqueueReadBuffer(cl_command_queue    command_queue,
                     const cl_event *    event_wait_list,
                     cl_event *          event) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     cudaMemcpy(ptr, buffer, cb, cudaMemcpyDeviceToHost);
-    return CL_SUCCESS;
-    /* Jie */
-    opencl_not_implemented(__my_func__,__LINE__);
-    //if (!blocking_read)
-    //    gpgpusim_opencl_warning(__my_func__,__LINE__, "non-blocking read treated as blocking read");
-    //gpgpu_t *gpu = command_queue->get_device()->the_device();
-    //gpu->memcpy_from_gpu(ptr, (size_t)buffer, cb);
     return CL_SUCCESS;
 }
 
@@ -1688,22 +1486,13 @@ clEnqueueWriteBuffer(cl_command_queue   command_queue,
                      const cl_event *   event_wait_list,
                      cl_event *         event) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     cudaMemcpy(buffer, ptr, cb, cudaMemcpyHostToDevice);
-    return CL_SUCCESS;
-    /* Jie */
-    opencl_not_implemented(__my_func__,__LINE__);
-    //if (!blocking_write)
-    //    gpgpusim_opencl_warning(__my_func__,__LINE__, "non-blocking write treated as blocking write");
-    //gpgpu_t *gpu = command_queue->get_device()->the_device();
-    //gpu->memcpy_to_gpu((size_t)buffer, ptr, cb);
     return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseMemObject(cl_mem /* memobj */) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 0;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1722,14 +1511,11 @@ clReleaseMemObject(cl_mem /* memobj */) CL_API_SUFFIX__VERSION_1_0
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseKernel(cl_kernel   /* kernel */) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 0;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1748,14 +1534,11 @@ clReleaseKernel(cl_kernel   /* kernel */) CL_API_SUFFIX__VERSION_1_0
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 0;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1774,14 +1557,11 @@ clReleaseProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseCommandQueue(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 0;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1800,14 +1580,11 @@ clReleaseCommandQueue(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSI
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseContext(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 0;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1826,14 +1603,11 @@ clReleaseContext(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clGetPlatformIDs(cl_uint num_entries, cl_platform_id *platforms, cl_uint *num_platforms) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 3;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1861,15 +1635,6 @@ clGetPlatformIDs(cl_uint num_entries, cl_platform_id *platforms, cl_uint *num_pl
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    if (((num_entries == 0) && (platforms != NULL)) ||
-        ((num_platforms == NULL) && (platforms == NULL)))
-        return CL_INVALID_VALUE;
-    if ((platforms != NULL) && (num_entries > 0))
-        platforms[0] = &g_gpgpu_sim_platform_id;
-    if (num_platforms)
-        *num_platforms = 1;
-    return CL_SUCCESS;
 }
 
 #define CL_STRING_CASE(S) \
@@ -1914,7 +1679,6 @@ clGetPlatformInfo(cl_platform_id   platform,
                   void *           param_value,
                   size_t *         param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* yamato */
     gpusyscall_t call_params;
     call_params.num_args = 5;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -1946,20 +1710,6 @@ clGetPlatformInfo(cl_platform_id   platform,
     delete call_params.ret;
 
     return ret;
-    /* yamato */
-    if (platform == NULL || platform->m_uid != 0)
-        return CL_INVALID_PLATFORM;
-    char *buf = (char*)param_value;
-    switch(param_name) {
-    case CL_PLATFORM_PROFILE:    CL_STRING_CASE("FULL_PROFILE"); break;
-    case CL_PLATFORM_VERSION:    CL_STRING_CASE("OpenCL 1.0"); break;
-    case CL_PLATFORM_NAME:       CL_STRING_CASE("gem5-gpu"); break;
-    case CL_PLATFORM_VENDOR:     CL_STRING_CASE("gem5-gpu.cs.wisc.edu"); break;
-    case CL_PLATFORM_EXTENSIONS: CL_STRING_CASE(" "); break;
-    default:
-        return CL_INVALID_VALUE;
-    }
-    return CL_SUCCESS;
 }
 
 #define NUM_DEVICES 1
@@ -1971,7 +1721,6 @@ clGetDeviceIDs(cl_platform_id   platform,
                cl_device_id *   devices,
                cl_uint *        num_devices) CL_API_SUFFIX__VERSION_1_0
 {
-    /* Jie */
     gpusyscall_t call_params;
     call_params.num_args = 5;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -2003,33 +1752,6 @@ clGetDeviceIDs(cl_platform_id   platform,
     delete call_params.ret;
 
     return ret;
-    /* Jie */
-    if (platform == NULL || platform->m_uid != 0)
-        return CL_INVALID_PLATFORM;
-    if ((num_entries == 0 && devices != NULL) ||
-        (num_devices == NULL && devices == NULL))
-        return CL_INVALID_VALUE;
-
-    switch (device_type) {
-    case CL_DEVICE_TYPE_CPU:
-        // Some benchmarks (e.g. ComD benchmark from Mantevo package) looks for CPU and GPU to choose among, so it is not wise to abort execution because of GPGPUsim is not a CPU !.
-        printf("GPGPU-Sim OpenCL API: unsupported device type %lx\n", device_type);
-        return CL_DEVICE_NOT_FOUND;
-        break;
-    case CL_DEVICE_TYPE_DEFAULT:
-    case CL_DEVICE_TYPE_GPU:
-    case CL_DEVICE_TYPE_ACCELERATOR:
-    case CL_DEVICE_TYPE_ALL:
-        opencl_not_implemented(__my_func__,__LINE__);
-        //if (devices != NULL)
-        //   devices[0] = GPGPUSim_Init();
-        if (num_devices)
-            *num_devices = NUM_DEVICES;
-        break;
-    default:
-        return CL_INVALID_DEVICE_TYPE;
-    }
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
@@ -2039,7 +1761,6 @@ clGetDeviceInfo(cl_device_id    device,
                 void *          param_value,
                 size_t *        param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* yamato */
     gpusyscall_t call_params;
     call_params.num_args = 5;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -2071,74 +1792,11 @@ clGetDeviceInfo(cl_device_id    device,
     delete call_params.ret;
 
     return ret;
-    /* yamato */
-    opencl_not_implemented(__my_func__,__LINE__);
-    //if (device != GPGPUSim_Init())
-    //    return CL_INVALID_DEVICE;
-    char *buf = (char*)param_value;
-    switch (param_name) {
-    case CL_DEVICE_NAME: CL_STRING_CASE("GPGPU-Sim"); break;
-    case CL_DEVICE_GLOBAL_MEM_SIZE: CL_ULONG_CASE(1024*1024*1024); break;
-    case CL_DEVICE_MAX_COMPUTE_UNITS: opencl_not_implemented(__my_func__,__LINE__); break;
-    case CL_DEVICE_MAX_CLOCK_FREQUENCY: opencl_not_implemented(__my_func__,__LINE__); break;
-    case CL_DEVICE_VENDOR:CL_STRING_CASE("GPGPU-Sim.org"); break;
-    case CL_DEVICE_VERSION: CL_STRING_CASE("OpenCL 1.0"); break;
-    case CL_DRIVER_VERSION: CL_STRING_CASE("1.0"); break;
-    case CL_DEVICE_TYPE: CL_CASE(cl_device_type, CL_DEVICE_TYPE_GPU); break;
-    case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS: CL_INT_CASE(3); break;
-    case CL_DEVICE_MAX_WORK_ITEM_SIZES:
-        if (param_value && param_value_size < 3*sizeof(size_t)) return CL_INVALID_VALUE;
-        if (param_value) {
-            opencl_not_implemented(__my_func__,__LINE__);
-            unsigned n_thread_per_shader = 0; //device->the_device()->threads_per_core();
-            ((size_t*)param_value)[0] = n_thread_per_shader;
-            ((size_t*)param_value)[1] = n_thread_per_shader;
-            ((size_t*)param_value)[2] = n_thread_per_shader;
-        }
-        if (param_value_size_ret) *param_value_size_ret = 3*sizeof(cl_uint);
-        break;
-    case CL_DEVICE_MAX_WORK_GROUP_SIZE: opencl_not_implemented(__my_func__,__LINE__); break;
-    case CL_DEVICE_ADDRESS_BITS: CL_INT_CASE(32); break;
-    case CL_DEVICE_AVAILABLE: CL_BOOL_CASE(CL_TRUE); break;
-    case CL_DEVICE_COMPILER_AVAILABLE: CL_BOOL_CASE(CL_TRUE); break;
-    case CL_DEVICE_IMAGE_SUPPORT: CL_INT_CASE(CL_TRUE); break;
-    case CL_DEVICE_MAX_READ_IMAGE_ARGS: CL_INT_CASE(128); break;
-    case CL_DEVICE_MAX_WRITE_IMAGE_ARGS: CL_INT_CASE(8); break;
-    case CL_DEVICE_IMAGE2D_MAX_HEIGHT: CL_INT_CASE(8192); break;
-    case CL_DEVICE_IMAGE2D_MAX_WIDTH: CL_INT_CASE(8192); break;
-    case CL_DEVICE_IMAGE3D_MAX_HEIGHT: CL_INT_CASE(2048); break;
-    case CL_DEVICE_IMAGE3D_MAX_WIDTH: CL_INT_CASE(2048); break;
-    case CL_DEVICE_IMAGE3D_MAX_DEPTH: CL_INT_CASE(2048); break;
-    case CL_DEVICE_MAX_MEM_ALLOC_SIZE: CL_INT_CASE(128*1024*1024); break;
-    case CL_DEVICE_ERROR_CORRECTION_SUPPORT: CL_INT_CASE(0); break;
-    case CL_DEVICE_LOCAL_MEM_TYPE: CL_INT_CASE(CL_LOCAL); break;
-    case CL_DEVICE_LOCAL_MEM_SIZE: opencl_not_implemented(__my_func__,__LINE__); break;
-    case CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE: CL_ULONG_CASE(64 * 1024); break;
-    case CL_DEVICE_QUEUE_PROPERTIES: CL_INT_CASE(CL_QUEUE_PROFILING_ENABLE); break;
-    case CL_DEVICE_EXTENSIONS:
-        if (param_value && (param_value_size < 1)) return CL_INVALID_VALUE;
-        if (param_value) buf[0]=0;
-        if (param_value_size_ret) *param_value_size_ret = 1;
-        break;
-    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR: CL_INT_CASE(1); break;
-    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT: CL_INT_CASE(1); break;
-    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT: CL_INT_CASE(1); break;
-    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG: CL_INT_CASE(1); break;
-    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT: CL_INT_CASE(1); break;
-    case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE: CL_INT_CASE(0); break;
-    case CL_DEVICE_SINGLE_FP_CONFIG: CL_INT_CASE(0); break;
-    case CL_DEVICE_MEM_BASE_ADDR_ALIGN: CL_INT_CASE(256*8); break;
-    default:
-        opencl_not_implemented(__my_func__,__LINE__);
-        break;
-    }
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clFinish(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0
 {
-    /* yamato */
     gpusyscall_t call_params;
     call_params.num_args = 0;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -2171,7 +1829,6 @@ clGetProgramInfo(cl_program         program,
                  void *             param_value,
                  size_t *           param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* yamato */
     gpusyscall_t call_params;
     call_params.num_args = 5;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -2203,52 +1860,6 @@ clGetProgramInfo(cl_program         program,
     delete call_params.ret;
 
     return ret;
-    /* yamato */
-    if (program == NULL)
-        return CL_INVALID_PROGRAM;
-    char *tmp=NULL;
-    size_t len=0;
-    switch(param_name) {
-    case CL_PROGRAM_REFERENCE_COUNT:
-        CL_INT_CASE(1);
-        break;
-    case CL_PROGRAM_CONTEXT:
-        if (param_value && param_value_size < sizeof(cl_context)) return CL_INVALID_VALUE;
-        if (param_value) *((cl_context*)param_value) = program->get_context();
-        if (param_value_size_ret) *param_value_size_ret = sizeof(cl_context);
-        break;
-    case CL_PROGRAM_NUM_DEVICES:
-        CL_INT_CASE(NUM_DEVICES);
-        break;
-    case CL_PROGRAM_DEVICES:
-        if (param_value && param_value_size < NUM_DEVICES * sizeof(cl_device_id))
-            return CL_INVALID_VALUE;
-        if (param_value) {
-            assert(NUM_DEVICES == 1);
-            opencl_not_implemented(__my_func__,__LINE__);
-            //((cl_device_id*)param_value)[0] = GPGPUSim_Init();
-        }
-        if (param_value_size_ret) *param_value_size_ret = sizeof(cl_device_id);
-        break;
-    case CL_PROGRAM_SOURCE:
-        opencl_not_implemented(__my_func__,__LINE__);
-        break;
-    case CL_PROGRAM_BINARY_SIZES:
-        if (param_value && param_value_size < NUM_DEVICES * sizeof(size_t)) return CL_INVALID_VALUE;
-        if (param_value) *((size_t*)param_value) = program->get_ptx_size();
-        if (param_value_size_ret) *param_value_size_ret = NUM_DEVICES*sizeof(size_t);
-        break;
-    case CL_PROGRAM_BINARIES:
-        len = program->get_ptx_size();
-        tmp = program->get_ptx();
-        if (param_value) memcpy(((char**)param_value)[0], tmp, len);
-        if (param_value_size_ret) *param_value_size_ret = len;
-        break;
-    default:
-        return CL_INVALID_VALUE;
-        break;
-    }
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
@@ -2291,7 +1902,6 @@ clGetKernelWorkGroupInfo(cl_kernel                  kernel,
                          void *                     param_value,
                          size_t *                   param_value_size_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    /* yamato */
     gpusyscall_t call_params;
     call_params.num_args = 6;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -2325,29 +1935,12 @@ clGetKernelWorkGroupInfo(cl_kernel                  kernel,
     delete call_params.ret;
 
     return ret;
-    /* yamato */
-    if (kernel == NULL)
-        return CL_INVALID_KERNEL;
-    switch(param_name) {
-    case CL_KERNEL_WORK_GROUP_SIZE:
-        CL_SIZE_CASE(kernel->get_workgroup_size(device));
-        break;
-    case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
-    case CL_KERNEL_LOCAL_MEM_SIZE:
-        opencl_not_implemented(__my_func__,__LINE__);
-        break;
-    default:
-        return CL_INVALID_VALUE;
-        break;
-    }
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clWaitForEvents(cl_uint             /* num_events */,
                 const cl_event *    /* event_list */) CL_API_SUFFIX__VERSION_1_0
 {
-    /* yamato */
     gpusyscall_t call_params;
     call_params.num_args = 0;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -2366,14 +1959,11 @@ clWaitForEvents(cl_uint             /* num_events */,
     delete call_params.ret;
 
     return ret;
-    /* yamato */
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clReleaseEvent(cl_event /* event */) CL_API_SUFFIX__VERSION_1_0
 {
-    /* yamato */
     gpusyscall_t call_params;
     call_params.num_args = 0;
     call_params.arg_lengths = new int[call_params.num_args];
@@ -2392,8 +1982,6 @@ clReleaseEvent(cl_event /* event */) CL_API_SUFFIX__VERSION_1_0
     delete call_params.ret;
 
     return ret;
-    /* yamato */
-    return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL

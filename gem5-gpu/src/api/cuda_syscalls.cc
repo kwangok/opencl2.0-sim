@@ -173,13 +173,6 @@ cudaError_t g_last_cudaError = cudaSuccess;
 
 extern stream_manager *g_stream_manager;
 
-/* Jie : need change to opencl mode *//*
-void register_ptx_function(const char *name, function_info *impl)
-{
-   // TODO: Figure out the best location for this function
-}
-*//* Jie : need change to opencl mode */
-
 kernel_info_t *gpgpu_cuda_ptx_sim_init_grid(gpgpu_ptx_sim_arg_list_t args,
                                             struct dim3 gridDim,
                                             struct dim3 blockDim,
@@ -1693,8 +1686,7 @@ static int load_constants(GPUSyscallHelper *helper, symbol_table *symtab)
    return nc_bytes;
 }
 
-/* Jie */
-
+// copy OpenCL feature and method from gpgpu-sum file
 #include <CL/cl.h>
 
 static void setErrCode(cl_int *errcode_ret, cl_int err_code) {
@@ -1882,10 +1874,8 @@ size_t _cl_kernel::get_workgroup_size(cl_device_id device)
    if( nregs > 0 )
       result_regs = cudaGPU->getDeviceProperties()->regsPerBlock / ((nregs+3)&~3);
       // result_regs = device->the_device()->num_registers_per_core() / ((nregs+3)&~3);
-      // yamato modify Gem5-gpu version
    unsigned result = cudaGPU->getMaxThreadsPerMultiprocessor();
    // unsigned result = device->the_device()->threads_per_core();
-   // yamato modify Gem5-gpu version
    result = min(result, result_regs);
    return (size_t)result;
 }
@@ -2016,15 +2006,8 @@ void register_ptx_function( const char *name, function_info *impl )
 {
    char *mode = getenv("GEM5GPU_CUDA_OR_OPENCL");
    if ( mode != NULL && strcmp(mode, "OPENCL") == 0 ) sg_info->m_kernels[name] = impl;
-   else printf("Jie: It is in cuda mode, set GEM5GPU_CUDA_OR_OPENCL environment variable to OPENCL for opencl mode.\n");
+   else printf("GPGPU-Sim warn: It is in cuda mode, set GEM5GPU_CUDA_OR_OPENCL environment variable to OPENCL for opencl mode.\n");
 }
-
-/* Jie : maybe do not need *//*
-extern "C" void ptxinfo_addinfo()
-{
-   ptxinfo_opencl_addinfo( sg_info->m_kernels );
-}
-*//* Jie : maybe do not need */
 
 void _cl_program::Build(const char *options, GPUSyscallHelper *helper)
 {
@@ -2178,17 +2161,7 @@ void _cl_program::Build(const char *options, GPUSyscallHelper *helper)
             len--;
          }
       }
-      for ( int i = 0 ; i < len - 8 ; i++ )
-        if ( tmp[i+0] == '.' &&
-             tmp[i+1] == 'u' &&
-             tmp[i+2] == '3' &&
-             tmp[i+3] == '2' &&
-             tmp[i+4] == ' ' &&
-             tmp[i+5] == '.' &&
-             tmp[i+6] == 'p' &&
-             tmp[i+7] == 't' &&
-             tmp[i+8] == 'r' )
-          tmp[i+2] = '6', tmp[i+3] = '4', printf("Jie: change ptx pointer info \".u32 .ptr\" to \".u64 .ptr\" at %d\n", i);
+      // modify loading ptx method to gem5-gpu way
       info.m_asm = tmp;
       CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);
       cudaGPU->registerDeviceInstText(helper->getThreadContext(), (Addr)tmp, len+1);
@@ -2267,12 +2240,9 @@ class _cl_device_id *GPGPUSim_Init()
 {
    static _cl_device_id *the_device = NULL;
    if( !the_device ) { 
-      gpgpu_sim *the_gpu = NULL/* Jie : maybe do not need *//*gpgpu_ptx_sim_init_perf()*//* Jie : maybe do not need */; 
+      gpgpu_sim *the_gpu = NULL;
       the_device = new _cl_device_id(the_gpu);
    }
-/* Jie : not exist function and maybe do not need *//* 
-   start_sim_thread(2);
-*//* Jie : not exist function and maybe do not need */
    return the_device;
 }
 
@@ -2298,6 +2268,9 @@ void opencl_not_finished( const char* func, unsigned line )
    abort();
 }
 
+/*******************************
+  OpenCL 1.x API implementation
+********************************/
 void clGetPlatformIDs(ThreadContext *tc, gpusyscall_t *call_params) {
   GPUSyscallHelper helper(tc, call_params);
   cl_uint num_entries = *((cl_uint*)helper.getParam(0));
@@ -2610,7 +2583,7 @@ void clEnqueueNDRangeKernel(ThreadContext *tc, gpusyscall_t *call_params) {
         {
             if(d == 0)
             {
-                if(global_work_size[d] <= cudaGPU->getMaxThreadsPerMultiprocessor()/* Jie : change to gem5-gpu mode *//*command_queue->get_device()->the_device()->threads_per_core()*//* Jie : change to gem5-gpu mode */)
+                if(global_work_size[d] <= cudaGPU->getMaxThreadsPerMultiprocessor())
                 {
                     _local_size[d] = global_work_size[d];
                 }
@@ -2619,7 +2592,7 @@ void clEnqueueNDRangeKernel(ThreadContext *tc, gpusyscall_t *call_params) {
                     // start with the maximum number of thread that a core may hold, 
                     // and decrement by 64 threadsuntil there is a local_work_size 
                     // that can perfectly divide the global_work_size. 
-                    unsigned n_thread_per_core = cudaGPU->getMaxThreadsPerMultiprocessor()/* Jie : change to gem5-gpu mode *//*command_queue->get_device()->the_device()->threads_per_core()*//* Jie : change to gem5-gpu mode */;
+                    unsigned n_thread_per_core = cudaGPU->getMaxThreadsPerMultiprocessor();
                     size_t local_size_attempt = n_thread_per_core; 
                     while (local_size_attempt > 1 and (n_thread_per_core % 64 == 0))
                     {
@@ -2690,7 +2663,8 @@ void clEnqueueNDRangeKernel(ThreadContext *tc, gpusyscall_t *call_params) {
         return ;
     }
     gpgpu_t *gpu = command_queue->get_device()->the_device();
-    if (kernel->get_implementation()->get_ptx_version().ver() </* Jie : change 3.0 to 2.2 */2.2/* Jie : change 3.0 to 2.2 */)
+    // Don't need read param for ptx 2.2 and above version
+    if (kernel->get_implementation()->get_ptx_version().ver() < 2.2)
     {
         gpgpu_ptx_sim_memcpy_symbol( "%_global_size", _global_size, 3 * sizeof(int), 0, 1, gpu );
         gpgpu_ptx_sim_memcpy_symbol( "%_work_dim", &work_dim, 1 * sizeof(int), 0, 1, gpu  );
@@ -2704,7 +2678,7 @@ void clEnqueueNDRangeKernel(ThreadContext *tc, gpusyscall_t *call_params) {
     LastBlockDim.y = last_local_size[1];
     LastBlockDim.z = last_local_size[2];
     bool useLastBlockDim = !(LastBlockDim.x == BlockDim.x && LastBlockDim.y == BlockDim.y && LastBlockDim.z == BlockDim.z);
-
+    // modify launch kernel to gem5-gpu way
     kernel_info_t *grid = gpgpu_cuda_ptx_sim_init_grid(
             params,
             GridDim,
@@ -2763,7 +2737,6 @@ void clReleaseContext(ThreadContext *tc, gpusyscall_t *call_params) {
   return ;
 }
 
-/* yamato */
 
 #define CL_STRING_CASE( S ) \
       if( param_value && (param_value_size < strlen(S)+1) ) { \
@@ -2888,7 +2861,7 @@ void clGetContextInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 	Addr param_value_size_ret_addr = *((Addr*)helper.getParam(3, true));
 	size_t param_value_size = *((size_t*)helper.getParam(4));
 
-	void * param_value = new char[param_value_size]; //yamato
+	void * param_value = new char[param_value_size]; 
 	if ( param_value_addr == NULL ) param_value = NULL;
 	else helper.readBlob(param_value_addr, (uint8_t*)param_value, param_value_size );
 	
@@ -2941,9 +2914,9 @@ void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 	Addr param_value_addr = *((Addr*)helper.getParam(3, true));
 	Addr param_value_size_ret_addr = *((Addr*)helper.getParam(4, true));
 
-	CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device);  // yamato modify Gem5-gpu version
+	CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device); 
 
-	void * param_value = new char[param_value_size]; // yamato
+	void * param_value = new char[param_value_size];
 	if ( param_value_addr == NULL ) param_value = NULL;
 	else helper.readBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
 
@@ -2961,9 +2934,7 @@ void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 	case CL_DEVICE_NAME: CL_STRING_CASE( "GPGPU-Sim" ); break;
 	case CL_DEVICE_GLOBAL_MEM_SIZE: CL_ULONG_CASE( 1024*1024*1024 ); break;
 	case CL_DEVICE_MAX_COMPUTE_UNITS: CL_UINT_CASE( cudaGPU->getDeviceProperties()->multiProcessorCount ); break;
-	//case CL_DEVICE_MAX_COMPUTE_UNITS: CL_UINT_CASE( device->the_device()->get_config().num_shader() ); break; // yamato modify Gem5-gpu version
 	case CL_DEVICE_MAX_CLOCK_FREQUENCY: CL_UINT_CASE( cudaGPU->getDeviceProperties()->clockRate ); break;
-	//case CL_DEVICE_MAX_CLOCK_FREQUENCY: CL_UINT_CASE( device->the_device()->shader_clock() ); break; // yamato modify Gem5-gpu version
 	case CL_DEVICE_VENDOR:CL_STRING_CASE("GPGPU-Sim.org"); break;
 	case CL_DEVICE_VERSION: CL_STRING_CASE("OpenCL 1.0"); break;
 	case CL_DRIVER_VERSION: CL_STRING_CASE("1.0"); break;
@@ -2977,7 +2948,6 @@ void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 		}
 		if( param_value ) {
 			unsigned n_thread_per_shader = cudaGPU->getMaxThreadsPerMultiprocessor();
-			// unsigned n_thread_per_shader = device->the_device()->threads_per_core(); // yamato modify Gem5-gpu version
 			((size_t*)param_value)[0] = n_thread_per_shader;
 			((size_t*)param_value)[1] = n_thread_per_shader;
 			((size_t*)param_value)[2] = n_thread_per_shader;
@@ -2989,7 +2959,6 @@ void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 		}
 		break;
 	case CL_DEVICE_MAX_WORK_GROUP_SIZE: CL_INT_CASE( cudaGPU->getMaxThreadsPerMultiprocessor() ); break;
-	// case CL_DEVICE_MAX_WORK_GROUP_SIZE: CL_INT_CASE( device->the_device()->threads_per_core() ); break; // yamato modify Gem5-gpu version
 	case CL_DEVICE_ADDRESS_BITS: CL_INT_CASE( 32 ); break;
 	case CL_DEVICE_AVAILABLE: CL_BOOL_CASE( CL_TRUE ); break;
 	case CL_DEVICE_COMPILER_AVAILABLE: CL_BOOL_CASE( CL_TRUE ); break;
@@ -3005,7 +2974,6 @@ void clGetDeviceInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 	case CL_DEVICE_ERROR_CORRECTION_SUPPORT: CL_INT_CASE( 0 ); break;
 	case CL_DEVICE_LOCAL_MEM_TYPE: CL_INT_CASE( CL_LOCAL ); break;
 	case CL_DEVICE_LOCAL_MEM_SIZE: CL_ULONG_CASE( cudaGPU->getDeviceProperties()->sharedMemPerBlock ); break;
-	//case CL_DEVICE_LOCAL_MEM_SIZE: CL_ULONG_CASE( device->the_device()->shared_mem_size() ); break; // yamato modify Gem5-gpu version
 	case CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE: CL_ULONG_CASE( 64 * 1024 ); break;
 	case CL_DEVICE_QUEUE_PROPERTIES: CL_INT_CASE( CL_QUEUE_PROFILING_ENABLE ); break;
 	case CL_DEVICE_EXTENSIONS: 
@@ -3047,7 +3015,7 @@ void clGetKernelWorkGroupInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 	size_t param_value_size = *((size_t*)helper.getParam(4));
 	Addr param_value_size_ret_addr = *((Addr*)helper.getParam(5, true));
 
-	CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device); // yamato modify Gem5-gpu version
+	CudaGPU *cudaGPU = CudaGPU::getCudaGPU(g_active_device); 
 	
 	void * param_value = new char[param_value_size];
 	if ( param_value_addr == NULL ) param_value = NULL;
@@ -3070,7 +3038,6 @@ void clGetKernelWorkGroupInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 	case CL_KERNEL_LOCAL_MEM_SIZE:
 		opencl_not_implemented(__my_func__,__LINE__);
 		*(size_t *)param_value = cudaGPU->getDeviceProperties()->sharedMemPerBlock;
-		// *(size_t *)param_value = device->the_device()->shared_mem_size(); // yamato modify Gem5-gpu version
 		helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
 		break;
 	default:
@@ -3303,5 +3270,3 @@ void clEnqueueWriteBuffer(ThreadContext *tc, gpusyscall_t *call_params) {
 	opencl_not_implemented(__my_func__,__LINE__);
 }
 
-/* yamato */
-/* Jie */
