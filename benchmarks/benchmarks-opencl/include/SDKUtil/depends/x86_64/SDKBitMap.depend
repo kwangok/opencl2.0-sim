@@ -1,0 +1,4 @@
+build/debug/x86_64//SDKBitMap.o: SDKBitMap.cpp
+build/debug/x86_64//SDKBitMap.o: ../../../samples/opencl/SDKUtil/include/SDKCommon.hpp
+build/debug/x86_64//SDKBitMap.o: ../../../samples/opencl/SDKUtil/include/SDKBitMap.hpp
+build/debug/x86_64//SDKBitMap.o: ../../../samples/opencl/SDKUtil/include/SDKFile.hpp

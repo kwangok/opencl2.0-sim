@@ -1,0 +1,100 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.7	//
+AllocateBuffers	.\Main.c	/^static void AllocateBuffers() {$/;"	f	file:
+Camera	.\camera.h	/^} Camera;$/;"	t	typeref:struct:__anon1
+DIFF	.\sphere.h	/^	DIFF, SPEC, REFR$/;"	e	enum:Refl
+DefaultSceneSetup	.\Main.c	/^static void DefaultSceneSetup()$/;"	f	file:
+DemoSpheres	.\scene.h	/^static Sphere DemoSpheres[] = {$/;"	v
+ExecuteKernel	.\Main.c	/^static void ExecuteKernel() {$/;"	f	file:
+FreeBuffers	.\Main.c	/^static void FreeBuffers() {$/;"	f	file:
+InitGlut	.\setupGL.c	/^void InitGlut(int argc, char *argv[], char *windowTittle) {$/;"	f
+NULL	.\utility.c	4;"	d	file:
+PrintString	.\setupGL.c	/^static void PrintString(void *font, const char *str) {$/;"	f	file:
+REFR	.\sphere.h	/^	DIFF, SPEC, REFR$/;"	e	enum:Refl
+Ray	.\ray.h	/^} Ray;$/;"	t	typeref:struct:__anon2
+ReInit	.\Main.c	/^void ReInit(const int reallocBuffers) {$/;"	f
+ReInitScene	.\Main.c	/^void ReInitScene() {$/;"	f
+ReadKernelSourcesFile	.\Main.c	/^static char *ReadKernelSourcesFile(const char *fileName) {$/;"	f	file:
+ReadScene	.\setupGL.c	/^void ReadScene(char *fileName) {$/;"	f
+Refl	.\sphere.h	/^enum Refl {$/;"	g
+SPEC	.\sphere.h	/^	DIFF, SPEC, REFR$/;"	e	enum:Refl
+SetUpKernelArguments	.\Main.c	/^static void SetUpKernelArguments()$/;"	f	file:
+SetUpOpenCL	.\Main.c	/^static void SetUpOpenCL() {$/;"	f	file:
+Sphere	.\sphere.h	/^} Sphere;$/;"	t	typeref:struct:__anon3
+UpdateCamera	.\setupGL.c	/^void UpdateCamera() {$/;"	f
+UpdateRendering	.\Main.c	/^void UpdateRendering() {$/;"	f
+Vec	.\vec.h	/^} Vec;$/;"	t	typeref:struct:__anon4
+WallClockTime	.\utility.c	/^double WallClockTime() $/;"	f
+_CAMERA_H_	.\camera.h	3;"	d
+_RAY_H_	.\ray.h	4;"	d
+_SCENE_H_	.\scene.h	3;"	d
+_SETUPGL_H_	.\setupGL.h	3;"	d
+_SPHERE_H_	.\sphere.h	3;"	d
+_USE_MATH_DEFINES	.\setupGL.c	8;"	d	file:
+_UTILITY_H_	.\utility.h	3;"	d
+_VEC_H_	.\vec.h	3;"	d
+c	.\sphere.h	/^	Vec p, e, c;		\/* position, emission, color *\/$/;"	m	struct:__anon3
+camera	.\Main.c	/^Camera camera;$/;"	v
+cameraBuffer	.\Main.c	/^static cl_mem cameraBuffer;$/;"	v	file:
+captionBuffer	.\setupGL.c	/^char captionBuffer[256];$/;"	v
+clamp	.\vec.h	27;"	d
+colorBuffer	.\Main.c	/^static cl_mem colorBuffer;$/;"	v	file:
+commandQueue	.\Main.c	/^static cl_command_queue commandQueue;$/;"	v	file:
+context	.\Main.c	/^static cl_context context;$/;"	v	file:
+currentSample	.\Main.c	/^static int currentSample = 0;$/;"	v	file:
+currentSphere	.\setupGL.c	/^static int currentSphere;$/;"	v	file:
+d	.\ray.h	/^	Vec o, d;$/;"	m	struct:__anon2
+dir	.\camera.h	/^	Vec dir, x, y;$/;"	m	struct:__anon1
+displayFunc	.\setupGL.c	/^void displayFunc(void) {$/;"	f
+e	.\sphere.h	/^	Vec p, e, c;		\/* position, emission, color *\/$/;"	m	struct:__anon3
+forceWorkSize	.\Main.c	/^static int forceWorkSize = 0;$/;"	v	file:
+height	.\setupGL.c	/^int height = 600;$/;"	v
+idleFunc	.\setupGL.c	/^void idleFunc(void) {$/;"	f
+kernel	.\Main.c	/^static cl_kernel kernel;$/;"	v	file:
+kernelFileName	.\Main.c	/^static char *kernelFileName = "RayTracing_Kernel.cl";$/;"	v	file:
+main	.\Main.c	/^int main(int argc, char *argv[]) {$/;"	f
+max	.\vec.h	28;"	d
+min	.\vec.h	29;"	d
+o	.\ray.h	/^	Vec o, d;$/;"	m	struct:__anon2
+orig	.\camera.h	/^	Vec orig, target;$/;"	m	struct:__anon1
+p	.\sphere.h	/^	Vec p, e, c;		\/* position, emission, color *\/$/;"	m	struct:__anon3
+pixelBuffer	.\Main.c	/^static cl_mem pixelBuffer;$/;"	v	file:
+pixels	.\setupGL.c	/^unsigned int *pixels;$/;"	v
+program	.\Main.c	/^static cl_program program;$/;"	v	file:
+rad	.\sphere.h	/^	float rad;			\/* radius *\/$/;"	m	struct:__anon3
+rassign	.\ray.h	13;"	d
+refl	.\sphere.h	/^	enum Refl refl;		\/* reflection type (DIFFuse, SPECular, REFRactive) *\/$/;"	m	struct:__anon3	typeref:enum:__anon3::Refl
+rinit	.\ray.h	12;"	d
+seedBuffer	.\Main.c	/^static cl_mem seedBuffer;$/;"	v	file:
+seeds	.\Main.c	/^static unsigned int *seeds;$/;"	v	file:
+sign	.\vec.h	30;"	d
+sphereBuffer	.\Main.c	/^static cl_mem sphereBuffer;$/;"	v	file:
+sphereCount	.\Main.c	/^unsigned int sphereCount;$/;"	v
+spheres	.\Main.c	/^Sphere *spheres;$/;"	v
+target	.\camera.h	/^	Vec orig, target;$/;"	m	struct:__anon1
+toInt	.\vec.h	33;"	d
+useGPU	.\Main.c	/^static int useGPU = 0;$/;"	v	file:
+vadd	.\vec.c	/^void vadd(Vec *v, const  Vec *a, const  Vec *b)$/;"	f
+vassign	.\vec.c	/^void vassign(Vec *v,  const  Vec *a)$/;"	f
+vclr	.\vec.c	/^void vclr(Vec *v)$/;"	f
+vdot	.\vec.c	/^float vdot(const Vec *a, const  Vec *b)$/;"	f
+vinit	.\vec.c	/^void vinit(Vec *v, float a, float b, float c)$/;"	f
+viszero	.\vec.c	/^int viszero(const  Vec *v)$/;"	f
+vmul	.\vec.c	/^void vmul(Vec *v, const  Vec *a, const  Vec *b)$/;"	f
+vnorm	.\vec.c	/^void vnorm(Vec *v)$/;"	f
+vsmul	.\vec.c	/^void vsmul(Vec *v, float val, const  Vec *b)$/;"	f
+vssadd	.\vec.c	/^void vssadd(Vec *v, float val, const  Vec *b)$/;"	f
+vssub	.\vec.c	/^void vssub(Vec *v, float val, const  Vec *b)$/;"	f
+vsub	.\vec.c	/^void vsub(Vec *v, const  Vec *a, const  Vec *b)$/;"	f
+vxcross	.\vec.c	/^void vxcross(Vec *v,  const  Vec *a, const  Vec *b)$/;"	f
+width	.\setupGL.c	/^int width = 800;$/;"	v
+workGroupSize	.\Main.c	/^static unsigned int workGroupSize = 1;$/;"	v	file:
+x	.\camera.h	/^	Vec dir, x, y;$/;"	m	struct:__anon1
+x	.\vec.h	/^	float x, y, z; \/\/ for position and color (r,g,b)$/;"	m	struct:__anon4
+y	.\camera.h	/^	Vec dir, x, y;$/;"	m	struct:__anon1
+y	.\vec.h	/^	float x, y, z; \/\/ for position and color (r,g,b)$/;"	m	struct:__anon4
+z	.\vec.h	/^	float x, y, z; \/\/ for position and color (r,g,b)$/;"	m	struct:__anon4
