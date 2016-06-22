@@ -78,6 +78,6 @@ void gpgpusim_cuda_streamCreateWithFlags(
 		ptx_thread_info * thread,
 		const class function_info * target_func);
 
-void launch_one_device_kernel();
+bool launch_one_device_kernel();
 
 #endif

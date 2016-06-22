@@ -49,6 +49,8 @@
 #include "sim/system.hh"
 #include "stream_manager.h"
 
+#define MAX_CONCURRENT_STREAMS 16
+
 /**
  * A wrapper class to manage the clocking of GPGPU-Sim-side components.
  * The CudaGPU must contain one of these wrappers for each clocked component or
@@ -255,7 +257,7 @@ class CudaGPU : public ClockedObject
     const Params * params() const { return dynamic_cast<const Params *>(_params); }
 
     /// Tick for when the stream manager needs execute
-    TickEvent streamTickEvent;
+    TickEvent streamTickEvent[MAX_CONCURRENT_STREAMS];
 
   private:
     // The CUDA device ID for this GPU
@@ -306,7 +308,9 @@ class CudaGPU : public ClockedObject
 
     /// The thread context, stream and thread ID currently running on the SPA
     ThreadContext *runningTC;
-    struct CUstream_st *runningStream;
+    struct CUstream_st *runningStream[MAX_CONCURRENT_STREAMS];
+    // Timestamp for each stream event
+    unsigned long long stream_schedule_tick[MAX_CONCURRENT_STREAMS];
     // Counter for each kernel in the device stream
     std::map<CUstream_st* , int> runningDeviceStreamsKernelCount;
     // struct CUstream_st *runningDeviceStream;
@@ -317,6 +321,16 @@ class CudaGPU : public ClockedObject
 
     void beginStreamOperation(struct CUstream_st *_stream) {
         // We currently do not support multiple concurrent streams
+        int i;
+        for (i = 0; i < MAX_CONCURRENT_STREAMS; ++i)
+        {
+            if (runningStream[i] == NULL) break;
+        }
+        if (i == MAX_CONCURRENT_STREAMS)
+        {
+            panic("Exceeds max concurrent stream amount!");
+        }
+        runningStream[i] = _stream;
         if (_stream->getType() == stream_device)
         {
             if (runningDeviceStreamsKernelCount.find(_stream) == runningDeviceStreamsKernelCount.end())
@@ -333,11 +347,7 @@ class CudaGPU : public ClockedObject
             deviceKernelCount++;
             return;
         }
-        if (runningStream || runningTC) {
-            panic("Already a stream operation running (only support one at a time)!");
-        }
-        runningStream = _stream;
-        runningTC = runningStream->getThreadContext();
+        runningTC = runningStream[0]->getThreadContext();
         runningTID = runningTC->threadId();
     }
     void endStreamOperation() {
@@ -345,7 +355,7 @@ class CudaGPU : public ClockedObject
         if (!streamManager->childStreamEmpty()) return;
         if (deviceKernelCount == 0)
         {
-            runningStream = NULL;
+            runningStream[0] = NULL;
             runningTC = NULL;
             runningTID = -1;
         }
@@ -354,6 +364,11 @@ class CudaGPU : public ClockedObject
         deviceKernelCount--;
         assert(runningDeviceStreamsKernelCount.find(_stream) != runningDeviceStreamsKernelCount.end());
         runningDeviceStreamsKernelCount[_stream]--;
+        for (int i = 0; i < MAX_CONCURRENT_STREAMS; ++i)
+        {
+            if (_stream == runningStream[i])
+                runningStream[i] = NULL;
+        }
         // if (runningDeviceStreamsKernelCount[_stream] == 0)
         if (_stream->empty())
         {
@@ -372,7 +387,7 @@ class CudaGPU : public ClockedObject
                     return;
                 }
             }
-            runningStream = NULL;
+            runningStream[0] = NULL;
             // runningDeviceStream = NULL;
             runningTC = NULL;
             runningTID = -1;
@@ -389,7 +404,7 @@ class CudaGPU : public ClockedObject
     stream_manager *streamManager;
 
     /// Flag to make sure we don't schedule twice in the same tick
-    bool streamScheduled;
+    bool streamScheduled[MAX_CONCURRENT_STREAMS];
 
     /// Number of ticks to delay for each stream operation
     /// This is a function of the driver overheads
@@ -515,6 +530,8 @@ class CudaGPU : public ClockedObject
      * Called from GPGPU-Sim when the kernel completes on all shaders
      */
     void finishKernel(int grid_id);
+
+    void tryScheduleChildKernel();
 
     void handleFinishPageFault(ThreadContext *tc)
         { shaderMMU->handleFinishPageFault(tc); }

@@ -61,14 +61,22 @@ void registerFatBinaryTop(GPUSyscallHelper *helper, Addr sim_fatCubin, size_t si
 unsigned int registerFatBinaryBottom(GPUSyscallHelper *helper, Addr sim_alloc_ptr);
 void register_var(Addr sim_deviceAddress, const char* deviceName, int sim_size, int sim_constant, int sim_global, int sim_ext, Addr sim_hostVar);
 
+// Trace running time for CDP kernels
+typdef struct {
+    Tick start;
+    Tick end;
+} kernel_runtime_info;
+
+map<int, kernel_runtime_info> CDP_runtime_info;
+
 CudaGPU::CudaGPU(const Params *p) :
-    ClockedObject(p), _params(p), streamTickEvent(this),
+    ClockedObject(p), _params(p), streamTickEvent({this, this, this, this, this, this, this, this, this, this, this, this, this, this, this, this}),
     clkDomain((SrcClockDomain*)p->clk_domain),
     coresWrapper(*p->cores_wrapper), icntWrapper(*p->icnt_wrapper),
     l2Wrapper(*p->l2_wrapper), dramWrapper(*p->dram_wrapper),
     system(p->sys), warpSize(p->warp_size), sharedMemDelay(p->shared_mem_delay),
     gpgpusimConfigPath(p->config_path), unblockNeeded(false), ruby(p->ruby),
-    runningTC(NULL), runningStream(NULL), runningTID(-1), clearTick(0),
+    runningTC(NULL), runningStream{NULL}, stream_schedule_tick{0}, runningTID(-1), clearTick(0),
     dumpKernelStats(p->dump_kernel_stats), pageTable(),
     manageGPUMemory(p->manage_gpu_memory),
     gpuMemoryRange(p->gpu_memory_range), shaderMMU(p->shader_mmu)
@@ -84,7 +92,8 @@ CudaGPU::CudaGPU(const Params *p) :
 
     running = false;
 
-    streamScheduled = false;
+    for (int i = 0; i < MAX_CONCURRENT_STREAMS; ++i)
+        streamScheduled[i] = false;
 
     restoring = false;
 
@@ -321,26 +330,48 @@ void CudaGPU::registerCopyEngine(GPUCopyEngine *ce)
 void CudaGPU::streamTick() {
     DPRINTF(CudaGPUTick, "Stream Tick\n");
 
-    streamScheduled = false;
+    int i;
+    for (i = 0; i < MAX_CONCURRENT_STREAMS; ++i)
+    {
+        if (runningStream[i] == NULL && stream_schedule_tick[i] == curTick() && !streamTickEvent[i].scheduled())
+        {
+            streamScheduled[i] = false;
+            break;
+        }
+    }
+    if (i == MAX_CONCURRENT_STREAMS) {
+        DPRINTF(CudaGPUTick, "Exceeding max concurrent stream amount, ignoring\n");
+        return;
+    }
 
     // launch operation on device if one is pending and can be run
     stream_operation op = streamManager->front();
     op.do_operation(theGPU);
 
     if (streamManager->ready()) {
-        schedule(streamTickEvent, curTick() + streamDelay);
-        streamScheduled = true;
+        assert(!streamTickEvent[i].scheduled());
+        stream_schedule_tick[i] = curTick() + streamDelay;
+        schedule(streamTickEvent[i], curTick() + streamDelay);
+        streamScheduled[i] = true;
     }
 }
 
 void CudaGPU::scheduleStreamEvent() {
-    if (streamScheduled) {
+    int i;
+    for (i = 0; i < MAX_CONCURRENT_STREAMS; ++i)
+    {
+        // if (runningStream[i] == NULL && !streamScheduled[i]) break;
+        if (runningStream[i] == NULL && !streamTickEvent[i].scheduled()) break;
+    }
+    if (i == MAX_CONCURRENT_STREAMS) {
         DPRINTF(CudaGPUTick, "Already scheduled a tick, ignoring\n");
         return;
     }
 
-    schedule(streamTickEvent, nextCycle());
-    streamScheduled = true;
+    assert(!streamTickEvent[i].scheduled());
+    stream_schedule_tick[i] = nextCycle();
+    schedule(streamTickEvent[i], nextCycle());
+    streamScheduled[i] = true;
 }
 
 void CudaGPU::beginRunning(Tick stream_queued_time, struct CUstream_st *_stream)
@@ -348,6 +379,16 @@ void CudaGPU::beginRunning(Tick stream_queued_time, struct CUstream_st *_stream)
     beginStreamOperation(_stream);
 
     DPRINTF(CudaGPU, "Beginning kernel execution at %llu\n", curTick());
+
+    if (_stream->front().is_kernel())
+    {
+        int kid = _stream->front().get_kernel()->get_uid();
+        kernel_runtime_info kri;
+        kri.start = curTick();
+        kri.end   = 0;
+        CDP_runtime_info.insert(pair<int, kernel_runtime_info>(kid, kri));
+    }
+
     kernelTimes.push_back(curTick());
     if (dumpKernelStats) {
         Stats::dump();
@@ -383,6 +424,11 @@ void CudaGPU::finishKernel(int grid_id)
     schedule(e, curTick() + returnDelay);
 }
 
+void CudaGPU::tryScheduleChildKernel()
+{
+    scheduleStreamEvent();
+}
+
 void CudaGPU::processFinishKernelEvent(int grid_id)
 {
     DPRINTF(CudaGPU, "GPU finished a kernel id %d\n", grid_id);
@@ -392,6 +438,12 @@ void CudaGPU::processFinishKernelEvent(int grid_id)
     if (!streamManager->register_finished_kernel(grid_id))
     {
         fprintf(stderr, "Child kernels are still running, don't finish kernel uid = %d\n", grid_id);
+    }
+
+    try {
+        CDP_runtime_info.at(grid_id).end = curTick();
+    } catch (const out_of_range& o) {
+        cerr << o.what() << endl;
     }
 
     kernelTimes.push_back(curTick());
@@ -464,6 +516,17 @@ void CudaGPU::gpuPrintStats(std::ostream& out) {
     if (clearTick) {
         out << "Stats cleared at tick " << clearTick << "\n";
     }
+
+    // Record CDP kernel info
+    total_kernel_ticks = 0;
+    map<int, kernel_runtime_info>::iterator kit;
+    for (kit = CDP_runtime_info.begin(); kit != CDP_runtime_info.end(); ++kit)
+    {
+        total_kernel_ticks += ((kit->second).end - (kit->second).start);
+        out << "Kernel" << kit->first << ", " << (kit->second).start << ", " << (kit->second).end << endl;
+    }
+    out << "\nReal total kernel time (ticks) = " << total_kernel_ticks << endl;
+    out << "Total running kernels: " << CDP_runtime_info.size() << endl;
 }
 
 extern char *ptx_line_stats_filename;
@@ -511,7 +574,7 @@ void CudaGPU::memset(Addr dst, int value, size_t count, struct CUstream_st *_str
 
 void CudaGPU::finishCopyOperation()
 {
-    runningStream->record_next_done();
+    runningStream[0]->record_next_done();
     scheduleStreamEvent();
     unblockThread(runningTC);
     endStreamOperation();

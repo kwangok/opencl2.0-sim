@@ -1261,7 +1261,10 @@ gpgpu_sim::core_cycle_start()
     spill_log_to_file (stdout, 0, gpu_sim_cycle);
 
     // deicide: CDP
-    launch_one_device_kernel();
+    if (launch_one_device_kernel())
+    {
+        gem5CudaGPU->tryScheduleChildKernel();
+    }
 }
 
 void

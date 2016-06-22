@@ -479,12 +479,14 @@ void gpgpusim_cuda_streamCreateWithFlags(const ptx_instruction * pI, ptx_thread_
     }
 }
 
-void launch_one_device_kernel() {
+bool launch_one_device_kernel() {
     if (!g_cuda_device_launch_op.empty())
     {
         stream_operation op = g_cuda_device_launch_op.front();
         assert(op.get_type() == stream_child_kernel_launch);
         g_stream_manager->push(op);
         g_cuda_device_launch_op.pop_front();
+        return true;
     }
+    return false;
 }
