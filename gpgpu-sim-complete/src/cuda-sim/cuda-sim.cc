@@ -1680,7 +1680,9 @@ unsigned ptx_sim_init_thread( kernel_info_t &kernel,
    ptx_cta_info *cta_info = NULL;
    memory_space *shared_mem = NULL;
 
-   unsigned cta_size = kernel.threads_per_cta();
+   dim3 cta_dim = kernel.get_cta_dim();
+   unsigned cta_size = cta_dim.x * cta_dim.y * cta_dim.z;
+
    unsigned max_cta_per_sm = num_threads/cta_size; // e.g., 256 / 48 = 5 
    assert( max_cta_per_sm > 0 );
 

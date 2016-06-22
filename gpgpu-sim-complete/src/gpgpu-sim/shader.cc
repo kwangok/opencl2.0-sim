@@ -2500,7 +2500,8 @@ void shader_core_ctx::display_pipeline(FILE *fout, int print_mem, int mask ) con
 
 unsigned int shader_core_config::max_cta( const kernel_info_t &k ) const
 {
-   unsigned threads_per_cta  = k.threads_per_cta();
+   dim3 cta_dim = k.get_cta_dim();
+   unsigned threads_per_cta = cta_dim.x * cta_dim.y * cta_dim.z;
    const class function_info *kernel = k.entry();
    unsigned int padded_cta_size = threads_per_cta;
    if (padded_cta_size%warp_size) 
@@ -2811,7 +2812,8 @@ void shader_core_ctx::set_max_cta( const kernel_info_t &kernel )
 {
     // calculate the max cta count and cta size for local memory address mapping
     kernel_max_cta_per_shader = m_config->max_cta(kernel);
-    unsigned int gpu_cta_size = kernel.threads_per_cta();
+    dim3 cta_dim = kernel.get_cta_dim();
+    unsigned int gpu_cta_size = cta_dim.x * cta_dim.y * cta_dim.z;
     kernel_padded_threads_per_cta = (gpu_cta_size%m_config->warp_size) ? 
         m_config->warp_size*((gpu_cta_size/m_config->warp_size)+1) : 
         gpu_cta_size;

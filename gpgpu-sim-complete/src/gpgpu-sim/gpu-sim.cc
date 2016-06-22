@@ -1078,7 +1078,10 @@ void shader_core_ctx::issue_block2core( kernel_info_t &kernel )
     assert( free_cta_hw_id!=(unsigned)-1 );
 
     // determine hardware threads and warps that will be used for this CTA
-    int cta_size = kernel.threads_per_cta();
+    
+    dim3 cta_dim = kernel.get_cta_dim();
+    int cta_size = cta_dim.x * cta_dim.y * cta_dim.z;
+    int real_cta_size = kernel.threads_per_cta();
 
     // hw warp id = hw thread id mod warp size, so we need to find a range 
     // of hardware thread ids corresponding to an integral number of hardware
@@ -1087,7 +1090,7 @@ void shader_core_ctx::issue_block2core( kernel_info_t &kernel )
     if (cta_size%m_config->warp_size)
       padded_cta_size = ((cta_size/m_config->warp_size)+1)*(m_config->warp_size);
     unsigned start_thread = free_cta_hw_id * padded_cta_size;
-    unsigned end_thread  = start_thread +  cta_size;
+    unsigned end_thread  = start_thread + real_cta_size;
 
     // reset the microarchitecture state of the selected hardware thread and warp contexts
     reinit(start_thread, end_thread,false);
@@ -1099,7 +1102,7 @@ void shader_core_ctx::issue_block2core( kernel_info_t &kernel )
     for (unsigned i = start_thread; i<end_thread; i++) {
         m_threadState[i].m_cta_id = free_cta_hw_id;
         unsigned warp_id = i/m_config->warp_size;
-        nthreads_in_block += ptx_sim_init_thread(kernel,&m_thread[i],m_sid,i,cta_size-(i-start_thread),m_config->n_thread_per_shader,this,free_cta_hw_id,warp_id,m_cluster->get_gpu());
+        nthreads_in_block += ptx_sim_init_thread(kernel,&m_thread[i],m_sid,i,real_cta_size-(i-start_thread),m_config->n_thread_per_shader,this,free_cta_hw_id,warp_id,m_cluster->get_gpu());
         m_threadState[i].m_active = true; 
         warps.set( warp_id );
     }
