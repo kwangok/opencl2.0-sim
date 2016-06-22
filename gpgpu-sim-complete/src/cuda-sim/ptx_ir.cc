@@ -1040,7 +1040,7 @@ ptx_instruction::ptx_instruction( int opcode,
    m_inst_size = 8; // bytes
    m_shiftamt_option = false;
    m_ftz = false;
-   m_carry_flag = false
+   m_carry_flag = false;
 
    std::list<int>::const_iterator i;
    unsigned n=1;
