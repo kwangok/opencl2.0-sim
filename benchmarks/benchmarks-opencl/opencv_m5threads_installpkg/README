@@ -1,0 +1,137 @@
+Benchmarks must be static link(for gem5-gpu) OpenCV compile:
+	http://repo.gem5.org download m5threads(OpenCV replace pthread to m5thread )
+	extract file,m5threads Makefile can compile pthread.o
+	http://opencv.org/downloads.html download 2.4.10 version
+Modify OpenCV files, replace pthread_spinlock, because m5thread no support:
+	opencv-2.4.10/modules/core/src/system.cpp
+	opencv-2.4.10/modules/highgui/src/cap_ffmpeg_impl.hpp
+
+----------------------------------original--------------------------------------
+#elif defined __linux__ && !defined ANDROID
+
+struct Mutex::Impl
+{
+    Impl() { pthread_spin_init(&sl, 0); refcount = 1; }
+    ~Impl() { pthread_spin_destroy(&sl); }
+
+    void lock() { pthread_spin_lock(&sl); }
+    bool trylock() { return pthread_spin_trylock(&sl) == 0; }
+    void unlock() { pthread_spin_unlock(&sl); }
+
+    pthread_spinlock_t sl;
+    int refcount;
+};
+
+#else
+-----------------------------------replace--------------------------------------
+/*#elif defined __linux__ && !defined ANDROID
+
+struct Mutex::Impl
+{
+    Impl() { pthread_spin_init(&sl, 0); refcount = 1; }
+    ~Impl() { pthread_spin_destroy(&sl); }
+
+    void lock() { pthread_spin_lock(&sl); }
+    bool trylock() { return pthread_spin_trylock(&sl) == 0; }
+    void unlock() { pthread_spin_unlock(&sl); }
+
+    pthread_spinlock_t sl;
+    int refcount;
+};*/
+
+#else
+---------------------------------------------------------------------------------
+ 
+Modify WITH_GRSTEAM decection：
+	cmake/OpenCVFindLibsVideo.cmake
+----------------------------------original----------------------------------------
+# --- GStreamer ---
+ocv_clear_vars(HAVE_GSTREAMER)
+# try to find gstreamer 1.x first
+if(WITH_GSTREAMER AND NOT WITH_GSTREAMER_0_10)
+  CHECK_MODULE(gstreamer-base-1.0 HAVE_GSTREAMER_BASE)
+  CHECK_MODULE(gstreamer-video-1.0 HAVE_GSTREAMER_VIDEO)
+  CHECK_MODULE(gstreamer-app-1.0 HAVE_GSTREAMER_APP)
+  CHECK_MODULE(gstreamer-riff-1.0 HAVE_GSTREAMER_RIFF)
+  CHECK_MODULE(gstreamer-pbutils-1.0 HAVE_GSTREAMER_PBUTILS)
+
+  if(HAVE_GSTREAMER_BASE AND HAVE_GSTREAMER_VIDEO AND HAVE_GSTREAMER_APP AND HAVE_GSTREAMER_RIFF AND HAVE_GSTREAMER_PBUTILS)
+      set(HAVE_GSTREAMER TRUE)
+      set(GSTREAMER_BASE_VERSION ${ALIASOF_gstreamer-base-1.0_VERSION})
+      set(GSTREAMER_VIDEO_VERSION ${ALIASOF_gstreamer-video-1.0_VERSION})
+      set(GSTREAMER_APP_VERSION ${ALIASOF_gstreamer-app-1.0_VERSION})
+      set(GSTREAMER_RIFF_VERSION ${ALIASOF_gstreamer-riff-1.0_VERSION})
+      set(GSTREAMER_PBUTILS_VERSION ${ALIASOF_gstreamer-pbutils-1.0_VERSION})
+  endif()
+
+endif(WITH_GSTREAMER AND NOT WITH_GSTREAMER_0_10)
+
+# if gstreamer 1.x was not found, or we specified we wanted 0.10, try to find it
+if(WITH_GSTREAMER_0_10 OR NOT HAVE_GSTREAMER)
+  CHECK_MODULE(gstreamer-base-0.10 HAVE_GSTREAMER_BASE)
+  CHECK_MODULE(gstreamer-video-0.10 HAVE_GSTREAMER_VIDEO)
+  CHECK_MODULE(gstreamer-app-0.10 HAVE_GSTREAMER_APP)
+  CHECK_MODULE(gstreamer-riff-0.10 HAVE_GSTREAMER_RIFF)
+  CHECK_MODULE(gstreamer-pbutils-0.10 HAVE_GSTREAMER_PBUTILS)
+
+  if(HAVE_GSTREAMER_BASE AND HAVE_GSTREAMER_VIDEO AND HAVE_GSTREAMER_APP AND HAVE_GSTREAMER_RIFF AND HAVE_GSTREAMER_PBUTILS)
+      set(HAVE_GSTREAMER TRUE)
+      set(GSTREAMER_BASE_VERSION ${ALIASOF_gstreamer-base-0.10_VERSION})
+      set(GSTREAMER_VIDEO_VERSION ${ALIASOF_gstreamer-video-0.10_VERSION})
+      set(GSTREAMER_APP_VERSION ${ALIASOF_gstreamer-app-0.10_VERSION})
+      set(GSTREAMER_RIFF_VERSION ${ALIASOF_gstreamer-riff-0.10_VERSION})
+      set(GSTREAMER_PBUTILS_VERSION ${ALIASOF_gstreamer-pbutils-0.10_VERSION})
+  endif()
+endif(WITH_GSTREAMER_0_10 OR NOT HAVE_GSTREAMER)
+-----------------------------------replace--------------------------------------
+# --- GStreamer ---
+ocv_clear_vars(HAVE_GSTREAMER)
+if(WITH_GSTREAMER)
+# try to find gstreamer 1.x first
+if(WITH_GSTREAMER AND NOT WITH_GSTREAMER_0_10)
+  CHECK_MODULE(gstreamer-base-1.0 HAVE_GSTREAMER_BASE)
+  CHECK_MODULE(gstreamer-video-1.0 HAVE_GSTREAMER_VIDEO)
+  CHECK_MODULE(gstreamer-app-1.0 HAVE_GSTREAMER_APP)
+  CHECK_MODULE(gstreamer-riff-1.0 HAVE_GSTREAMER_RIFF)
+  CHECK_MODULE(gstreamer-pbutils-1.0 HAVE_GSTREAMER_PBUTILS)
+
+  if(HAVE_GSTREAMER_BASE AND HAVE_GSTREAMER_VIDEO AND HAVE_GSTREAMER_APP AND HAVE_GSTREAMER_RIFF AND HAVE_GSTREAMER_PBUTILS)
+      set(HAVE_GSTREAMER TRUE)
+      set(GSTREAMER_BASE_VERSION ${ALIASOF_gstreamer-base-1.0_VERSION})
+      set(GSTREAMER_VIDEO_VERSION ${ALIASOF_gstreamer-video-1.0_VERSION})
+      set(GSTREAMER_APP_VERSION ${ALIASOF_gstreamer-app-1.0_VERSION})
+      set(GSTREAMER_RIFF_VERSION ${ALIASOF_gstreamer-riff-1.0_VERSION})
+      set(GSTREAMER_PBUTILS_VERSION ${ALIASOF_gstreamer-pbutils-1.0_VERSION})
+  endif()
+
+endif(WITH_GSTREAMER AND NOT WITH_GSTREAMER_0_10)
+
+# if gstreamer 1.x was not found, or we specified we wanted 0.10, try to find it
+if(WITH_GSTREAMER_0_10 OR NOT HAVE_GSTREAMER)
+  CHECK_MODULE(gstreamer-base-0.10 HAVE_GSTREAMER_BASE)
+  CHECK_MODULE(gstreamer-video-0.10 HAVE_GSTREAMER_VIDEO)
+  CHECK_MODULE(gstreamer-app-0.10 HAVE_GSTREAMER_APP)
+  CHECK_MODULE(gstreamer-riff-0.10 HAVE_GSTREAMER_RIFF)
+  CHECK_MODULE(gstreamer-pbutils-0.10 HAVE_GSTREAMER_PBUTILS)
+
+  if(HAVE_GSTREAMER_BASE AND HAVE_GSTREAMER_VIDEO AND HAVE_GSTREAMER_APP AND HAVE_GSTREAMER_RIFF AND HAVE_GSTREAMER_PBUTILS)
+      set(HAVE_GSTREAMER TRUE)
+      set(GSTREAMER_BASE_VERSION ${ALIASOF_gstreamer-base-0.10_VERSION})
+      set(GSTREAMER_VIDEO_VERSION ${ALIASOF_gstreamer-video-0.10_VERSION})
+      set(GSTREAMER_APP_VERSION ${ALIASOF_gstreamer-app-0.10_VERSION})
+      set(GSTREAMER_RIFF_VERSION ${ALIASOF_gstreamer-riff-0.10_VERSION})
+      set(GSTREAMER_PBUTILS_VERSION ${ALIASOF_gstreamer-pbutils-0.10_VERSION})
+  endif()
+endif(WITH_GSTREAMER_0_10 OR NOT HAVE_GSTREAMER)
+endif(WITH_GSTREAMER)
+---------------------------------------------------------------------------------
+
+Cmake command(fill INSTALLDIR&SOURCEDIR):
+	cmake -D CMAKE_INSTALL_PREFIX=$INSTALLDIR -D BUILD_SHARED_LIBS=OFF -D WITH_GTK=OFF -D BUILD_ZLIB=ON -D BUILD_PNG=ON -D BUILD_JPEG=ON -D WITH_TIFF=OFF -D WITH_JASPER=OFF -D WITH_OPENEXR=OFF -D WITH_FFMPEG=OFF –D WITH_GSTREAMER=OFF –D WITH_GSTEAMER -D WITH_OPENCL=OFF $SOURCEDIR
+
+make ; make install
+when compile OpenCV benchmark, must be add pthread.o and pkg-config path to compile,ex:
+	g++ -static -I~/opencv/include `pkg-config --static --libs opencv` ~/m5threads/pthread.o example.cpp -o example
+
+Note：	1.Because need to load m5threads pthread library, please remove –lpthread in the opencv/lib/pkgconfig/opencv.pc
+	2. If some LIB during compilation cannot be found and there is no need to load lib, please remove from opencv/lib/pkgconfig/opencv.pc

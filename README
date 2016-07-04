@@ -1,0 +1,33 @@
+Design idea and method：
+
+	Idea：
+		Gpgpu-sim is gem5gpu GPU side, and gpgpu-sim can execute both  OpenCL and cuda program, but gem5-gpu can only execute cuda program, so we imitate gpgpu-sim execute OpenCL method and transplant to gem5-gpu.
+
+	Method：
+		Set OpenCL 1.X API in benchmarks/libopencl/opecnl_runtime_api.cc file, passing API need parameter to gem5-gpu/src/api/cuda_syscalls.cc, then execute and return result.
+		In order to gem5-gpu execute gpu, we change gpgpu_sim object to CudaGPU object( CudaGPU object include gpgpu_sim object ), which store gpu information, and we change launch kernel method to use stream_operation.
+ 
+Compile and Run：
+
+	Step1. Set environment：
+		PATH：gcc(4.7 UP)、python(2.7.2 UP)、swig(1.3.40 UP)、scons(2.0.0 UP)
+		LD_LIBRARY_PATH：gcc(4.7 UP)、python(2.7.2 UP)、swig(1.3.40 UP)、scons(2.0.0 UP)
+		CUDAHOME：cuda(6.5) install path
+		NVOpenCL_LIBDIR：OpenCL libeary install path
+		GEM5GPU_ROOT：gem5-gpu path
+		GEM5GPU_CUDA_OR_OpenCL：set "OpenCL" to execute OpenCL benchmarks
+		More detail in sourcefile
+
+	Step2. Build gem5-gpu：
+		1.	Compile benchmarks/libopencl
+		2.	Update ptx parse rule: bison --name-prefix=ptx_ -v -d ptx.y --file-prefix=ptx 
+		3.	Compile gem5-gpu: scons build/X86_VI_hammer_GPU/gem5.opt --default=X86 EXTRAS=../gem5-gpu/src:../gpgpu-sim/ PROTOCOL=VI_hammer GPGPU_SIM=True
+		More detail in build.sh file
+
+	Step3. Compile benchmark：
+		Gem5gpu need static link file to execute, compilation parameters must add OpenCL library path "-L/path/to/gem5-gpu/OpenCL/lib" and "lopencl".
+		More detail in benchmarks’s Makefile file
+
+	Step4. Run benchmark：
+		Gem5gpu_PATH/gem5/build/X86_VI_hammer_GPU/gem5.opt  Gem5gpu_PATH/gem5-gpu/configs/se_fusion.py -c BENCHMARKS_OBJ
+		More detail in benchmarks’s run.sh file
