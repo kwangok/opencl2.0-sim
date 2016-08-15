@@ -3890,7 +3890,7 @@ void shfl_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 		break;
 	}
 	if (!pval) j = lane_id;
-	targetLane[lane_id] = ((pval << 8) & j);
+	targetLane[lane_id] = ((pval << 8) | j);
 
     threads_in_warp.push_back(thread);
 
