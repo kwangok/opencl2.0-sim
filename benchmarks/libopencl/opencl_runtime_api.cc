@@ -1017,7 +1017,7 @@ clGetProgramBuildInfo(cl_program            /* program */,
                       size_t                /* param_value_size */,
                       void *                /* param_value */,
                       size_t *              /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0{
-    opencl_not_finished(__my_func__, __LINE__);
+    gem5gpu_opencl_warning(__my_func__,__LINE__, "GPGPUsim - OpenCLFunction is not implemented. Returning CL_SUCCESS");
     return CL_SUCCESS;
 }
 /*******************************************************************************************************/
@@ -1873,25 +1873,10 @@ clEnqueueCopyBuffer(cl_command_queue    command_queue,
                     const cl_event *    event_wait_list,
                     cl_event *          event) CL_API_SUFFIX__VERSION_1_0
 {
-    if (num_events_in_wait_list > 0)
-        opencl_not_implemented(__my_func__,__LINE__);
-    if (command_queue == NULL || !command_queue->is_valid())
-        return CL_INVALID_COMMAND_QUEUE;
-    cl_context context = command_queue->get_context();
-    cl_mem src = context->lookup_mem(src_buffer);
-    cl_mem dst = context->lookup_mem(dst_buffer);
-    if (src == NULL || dst == NULL)
-        return CL_INVALID_MEM_OBJECT;
-
-    if (src->is_on_host() && !dst->is_on_host())
-        opencl_not_implemented(__my_func__,__LINE__);
-    else if (!src->is_on_host() && dst->is_on_host())
-        opencl_not_implemented(__my_func__,__LINE__);
-    else if (!src->is_on_host() && !dst->is_on_host())
-        opencl_not_implemented(__my_func__,__LINE__);
-    else
-        opencl_not_implemented(__my_func__,__LINE__);
-    return CL_SUCCESS;
+    if (src_offset > 0 || dst_offset > 0)
+		opencl_not_implemented(__my_func__,__LINE__);
+	cudaMemcpy(dst_buffer, src_buffer, cb, cudaMemcpyDeviceToDevice);
+	return CL_SUCCESS;
 }
 
 extern CL_API_ENTRY cl_int CL_API_CALL
@@ -2119,9 +2104,9 @@ clEnqueueMapBuffer(cl_command_queue command_queue,
                    cl_event *       event,
                    cl_int *         errcode_ret) CL_API_SUFFIX__VERSION_1_0
 {
-    _cl_mem *mem = command_queue->get_context()->lookup_mem(buffer);
-    assert( mem->is_on_host() );
-    return mem->host_ptr();
+    if( errcode_ret != NULL )
+		*errcode_ret = CL_SUCCESS;
+	return (void*)buffer;
 }
 
 
@@ -2135,3 +2120,14 @@ clSetCommandQueueProperty(cl_command_queue command_queue,
     return CL_SUCCESS;
 }
 
+extern CL_API_ENTRY cl_int CL_API_CALL
+clEnqueueUnmapMemObject(cl_command_queue command_queue,
+               cl_mem memobj,
+               void *mapped_ptr,
+               cl_uint num_events_in_wait_list,
+               const cl_event *event_wait_list,
+               cl_event *event) CL_API_SUFFIX__VERSION_1_0
+{
+    // TODO: do something here
+    return CL_SUCCESS;
+}
