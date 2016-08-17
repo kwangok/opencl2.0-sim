@@ -3036,7 +3036,8 @@ void clGetKernelWorkGroupInfo(ThreadContext *tc, gpusyscall_t *call_params) {
 		break;
 	case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
 	case CL_KERNEL_LOCAL_MEM_SIZE:
-		opencl_not_implemented(__my_func__,__LINE__);
+		//opencl_not_implemented(__my_func__,__LINE__);
+		warn("clGetKernelWorkGroupInfo CL_KERNEL_LOCAL_MEM_SIZE implementation is not complete!");
 		*(size_t *)param_value = cudaGPU->getDeviceProperties()->sharedMemPerBlock;
 		helper.writeBlob(param_value_addr, (uint8_t*)param_value, param_value_size);
 		break;
