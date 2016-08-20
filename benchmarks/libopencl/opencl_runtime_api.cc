@@ -1471,7 +1471,7 @@ clEnqueueReadBuffer(cl_command_queue    command_queue,
                     const cl_event *    event_wait_list,
                     cl_event *          event) CL_API_SUFFIX__VERSION_1_0
 {
-    cudaMemcpy(ptr, buffer, cb, cudaMemcpyDeviceToHost);
+    cudaMemcpy(ptr, (char*)buffer + offset, cb, cudaMemcpyDeviceToHost);
     return CL_SUCCESS;
 }
 
@@ -1486,7 +1486,7 @@ clEnqueueWriteBuffer(cl_command_queue   command_queue,
                      const cl_event *   event_wait_list,
                      cl_event *         event) CL_API_SUFFIX__VERSION_1_0
 {
-    cudaMemcpy(buffer, ptr, cb, cudaMemcpyHostToDevice);
+    cudaMemcpy((char*)buffer + offset, ptr, cb, cudaMemcpyHostToDevice);
     return CL_SUCCESS;
 }
 
