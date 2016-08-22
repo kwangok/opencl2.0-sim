@@ -81,7 +81,7 @@ private:
 
     protected:
         virtual bool recvTimingResp(PacketPtr pkt);
-        virtual void recvRetry();
+        virtual void recvReqRetry();
         virtual Tick recvAtomic(PacketPtr pkt);
         virtual void recvFunctional(PacketPtr pkt);
         void setStalled(PacketPtr pkt)
@@ -118,6 +118,9 @@ private:
 private:
     CudaGPU *cudaGPU;
 
+    unsigned cacheLineSize;
+    unsigned bufferDepth;
+    bool buffersFull();
     void tick();
 
     int driverDelay;
@@ -179,6 +182,12 @@ public:
     bool isSquashed() const { return false; }
 
     void cePrintStats(std::ostream& out);
+
+    Stats::Scalar numOperations;
+    Stats::Scalar bytesRead;
+    Stats::Scalar bytesWritten;
+    Stats::Scalar operationTimeTicks;
+    void regStats();
 };
 
 #endif

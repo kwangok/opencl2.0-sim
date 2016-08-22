@@ -117,6 +117,9 @@ class StaticInst : public RefCounted, public StaticInstFlags
     /// Number of integer destination regs.
     int8_t numIntDestRegs() const { return _numIntDestRegs; }
     //@}
+    /// Number of coprocesor destination regs.
+    int8_t numCCDestRegs() const { return _numCCDestRegs; }
+    //@}
 
     /// @name Flag accessors.
     /// These functions are used to access the values of the various
@@ -171,6 +174,7 @@ class StaticInst : public RefCounted, public StaticInstFlags
     bool isMicroBranch() const { return flags[IsMicroBranch]; }
     //@}
 
+    void setFirstMicroop() { flags[IsFirstMicroop] = true; }
     void setLastMicroop() { flags[IsLastMicroop] = true; }
     void setDelayedCommit() { flags[IsDelayedCommit] = true; }
     void setFlag(Flags f) { flags[f] = true; }

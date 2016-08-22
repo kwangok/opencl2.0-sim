@@ -139,7 +139,13 @@ enum _memory_op_t {
 
 #if !defined(__VECTOR_TYPES_H__)
 struct dim3 {
-   unsigned int x, y, z;
+	dim3(int _x = 1, int _y = 1, int _z = 1)
+	{
+		x = _x;
+		y = _y;
+		z = _z;
+	}
+	unsigned int x, y, z;
 };
 #endif
 
@@ -166,6 +172,8 @@ public:
 //      m_param_mem=NULL;
 //   }
 	kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *entry );
+	// deicide: Handle for CTA padding in OpenCL 2.0
+	kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *entry, dim3 lastBlockDim );
 	~kernel_info_t();
 
 	void inc_running() { m_num_cores_running++; }
@@ -189,7 +197,10 @@ public:
 
 	size_t threads_per_cta() const
 	{
-		return m_block_dim.x * m_block_dim.y * m_block_dim.z;
+		if (m_use_last_cta)
+		 	return m_real_block_dim.x * m_real_block_dim.y * m_real_block_dim.z;
+		else
+			return m_block_dim.x * m_block_dim.y * m_block_dim.z;
 	} 
 
 	dim3 get_grid_dim() const { return m_grid_dim; }
@@ -201,6 +212,12 @@ public:
 		m_next_tid.x=0;
 		m_next_tid.y=0;
 		m_next_tid.z=0;
+		if (m_use_last_cta)
+		{
+			m_real_block_dim.x = (m_next_cta.x == (m_grid_dim.x - 1)) ? m_last_block_dim.x : m_block_dim.x;
+			m_real_block_dim.y = (m_next_cta.y == (m_grid_dim.y - 1)) ? m_last_block_dim.y : m_block_dim.y;
+			m_real_block_dim.z = (m_next_cta.z == (m_grid_dim.z - 1)) ? m_last_block_dim.z : m_block_dim.z;
+		}
 	}
 	dim3 get_next_cta_id() const { return m_next_cta; }
 	bool no_more_ctas_to_run() const 
@@ -208,15 +225,33 @@ public:
 		return (m_next_cta.x >= m_grid_dim.x || m_next_cta.y >= m_grid_dim.y || m_next_cta.z >= m_grid_dim.z );
 	}
 
-	void increment_thread_id() { increment_x_then_y_then_z(m_next_tid,m_block_dim); }
+	void increment_thread_id()
+	{
+		if (m_use_last_cta)
+			increment_x_then_y_then_z(m_next_tid, m_real_block_dim);
+		else
+			increment_x_then_y_then_z(m_next_tid, m_block_dim);
+	}
 	dim3 get_next_thread_id_3d() const  { return m_next_tid; }
 	unsigned get_next_thread_id() const 
 	{ 
-		return m_next_tid.x + m_block_dim.x*m_next_tid.y + m_block_dim.x*m_block_dim.y*m_next_tid.z;
+		if (m_use_last_cta)
+			return m_next_tid.x + m_real_block_dim.x*m_next_tid.y + m_real_block_dim.x*m_real_block_dim.y*m_next_tid.z;
+		else
+			return m_next_tid.x + m_block_dim.x*m_next_tid.y + m_block_dim.x*m_block_dim.y*m_next_tid.z;
 	}
 	bool more_threads_in_cta() const 
 	{
-		return m_next_tid.z < m_block_dim.z && m_next_tid.y < m_block_dim.y && m_next_tid.x < m_block_dim.x;
+		if (m_use_last_cta)
+		{
+			return ((m_next_tid.z < m_real_block_dim.z) &&
+					(m_next_tid.y < m_real_block_dim.y) &&
+					(m_next_tid.x < m_real_block_dim.x));
+		}
+		else
+		{
+			return m_next_tid.z < m_block_dim.z && m_next_tid.y < m_block_dim.y && m_next_tid.x < m_block_dim.x;
+		}
 	}
 	unsigned get_uid() const { return m_uid; }
 	std::string name() const;
@@ -237,6 +272,10 @@ private:
 	dim3 m_block_dim;
 	dim3 m_next_cta;
 	dim3 m_next_tid;
+	// deicide
+	dim3 m_real_block_dim;
+	dim3 m_last_block_dim;
+	bool m_use_last_cta;
 
 	unsigned m_num_cores_running;
 
@@ -330,6 +369,7 @@ struct core_config {
     unsigned gpgpu_shmem_sizeDefault;
     unsigned gpgpu_shmem_sizePrefL1;
     unsigned gpgpu_shmem_sizePrefShared;
+    unsigned gpgpu_shmem_access_latency;
 
     // texture and constant cache line sizes (used to determine number of memory accesses)
     unsigned gpgpu_cache_texl1_linesize;
@@ -351,7 +391,7 @@ public:
 
     void reset();
     void launch( address_type start_pc, const simt_mask_t &active_mask );
-    void update( simt_mask_t &thread_done, addr_vector_t &next_pc, address_type recvg_pc, op_type next_inst_op );
+	void update( simt_mask_t &thread_done, addr_vector_t &next_pc, address_type recvg_pc, op_type next_inst_op, unsigned next_inst_size, address_type next_inst_pc );
 
     const simt_mask_t &get_active_mask() const;
     void     get_pdom_stack_top_info( unsigned *pc, unsigned *rpc ) const;
@@ -492,7 +532,7 @@ private:
 
 class gpgpu_t {
 public:
-    gpgpu_t( const gpgpu_functional_sim_config &config, int _sharedMemDelay = 1 );
+	gpgpu_t( const gpgpu_functional_sim_config &config, CudaGPU *cuda_gpu );
     void* gpu_malloc( size_t size );
     void* gpu_mallocarray( size_t count );
     void  gpu_memset( size_t dst_start_addr, int c, size_t count );
@@ -540,7 +580,7 @@ public:
     // gem5 stuff
     CudaGPU *gem5CudaGPU;
     int sharedMemDelay;
-    void setCudaGPU(CudaGPU *cudaGPU) {gem5CudaGPU = cudaGPU;}
+    // void setCudaGPU(CudaGPU *cudaGPU) {gem5CudaGPU = cudaGPU;}
 
 protected:
     const gpgpu_functional_sim_config &m_function_model_config;

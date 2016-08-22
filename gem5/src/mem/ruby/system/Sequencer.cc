@@ -36,7 +36,6 @@
 #include "debug/RubyStats.hh"
 #include "mem/protocol/PrefetchBit.hh"
 #include "mem/protocol/RubyAccessMode.hh"
-#include "mem/ruby/common/Global.hh"
 #include "mem/ruby/profiler/Profiler.hh"
 #include "mem/ruby/slicc_interface/RubyRequest.hh"
 #include "mem/ruby/system/Sequencer.hh"
@@ -59,6 +58,8 @@ Sequencer::Sequencer(const Params *p)
 
     m_instCache_ptr = p->icache;
     m_dataCache_ptr = p->dcache;
+    m_data_cache_hit_latency = p->dcache_hit_latency;
+    m_inst_cache_hit_latency = p->icache_hit_latency;
     m_max_outstanding_requests = p->max_outstanding_requests;
     m_deadlock_threshold = p->deadlock_threshold;
 
@@ -66,6 +67,8 @@ Sequencer::Sequencer(const Params *p)
     assert(m_deadlock_threshold > 0);
     assert(m_instCache_ptr != NULL);
     assert(m_dataCache_ptr != NULL);
+    assert(m_data_cache_hit_latency > 0);
+    assert(m_inst_cache_hit_latency > 0);
 
     m_usingNetworkTester = p->using_network_tester;
 }
@@ -77,7 +80,7 @@ Sequencer::~Sequencer()
 void
 Sequencer::wakeup()
 {
-    assert(getDrainState() != Drainable::Draining);
+    assert(drainState() != DrainState::Draining);
 
     // Check for deadlock of any of the requests
     Cycles current_time = curCycle();
@@ -93,9 +96,9 @@ Sequencer::wakeup()
             continue;
 
         panic("Possible Deadlock detected. Aborting!\n"
-             "version: %d request.paddr: 0x%x m_readRequestTable: %d "
-             "current time: %u issue_time: %d difference: %d\n", m_version,
-             Address(request->pkt->getAddr()), m_readRequestTable.size(),
+              "version: %d request.paddr: 0x%x m_readRequestTable: %d "
+              "current time: %u issue_time: %d difference: %d\n", m_version,
+              request->pkt->getAddr(), m_readRequestTable.size(),
               current_time * clockPeriod(), request->issue_time * clockPeriod(),
               (current_time * clockPeriod()) - (request->issue_time * clockPeriod()));
     }
@@ -108,9 +111,9 @@ Sequencer::wakeup()
             continue;
 
         panic("Possible Deadlock detected. Aborting!\n"
-             "version: %d request.paddr: 0x%x m_writeRequestTable: %d "
-             "current time: %u issue_time: %d difference: %d\n", m_version,
-             Address(request->pkt->getAddr()), m_writeRequestTable.size(),
+              "version: %d request.paddr: 0x%x m_writeRequestTable: %d "
+              "current time: %u issue_time: %d difference: %d\n", m_version,
+              request->pkt->getAddr(), m_writeRequestTable.size(),
               current_time * clockPeriod(), request->issue_time * clockPeriod(),
               (current_time * clockPeriod()) - (request->issue_time * clockPeriod()));
     }
@@ -160,7 +163,7 @@ Sequencer::printProgress(ostream& out) const
 #if 0
     int total_demand = 0;
     out << "Sequencer Stats Version " << m_version << endl;
-    out << "Current time = " << g_system_ptr->getTime() << endl;
+    out << "Current time = " << m_ruby_system->getTime() << endl;
     out << "---------------" << endl;
     out << "outstanding requests" << endl;
 
@@ -215,12 +218,11 @@ Sequencer::insertRequest(PacketPtr pkt, RubyRequestType request_type)
 
     // See if we should schedule a deadlock check
     if (!deadlockCheckEvent.scheduled() &&
-        getDrainState() != Drainable::Draining) {
+        drainState() != DrainState::Draining) {
         schedule(deadlockCheckEvent, clockEdge(m_deadlock_threshold));
     }
 
-    Address line_addr(pkt->getAddr());
-    line_addr.makeLineAddress();
+    Addr line_addr = makeLineAddress(pkt->getAddr());
     // Create a default entry, mapping the address to NULL, the cast is
     // there to make gcc 4.4 happy
     RequestTable::value_type default_entry(line_addr,
@@ -298,8 +300,7 @@ Sequencer::removeRequest(SequencerRequest* srequest)
     assert(m_outstanding_count ==
            m_writeRequestTable.size() + m_readRequestTable.size());
 
-    Address line_addr(srequest->pkt->getAddr());
-    line_addr.makeLineAddress();
+    Addr line_addr = makeLineAddress(srequest->pkt->getAddr());
     if ((srequest->m_type == RubyRequestType_ST) ||
         (srequest->m_type == RubyRequestType_ST_Bypass) ||
         (srequest->m_type == RubyRequestType_RMW_Read) ||
@@ -317,30 +318,29 @@ Sequencer::removeRequest(SequencerRequest* srequest)
 }
 
 void
-Sequencer::invalidateSC(const Address& address)
+Sequencer::invalidateSC(Addr address)
 {
-    RequestTable::iterator i = m_writeRequestTable.find(address);
-    if (i != m_writeRequestTable.end()) {
-        SequencerRequest* request = i->second;
-        // The controller has lost the coherence permissions, hence the lock
-        // on the cache line maintained by the cache should be cleared.
-        if (request->m_type == RubyRequestType_Store_Conditional) {
-            m_dataCache_ptr->clearLocked(address);
-        }
+    AbstractCacheEntry *e = m_dataCache_ptr->lookup(address);
+    // The controller has lost the coherence permissions, hence the lock
+    // on the cache line maintained by the cache should be cleared.
+    if (e && e->isLocked(m_version)) {
+        e->clearLocked();
     }
 }
 
 bool
-Sequencer::handleLlsc(const Address& address, SequencerRequest* request)
+Sequencer::handleLlsc(Addr address, SequencerRequest* request)
 {
-    //
+    AbstractCacheEntry *e = m_dataCache_ptr->lookup(address);
+    if (!e)
+        return true;
+
     // The success flag indicates whether the LLSC operation was successful.
     // LL ops will always succeed, but SC may fail if the cache line is no
     // longer locked.
-    //
     bool success = true;
     if (request->m_type == RubyRequestType_Store_Conditional) {
-        if (!m_dataCache_ptr->isLocked(address, m_version)) {
+        if (!e->isLocked(m_version)) {
             //
             // For failed SC requests, indicate the failure to the cpu by
             // setting the extra data to zero.
@@ -350,26 +350,25 @@ Sequencer::handleLlsc(const Address& address, SequencerRequest* request)
         } else {
             //
             // For successful SC requests, indicate the success to the cpu by
-            // setting the extra data to one.  
+            // setting the extra data to one.
             //
             request->pkt->req->setExtraData(1);
         }
         //
         // Independent of success, all SC operations must clear the lock
         //
-        m_dataCache_ptr->clearLocked(address);
+        e->clearLocked();
     } else if (request->m_type == RubyRequestType_Load_Linked) {
         //
         // Note: To fully follow Alpha LLSC semantics, should the LL clear any
         // previously locked cache lines?
         //
-        m_dataCache_ptr->setLocked(address, m_version);
-    } else if ((m_dataCache_ptr->isTagPresent(address)) &&
-               (m_dataCache_ptr->isLocked(address, m_version))) {
+        e->setLocked(m_version);
+    } else if (e->isLocked(m_version)) {
         //
         // Normal writes should clear the locked address
         //
-        m_dataCache_ptr->clearLocked(address);
+        e->clearLocked();
     }
     return success;
 }
@@ -422,14 +421,14 @@ Sequencer::recordMissLatency(const Cycles cycles, const RubyRequestType type,
 }
 
 void
-Sequencer::writeCallback(const Address& address, DataBlock& data,
+Sequencer::writeCallback(Addr address, DataBlock& data,
                          const bool externalHit, const MachineType mach,
                          const Cycles initialRequestTime,
                          const Cycles forwardRequestTime,
                          const Cycles firstResponseTime)
 {
-    assert(address == line_address(address));
-    assert(m_writeRequestTable.count(line_address(address)));
+    assert(address == makeLineAddress(address));
+    assert(m_writeRequestTable.count(makeLineAddress(address)));
 
     RequestTable::iterator i = m_writeRequestTable.find(address);
     assert(i != m_writeRequestTable.end());
@@ -471,14 +470,14 @@ Sequencer::writeCallback(const Address& address, DataBlock& data,
 }
 
 void
-Sequencer::readCallback(const Address& address, DataBlock& data,
+Sequencer::readCallback(Addr address, DataBlock& data,
                         bool externalHit, const MachineType mach,
                         Cycles initialRequestTime,
                         Cycles forwardRequestTime,
                         Cycles firstResponseTime)
 {
-    assert(address == line_address(address));
-    assert(m_readRequestTable.count(line_address(address)));
+    assert(address == makeLineAddress(address));
+    assert(m_readRequestTable.count(makeLineAddress(address)));
 
     RequestTable::iterator i = m_readRequestTable.find(address);
     assert(i != m_readRequestTable.end());
@@ -505,9 +504,8 @@ Sequencer::hitCallback(SequencerRequest* srequest, DataBlock& data,
                        const Cycles firstResponseTime)
 {
     PacketPtr pkt = srequest->pkt;
-    Address request_address(pkt->getAddr());
-    Address request_line_address(pkt->getAddr());
-    request_line_address.makeLineAddress();
+    Addr request_address(pkt->getAddr());
+    Addr request_line_address = makeLineAddress(pkt->getAddr());
     RubyRequestType type = srequest->m_type;
     Cycles issued_time = srequest->issue_time;
 
@@ -526,15 +524,15 @@ Sequencer::hitCallback(SequencerRequest* srequest, DataBlock& data,
                       initialRequestTime, forwardRequestTime,
                       firstResponseTime, curCycle());
 
-    DPRINTFR(ProtocolTrace, "%15s %3s %10s%20s %6s>%-6s %s %d cycles\n",
+    DPRINTFR(ProtocolTrace, "%15s %3s %10s%20s %6s>%-6s %#x %d cycles\n",
              curTick(), m_version, "Seq",
              llscSuccess ? "Done" : "SC_Failed", "", "",
              request_address, total_latency);
 
     // update the data unless it is a non-data-carrying flush
-    if (g_system_ptr->m_warmup_enabled) {
+    if (RubySystem::getWarmupEnabled()) {
         data.setData(pkt->getConstPtr<uint8_t>(),
-                     request_address.getOffset(), pkt->getSize());
+                     getOffset(request_address), pkt->getSize());
     } else if (!pkt->isFlush()) {
         if ((type == RubyRequestType_LD) ||
             (type == RubyRequestType_LD_Bypass) ||
@@ -543,11 +541,13 @@ Sequencer::hitCallback(SequencerRequest* srequest, DataBlock& data,
             (type == RubyRequestType_Locked_RMW_Read) ||
             (type == RubyRequestType_Load_Linked)) {
             memcpy(pkt->getPtr<uint8_t>(),
-                   data.getData(request_address.getOffset(), pkt->getSize()),
+                   data.getData(getOffset(request_address), pkt->getSize()),
                    pkt->getSize());
+            DPRINTF(RubySequencer, "read data %s\n", data);
         } else {
             data.setData(pkt->getConstPtr<uint8_t>(),
-                         request_address.getOffset(), pkt->getSize());
+                         getOffset(request_address), pkt->getSize());
+            DPRINTF(RubySequencer, "set data %s\n", data);
         }
     }
 
@@ -555,6 +555,8 @@ Sequencer::hitCallback(SequencerRequest* srequest, DataBlock& data,
     // subBlock with the recieved data.  The tester will later access
     // this state.
     if (m_usingRubyTester) {
+        DPRINTF(RubySequencer, "hitCallback %s 0x%x using RubyTester\n",
+                pkt->cmdString(), pkt->getAddr());
         RubyTester::SenderState* testerSenderState =
             pkt->findNextSenderState<RubyTester::SenderState>();
         assert(testerSenderState);
@@ -563,16 +565,17 @@ Sequencer::hitCallback(SequencerRequest* srequest, DataBlock& data,
 
     delete srequest;
 
-    if (g_system_ptr->m_warmup_enabled) {
+    RubySystem *rs = m_ruby_system;
+    if (RubySystem::getWarmupEnabled()) {
         assert(pkt->req);
         delete pkt->req;
         delete pkt;
-        g_system_ptr->m_cache_recorder->enqueueNextFetchRequest();
-    } else if (g_system_ptr->m_cooldown_enabled) {
+        rs->m_cache_recorder->enqueueNextFetchRequest();
+    } else if (RubySystem::getCooldownEnabled()) {
         assert(pkt->req);
         delete pkt->req;
         delete pkt;
-        g_system_ptr->m_cache_recorder->enqueueNextFlushRequest();
+        rs->m_cache_recorder->enqueueNextFlushRequest();
     } else {
         ruby_hit_callback(pkt);
     }
@@ -612,7 +615,7 @@ Sequencer::makeRequest(PacketPtr pkt)
             primary_type = RubyRequestType_Load_Linked;
         }
         secondary_type = RubyRequestType_ATOMIC;
-    } else if (pkt->req->isLocked()) {
+    } else if (pkt->req->isLockedRMW()) {
         //
         // x86 locked instructions are translated to store cache coherence
         // requests because these requests should always be treated as read
@@ -695,10 +698,8 @@ void
 Sequencer::issueRequest(PacketPtr pkt, RubyRequestType secondary_type)
 {
     assert(pkt != NULL);
-    int proc_id = -1;
-    if (pkt->req->hasContextId()) {
-        proc_id = pkt->req->contextId();
-    }
+    ContextID proc_id = pkt->req->hasContextId() ?
+        pkt->req->contextId() : InvalidContextID;
 
     // If valid, copy the pc to the ruby request
     Addr pc = 0;
@@ -716,17 +717,22 @@ Sequencer::issueRequest(PacketPtr pkt, RubyRequestType secondary_type)
                                       RubyAccessMode_Supervisor, pkt,
                                       PrefetchBit_No, proc_id);
 
-    DPRINTFR(ProtocolTrace, "%15s %3s %10s%20s %6s>%-6s %s %s\n",
+    DPRINTFR(ProtocolTrace, "%15s %3s %10s%20s %6s>%-6s %#x %s\n",
             curTick(), m_version, "Seq", "Begin", "", "",
             msg->getPhysicalAddress(),
             RubyRequestType_to_string(secondary_type));
 
-    Cycles latency(0);  // initialzed to an null value
-
+    // The Sequencer currently assesses instruction and data cache hit latency
+    // for the top-level caches at the beginning of a memory access.
+    // TODO: Eventually, this latency should be moved to represent the actual
+    // cache access latency portion of the memory access. This will require
+    // changing cache controller protocol files to assess the latency on the
+    // access response path.
+    Cycles latency(0);  // Initialize to zero to catch misconfigured latency
     if (secondary_type == RubyRequestType_IFETCH)
-        latency = m_instCache_ptr->getLatency();
+        latency = m_inst_cache_hit_latency;
     else
-        latency = m_dataCache_ptr->getLatency();
+        latency = m_data_cache_hit_latency;
 
     // Send the message to the cache controller
     assert(latency > 0);
@@ -764,10 +770,10 @@ Sequencer::print(ostream& out) const
 // upgraded when invoked, coherence violations will be checked for the
 // given block
 void
-Sequencer::checkCoherence(const Address& addr)
+Sequencer::checkCoherence(Addr addr)
 {
 #ifdef CHECK_COHERENCE
-    g_system_ptr->checkGlobalCoherenceInvariant(addr);
+    m_ruby_system->checkGlobalCoherenceInvariant(addr);
 #endif
 }
 
@@ -779,7 +785,7 @@ Sequencer::recordRequestType(SequencerRequestType requestType) {
 
 
 void
-Sequencer::evictionCallback(const Address& address)
+Sequencer::evictionCallback(Addr address)
 {
     ruby_eviction_callback(address);
 }

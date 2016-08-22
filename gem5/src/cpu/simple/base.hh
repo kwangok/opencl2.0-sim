@@ -278,9 +278,9 @@ class BaseSimpleCPU : public BaseCPU, public ExecContext
     // instruction mix histogram by OpClass
     Stats::Vector statExecutedInstType;
 
-    void serializeThread(std::ostream &os, ThreadID tid);
-    void unserializeThread(Checkpoint *cp, const std::string &section,
-                           ThreadID tid);
+    void serializeThread(CheckpointOut &cp,
+                         ThreadID tid) const M5_ATTR_OVERRIDE;
+    void unserializeThread(CheckpointIn &cp, ThreadID tid) M5_ATTR_OVERRIDE;
 
     // These functions are only used in CPU models that split
     // effective address computation from the actual memory access.
@@ -367,7 +367,7 @@ class BaseSimpleCPU : public BaseCPU, public ExecContext
     Addr nextInstAddr() { return thread->nextInstAddr(); }
     MicroPC microPC() { return thread->microPC(); }
 
-    MiscReg readMiscRegNoEffect(int misc_reg)
+    MiscReg readMiscRegNoEffect(int misc_reg) const
     {
         return thread->readMiscRegNoEffect(misc_reg);
     }
@@ -449,7 +449,6 @@ class BaseSimpleCPU : public BaseCPU, public ExecContext
         thread->syscall(callnum);
     }
 
-    bool misspeculating() { return thread->misspeculating(); }
     ThreadContext *tcBase() { return tc; }
 
   private:

@@ -26,8 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "mem/protocol/MemoryMsg.hh"
 #include "mem/ruby/slicc_interface/AbstractController.hh"
+
+#include "debug/RubyQueue.hh"
+#include "mem/protocol/MemoryMsg.hh"
 #include "mem/ruby/system/Sequencer.hh"
 #include "mem/ruby/system/System.hh"
 #include "sim/system.hh"
@@ -39,16 +41,8 @@ AbstractController::AbstractController(const Params *p)
       m_number_of_TBEs(p->number_of_TBEs),
       m_transitions_per_cycle(p->transitions_per_cycle),
       m_buffer_size(p->buffer_size), m_recycle_latency(p->recycle_latency),
-      memoryPort(csprintf("%s.memory", name()), this, ""),
-      m_responseFromMemory_ptr(new MessageBuffer())
+      memoryPort(csprintf("%s.memory", name()), this, "")
 {
-    // Set the sender pointer of the response message buffer from the
-    // memory controller.
-    // This pointer is used for querying for the current time.
-    m_responseFromMemory_ptr->setSender(this);
-    m_responseFromMemory_ptr->setReceiver(this);
-    m_responseFromMemory_ptr->setOrdering(false);
-
     if (m_version == 0) {
         // Combine the statistics from all controllers
         // of this particular type.
@@ -65,6 +59,9 @@ AbstractController::init()
     for (uint32_t i = 0; i < size; i++) {
         m_delayVCHistogram.push_back(new Stats::Histogram());
         m_delayVCHistogram[i]->init(10);
+    }
+    if (getMemoryQueue()) {
+        getMemoryQueue()->setSender(this);
     }
 }
 
@@ -96,18 +93,21 @@ AbstractController::profileMsgDelay(uint32_t virtualNetwork, Cycles delay)
 }
 
 void
-AbstractController::stallBuffer(MessageBuffer* buf, Address addr)
+AbstractController::stallBuffer(MessageBuffer* buf, Addr addr)
 {
     if (m_waiting_buffers.count(addr) == 0) {
         MsgVecType* msgVec = new MsgVecType;
         msgVec->resize(m_in_ports, NULL);
         m_waiting_buffers[addr] = msgVec;
     }
+    DPRINTF(RubyQueue, "stalling %s port %d addr %s\n", buf, m_cur_in_port,
+            addr);
+    assert(m_in_ports > m_cur_in_port);
     (*(m_waiting_buffers[addr]))[m_cur_in_port] = buf;
 }
 
 void
-AbstractController::wakeUpBuffers(Address addr)
+AbstractController::wakeUpBuffers(Addr addr)
 {
     if (m_waiting_buffers.count(addr) > 0) {
         //
@@ -127,7 +127,7 @@ AbstractController::wakeUpBuffers(Address addr)
 }
 
 void
-AbstractController::wakeUpAllBuffers(Address addr)
+AbstractController::wakeUpAllBuffers(Addr addr)
 {
     if (m_waiting_buffers.count(addr) > 0) {
         //
@@ -154,6 +154,7 @@ AbstractController::wakeUpAllBuffers()
     //
 
     std::vector<MsgVecType*> wokeUpMsgVecs;
+    MsgBufType wokeUpMsgBufs;
 
     if(m_waiting_buffers.size() > 0) {
         for (WaitingBufType::iterator buf_iter = m_waiting_buffers.begin();
@@ -162,8 +163,13 @@ AbstractController::wakeUpAllBuffers()
              for (MsgVecType::iterator vec_iter = buf_iter->second->begin();
                   vec_iter != buf_iter->second->end();
                   ++vec_iter) {
-                  if (*vec_iter != NULL) {
+                  //
+                  // Make sure the MessageBuffer has not already be reanalyzed
+                  //
+                  if (*vec_iter != NULL &&
+                      (wokeUpMsgBufs.count(*vec_iter) == 0)) {
                       (*vec_iter)->reanalyzeAllMessages();
+                      wokeUpMsgBufs.insert(*vec_iter);
                   }
              }
              wokeUpMsgVecs.push_back(buf_iter->second);
@@ -180,14 +186,14 @@ AbstractController::wakeUpAllBuffers()
 }
 
 void
-AbstractController::blockOnQueue(Address addr, MessageBuffer* port)
+AbstractController::blockOnQueue(Addr addr, MessageBuffer* port)
 {
     m_is_blocking = true;
     m_block_map[addr] = port;
 }
 
 void
-AbstractController::unblock(Address addr)
+AbstractController::unblock(Addr addr)
 {
     m_block_map.erase(addr);
     if (m_block_map.size() == 0) {
@@ -203,11 +209,10 @@ AbstractController::getMasterPort(const std::string &if_name,
 }
 
 void
-AbstractController::queueMemoryRead(const MachineID &id, Address addr,
+AbstractController::queueMemoryRead(const MachineID &id, Addr addr,
                                     Cycles latency)
 {
-    RequestPtr req = new Request(addr.getAddress(),
-                                 RubySystem::getBlockSizeBytes(), 0,
+    RequestPtr req = new Request(addr, RubySystem::getBlockSizeBytes(), 0,
                                  m_masterId);
 
     PacketPtr pkt = Packet::createRead(req);
@@ -217,15 +222,21 @@ AbstractController::queueMemoryRead(const MachineID &id, Address addr,
     SenderState *s = new SenderState(id);
     pkt->pushSenderState(s);
 
+    // Use functional rather than timing accesses during warmup
+    if (RubySystem::getWarmupEnabled()) {
+        memoryPort.sendFunctional(pkt);
+        recvTimingResp(pkt);
+        return;
+    }
+
     memoryPort.schedTimingReq(pkt, clockEdge(latency));
 }
 
 void
-AbstractController::queueMemoryWrite(const MachineID &id, Address addr,
+AbstractController::queueMemoryWrite(const MachineID &id, Addr addr,
                                      Cycles latency, const DataBlock &block)
 {
-    RequestPtr req = new Request(addr.getAddress(),
-                                 RubySystem::getBlockSizeBytes(), 0,
+    RequestPtr req = new Request(addr, RubySystem::getBlockSizeBytes(), 0,
                                  m_masterId);
 
     PacketPtr pkt = Packet::createWrite(req);
@@ -237,23 +248,29 @@ AbstractController::queueMemoryWrite(const MachineID &id, Address addr,
     SenderState *s = new SenderState(id);
     pkt->pushSenderState(s);
 
+    // Use functional rather than timing accesses during warmup
+    if (RubySystem::getWarmupEnabled()) {
+        memoryPort.sendFunctional(pkt);
+        recvTimingResp(pkt);
+        return;
+    }
+
     // Create a block and copy data from the block.
     memoryPort.schedTimingReq(pkt, clockEdge(latency));
 }
 
 void
-AbstractController::queueMemoryWritePartial(const MachineID &id, Address addr,
+AbstractController::queueMemoryWritePartial(const MachineID &id, Addr addr,
                                             Cycles latency,
                                             const DataBlock &block, int size)
 {
-    RequestPtr req = new Request(addr.getAddress(),
-                                 RubySystem::getBlockSizeBytes(), 0,
+    RequestPtr req = new Request(addr, RubySystem::getBlockSizeBytes(), 0,
                                  m_masterId);
 
     PacketPtr pkt = Packet::createWrite(req);
     uint8_t *newData = new uint8_t[size];
     pkt->dataDynamic(newData);
-    memcpy(newData, block.getData(addr.getOffset(), size), size);
+    memcpy(newData, block.getData(getOffset(addr), size), size);
 
     SenderState *s = new SenderState(id);
     pkt->pushSenderState(s);
@@ -273,9 +290,6 @@ AbstractController::functionalMemoryWrite(PacketPtr pkt)
 {
     int num_functional_writes = 0;
 
-    // Check the message buffer that runs from the memory to the controller.
-    num_functional_writes += m_responseFromMemory_ptr->functionalWrite(pkt);
-
     // Check the buffer from the controller to the memory.
     if (memoryPort.checkFunctional(pkt)) {
         num_functional_writes++;
@@ -289,10 +303,11 @@ AbstractController::functionalMemoryWrite(PacketPtr pkt)
 void
 AbstractController::recvTimingResp(PacketPtr pkt)
 {
+    assert(getMemoryQueue());
     assert(pkt->isResponse());
 
     std::shared_ptr<MemoryMsg> msg = std::make_shared<MemoryMsg>(clockEdge());
-    (*msg).m_Addr.setAddress(pkt->getAddr());
+    (*msg).m_addr = pkt->getAddr();
     (*msg).m_Sender = m_machineID;
 
     SenderState *s = dynamic_cast<SenderState *>(pkt->senderState);
@@ -313,7 +328,7 @@ AbstractController::recvTimingResp(PacketPtr pkt)
         panic("Incorrect packet type received from memory controller!");
     }
 
-    m_responseFromMemory_ptr->enqueue(msg);
+    getMemoryQueue()->enqueue(msg);
     delete pkt;
 }
 
@@ -327,7 +342,9 @@ AbstractController::MemoryPort::recvTimingResp(PacketPtr pkt)
 AbstractController::MemoryPort::MemoryPort(const std::string &_name,
                                            AbstractController *_controller,
                                            const std::string &_label)
-    : QueuedMasterPort(_name, _controller, _queue),
-      _queue(*_controller, *this, _label), controller(_controller)
+    : QueuedMasterPort(_name, _controller, reqQueue, snoopRespQueue),
+      reqQueue(*_controller, *this, _label),
+      snoopRespQueue(*_controller, *this, _label),
+      controller(_controller)
 {
 }

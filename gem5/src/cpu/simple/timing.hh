@@ -137,7 +137,7 @@ class TimingSimpleCPU : public BaseSimpleCPU
 
     void translationFault(const Fault &fault);
 
-    void buildPacket(PacketPtr &pkt, RequestPtr req, bool read);
+    PacketPtr buildPacket(RequestPtr req, bool read);
     void buildSplitPacket(PacketPtr &pkt1, PacketPtr &pkt2,
             RequestPtr req1, RequestPtr req2, RequestPtr req,
             uint8_t *data, bool read);
@@ -157,7 +157,7 @@ class TimingSimpleCPU : public BaseSimpleCPU
       public:
 
         TimingCPUPort(const std::string& _name, TimingSimpleCPU* _cpu)
-            : MasterPort(_name, _cpu), cpu(_cpu), retryEvent(this)
+            : MasterPort(_name, _cpu), cpu(_cpu), retryRespEvent(this)
         { }
 
       protected:
@@ -179,7 +179,7 @@ class TimingSimpleCPU : public BaseSimpleCPU
             void schedule(PacketPtr _pkt, Tick t);
         };
 
-        EventWrapper<MasterPort, &MasterPort::sendRetry> retryEvent;
+        EventWrapper<MasterPort, &MasterPort::sendRetryResp> retryRespEvent;
     };
 
     class IcachePort : public TimingCPUPort
@@ -195,7 +195,7 @@ class TimingSimpleCPU : public BaseSimpleCPU
 
         virtual bool recvTimingResp(PacketPtr pkt);
 
-        virtual void recvRetry();
+        virtual void recvReqRetry();
 
         struct ITickEvent : public TickEvent
         {
@@ -232,7 +232,7 @@ class TimingSimpleCPU : public BaseSimpleCPU
 
         virtual bool recvTimingResp(PacketPtr pkt);
 
-        virtual void recvRetry();
+        virtual void recvReqRetry();
 
         virtual bool isSnooping() const {
             return true;
@@ -270,8 +270,8 @@ class TimingSimpleCPU : public BaseSimpleCPU
 
   public:
 
-    unsigned int drain(DrainManager *drain_manager);
-    void drainResume();
+    DrainState drain() M5_ATTR_OVERRIDE;
+    void drainResume() M5_ATTR_OVERRIDE;
 
     void switchOut();
     void takeOverFrom(BaseCPU *oldCPU);
@@ -351,13 +351,6 @@ class TimingSimpleCPU : public BaseSimpleCPU
      * @returns true if the CPU is drained, false otherwise.
      */
     bool tryCompleteDrain();
-
-    /**
-     * Drain manager to use when signaling drain completion
-     *
-     * This pointer is non-NULL when draining and NULL otherwise.
-     */
-    DrainManager *drainManager;
 };
 
 #endif // __CPU_SIMPLE_TIMING_HH__

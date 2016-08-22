@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014 ARM Limited
+ * Copyright (c) 2011-2015 ARM Limited
  * All rights reserved
  *
  * The license below extends only to copyright in the software and shall
@@ -56,7 +56,10 @@
 
 BaseXBar::BaseXBar(const BaseXBarParams *p)
     : MemObject(p),
-      headerCycles(p->header_cycles), width(p->width),
+      frontendLatency(p->frontend_latency),
+      forwardLatency(p->forward_latency),
+      responseLatency(p->response_latency),
+      width(p->width),
       gotAddrRanges(p->port_default_connection_count +
                           p->port_master_connection_count, false),
       gotAllAddrRanges(false), defaultPortID(InvalidPortID),
@@ -102,36 +105,47 @@ BaseXBar::getSlavePort(const std::string &if_name, PortID idx)
 }
 
 void
-BaseXBar::calcPacketTiming(PacketPtr pkt)
+BaseXBar::calcPacketTiming(PacketPtr pkt, Tick header_delay)
 {
     // the crossbar will be called at a time that is not necessarily
     // coinciding with its own clock, so start by determining how long
     // until the next clock edge (could be zero)
     Tick offset = clockEdge() - curTick();
 
-    // determine how many cycles are needed to send the data
-    unsigned dataCycles = pkt->hasData() ? divCeil(pkt->getSize(), width) : 0;
+    // the header delay depends on the path through the crossbar, and
+    // we therefore rely on the caller to provide the actual
+    // value
+    pkt->headerDelay += offset + header_delay;
 
-    // before setting the bus delay fields of the packet, ensure that
-    // the delay from any previous crossbar has been accounted for
-    if (pkt->firstWordDelay != 0 || pkt->lastWordDelay != 0)
-        panic("Packet %s already has delay (%d, %d) that should be "
-              "accounted for.\n", pkt->cmdString(), pkt->firstWordDelay,
-              pkt->lastWordDelay);
+    // note that we add the header delay to the existing value, and
+    // align it to the crossbar clock
 
-    // The first word will be delivered on the cycle after the header.
-    pkt->firstWordDelay = (headerCycles + 1) * clockPeriod() + offset;
+    // do a quick sanity check to ensure the timings are not being
+    // ignored, note that this specific value may cause problems for
+    // slower interconnects
+    panic_if(pkt->headerDelay > SimClock::Int::us,
+             "Encountered header delay exceeding 1 us\n");
 
-    // Note that currently lastWordDelay can be smaller than
-    // firstWordDelay if the packet has no data
-    pkt->lastWordDelay = (headerCycles + dataCycles) * clockPeriod() +
-        offset;
+    if (pkt->hasData()) {
+        // the payloadDelay takes into account the relative time to
+        // deliver the payload of the packet, after the header delay,
+        // we take the maximum since the payload delay could already
+        // be longer than what this parcitular crossbar enforces.
+        pkt->payloadDelay = std::max<Tick>(pkt->payloadDelay,
+                                           divCeil(pkt->getSize(), width) *
+                                           clockPeriod());
+    }
+
+    // the payload delay is not paying for the clock offset as that is
+    // already done using the header delay, and the payload delay is
+    // also used to determine how long the crossbar layer is busy and
+    // thus regulates throughput
 }
 
 template <typename SrcType, typename DstType>
 BaseXBar::Layer<SrcType,DstType>::Layer(DstType& _port, BaseXBar& _xbar,
                                        const std::string& _name) :
-    port(_port), xbar(_xbar), _name(_name), state(IDLE), drainManager(NULL),
+    port(_port), xbar(_xbar), _name(_name), state(IDLE),
     waitingForPeer(NULL), releaseEvent(this)
 {
 }
@@ -238,12 +252,10 @@ BaseXBar::Layer<SrcType,DstType>::releaseLayer()
         // waiting for the peer
         if (waitingForPeer == NULL)
             retryWaiting();
-    } else if (waitingForPeer == NULL && drainManager) {
+    } else if (waitingForPeer == NULL && drainState() == DrainState::Draining) {
         DPRINTF(Drain, "Crossbar done draining, signaling drain manager\n");
         //If we weren't able to drain before, do it now.
-        drainManager->signalDrainDone();
-        // Clear the drain event once we're done with it.
-        drainManager = NULL;
+        signalDrainDone();
     }
 }
 
@@ -267,17 +279,18 @@ BaseXBar::Layer<SrcType,DstType>::retryWaiting()
 
     // tell the port to retry, which in some cases ends up calling the
     // layer again
-    retryingPort->sendRetry();
+    sendRetry(retryingPort);
 
     // If the layer is still in the retry state, sendTiming wasn't
-    // called in zero time (e.g. the cache does this), burn a cycle
+    // called in zero time (e.g. the cache does this when a writeback
+    // is squashed)
     if (state == RETRY) {
         // update the state to busy and reset the retrying port, we
         // have done our bit and sent the retry
         state = BUSY;
 
-        // occupy the crossbar layer until the next cycle ends
-        occupyLayer(xbar.clockEdge(Cycles(1)));
+        // occupy the crossbar layer until the next clock edge
+        occupyLayer(xbar.clockEdge());
     }
 }
 
@@ -572,18 +585,18 @@ BaseXBar::regStats()
 }
 
 template <typename SrcType, typename DstType>
-unsigned int
-BaseXBar::Layer<SrcType,DstType>::drain(DrainManager *dm)
+DrainState
+BaseXBar::Layer<SrcType,DstType>::drain()
 {
     //We should check that we're not "doing" anything, and that noone is
     //waiting. We might be idle but have someone waiting if the device we
     //contacted for a retry didn't actually retry.
     if (state != IDLE) {
         DPRINTF(Drain, "Crossbar not drained\n");
-        drainManager = dm;
-        return 1;
+        return DrainState::Draining;
+    } else {
+        return DrainState::Drained;
     }
-    return 0;
 }
 
 template <typename SrcType, typename DstType>

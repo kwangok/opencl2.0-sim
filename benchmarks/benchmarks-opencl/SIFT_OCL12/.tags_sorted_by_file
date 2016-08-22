@@ -1,0 +1,27 @@
+FeatureDetection	SIFT_OCL12.cpp	/^void oclSIFT::FeatureDetection(Mat &image, Mat &descriptor, vector<KeyPoint> &keypoints)$/;"	f	class:oclSIFT
+constructDoG	SIFT_OCL12.cpp	/^void oclSIFT::constructDoG(Mat image, const int octaves, const int intervals, const double initial_sigma, vector< vector<Mat> >& imageblurs$/;"	f	class:oclSIFT
+descriptor	SIFT_OCL12.cpp	/^void oclSIFT::descriptor(vector<feature>& features, const int octaves, const int intervals, vector< vector<Mat> >& imageblurs, vector< vector<double> >& absolute_sigma){$/;"	f	class:oclSIFT
+interp	SIFT_OCL12.cpp	/^Point2f oclSIFT::interp(Point2d p, Mat& image){         \/\/ x = mag  y = ori$/;"	f	class:oclSIFT
+load_program	SIFT_OCL12.cpp	/^cl_program load_program(cl_context context, string filename, cl_device_id device)$/;"	f
+localmax	SIFT_OCL12.cpp	/^int oclSIFT::localmax(vector< vector<Mat> >& DoG, const int octaves, const int intervals, const float contrast_threshold$/;"	f	class:oclSIFT
+main	SIFT_OCL12.cpp	/^int main(){$/;"	f
+major_orientation	SIFT_OCL12.cpp	/^int oclSIFT::major_orientation(vector<feature>& features, const int octaves, const int intervals, vector< vector<Mat> >& imageblurs, vector< vector<double> >& absolute_sigma){$/;"	f	class:oclSIFT
+mySIFT	SIFT_OCL12.cpp	/^void oclSIFT::mySIFT(Mat image, const int octaves, const int intervals, const double initial_sigma, const float contrast_threshold, vector<feature>& features){$/;"	f	class:oclSIFT
+suborientation	SIFT_OCL12.cpp	/^Point2d oclSIFT::suborientation(double* arr){$/;"	f	class:oclSIFT
+_USE_MATH_DEFINES	SIFT_OCL12.h	7;"	d
+abs_sigma	SIFT_OCL12.h	/^	double abs_sigma;$/;"	m	struct:feature
+desc	SIFT_OCL12.h	/^	double desc[128];$/;"	m	struct:feature
+err	SIFT_OCL12.h	/^	cl_int err;$/;"	m	class:oclSIFT
+feature	SIFT_OCL12.h	/^struct feature$/;"	s
+oclSIFT	SIFT_OCL12.h	/^	oclSIFT()$/;"	f	class:oclSIFT
+oclSIFT	SIFT_OCL12.h	/^class oclSIFT$/;"	c
+orient	SIFT_OCL12.h	/^	double orient;					\/\/ (-180,180]$/;"	m	struct:feature
+pos	SIFT_OCL12.h	/^	int pos[2];$/;"	m	struct:feature
+scale	SIFT_OCL12.h	/^	int scale[2];$/;"	m	struct:feature
+~oclSIFT	SIFT_OCL12.h	/^	~oclSIFT()$/;"	f	class:oclSIFT
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_PROGRAM_VERSION	5.7	//
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/

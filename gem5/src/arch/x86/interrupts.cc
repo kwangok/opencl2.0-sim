@@ -272,7 +272,8 @@ X86ISA::Interrupts::requestInterrupt(uint8_t vector,
         DPRINTF(LocalApic, "Interrupt is an %s.\n",
                 DeliveryMode::names[deliveryMode]);
         if (deliveryMode == DeliveryMode::GPUFault) {
-            pendingUnmaskableInt = pendingGpu = true;
+            assert(!pendingGpu);
+            pendingGpu = true;
         } else if (deliveryMode == DeliveryMode::SMI && !pendingSmi) {
             pendingUnmaskableInt = pendingSmi = true;
             smiVector = vector;
@@ -644,6 +645,14 @@ X86ISA::Interrupts::checkInterrupts(ThreadContext *tc) const
             DPRINTF(LocalApic, "Reported pending external interrupt.\n");
             return true;
         }
+        if (pendingGpu) {
+            HandyM5Reg m5reg = tc->readMiscRegNoEffect(MISCREG_M5_REG);
+            if (m5reg.cpl != 3) {
+                DPRINTF(LocalApic, "Not invoking GPU PF in kernel mode!\n");
+            } else {
+                return true;
+            }
+        }
         if (IRRV > ISRV && bits(IRRV, 7, 4) >
                bits(regs[APIC_TASK_PRIORITY], 7, 4)) {
             DPRINTF(LocalApic, "Reported pending regular interrupt.\n");
@@ -665,16 +674,12 @@ Fault
 X86ISA::Interrupts::getInterrupt(ThreadContext *tc)
 {
     assert(checkInterrupts(tc));
+    RFLAGS rflags = tc->readMiscRegNoEffect(MISCREG_RFLAGS);
+    HandyM5Reg m5reg = tc->readMiscRegNoEffect(MISCREG_M5_REG);
     // These are all probably fairly uncommon, so we'll make them easier to
     // check for.
     if (pendingUnmaskableInt) {
-        if (pendingGpu) {
-            DPRINTF(LocalApic, "Generated GPU page fault object.\n");
-            Addr addr = tc->readMiscRegNoEffect(MISCREG_GPU_FAULTADDR);
-            uint32_t code = tc->readMiscRegNoEffect(MISCREG_GPU_FAULTCODE);
-            assert(((GPUFaultReg)tc->readMiscRegNoEffect(MISCREG_GPU_FAULT)).inFault == 1);
-            return std::make_shared<PageFault>(addr, code);
-        } else if (pendingSmi) {
+        if (pendingSmi) {
             DPRINTF(LocalApic, "Generated SMI fault object.\n");
             return std::make_shared<SystemManagementInterrupt>();
         } else if (pendingNmi) {
@@ -694,6 +699,15 @@ X86ISA::Interrupts::getInterrupt(ThreadContext *tc)
     } else if (pendingExtInt) {
         DPRINTF(LocalApic, "Generated external interrupt fault object.\n");
         return std::make_shared<ExternalInterrupt>(extIntVector);
+    } else if (pendingGpu && rflags.intf && m5reg.cpl == 3) {
+        DPRINTF(LocalApic, "Generated GPU page fault object.\n");
+        Addr addr = tc->readMiscRegNoEffect(MISCREG_GPU_FAULTADDR);
+        uint32_t code = tc->readMiscRegNoEffect(MISCREG_GPU_FAULTCODE);
+        if (((GPUFaultReg)tc->readMiscRegNoEffect(MISCREG_GPU_FAULT)).inFault != 1) {
+            panic("Need to migrate the miscellaneous registers?! tc = %p, inFault: %d\n",
+                  tc, ((GPUFaultReg)tc->readMiscRegNoEffect(MISCREG_GPU_FAULT)).inFault);
+        }
+        return std::make_shared<GPUPageFault>(addr, code);
     } else {
         DPRINTF(LocalApic, "Generated regular interrupt fault object.\n");
         // The only thing left are fixed and lowest priority interrupts.
@@ -705,6 +719,8 @@ void
 X86ISA::Interrupts::updateIntrInfo(ThreadContext *tc)
 {
     assert(checkInterrupts(tc));
+    RFLAGS rflags = tc->readMiscRegNoEffect(MISCREG_RFLAGS);
+    HandyM5Reg m5reg = tc->readMiscRegNoEffect(MISCREG_M5_REG);
     if (pendingUnmaskableInt) {
         if (pendingSmi) {
             DPRINTF(LocalApic, "SMI sent to core.\n");
@@ -725,6 +741,8 @@ X86ISA::Interrupts::updateIntrInfo(ThreadContext *tc)
             pendingUnmaskableInt = false;
     } else if (pendingExtInt) {
         pendingExtInt = false;
+    } else if (pendingGpu && rflags.intf && m5reg.cpl == 3) {
+        pendingGpu = false;
     } else {
         DPRINTF(LocalApic, "Interrupt %d sent to core.\n", IRRV);
         // Mark the interrupt as "in service".
@@ -737,7 +755,7 @@ X86ISA::Interrupts::updateIntrInfo(ThreadContext *tc)
 }
 
 void
-X86ISA::Interrupts::serialize(std::ostream &os)
+X86ISA::Interrupts::serialize(CheckpointOut &cp) const
 {
     SERIALIZE_ARRAY(regs, NUM_APIC_REGS);
     SERIALIZE_SCALAR(pendingSmi);
@@ -762,7 +780,7 @@ X86ISA::Interrupts::serialize(std::ostream &os)
 }
 
 void
-X86ISA::Interrupts::unserialize(Checkpoint *cp, const std::string &section)
+X86ISA::Interrupts::unserialize(CheckpointIn &cp)
 {
     UNSERIALIZE_ARRAY(regs, NUM_APIC_REGS);
     UNSERIALIZE_SCALAR(pendingSmi);

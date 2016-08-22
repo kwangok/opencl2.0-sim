@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2014 ARM Limited
+# Copyright (c) 2009-2015 ARM Limited
 # All rights reserved.
 #
 # The license below extends only to copyright in the software and shall
@@ -42,6 +42,8 @@
 
 from m5.params import *
 from m5.proxy import *
+from ClockDomain import ClockDomain
+from VoltageDomain import VoltageDomain
 from Device import BasicPioDevice, PioDevice, IsaFake, BadAddr, DmaDevice
 from Pci import PciConfigAll
 from Ethernet import NSGigE, IGbE_igb, IGbE_e1000
@@ -88,6 +90,49 @@ class RealViewCtrl(BasicPioDevice):
     proc_id0 = Param.UInt32(0x0C000000, "Processor ID, SYS_PROCID")
     proc_id1 = Param.UInt32(0x0C000222, "Processor ID, SYS_PROCID1")
     idreg = Param.UInt32(0x00000000, "ID Register, SYS_ID")
+
+class RealViewOsc(ClockDomain):
+    type = 'RealViewOsc'
+    cxx_header = "dev/arm/rv_ctrl.hh"
+
+    parent = Param.RealViewCtrl(Parent.any, "RealView controller")
+
+    # TODO: We currently don't have the notion of a clock source,
+    # which means we have to associate oscillators with a voltage
+    # source.
+    voltage_domain = Param.VoltageDomain(Parent.voltage_domain,
+                                         "Voltage domain")
+
+    # See ARM DUI 0447J (ARM Motherboard Express uATX -- V2M-P1) and
+    # the individual core/logic tile reference manuals for details
+    # about the site/position/dcc/device allocation.
+    site = Param.UInt8("Board Site")
+    position = Param.UInt8("Position in device stack")
+    dcc = Param.UInt8("Daughterboard Configuration Controller")
+    device = Param.UInt8("Device ID")
+
+    freq = Param.Clock("Default frequency")
+
+class VExpressCoreTileCtrl(RealViewCtrl):
+    class MotherBoardOsc(RealViewOsc):
+        site, position, dcc = (0, 0, 0)
+
+    class CoreTileOsc(RealViewOsc):
+        site, position, dcc = (1, 0, 0)
+
+    # See ARM DUI 0447J (ARM Motherboard Express uATX -- V2M-P1)
+    osc_mcc = MotherBoardOsc(device=0, freq="50MHz")
+    osc_clcd = MotherBoardOsc(device=1, freq="23.75MHz")
+    osc_peripheral = MotherBoardOsc(device=2, freq="24MHz")
+    osc_system_bus = MotherBoardOsc(device=4, freq="24MHz")
+
+    # See Table 2.8 in ARM DUI 0604E (CoreTile Express A15x2 TRM).
+    osc_cpu = CoreTileOsc(device=0, freq="60MHz")
+    osc_hsbm = CoreTileOsc(device=4, freq="40MHz")
+    osc_pxl = CoreTileOsc(device=5, freq="23.75MHz")
+    osc_smb = CoreTileOsc(device=6, freq="50MHz")
+    osc_sys = CoreTileOsc(device=7, freq="60MHz")
+    osc_ddr = CoreTileOsc(device=8, freq="40MHz")
 
 class VGic(PioDevice):
     type = 'VGic'
@@ -136,9 +181,20 @@ class GenericTimer(SimObject):
     cxx_header = "dev/arm/generic_timer.hh"
     system = Param.System(Parent.any, "system")
     gic = Param.BaseGic(Parent.any, "GIC to use for interrupting")
-    int_num = Param.UInt32("Interrupt number used per-cpu to GIC")
-    # @todo: for now only one timer per CPU is supported, which is the
-    # normal behaviour when Security and Virt. extensions are disabled.
+    # @todo: for now only two timers per CPU is supported, which is the
+    # normal behaviour when security extensions are disabled.
+    int_phys = Param.UInt32("Physical timer interrupt number")
+    int_virt = Param.UInt32("Virtual timer interrupt number")
+
+class GenericTimerMem(PioDevice):
+    type = 'GenericTimerMem'
+    cxx_header = "dev/arm/generic_timer.hh"
+    gic = Param.BaseGic(Parent.any, "GIC to use for interrupting")
+
+    base = Param.Addr(0, "Base address")
+
+    int_phys = Param.UInt32("Interrupt number")
+    int_virt = Param.UInt32("Interrupt number")
 
 class PL031(AmbaIntDevice):
     type = 'PL031'
@@ -175,6 +231,8 @@ class HDLcd(AmbaDmaDevice):
     vnc = Param.VncInput(Parent.any, "Vnc server for remote frame buffer "
                                      "display")
     amba_id = 0x00141000
+    workaround_swap_rb = Param.Bool(True, "Workaround incorrect color "
+                                    "selector order in some kernels")
     enable_capture = Param.Bool(True, "capture frame to system.framebuffer.bmp")
 
 class RealView(Platform):
@@ -214,7 +272,7 @@ class RealView(Platform):
 # Chapter 4: Programmer's Reference
 class RealViewPBX(RealView):
     uart = Pl011(pio_addr=0x10009000, int_num=44)
-    realview_io = RealViewCtrl(pio_addr=0x10000000)
+    realview_io = VExpressCoreTileCtrl(pio_addr=0x10000000)
     gic = Pl390()
     timer0 = Sp804(int_num0=36, int_num1=36, pio_addr=0x10011000)
     timer1 = Sp804(int_num0=37, int_num1=37, pio_addr=0x10012000)
@@ -341,7 +399,7 @@ class RealViewPBX(RealView):
 # Chapter 4: Programmer's Reference
 class RealViewEB(RealView):
     uart = Pl011(pio_addr=0x10009000, int_num=44)
-    realview_io = RealViewCtrl(pio_addr=0x10000000, idreg=0x01400500)
+    realview_io = VExpressCoreTileCtrl(pio_addr=0x10000000, idreg=0x01400500)
     gic = Pl390(dist_addr=0x10041000, cpu_addr=0x10040000)
     timer0 = Sp804(int_num0=36, int_num1=36, pio_addr=0x10011000)
     timer1 = Sp804(int_num0=37, int_num1=37, pio_addr=0x10012000)
@@ -451,11 +509,12 @@ class VExpress_EMM(RealView):
     _mem_regions = [(Addr('2GB'), Addr('2GB'))]
     pci_cfg_base = 0x30000000
     uart = Pl011(pio_addr=0x1c090000, int_num=37)
-    realview_io = RealViewCtrl(proc_id0=0x14000000, proc_id1=0x14000000, \
-                               idreg=0x02250000, pio_addr=0x1C010000)
+    realview_io = VExpressCoreTileCtrl(
+        proc_id0=0x14000000, proc_id1=0x14000000,
+        idreg=0x02250000, pio_addr=0x1C010000)
     gic = Pl390(dist_addr=0x2C001000, cpu_addr=0x2C002000)
     local_cpu_timer = CpuLocalTimer(int_num_timer=29, int_num_watchdog=30, pio_addr=0x2C080000)
-    generic_timer = GenericTimer(int_num=29)
+    generic_timer = GenericTimer(int_phys=29, int_virt=27)
     timer0 = Sp804(int_num0=34, int_num1=34, pio_addr=0x1C110000, clock0='1MHz', clock1='1MHz')
     timer1 = Sp804(int_num0=35, int_num1=35, pio_addr=0x1C120000, clock0='1MHz', clock1='1MHz')
     clcd   = Pl111(pio_addr=0x1c1f0000, int_num=46)
@@ -509,21 +568,22 @@ class VExpress_EMM(RealView):
 
     # Attach I/O devices that are on chip and also set the appropriate
     # ranges for the bridge
-    def attachOnChipIO(self, bus, bridge):
-       self.gic.pio = bus.master
-       self.local_cpu_timer.pio = bus.master
-       if hasattr(self, "gicv2m"):
-           self.gicv2m.pio      = bus.master
-       self.hdlcd.dma           = bus.slave
-       # Bridge ranges based on excluding what is part of on-chip I/O
-       # (gic, a9scu)
-       bridge.ranges = [AddrRange(0x2F000000, size='16MB'),
-                        AddrRange(0x2B000000, size='4MB'),
-                        AddrRange(0x30000000, size='256MB'),
-                        AddrRange(0x40000000, size='512MB'),
-                        AddrRange(0x18000000, size='64MB'),
-                        AddrRange(0x1C000000, size='64MB')]
-       self.vgic.pio = bus.master
+    def attachOnChipIO(self, bus, bridge=None):
+        self.gic.pio             = bus.master
+        self.vgic.pio            = bus.master
+        self.local_cpu_timer.pio = bus.master
+        if hasattr(self, "gicv2m"):
+            self.gicv2m.pio      = bus.master
+        self.hdlcd.dma           = bus.slave
+        if bridge:
+            # Bridge ranges based on excluding what is part of on-chip I/O
+            # (gic, a9scu)
+            bridge.ranges = [AddrRange(0x2F000000, size='16MB'),
+                             AddrRange(0x2B000000, size='4MB'),
+                             AddrRange(0x30000000, size='256MB'),
+                             AddrRange(0x40000000, size='512MB'),
+                             AddrRange(0x18000000, size='64MB'),
+                             AddrRange(0x1C000000, size='64MB')]
 
 
     # Set the clock domain for IO objects that are considered

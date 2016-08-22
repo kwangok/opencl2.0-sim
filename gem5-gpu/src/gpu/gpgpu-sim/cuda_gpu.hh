@@ -474,11 +474,12 @@ class CudaGPU : public ClockedObject
             return false;
         }
         /// For checkpointing
-        void serialize(std::ostream &os);
-        void unserialize(Checkpoint *cp, const std::string &section);
+        void serialize(CheckpointOut &cp) const;
+        void unserialize(CheckpointIn &cp);
     };
     GPUPageTable pageTable;
     bool manageGPUMemory;
+    bool accessHostPageTable;
     AddrRange gpuMemoryRange;
     Addr physicalGPUBrkAddr;
     Addr virtualGPUBrkAddr;
@@ -493,8 +494,8 @@ class CudaGPU : public ClockedObject
     CudaGPU(const Params *p);
 
     /// For checkpointing
-    virtual void serialize(std::ostream &os);
-    virtual void unserialize(Checkpoint *cp, const std::string &section);
+    virtual void serialize(CheckpointOut &cp) const;
+    virtual void unserialize(CheckpointIn &cp);
 
     /// Called after constructor, but before any real simulation
     virtual void startup();
@@ -562,7 +563,8 @@ class CudaGPU : public ClockedObject
     void memcpy(void *src, void *dst, size_t count, struct CUstream_st *stream, stream_operation_type type);
 
     /// Begins a timing memory copy from src to/from the symbol+offset
-    void memcpy_symbol(const char *hostVar, const void *src, size_t count, size_t offset, int to, struct CUstream_st *stream);
+    void memcpy_to_symbol(const char *hostVar, const void *src, size_t count, size_t offset, struct CUstream_st *stream);
+    void memcpy_from_symbol(void *dst, const char *hostVar, size_t count, size_t offset, struct CUstream_st *stream);
 
     /// Begins a timing memory set of value to dst
     void memset(Addr dst, int value, size_t count, struct CUstream_st *stream);
@@ -625,6 +627,7 @@ class CudaGPU : public ClockedObject
     void registerDeviceMemory(ThreadContext *tc, Addr vaddr, size_t size);
     void registerDeviceInstText(ThreadContext *tc, Addr vaddr, size_t size);
     bool isManagingGPUMemory() { return manageGPUMemory; }
+    bool isAccessingHostPagetable() { return accessHostPageTable; }
     Addr allocateGPUMemory(size_t size);
 
     /// Statistics for this GPU

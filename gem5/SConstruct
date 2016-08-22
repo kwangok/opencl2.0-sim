@@ -1,6 +1,6 @@
 # -*- mode:python -*-
 
-# Copyright (c) 2013 ARM Limited
+# Copyright (c) 2013, 2015 ARM Limited
 # All rights reserved.
 #
 # The license below extends only to copyright in the software and shall
@@ -221,7 +221,10 @@ for key,val in sorted(os.environ.iteritems()):
             any([key.startswith(prefix) for prefix in use_prefixes]):
         use_env[key] = val
 
-main = Environment(ENV=use_env)
+# Tell scons to avoid implicit command dependencies to avoid issues
+# with the param wrappes being compiled twice (see
+# http://scons.tigris.org/issues/show_bug.cgi?id=2811)
+main = Environment(ENV=use_env, IMPLICIT_COMMAND_DEPENDENCIES=0)
 main.Decider('MD5-timestamp')
 main.root = Dir(".")         # The current directory (where this file lives).
 main.srcdir = Dir("src")     # The source directory
@@ -553,9 +556,8 @@ if main['GCC'] or main['CLANG']:
     # Enable -Wall and then disable the few warnings that we
     # consistently violate
     main.Append(CCFLAGS=['-Wall', '-Wno-sign-compare', '-Wundef'])
-    # We always compile using C++11, but only gcc >= 4.7 and clang 3.1
-    # actually use that name, so we stick with c++0x
-    main.Append(CXXFLAGS=['-std=c++0x'])
+    # We always compile using C++11
+    main.Append(CXXFLAGS=['-std=c++11'])
     # Add selected sanity checks from -Wextra
     main.Append(CXXFLAGS=['-Wmissing-field-initializers',
                           '-Woverloaded-virtual'])
@@ -579,13 +581,12 @@ else:
     Exit(1)
 
 if main['GCC']:
-    # Check for a supported version of gcc. >= 4.6 is chosen for its
+    # Check for a supported version of gcc. >= 4.7 is chosen for its
     # level of c++11 support. See
-    # http://gcc.gnu.org/projects/cxx0x.html for details. 4.6 is also
-    # the first version with proper LTO support.
+    # http://gcc.gnu.org/projects/cxx0x.html for details.
     gcc_version = readCommand([main['CXX'], '-dumpversion'], exception=False)
-    if compareVersions(gcc_version, "4.6") < 0:
-        print 'Error: gcc version 4.6 or newer required.'
+    if compareVersions(gcc_version, "4.7") < 0:
+        print 'Error: gcc version 4.7 or newer required.'
         print '       Installed version:', gcc_version
         Exit(1)
 
@@ -596,10 +597,16 @@ if main['GCC']:
     # assemblers detect this as an error, "Error: expecting string
     # instruction after `rep'"
     if compareVersions(gcc_version, "4.8") > 0:
-        as_version = readCommand([main['AS'], '-v', '/dev/null'],
-                                 exception=False).split()
+        as_version_raw = readCommand([main['AS'], '-v', '/dev/null'],
+                                     exception=False).split()
 
-        if not as_version or compareVersions(as_version[-1], "2.23") < 0:
+        # version strings may contain extra distro-specific
+        # qualifiers, so play it safe and keep only what comes before
+        # the first hyphen
+        as_version = as_version_raw[-1].split('-')[0] if as_version_raw \
+            else None
+
+        if not as_version or compareVersions(as_version, "2.23") < 0:
             print termcap.Yellow + termcap.Bold + \
                 'Warning: This combination of gcc and binutils have' + \
                 ' known incompatibilities.\n' + \
@@ -633,15 +640,15 @@ if main['GCC']:
                                   '-fno-builtin-realloc', '-fno-builtin-free'])
 
 elif main['CLANG']:
-    # Check for a supported version of clang, >= 3.0 is needed to
-    # support similar features as gcc 4.6. See
+    # Check for a supported version of clang, >= 3.1 is needed to
+    # support similar features as gcc 4.7. See
     # http://clang.llvm.org/cxx_status.html for details
     clang_version_re = re.compile(".* version (\d+\.\d+)")
     clang_version_match = clang_version_re.search(CXX_version)
     if (clang_version_match):
         clang_version = clang_version_match.groups()[0]
-        if compareVersions(clang_version, "3.0") < 0:
-            print 'Error: clang version 3.0 or newer required.'
+        if compareVersions(clang_version, "3.1") < 0:
+            print 'Error: clang version 3.1 or newer required.'
             print '       Installed version:', clang_version
             Exit(1)
     else:
@@ -781,10 +788,15 @@ if main['GCC'] and compareVersions(gcc_version, '4.9') >= 0 and \
 swig_flags=Split('-c++ -python -modern -templatereduce $_CPPINCFLAGS')
 main.Append(SWIGFLAGS=swig_flags)
 
-# Check for 'timeout' from GNU coreutils.  If present, regressions
-# will be run with a time limit.
-TIMEOUT_version = readCommand(['timeout', '--version'], exception=False)
-main['TIMEOUT'] = TIMEOUT_version and TIMEOUT_version.find('timeout') == 0
+# Check for 'timeout' from GNU coreutils. If present, regressions will
+# be run with a time limit. We require version 8.13 since we rely on
+# support for the '--foreground' option.
+timeout_lines = readCommand(['timeout', '--version'],
+                            exception='').splitlines()
+# Get the first line and tokenize it
+timeout_version = timeout_lines[0].split() if timeout_lines else []
+main['TIMEOUT'] =  timeout_version and \
+    compareVersions(timeout_version[-1], '8.13') >= 0
 
 # filter out all existing swig scanners, they mess up the dependency
 # stuff for some reason
@@ -806,32 +818,6 @@ scanners.append(CPPScanner("SwigScan", [ ".i" ], "CPPPATH", swig_inc_re))
 
 # replace the scanners list that has what we want
 main['SCANNERS'] = scanners
-
-# Add a custom Check function to the Configure context so that we can
-# figure out if the compiler adds leading underscores to global
-# variables.  This is needed for the autogenerated asm files that we
-# use for embedding the python code.
-def CheckLeading(context):
-    context.Message("Checking for leading underscore in global variables...")
-    # 1) Define a global variable called x from asm so the C compiler
-    #    won't change the symbol at all.
-    # 2) Declare that variable.
-    # 3) Use the variable
-    #
-    # If the compiler prepends an underscore, this will successfully
-    # link because the external symbol 'x' will be called '_x' which
-    # was defined by the asm statement.  If the compiler does not
-    # prepend an underscore, this will not successfully link because
-    # '_x' will have been defined by assembly, while the C portion of
-    # the code will be trying to use 'x'
-    ret = context.TryLink('''
-        asm(".globl _x; _x: .byte 0");
-        extern int x;
-        int main() { return x; }
-        ''', extension=".c")
-    context.env.Append(LEADING_UNDERSCORE=ret)
-    context.Result(ret)
-    return ret
 
 # Add a custom Check function to test for structure members.
 def CheckMember(context, include, decl, member, include_quotes="<>"):
@@ -859,13 +845,8 @@ conf = Configure(main,
                  conf_dir = joinpath(build_root, '.scons_config'),
                  log_file = joinpath(build_root, 'scons_config.log'),
                  custom_tests = {
-        'CheckLeading' : CheckLeading,
         'CheckMember' : CheckMember,
         })
-
-# Check for leading underscores.  Don't really need to worry either
-# way so don't need to check the return code.
-conf.CheckLeading()
 
 # Check if we should compile a 64 bit binary on Mac OS X/Darwin
 try:
@@ -1014,18 +995,19 @@ if not have_fenv:
 # we rely on exists since version 2.6.36 of the kernel, but somehow
 # the KVM_API_VERSION does not reflect the change. We test for one of
 # the types as a fall back.
-have_kvm = conf.CheckHeader('linux/kvm.h', '<>') and \
-    conf.CheckTypeSize('struct kvm_xsave', '#include <linux/kvm.h>') != 0
+have_kvm = conf.CheckHeader('linux/kvm.h', '<>')
 if not have_kvm:
     print "Info: Compatible header file <linux/kvm.h> not found, " \
         "disabling KVM support."
 
+# x86 needs support for xsave. We test for the structure here since we
+# won't be able to run new tests by the time we know which ISA we're
+# targeting.
+have_kvm_xsave = conf.CheckTypeSize('struct kvm_xsave',
+                                    '#include <linux/kvm.h>') != 0
+
 # Check if the requested target ISA is compatible with the host
 def is_isa_kvm_compatible(isa):
-    isa_comp_table = {
-        "arm" : ( "armv7l" ),
-        "x86" : ( "x86_64" ),
-        }
     try:
         import platform
         host_isa = platform.machine()
@@ -1033,7 +1015,24 @@ def is_isa_kvm_compatible(isa):
         print "Warning: Failed to determine host ISA."
         return False
 
-    return host_isa in isa_comp_table.get(isa, [])
+    if not have_posix_timers:
+        print "Warning: Can not enable KVM, host seems to lack support " \
+            "for POSIX timers"
+        return False
+
+    if isa == "arm":
+        return host_isa in ( "armv7l", "aarch64" )
+    elif isa == "x86":
+        if host_isa != "x86_64":
+            return False
+
+        if not have_kvm_xsave:
+            print "KVM on x86 requires xsave support in kernel headers."
+            return False
+
+        return True
+    else:
+        return False
 
 
 # Check if the exclude_host attribute is available. We want this to
@@ -1203,6 +1202,10 @@ main.SConscript('ext/dramsim2/SConscript',
 main.SConscript('ext/drampower/SConscript',
                 variant_dir = joinpath(build_root, 'drampower'))
 
+# nomali build is shared across all configs in the build root.
+main.SConscript('ext/nomali/SConscript',
+                variant_dir = joinpath(build_root, 'nomali'))
+
 ###################################################
 #
 # This function is used to set up a directory with switching headers
@@ -1348,10 +1351,6 @@ for variant_path in variant_paths:
     if env['USE_KVM']:
         if not have_kvm:
             print "Warning: Can not enable KVM, host seems to lack KVM support"
-            env['USE_KVM'] = False
-        elif not have_posix_timers:
-            print "Warning: Can not enable KVM, host seems to lack support " \
-                "for POSIX timers"
             env['USE_KVM'] = False
         elif not is_isa_kvm_compatible(env['TARGET_ISA']):
             print "Info: KVM support disabled due to unsupported host and " \

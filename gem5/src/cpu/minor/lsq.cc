@@ -926,7 +926,7 @@ LSQ::tryToSendToTransfers(LSQRequestPtr request)
     bool is_load = request->isLoad;
     bool is_llsc = request->request.isLLSC();
     bool is_swap = request->request.isSwap();
-    bool bufferable = !(request->request.isUncacheable() ||
+    bool bufferable = !(request->request.isStrictlyOrdered() ||
         is_llsc || is_swap);
 
     if (is_load) {
@@ -1235,7 +1235,7 @@ LSQ::recvTimingResp(PacketPtr response)
 }
 
 void
-LSQ::recvRetry()
+LSQ::recvReqRetry()
 {
     DPRINTF(MinorMem, "Received retry request\n");
 
@@ -1277,9 +1277,9 @@ LSQ::recvRetry()
             assert(false);
             break;
         }
-    }
 
-    retryRequest = NULL;
+        retryRequest = NULL;
+    }
 }
 
 LSQ::LSQ(std::string name_, std::string dcache_port_name_,
@@ -1499,7 +1499,7 @@ LSQ::pushRequest(MinorDynInstPtr inst, bool isLoad, uint8_t *data,
     }
 
     if (inst->traceData)
-        inst->traceData->setAddr(addr);
+        inst->traceData->setMem(addr, size, flags);
 
     request->request.setThreadContext(cpu.cpuId(), /* thread id */ 0);
     request->request.setVirt(0 /* asid */,
@@ -1545,18 +1545,8 @@ PacketPtr
 makePacketForRequest(Request &request, bool isLoad,
     Packet::SenderState *sender_state, PacketDataPtr data)
 {
-    MemCmd command;
-
-    /* Make a ret with the right command type to match the request */
-    if (request.isLLSC()) {
-        command = (isLoad ? MemCmd::LoadLockedReq : MemCmd::StoreCondReq);
-    } else if (request.isSwap()) {
-        command = MemCmd::SwapReq;
-    } else {
-        command = (isLoad ? MemCmd::ReadReq : MemCmd::WriteReq);
-    }
-
-    PacketPtr ret = new Packet(&request, command);
+    PacketPtr ret = isLoad ? Packet::createRead(&request)
+                           : Packet::createWrite(&request);
 
     if (sender_state)
         ret->pushSenderState(sender_state);
@@ -1587,6 +1577,12 @@ LSQ::LSQRequest::makePacket()
     /* Make the function idempotent */
     if (packet)
         return;
+
+    // if the translation faulted, do not create a packet
+    if (fault != NoFault) {
+        assert(packet == NULL);
+        return;
+    }
 
     packet = makePacketForRequest(request, isLoad, this, data);
     /* Null the ret data so we know not to deallocate it when the

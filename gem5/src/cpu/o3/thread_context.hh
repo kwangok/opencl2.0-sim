@@ -101,7 +101,7 @@ class O3ThreadContext : public ThreadContext
     /** Reads this CPU's Socket ID. */
     virtual uint32_t socketId() const { return cpu->socketId(); }
 
-    virtual int contextId() const { return thread->contextId(); }
+    virtual ContextID contextId() const { return thread->contextId(); }
 
     virtual void setContextId(int id) { thread->setContextId(id); }
 
@@ -228,7 +228,7 @@ class O3ThreadContext : public ThreadContext
     { return cpu->microPC(thread->threadId()); }
 
     /** Reads a miscellaneous register. */
-    virtual MiscReg readMiscRegNoEffect(int misc_reg)
+    virtual MiscReg readMiscRegNoEffect(int misc_reg) const
     { return cpu->readMiscRegNoEffect(misc_reg, thread->threadId()); }
 
     /** Reads a misc. register, including any side-effects the
@@ -238,6 +238,9 @@ class O3ThreadContext : public ThreadContext
 
     /** Sets a misc. register. */
     virtual void setMiscRegNoEffect(int misc_reg, const MiscReg &val);
+
+    /** Sets a misc. register with actually no effect (e.g. no squashes). */
+    virtual void setMiscRegActuallyNoEffect(int misc_reg, const MiscReg &val);
 
     /** Sets a misc. register, including any side-effects the
      * write might have as defined by the architecture. */
@@ -256,14 +259,6 @@ class O3ThreadContext : public ThreadContext
     /** Sets the number of consecutive store conditional failures. */
     virtual void setStCondFailures(unsigned sc_failures)
     { thread->storeCondFailures = sc_failures; }
-
-    // Only really makes sense for old CPU model.  Lots of code
-    // outside the CPU still checks this function, so it will
-    // always return false to keep everything working.
-    /** Checks if the thread is misspeculating.  Because it is
-     * very difficult to determine if the thread is
-     * misspeculating, this is set as false. */
-    virtual bool misspeculating() { return false; }
 
     /** Executes a syscall in SE mode. */
     virtual void syscall(int64_t callnum)

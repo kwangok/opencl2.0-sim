@@ -56,12 +56,29 @@
 #include "mem/abstract_mem.hh"
 #include "mem/physical.hh"
 
+/**
+ * On Linux, MAP_NORESERVE allow us to simulate a very large memory
+ * without committing to actually providing the swap space on the
+ * host. On OSX the MAP_NORESERVE flag does not exist, so simply make
+ * it 0.
+ */
+#if defined(__APPLE__)
+#ifndef MAP_NORESERVE
+#define MAP_NORESERVE 0
+#endif
+#endif
+
 using namespace std;
 
 PhysicalMemory::PhysicalMemory(const string& _name,
-                               const vector<AbstractMemory*>& _memories) :
-    _name(_name), size(0)
+                               const vector<AbstractMemory*>& _memories,
+                               bool mmap_using_noreserve) :
+    _name(_name), rangeCache(addrMap.end()), size(0),
+    mmapUsingNoReserve(mmap_using_noreserve)
 {
+    if (mmap_using_noreserve)
+        warn("Not reserving swap space. May cause SIGSEGV on actual usage\n");
+
     // add the memories from the system to the address map as
     // appropriate
     for (const auto& m : _memories) {
@@ -148,6 +165,13 @@ PhysicalMemory::createBackingStore(AddrRange range,
     DPRINTF(AddrRanges, "Creating backing store for range %s with size %d\n",
             range.to_string(), range.size());
     int map_flags = MAP_ANON | MAP_PRIVATE;
+
+    // to be able to simulate very large memories, the user can opt to
+    // pass noreserve to mmap
+    if (mmapUsingNoReserve) {
+        map_flags |= MAP_NORESERVE;
+    }
+
     uint8_t* pmem = (uint8_t*) mmap(NULL, range.size(),
                                     PROT_READ | PROT_WRITE,
                                     map_flags, -1, 0);
@@ -181,7 +205,9 @@ bool
 PhysicalMemory::isMemAddr(Addr addr) const
 {
     // see if the address is within the last matched range
-    if (!rangeCache.contains(addr)) {
+    if (rangeCache != addrMap.end() && rangeCache->first.contains(addr)) {
+        return true;
+    } else {
         // lookup in the interval tree
         const auto& r = addrMap.find(addr);
         if (r == addrMap.end()) {
@@ -189,13 +215,9 @@ PhysicalMemory::isMemAddr(Addr addr) const
             return false;
         }
         // the range is in the tree, update the cache
-        rangeCache = r->first;
+        rangeCache = r;
+        return true;
     }
-
-    assert(addrMap.find(addr) != addrMap.end());
-
-    // either matched the cache or found in the tree
-    return true;
 }
 
 AddrRangeList
@@ -239,9 +261,15 @@ PhysicalMemory::access(PacketPtr pkt)
 {
     assert(pkt->isRequest());
     Addr addr = pkt->getAddr();
-    const auto& m = addrMap.find(addr);
-    assert(m != addrMap.end());
-    m->second->access(pkt);
+    if (rangeCache != addrMap.end() && rangeCache->first.contains(addr)) {
+        rangeCache->second->access(pkt);
+    } else {
+        // do not update the cache here, as we typically call
+        // isMemAddr before calling access
+        const auto& m = addrMap.find(addr);
+        assert(m != addrMap.end());
+        m->second->access(pkt);
+    }
 }
 
 void
@@ -249,17 +277,23 @@ PhysicalMemory::functionalAccess(PacketPtr pkt)
 {
     assert(pkt->isRequest());
     Addr addr = pkt->getAddr();
-    const auto& m = addrMap.find(addr);
-    assert(m != addrMap.end());
-    m->second->functionalAccess(pkt);
+    if (rangeCache != addrMap.end() && rangeCache->first.contains(addr)) {
+        rangeCache->second->functionalAccess(pkt);
+    } else {
+        // do not update the cache here, as we typically call
+        // isMemAddr before calling functionalAccess
+        const auto& m = addrMap.find(addr);
+        assert(m != addrMap.end());
+        m->second->functionalAccess(pkt);
+    }
 }
 
 void
-PhysicalMemory::serialize(ostream& os)
+PhysicalMemory::serialize(CheckpointOut &cp) const
 {
     // serialize all the locked addresses and their context ids
     vector<Addr> lal_addr;
-    vector<int> lal_cid;
+    vector<ContextID> lal_cid;
 
     for (auto& m : memories) {
         const list<LockedAddr>& locked_addrs = m->getLockedAddrList();
@@ -269,8 +303,8 @@ PhysicalMemory::serialize(ostream& os)
         }
     }
 
-    arrayParamOut(os, "lal_addr", lal_addr);
-    arrayParamOut(os, "lal_cid", lal_cid);
+    SERIALIZE_CONTAINER(lal_addr);
+    SERIALIZE_CONTAINER(lal_cid);
 
     // serialize the backing stores
     unsigned int nbr_of_stores = backingStore.size();
@@ -279,14 +313,14 @@ PhysicalMemory::serialize(ostream& os)
     unsigned int store_id = 0;
     // store each backing store memory segment in a file
     for (auto& s : backingStore) {
-        nameOut(os, csprintf("%s.store%d", name(), store_id));
-        serializeStore(os, store_id++, s.first, s.second);
+        ScopedCheckpointSection sec(cp, csprintf("store%d", store_id));
+        serializeStore(cp, store_id++, s.first, s.second);
     }
 }
 
 void
-PhysicalMemory::serializeStore(ostream& os, unsigned int store_id,
-                               AddrRange range, uint8_t* pmem)
+PhysicalMemory::serializeStore(CheckpointOut &cp, unsigned int store_id,
+                               AddrRange range, uint8_t* pmem) const
 {
     // we cannot use the address range for the name as the
     // memories that are not part of the address map can overlap
@@ -301,7 +335,7 @@ PhysicalMemory::serializeStore(ostream& os, unsigned int store_id,
     SERIALIZE_SCALAR(range_size);
 
     // write memory file
-    string filepath = Checkpoint::dir() + "/" + filename.c_str();
+    string filepath = CheckpointIn::dir() + "/" + filename.c_str();
     gzFile compressed_mem = gzopen(filepath.c_str(), "wb");
     if (compressed_mem == NULL)
         fatal("Can't open physical memory checkpoint file '%s'\n",
@@ -331,14 +365,14 @@ PhysicalMemory::serializeStore(ostream& os, unsigned int store_id,
 }
 
 void
-PhysicalMemory::unserialize(Checkpoint* cp, const string& section)
+PhysicalMemory::unserialize(CheckpointIn &cp)
 {
     // unserialize the locked addresses and map them to the
     // appropriate memory controller
     vector<Addr> lal_addr;
-    vector<int> lal_cid;
-    arrayParamIn(cp, section, "lal_addr", lal_addr);
-    arrayParamIn(cp, section, "lal_cid", lal_cid);
+    vector<ContextID> lal_cid;
+    UNSERIALIZE_CONTAINER(lal_addr);
+    UNSERIALIZE_CONTAINER(lal_cid);
     for(size_t i = 0; i < lal_addr.size(); ++i) {
         const auto& m = addrMap.find(lal_addr[i]);
         m->second->addLockedAddr(LockedAddr(lal_addr[i], lal_cid[i]));
@@ -349,13 +383,14 @@ PhysicalMemory::unserialize(Checkpoint* cp, const string& section)
     UNSERIALIZE_SCALAR(nbr_of_stores);
 
     for (unsigned int i = 0; i < nbr_of_stores; ++i) {
-        unserializeStore(cp, csprintf("%s.store%d", section, i));
+        ScopedCheckpointSection sec(cp, csprintf("store%d", i));
+        unserializeStore(cp);
     }
 
 }
 
 void
-PhysicalMemory::unserializeStore(Checkpoint* cp, const string& section)
+PhysicalMemory::unserializeStore(CheckpointIn &cp)
 {
     const uint32_t chunk_size = 16384;
 
@@ -364,7 +399,7 @@ PhysicalMemory::unserializeStore(Checkpoint* cp, const string& section)
 
     string filename;
     UNSERIALIZE_SCALAR(filename);
-    string filepath = cp->cptDir + "/" + filename;
+    string filepath = cp.cptDir + "/" + filename;
 
     // mmap memoryfile
     gzFile compressed_mem = gzopen(filepath.c_str(), "rb");

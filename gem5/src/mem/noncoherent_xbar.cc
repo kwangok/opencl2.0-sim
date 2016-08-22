@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014 ARM Limited
+ * Copyright (c) 2011-2015 ARM Limited
  * All rights reserved
  *
  * The license below extends only to copyright in the software and shall
@@ -82,7 +82,7 @@ NoncoherentXBar::NoncoherentXBar(const NoncoherentXBarParams *p)
     // create the slave ports, once again starting at zero
     for (int i = 0; i < p->port_slave_connection_count; ++i) {
         std::string portName = csprintf("%s.slave[%d]", name(), i);
-        SlavePort* bp = new NoncoherentXBarSlavePort(portName, *this, i);
+        QueuedSlavePort* bp = new NoncoherentXBarSlavePort(portName, *this, i);
         slavePorts.push_back(bp);
         respLayers.push_back(new RespLayer(*bp, *this,
                                            csprintf(".respLayer%d", i)));
@@ -127,11 +127,22 @@ NoncoherentXBar::recvTimingReq(PacketPtr pkt, PortID slave_port_id)
     unsigned int pkt_size = pkt->hasData() ? pkt->getSize() : 0;
     unsigned int pkt_cmd = pkt->cmdToIndex();
 
-    // set the source port for routing of the response
-    pkt->setSrc(slave_port_id);
+    // store the old header delay so we can restore it if needed
+    Tick old_header_delay = pkt->headerDelay;
 
-    calcPacketTiming(pkt);
-    Tick packetFinishTime = pkt->lastWordDelay + curTick();
+    // a request sees the frontend and forward latency
+    Tick xbar_delay = (frontendLatency + forwardLatency) * clockPeriod();
+
+    // set the packet header and payload delay
+    calcPacketTiming(pkt, xbar_delay);
+
+    // determine how long to be crossbar layer is busy
+    Tick packetFinishTime = clockEdge(Cycles(1)) + pkt->payloadDelay;
+
+    // before forwarding the packet (and possibly altering it),
+    // remember if we are expecting a response
+    const bool expect_response = pkt->needsResponse() &&
+        !pkt->memInhibitAsserted();
 
     // since it is a normal request, attempt to send the packet
     bool success = masterPorts[master_port_id]->sendTimingReq(pkt);
@@ -143,14 +154,20 @@ NoncoherentXBar::recvTimingReq(PacketPtr pkt, PortID slave_port_id)
         DPRINTF(NoncoherentXBar, "recvTimingReq: src %s %s 0x%x RETRY\n",
                 src_port->name(), pkt->cmdString(), pkt->getAddr());
 
-        // undo the calculation so we can check for 0 again
-        pkt->firstWordDelay = pkt->lastWordDelay = 0;
+        // restore the header delay as it is additive
+        pkt->headerDelay = old_header_delay;
 
         // occupy until the header is sent
         reqLayers[master_port_id]->failedTiming(src_port,
-                                                clockEdge(headerCycles));
+                                                clockEdge(Cycles(1)));
 
         return false;
+    }
+
+    // remember where to route the response to
+    if (expect_response) {
+        assert(routeTo.find(pkt->req) == routeTo.end());
+        routeTo[pkt->req] = slave_port_id;
     }
 
     reqLayers[master_port_id]->succeededTiming(packetFinishTime);
@@ -169,8 +186,10 @@ NoncoherentXBar::recvTimingResp(PacketPtr pkt, PortID master_port_id)
     // determine the source port based on the id
     MasterPort *src_port = masterPorts[master_port_id];
 
-    // determine the destination based on what is stored in the packet
-    PortID slave_port_id = pkt->getDest();
+    // determine the destination
+    const auto route_lookup = routeTo.find(pkt->req);
+    assert(route_lookup != routeTo.end());
+    const PortID slave_port_id = route_lookup->second;
     assert(slave_port_id != InvalidPortID);
     assert(slave_port_id < respLayers.size());
 
@@ -190,15 +209,23 @@ NoncoherentXBar::recvTimingResp(PacketPtr pkt, PortID master_port_id)
     unsigned int pkt_size = pkt->hasData() ? pkt->getSize() : 0;
     unsigned int pkt_cmd = pkt->cmdToIndex();
 
-    calcPacketTiming(pkt);
-    Tick packetFinishTime = pkt->lastWordDelay + curTick();
+    // a response sees the response latency
+    Tick xbar_delay = responseLatency * clockPeriod();
 
-    // send the packet through the destination slave port
-    bool success M5_VAR_USED = slavePorts[slave_port_id]->sendTimingResp(pkt);
+    // set the packet header and payload delay
+    calcPacketTiming(pkt, xbar_delay);
 
-    // currently it is illegal to block responses... can lead to
-    // deadlock
-    assert(success);
+    // determine how long to be crossbar layer is busy
+    Tick packetFinishTime = clockEdge(Cycles(1)) + pkt->payloadDelay;
+
+    // send the packet through the destination slave port, and pay for
+    // any outstanding latency
+    Tick latency = pkt->headerDelay;
+    pkt->headerDelay = 0;
+    slavePorts[slave_port_id]->schedTimingResp(pkt, curTick() + latency);
+
+    // remove the request from the routing table
+    routeTo.erase(route_lookup);
 
     respLayers[slave_port_id]->succeededTiming(packetFinishTime);
 
@@ -211,7 +238,7 @@ NoncoherentXBar::recvTimingResp(PacketPtr pkt, PortID master_port_id)
 }
 
 void
-NoncoherentXBar::recvRetry(PortID master_port_id)
+NoncoherentXBar::recvReqRetry(PortID master_port_id)
 {
     // responses never block on forwarding them, so the retry will
     // always be coming from a port to which we tried to forward a
@@ -252,7 +279,7 @@ NoncoherentXBar::recvAtomic(PacketPtr pkt, PortID slave_port_id)
     }
 
     // @todo: Not setting first-word time
-    pkt->lastWordDelay = response_latency;
+    pkt->payloadDelay = response_latency;
     return response_latency;
 }
 
@@ -267,23 +294,23 @@ NoncoherentXBar::recvFunctional(PacketPtr pkt, PortID slave_port_id)
                 pkt->cmdString());
     }
 
+    // since our slave ports are queued ports we need to check them as well
+    for (const auto& p : slavePorts) {
+        // if we find a response that has the data, then the
+        // downstream caches/memories may be out of date, so simply stop
+        // here
+        if (p->checkFunctional(pkt)) {
+            if (pkt->needsResponse())
+                pkt->makeResponse();
+            return;
+        }
+    }
+
     // determine the destination port
     PortID dest_id = findPort(pkt->getAddr());
 
     // forward the request to the appropriate destination
     masterPorts[dest_id]->sendFunctional(pkt);
-}
-
-unsigned int
-NoncoherentXBar::drain(DrainManager *dm)
-{
-    // sum up the individual layers
-    unsigned int total = 0;
-    for (auto l: reqLayers)
-        total += l->drain(dm);
-    for (auto l: respLayers)
-        total += l->drain(dm);
-    return total;
 }
 
 NoncoherentXBar*

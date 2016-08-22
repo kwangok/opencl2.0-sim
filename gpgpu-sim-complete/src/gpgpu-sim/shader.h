@@ -215,7 +215,8 @@ public:
     unsigned get_warp_id() const { return m_warp_id; }
 
 private:
-    static const unsigned IBUFFER_SIZE=2;
+    // Max number of instructions that can be fetched concurrently per-warp
+    static const unsigned IBUFFER_SIZE = 64;
     class shader_core_ctx *m_shader;
     unsigned m_cta_id;
     unsigned m_warp_id;
@@ -1298,6 +1299,7 @@ struct shader_core_config : public core_config
     
     bool gpgpu_dwf_reg_bankconflict;
 
+    bool gpgpu_cycle_sched_prio;
     int gpgpu_num_sched_per_core;
     int gpgpu_max_insn_issue_per_warp;
 
@@ -1338,7 +1340,9 @@ struct shader_core_config : public core_config
     unsigned ldst_unit_response_queue_size;
 
     int simt_core_sim_order; 
-    
+
+    unsigned gpgpu_fetch_decode_width;
+
     unsigned mem2device(unsigned memid) const { return memid + n_simt_clusters; }
 };
 
@@ -1766,6 +1770,8 @@ public:
 
      // Returns numbers of addresses in translated_addrs
      unsigned translate_local_memaddr( address_type localaddr, unsigned tid, unsigned num_shader, unsigned datasize, new_addr_type* translated_addrs );
+     // To determine if this instruction pc is out of bound
+     bool m_inst_out_of_bound;
 
 private:
      friend class ldst_unit;
@@ -1840,6 +1846,7 @@ private:
     opndcoll_rfu_t            m_operand_collector;
 
     //schedule
+    unsigned m_scheduler_prio;
     std::vector<scheduler_unit*>  schedulers;
 
     // execute

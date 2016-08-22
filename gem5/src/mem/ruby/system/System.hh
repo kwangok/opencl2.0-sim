@@ -45,6 +45,7 @@
 #include "sim/clocked_object.hh"
 
 class Network;
+class AbstractController;
 
 class RubySystem : public ClockedObject
 {
@@ -54,12 +55,12 @@ class RubySystem : public ClockedObject
       public:
         RubyEvent(RubySystem* _ruby_system)
         {
-            ruby_system = _ruby_system;
+            m_ruby_system = _ruby_system;
         }
       private:
         void process();
 
-        RubySystem* ruby_system;
+        RubySystem* m_ruby_system;
     };
 
     friend class RubyEvent;
@@ -74,8 +75,11 @@ class RubySystem : public ClockedObject
     static uint32_t getBlockSizeBytes() { return m_block_size_bytes; }
     static uint32_t getBlockSizeBits() { return m_block_size_bits; }
     static uint32_t getMemorySizeBits() { return m_memory_size_bits; }
+    static bool getWarmupEnabled() { return m_warmup_enabled; }
+    static bool getCooldownEnabled() { return m_cooldown_enabled; }
 
     SimpleMemory *getPhysMem() { return m_phys_mem; }
+    Cycles getStartCycle() { return m_start_cycle; }
     const bool getAccessBackingStore() { return m_access_backing_store; }
 
     // Public Methods
@@ -90,8 +94,10 @@ class RubySystem : public ClockedObject
     void collateStats() { m_profiler->collateStats(); }
     void resetStats();
 
-    void serialize(std::ostream &os);
-    void unserialize(Checkpoint *cp, const std::string &section);
+    void memWriteback();
+    void serialize(CheckpointOut &cp) const M5_ATTR_OVERRIDE;
+    void unserialize(CheckpointIn &cp) M5_ATTR_OVERRIDE;
+    void drainResume() M5_ATTR_OVERRIDE;
     void process();
     void startup();
     bool functionalRead(Packet *ptr);
@@ -112,11 +118,15 @@ class RubySystem : public ClockedObject
     RubySystem(const RubySystem& obj);
     RubySystem& operator=(const RubySystem& obj);
 
-    void readCompressedTrace(std::string filename,
-                             uint8_t *&raw_data,
-                             uint64& uncompressed_trace_size);
-    void writeCompressedTrace(uint8_t *raw_data, std::string file,
-                              uint64 uncompressed_trace_size);
+    void makeCacheRecorder(uint8_t *uncompressed_trace,
+                           uint64_t cache_trace_size,
+                           uint64_t block_size_bytes);
+
+    static void readCompressedTrace(std::string filename,
+                                    uint8_t *&raw_data,
+                                    uint64_t &uncompressed_trace_size);
+    static void writeCompressedTrace(uint8_t *raw_data, std::string file,
+                                     uint64_t uncompressed_trace_size);
 
   private:
     // configuration parameters
@@ -125,28 +135,32 @@ class RubySystem : public ClockedObject
     static uint32_t m_block_size_bytes;
     static uint32_t m_block_size_bits;
     static uint32_t m_memory_size_bits;
+
+    static bool m_warmup_enabled;
+    static unsigned m_systems_to_warmup;
+    static bool m_cooldown_enabled;
     SimpleMemory *m_phys_mem;
     const bool m_access_backing_store;
 
     Network* m_network;
     std::vector<AbstractController *> m_abs_cntrl_vec;
+    Cycles m_start_cycle;
 
   public:
     Profiler* m_profiler;
-    bool m_warmup_enabled;
-    bool m_cooldown_enabled;
     CacheRecorder* m_cache_recorder;
+    std::vector<std::map<uint32_t, AbstractController *> > m_abstract_controls;
 };
 
 class RubyStatsCallback : public Callback
 {
   private:
-    RubySystem *ruby_system;
+    RubySystem *m_ruby_system;
 
   public:
     virtual ~RubyStatsCallback() {}
-    RubyStatsCallback(RubySystem *system) : ruby_system(system) {}
-    void process() { ruby_system->collateStats(); }
+    RubyStatsCallback(RubySystem *system) : m_ruby_system(system) {}
+    void process() { m_ruby_system->collateStats(); }
 };
 
 #endif // __MEM_RUBY_SYSTEM_SYSTEM_HH__

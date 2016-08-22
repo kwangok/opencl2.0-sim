@@ -142,6 +142,7 @@
 #include "arch/arm/system.hh"
 #include "arch/arm/utility.hh"
 #include "arch/arm/vtophys.hh"
+#include "base/chunk_generator.hh"
 #include "base/intmath.hh"
 #include "base/remote_gdb.hh"
 #include "base/socket.hh"
@@ -172,16 +173,12 @@ bool
 RemoteGDB::acc(Addr va, size_t len)
 {
     if (FullSystem) {
-        Addr last_va;
-        va       = truncPage(va);
-        last_va  = roundPage(va + len);
-
-        do  {
-            if (virtvalid(context, va)) {
-                return true;
+        for (ChunkGenerator gen(va, len, PageBytes); !gen.done(); gen.next()) {
+            if (!virtvalid(context, gen.addr())) {
+                DPRINTF(GDBAcc, "acc:   %#x mapping is invalid\n", va);
+                return false;
             }
-            va += PageBytes;
-        } while (va < last_va);
+        }
 
         DPRINTF(GDBAcc, "acc:   %#x mapping is valid\n", va);
         return true;
@@ -207,9 +204,10 @@ RemoteGDB::getregs()
     memset(gdbregs.regs, 0, gdbregs.bytes());
 
     if (inAArch64(context)) {  // AArch64
-        // x0-x31
-        for (int i = 0; i < 32; ++i)
+        // x0-x30
+        for (int i = 0; i < 31; ++i)
             gdbregs.regs64[GDB64_X0 + i] = context->readIntReg(INTREG_X0 + i);
+        gdbregs.regs64[GDB64_SPX] = context->readIntReg(INTREG_SPX);
         // pc
         gdbregs.regs64[GDB64_PC] = context->pcState().pc();
         // cpsr
@@ -265,13 +263,17 @@ RemoteGDB::setregs()
 
     DPRINTF(GDBAcc, "setregs in remotegdb \n");
     if (inAArch64(context)) {  // AArch64
-        // x0-x31
-        for (int i = 0; i < 32; ++i)
+        // x0-x30
+        for (int i = 0; i < 31; ++i)
             context->setIntReg(INTREG_X0 + i, gdbregs.regs64[GDB64_X0 + i]);
         // pc
         context->pcState(gdbregs.regs64[GDB64_PC]);
         // cpsr
         context->setMiscRegNoEffect(MISCREG_CPSR, gdbregs.regs64[GDB64_CPSR]);
+        // Update the stack pointer. This should be done after
+        // updating CPSR/PSTATE since that might affect how SPX gets
+        // mapped.
+        context->setIntReg(INTREG_SPX, gdbregs.regs64[GDB64_SPX]);
         // v0-v31
         for (int i = 0; i < 128; i += 4) {
             int gdboff = GDB64_V0_32 + i;

@@ -225,11 +225,13 @@ class ThreadContext
 
     virtual MicroPC microPC() = 0;
 
-    virtual MiscReg readMiscRegNoEffect(int misc_reg) = 0;
+    virtual MiscReg readMiscRegNoEffect(int misc_reg) const = 0;
 
     virtual MiscReg readMiscReg(int misc_reg) = 0;
 
     virtual void setMiscRegNoEffect(int misc_reg, const MiscReg &val) = 0;
+
+    virtual void setMiscRegActuallyNoEffect(int misc_reg, const MiscReg &val) = 0;
 
     virtual void setMiscReg(int misc_reg, const MiscReg &val) = 0;
 
@@ -254,9 +256,6 @@ class ThreadContext
     virtual unsigned readStCondFailures() = 0;
 
     virtual void setStCondFailures(unsigned sc_failures) = 0;
-
-    // Only really makes sense for old CPU model.  Still could be useful though.
-    virtual bool misspeculating() = 0;
 
     // Same with st cond failures.
     virtual Counter readFuncExeInst() = 0;
@@ -432,7 +431,7 @@ class ProxyThreadContext : public ThreadContext
     void setPredicate(bool val)
     { actualTC->setPredicate(val); }
 
-    MiscReg readMiscRegNoEffect(int misc_reg)
+    MiscReg readMiscRegNoEffect(int misc_reg) const
     { return actualTC->readMiscRegNoEffect(misc_reg); }
 
     MiscReg readMiscReg(int misc_reg)
@@ -440,6 +439,9 @@ class ProxyThreadContext : public ThreadContext
 
     void setMiscRegNoEffect(int misc_reg, const MiscReg &val)
     { return actualTC->setMiscRegNoEffect(misc_reg, val); }
+
+    void setMiscRegActuallyNoEffect(int misc_reg, const MiscReg &val)
+    { return actualTC->setMiscRegActuallyNoEffect(misc_reg, val); }
 
     void setMiscReg(int misc_reg, const MiscReg &val)
     { return actualTC->setMiscReg(misc_reg, val); }
@@ -461,9 +463,6 @@ class ProxyThreadContext : public ThreadContext
 
     void setStCondFailures(unsigned sc_failures)
     { actualTC->setStCondFailures(sc_failures); }
-
-    // @todo: Fix this!
-    bool misspeculating() { return actualTC->misspeculating(); }
 
     void syscall(int64_t callnum)
     { actualTC->syscall(callnum); }
@@ -505,8 +504,8 @@ class ProxyThreadContext : public ThreadContext
  * be confusing when the ThreadContext is exported via a proxy.
  */
 
-void serialize(ThreadContext &tc, std::ostream &os);
-void unserialize(ThreadContext &tc, Checkpoint *cp, const std::string &section);
+void serialize(ThreadContext &tc, CheckpointOut &cp);
+void unserialize(ThreadContext &tc, CheckpointIn &cp);
 
 /** @} */
 

@@ -75,14 +75,18 @@ class PhysicalMemory : public Serializable
     // Global address map
     AddrRangeMap<AbstractMemory*> addrMap;
 
-    // a mutable cache for the last range that matched an address
-    mutable AddrRange rangeCache;
+    // a mutable cache for the last address map iterator that matched
+    // an address
+    mutable AddrRangeMap<AbstractMemory*>::const_iterator rangeCache;
 
     // All address-mapped memories
     std::vector<AbstractMemory*> memories;
 
     // The total memory size
     uint64_t size;
+
+    // Let the user choose if we reserve swap space when calling mmap
+    const bool mmapUsingNoReserve;
 
     // The physical memory used to provide the memory in the simulated
     // system
@@ -111,7 +115,8 @@ class PhysicalMemory : public Serializable
      * Create a physical memory object, wrapping a number of memories.
      */
     PhysicalMemory(const std::string& _name,
-                   const std::vector<AbstractMemory*>& _memories);
+                   const std::vector<AbstractMemory*>& _memories,
+                   bool mmap_using_noreserve);
 
     /**
      * Unmap all the backing store we have used.
@@ -192,7 +197,7 @@ class PhysicalMemory : public Serializable
      *
      * @param os stream to serialize to
      */
-    void serialize(std::ostream& os);
+    void serialize(CheckpointOut &cp) const M5_ATTR_OVERRIDE;
 
     /**
      * Serialize a specific store.
@@ -201,20 +206,20 @@ class PhysicalMemory : public Serializable
      * @param range The address range of this backing store
      * @param pmem The host pointer to this backing store
      */
-    void serializeStore(std::ostream& os, unsigned int store_id,
-                        AddrRange range, uint8_t* pmem);
+    void serializeStore(CheckpointOut &cp, unsigned int store_id,
+                        AddrRange range, uint8_t* pmem) const;
 
     /**
      * Unserialize the memories in the system. As with the
      * serialization, this action is independent of how the address
      * ranges are mapped to logical memories in the guest system.
      */
-    void unserialize(Checkpoint* cp, const std::string& section);
+    void unserialize(CheckpointIn &cp) M5_ATTR_OVERRIDE;
 
     /**
      * Unserialize a specific backing store, identified by a section.
      */
-    void unserializeStore(Checkpoint* cp, const std::string& section);
+    void unserializeStore(CheckpointIn &cp);
 
 };
 

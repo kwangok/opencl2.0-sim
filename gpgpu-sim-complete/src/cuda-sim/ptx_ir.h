@@ -169,7 +169,7 @@ public:
       m_function = NULL;
       m_reg_num=(unsigned)-1;
       m_arch_reg_num=(unsigned)-1;
-      m_address=(unsigned)-1;
+      m_address=(addr_t)-1;
       m_initializer.clear();
       if ( type ) m_is_shared = type->get_key().is_shared();
       if ( type ) m_is_const = type->get_key().is_const();
@@ -273,7 +273,8 @@ private:
    std::string m_name;
    std::string m_decl_location;
 
-   unsigned m_address;
+   // deicide: Change address size to 64 bit to match with gem5
+   addr_t m_address;
    function_info *m_function; // used for function symbols
 
    bool m_address_valid;
@@ -721,7 +722,8 @@ public:
    {
       ptx_reg_t result;
       switch ( m_type ) {
-      case int_t:         result.s32 = m_value.m_int; break;
+      // deicide: PTX uses 64 bit for signed integer literal
+      case int_t:         result.s64 = m_value.m_int; break;
       case float_op_t:    result.f32 = m_value.m_float; break;
       case double_op_t:   result.f64 = m_value.m_double; break; 
       case unsigned_t:    result.u32 = m_value.m_unsigned; break;

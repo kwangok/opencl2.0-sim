@@ -1,0 +1,3 @@
+build/debug/x86_64//SDKCommon.o: SDKCommon.cpp
+build/debug/x86_64//SDKCommon.o: ../../../samples/opencl/SDKUtil/include/SDKCommon.hpp
+build/debug/x86_64//SDKCommon.o: ../../../samples/opencl/SDKUtil/include/SDKFile.hpp

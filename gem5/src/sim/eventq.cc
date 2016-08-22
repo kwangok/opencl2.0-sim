@@ -41,7 +41,7 @@
 #include "base/misc.hh"
 #include "base/trace.hh"
 #include "cpu/smt.hh"
-#include "debug/Config.hh"
+#include "debug/Checkpoint.hh"
 #include "sim/core.hh"
 #include "sim/eventq_impl.hh"
 
@@ -242,7 +242,7 @@ EventQueue::serviceOne()
 }
 
 void
-Event::serialize(std::ostream &os)
+Event::serialize(CheckpointOut &cp) const
 {
     SERIALIZE_SCALAR(_when);
     SERIALIZE_SCALAR(_priority);
@@ -251,20 +251,14 @@ Event::serialize(std::ostream &os)
 }
 
 void
-Event::unserialize(Checkpoint *cp, const string &section)
+Event::unserialize(CheckpointIn &cp)
 {
-}
-
-void
-Event::unserialize(Checkpoint *cp, const string &section, EventQueue *eventq)
-{
-    if (scheduled())
-        eventq->deschedule(this);
+    assert(!scheduled());
 
     UNSERIALIZE_SCALAR(_when);
     UNSERIALIZE_SCALAR(_priority);
 
-    short _flags;
+    FlagsType _flags;
     UNSERIALIZE_SCALAR(_flags);
 
     // Old checkpoints had no concept of the Initialized flag
@@ -280,17 +274,16 @@ Event::unserialize(Checkpoint *cp, const string &section, EventQueue *eventq)
     // need to see if original event was in a scheduled, unsquashed
     // state, but don't want to restore those flags in the current
     // object itself (since they aren't immediately true)
-    bool wasScheduled = flags.isSet(Scheduled) && !flags.isSet(Squashed);
-    flags.clear(Squashed | Scheduled);
-
-    if (wasScheduled) {
-        DPRINTF(Config, "rescheduling at %d\n", _when);
-        eventq->schedule(this, _when);
+    if (flags.isSet(Scheduled) && !flags.isSet(Squashed)) {
+        flags.clear(Squashed | Scheduled);
+    } else {
+        DPRINTF(Checkpoint, "Event '%s' need to be scheduled @%d\n",
+                name(), _when);
     }
 }
 
 void
-EventQueue::serialize(ostream &os)
+EventQueue::serialize(CheckpointOut &cp) const
 {
     std::list<Event *> eventPtrs;
 
@@ -302,7 +295,7 @@ EventQueue::serialize(ostream &os)
         while (nextInBin) {
             if (nextInBin->flags.isSet(Event::AutoSerialize)) {
                 eventPtrs.push_back(nextInBin);
-                paramOut(os, csprintf("event%d", numEvents++),
+                paramOut(cp, csprintf("event%d", numEvents++),
                          nextInBin->name());
             }
             nextInBin = nextInBin->nextInBin;
@@ -313,15 +306,12 @@ EventQueue::serialize(ostream &os)
 
     SERIALIZE_SCALAR(numEvents);
 
-    for (std::list<Event *>::iterator it = eventPtrs.begin();
-         it != eventPtrs.end(); ++it) {
-        (*it)->nameOut(os);
-        (*it)->serialize(os);
-    }
+    for (Event *ev : eventPtrs)
+        ev->serializeSection(cp, ev->name());
 }
 
 void
-EventQueue::unserialize(Checkpoint *cp, const std::string &section)
+EventQueue::unserialize(CheckpointIn &cp)
 {
     int numEvents;
     UNSERIALIZE_SCALAR(numEvents);
@@ -329,13 +319,27 @@ EventQueue::unserialize(Checkpoint *cp, const std::string &section)
     std::string eventName;
     for (int i = 0; i < numEvents; i++) {
         // get the pointer value associated with the event
-        paramIn(cp, section, csprintf("event%d", i), eventName);
+        paramIn(cp, csprintf("event%d", i), eventName);
 
         // create the event based on its pointer value
-        Serializable::create(cp, eventName);
+        Serializable *obj(Serializable::create(cp, eventName));
+        Event *event(dynamic_cast<Event *>(obj));
+        fatal_if(!event,
+                 "Event queue unserialized something that wasn't an event.\n");
+
+        checkpointReschedule(event);
     }
 }
 
+void
+EventQueue::checkpointReschedule(Event *event)
+{
+    // It's safe to call insert() directly here since this method
+    // should only be called when restoring from a checkpoint (which
+    // happens before thread creation).
+    if (event->flags.isSet(Event::Scheduled))
+        insert(event);
+}
 void
 EventQueue::dump() const
 {

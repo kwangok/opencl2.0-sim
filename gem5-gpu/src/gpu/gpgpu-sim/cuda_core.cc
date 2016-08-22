@@ -109,7 +109,7 @@ CudaCore::getMasterPort(const std::string &if_name, PortID idx)
 }
 
 void
-CudaCore::unserialize(Checkpoint *cp, const std::string &section)
+CudaCore::unserialize(CheckpointIn &cp)
 {
     // Intentionally left blank to keep from trying to read shader header from
     // checkpoint files. Allows for restore into any number of shader cores.
@@ -225,7 +225,7 @@ CudaCore::handleRetry()
             instPort.sendTimingReq(retry_pkt);
         }
     } else {
-        panic("Access should never fail on a retry!");
+        // panic("Access should never fail on a retry!");
     }
 }
 
@@ -1621,7 +1621,7 @@ CudaCore::recvLSQControlResp(PacketPtr pkt)
 void
 CudaCore::writebackClear()
 {
-    if (writebackBlocked >= 0) lsqPorts[writebackBlocked]->sendRetry();
+    if (writebackBlocked >= 0) lsqPorts[writebackBlocked]->sendRetryResp();
     writebackBlocked = -1;
 }
 
@@ -1655,9 +1655,9 @@ CudaCore::LSQPort::recvTimingResp(PacketPtr pkt)
 }
 
 void
-CudaCore::LSQPort::recvRetry()
+CudaCore::LSQPort::recvReqRetry()
 {
-    panic("Not sure how to respond to a recvRetry...");
+    panic("Not sure how to respond to a recvReqRetry...");
 }
 
 bool
@@ -1668,9 +1668,9 @@ CudaCore::LSQControlPort::recvTimingResp(PacketPtr pkt)
 }
 
 void
-CudaCore::LSQControlPort::recvRetry()
+CudaCore::LSQControlPort::recvReqRetry()
 {
-    panic("CudaCore::LSQControlPort::recvRetry() not implemented!");
+    panic("CudaCore::LSQControlPort::recvReqRetry() not implemented!");
 }
 
 bool
@@ -1681,7 +1681,7 @@ CudaCore::InstPort::recvTimingResp(PacketPtr pkt)
 }
 
 void
-CudaCore::InstPort::recvRetry()
+CudaCore::InstPort::recvReqRetry()
 {
     core->handleRetry();
 }

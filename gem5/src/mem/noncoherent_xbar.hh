@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014 ARM Limited
+ * Copyright (c) 2011-2015 ARM Limited
  * All rights reserved
  *
  * The license below extends only to copyright in the software and shall
@@ -76,8 +76,6 @@ class NoncoherentXBar : public BaseXBar
      * Declare the layers of this crossbar, one vector for requests
      * and one for responses.
      */
-    typedef Layer<SlavePort,MasterPort> ReqLayer;
-    typedef Layer<MasterPort,SlavePort> RespLayer;
     std::vector<ReqLayer*> reqLayers;
     std::vector<RespLayer*> respLayers;
 
@@ -86,18 +84,22 @@ class NoncoherentXBar : public BaseXBar
      * will be instantiated for each of the master ports connecting to
      * the crossbar.
      */
-    class NoncoherentXBarSlavePort : public SlavePort
+    class NoncoherentXBarSlavePort : public QueuedSlavePort
     {
       private:
 
         /** A reference to the crossbar to which this port belongs. */
         NoncoherentXBar &xbar;
 
+        /** A normal packet queue used to store responses. */
+        RespPacketQueue queue;
+
       public:
 
         NoncoherentXBarSlavePort(const std::string &_name,
                                 NoncoherentXBar &_xbar, PortID _id)
-            : SlavePort(_name, &_xbar, _id), xbar(_xbar)
+            : QueuedSlavePort(_name, &_xbar, queue, _id), xbar(_xbar),
+              queue(_xbar, *this)
         { }
 
       protected:
@@ -119,12 +121,6 @@ class NoncoherentXBar : public BaseXBar
          */
         virtual void recvFunctional(PacketPtr pkt)
         { xbar.recvFunctional(pkt, id); }
-
-        /**
-         * When receiving a retry, pass it to the crossbar.
-         */
-        virtual void recvRetry()
-        { panic("Crossbar slave ports should never retry.\n"); }
 
         /**
          * Return the union of all adress ranges seen by this crossbar.
@@ -168,8 +164,8 @@ class NoncoherentXBar : public BaseXBar
 
         /** When reciving a retry from the peer port (at id),
             pass it to the crossbar. */
-        virtual void recvRetry()
-        { xbar.recvRetry(id); }
+        virtual void recvReqRetry()
+        { xbar.recvReqRetry(id); }
 
     };
 
@@ -183,7 +179,7 @@ class NoncoherentXBar : public BaseXBar
 
     /** Timing function called by port when it is once again able to process
      * requests. */
-    void recvRetry(PortID master_port_id);
+    void recvReqRetry(PortID master_port_id);
 
     /** Function called by the port when the crossbar is recieving a Atomic
       transaction.*/
@@ -198,8 +194,6 @@ class NoncoherentXBar : public BaseXBar
     NoncoherentXBar(const NoncoherentXBarParams *p);
 
     virtual ~NoncoherentXBar();
-
-    unsigned int drain(DrainManager *dm);
 
     /**
      * stats

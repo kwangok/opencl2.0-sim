@@ -1,0 +1,420 @@
+AMPCommandArgs	AMPUtil.hpp	/^        AMPCommandArgs()$/;"	f	class:appsdk::AMPCommandArgs
+AMPCommandArgs	AMPUtil.hpp	/^class AMPCommandArgs: public SDKCmdArgsParser$/;"	c	namespace:appsdk
+AMPSAMPLE_H_	AMPUtil.hpp	21;"	d
+appsdk	AMPUtil.hpp	/^namespace appsdk$/;"	n
+deviceAccl	AMPUtil.hpp	/^        accelerator deviceAccl;      \/**< Cmd Line Option- if enableDeviceId *\/$/;"	m	class:appsdk::AMPCommandArgs
+deviceId	AMPUtil.hpp	/^        unsigned int deviceId;       \/**< Cmd Line Option- if deviceId *\/$/;"	m	class:appsdk::AMPCommandArgs
+enableDeviceId	AMPUtil.hpp	/^        bool enableDeviceId;         \/**< Cmd Line Option- if enableDeviceId *\/$/;"	m	class:appsdk::AMPCommandArgs
+initialize	AMPUtil.hpp	/^        int initialize()$/;"	f	class:appsdk::AMPCommandArgs
+parseCommandLine	AMPUtil.hpp	/^        int parseCommandLine(int argc, char **argv)$/;"	f	class:appsdk::AMPCommandArgs
+printDeviceList	AMPUtil.hpp	/^        int printDeviceList()$/;"	f	class:appsdk::AMPCommandArgs
+setDefaultAccelerator	AMPUtil.hpp	/^        int setDefaultAccelerator()$/;"	f	class:appsdk::AMPCommandArgs
+validateDeviceOptions	AMPUtil.hpp	/^        int validateDeviceOptions()$/;"	f	class:appsdk::AMPCommandArgs
+~AMPCommandArgs	AMPUtil.hpp	/^        virtual ~AMPCommandArgs()$/;"	f	class:appsdk::AMPCommandArgs
+BOLTSAMPLE_H_	BoltAMPUtil.hpp	19;"	d
+BoltCommandArgs	BoltAMPUtil.hpp	/^        BoltCommandArgs(unsigned numSamples, bool enableTBB=false)$/;"	f	class:appsdk::BoltCommandArgs
+BoltCommandArgs	BoltAMPUtil.hpp	/^class BoltCommandArgs :  public SDKCmdArgsParser$/;"	c	namespace:appsdk
+BoltVersionStr	BoltAMPUtil.hpp	/^    BoltVersionStr()$/;"	f	struct:appsdk::BoltVersionStr
+BoltVersionStr	BoltAMPUtil.hpp	/^struct BoltVersionStr$/;"	s	namespace:appsdk
+CHECK_BOLT_ERROR	BoltAMPUtil.hpp	30;"	d
+appsdk	BoltAMPUtil.hpp	/^namespace appsdk$/;"	n
+boltControlObj	BoltAMPUtil.hpp	/^        *boltControlObj;      \/**< Reference to default bolt control object. Used to change bolt beahviour *\/$/;"	m	class:appsdk::BoltCommandArgs
+boltVerStr	BoltAMPUtil.hpp	/^        BoltVersionStr boltVerStr;     \/**< Bolt version string *\/$/;"	m	class:appsdk::BoltCommandArgs
+displayRunmodeInfo	BoltAMPUtil.hpp	/^        void displayRunmodeInfo()$/;"	f	class:appsdk::BoltCommandArgs
+enable_tbb	BoltAMPUtil.hpp	/^        bool enable_tbb;                        \/**< Option passed by sample - if ENABLE_TBB is set *\/$/;"	m	class:appsdk::BoltCommandArgs
+getBoltVerStr	BoltAMPUtil.hpp	/^        std::string getBoltVerStr()$/;"	f	class:appsdk::BoltCommandArgs
+initialize	BoltAMPUtil.hpp	/^        int initialize()$/;"	f	class:appsdk::BoltCommandArgs
+iterations	BoltAMPUtil.hpp	/^        int iterations;$/;"	m	class:appsdk::BoltCommandArgs
+major	BoltAMPUtil.hpp	/^    int major;      \/**< Bolt major release number *\/$/;"	m	struct:appsdk::BoltVersionStr
+minor	BoltAMPUtil.hpp	/^    int minor;      \/**< Bolt minor release number *\/$/;"	m	struct:appsdk::BoltVersionStr
+parseCommandLine	BoltAMPUtil.hpp	/^        int parseCommandLine(int argc, char **argv)$/;"	f	class:appsdk::BoltCommandArgs
+patch	BoltAMPUtil.hpp	/^    int patch;      \/**< Bolt build number *\/$/;"	m	struct:appsdk::BoltVersionStr
+runMode	BoltAMPUtil.hpp	/^        std::string runMode;                    \/**< Cmd Line Option- Bolt explicit device selection *\/$/;"	m	class:appsdk::BoltCommandArgs
+samples	BoltAMPUtil.hpp	/^        int samples;$/;"	m	class:appsdk::BoltCommandArgs
+totalTime	BoltAMPUtil.hpp	/^        double totalTime;                       \/**< Total Time taken by the Sample *\/$/;"	m	class:appsdk::BoltCommandArgs
+~BoltCommandArgs	BoltAMPUtil.hpp	/^        ~BoltCommandArgs()$/;"	f	class:appsdk::BoltCommandArgs
+BOLTSAMPLE_H_	BoltCLUtil.hpp	19;"	d
+BoltCommandArgs	BoltCLUtil.hpp	/^        BoltCommandArgs(unsigned numSamples, bool enableTBB=false)$/;"	f	class:appsdk::BoltCommandArgs
+BoltCommandArgs	BoltCLUtil.hpp	/^class BoltCommandArgs :  public SDKCmdArgsParser$/;"	c	namespace:appsdk
+BoltVersionStr	BoltCLUtil.hpp	/^    BoltVersionStr()$/;"	f	struct:appsdk::BoltVersionStr
+BoltVersionStr	BoltCLUtil.hpp	/^struct BoltVersionStr$/;"	s	namespace:appsdk
+CHECK_BOLT_ERROR	BoltCLUtil.hpp	32;"	d
+appsdk	BoltCLUtil.hpp	/^namespace appsdk$/;"	n
+boltControlObj	BoltCLUtil.hpp	/^        *boltControlObj;      \/**< Reference to default bolt control object. Used to change bolt beahviour *\/$/;"	m	class:appsdk::BoltCommandArgs
+boltVerStr	BoltCLUtil.hpp	/^        BoltVersionStr boltVerStr;     \/**< Bolt version string *\/$/;"	m	class:appsdk::BoltCommandArgs
+displayRunmodeInfo	BoltCLUtil.hpp	/^        void displayRunmodeInfo()$/;"	f	class:appsdk::BoltCommandArgs
+enable_tbb	BoltCLUtil.hpp	/^        bool enable_tbb;                        \/**< Option passed by sample - if ENABLE_TBB is set *\/$/;"	m	class:appsdk::BoltCommandArgs
+getBoltVerStr	BoltCLUtil.hpp	/^        std::string getBoltVerStr()$/;"	f	class:appsdk::BoltCommandArgs
+initialize	BoltCLUtil.hpp	/^        int initialize()$/;"	f	class:appsdk::BoltCommandArgs
+iterations	BoltCLUtil.hpp	/^        int iterations;$/;"	m	class:appsdk::BoltCommandArgs
+major	BoltCLUtil.hpp	/^    int major;      \/**< Bolt major release number *\/$/;"	m	struct:appsdk::BoltVersionStr
+minor	BoltCLUtil.hpp	/^    int minor;      \/**< Bolt minor release number *\/$/;"	m	struct:appsdk::BoltVersionStr
+parseCommandLine	BoltCLUtil.hpp	/^        int parseCommandLine(int argc, char **argv)$/;"	f	class:appsdk::BoltCommandArgs
+patch	BoltCLUtil.hpp	/^    int patch;      \/**< Bolt build number *\/$/;"	m	struct:appsdk::BoltVersionStr
+runMode	BoltCLUtil.hpp	/^        runMode;                    \/**< Cmd Line Option- Bolt explicit device selection *\/$/;"	m	class:appsdk::BoltCommandArgs
+samples	BoltCLUtil.hpp	/^        int samples;$/;"	m	class:appsdk::BoltCommandArgs
+totalTime	BoltCLUtil.hpp	/^        double totalTime;                       \/**< Total Time taken by the Sample *\/$/;"	m	class:appsdk::BoltCommandArgs
+waitForEventAndRelease	BoltCLUtil.hpp	/^        static int waitForEventAndRelease(cl_event *event)$/;"	f	class:appsdk::BoltCommandArgs
+~BoltCommandArgs	BoltCLUtil.hpp	/^        ~BoltCommandArgs()$/;"	f	class:appsdk::BoltCommandArgs
+CHECK_OPENCL_ERROR	CLUtil.hpp	29;"	d
+CHECK_OPENVIDEO_ERROR	CLUtil.hpp	42;"	d
+CLCommandArgs	CLUtil.hpp	/^        CLCommandArgs(bool enableMultiDevice = false)$/;"	f	class:appsdk::CLCommandArgs
+CLCommandArgs	CLUtil.hpp	/^class CLCommandArgs : public SDKCmdArgsParser$/;"	c	namespace:appsdk
+CLSample_H_	CLUtil.hpp	22;"	d
+CL_CONTEXT_OFFLINE_DEVICES_AMD	CLUtil.hpp	61;"	d
+KernelWorkGroupInfo	CLUtil.hpp	/^        KernelWorkGroupInfo():$/;"	f	class:appsdk::KernelWorkGroupInfo
+KernelWorkGroupInfo	CLUtil.hpp	/^class KernelWorkGroupInfo$/;"	c	namespace:appsdk
+OPENCL_EXPECTED_ERROR	CLUtil.hpp	36;"	d
+OPENVIDEO_EXPECTED_ERROR	CLUtil.hpp	49;"	d
+SDKDeviceInfo	CLUtil.hpp	/^        SDKDeviceInfo()$/;"	f	class:appsdk::SDKDeviceInfo
+SDKDeviceInfo	CLUtil.hpp	/^class SDKDeviceInfo$/;"	c	namespace:appsdk
+UNUSED	CLUtil.hpp	55;"	d
+addressBits	CLUtil.hpp	/^        cl_uint addressBits;                \/**< addressBits address Bits of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+amdPlatform	CLUtil.hpp	/^        bool amdPlatform;              \/**< If AMD Platform Used *\/$/;"	m	class:appsdk::CLCommandArgs
+appsdk	CLUtil.hpp	/^namespace appsdk$/;"	n
+available	CLUtil.hpp	/^        cl_bool available;                  \/**< available available of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+bifData	CLUtil.hpp	/^    bifData()$/;"	f	struct:appsdk::bifData
+bifData	CLUtil.hpp	/^struct bifData$/;"	s	namespace:appsdk
+binaryName	CLUtil.hpp	/^    std::string binaryName;             \/**< binaryName name of the binary *\/$/;"	m	struct:appsdk::buildProgramData
+binaryName	CLUtil.hpp	/^    std::string binaryName;         \/**< binaryName name of the binary *\/$/;"	m	struct:appsdk::bifData
+buildOpenCLProgram	CLUtil.hpp	/^static int buildOpenCLProgram(cl_program &program, const cl_context& context,$/;"	f	namespace:appsdk
+buildProgramData	CLUtil.hpp	/^    buildProgramData()$/;"	f	struct:appsdk::buildProgramData
+buildProgramData	CLUtil.hpp	/^struct buildProgramData$/;"	s	namespace:appsdk
+checkVal	CLUtil.hpp	/^        int checkVal(T input, T reference, std::string message,$/;"	f	class:appsdk::KernelWorkGroupInfo
+checkVal	CLUtil.hpp	/^        int checkVal(T input, T reference, std::string message,$/;"	f	class:appsdk::SDKDeviceInfo
+checkVal	CLUtil.hpp	/^static int checkVal($/;"	f	namespace:appsdk
+compileWorkGroupSize	CLUtil.hpp	/^        size_t compileWorkGroupSize[3];     \/**< compileWorkGroupSize WorkGroup size as mentioned in kernel source *\/$/;"	m	class:appsdk::KernelWorkGroupInfo
+compilerAvailable	CLUtil.hpp	/^        cl_bool compilerAvailable;          \/**< compilerAvailable compilerAvailable of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+dType	CLUtil.hpp	/^        cl_device_type dType;               \/**< dType device type*\/$/;"	m	class:appsdk::SDKDeviceInfo
+deviceId	CLUtil.hpp	/^        unsigned int deviceId;         \/**< Cmd Line Option- device number *\/$/;"	m	class:appsdk::CLCommandArgs
+deviceId	CLUtil.hpp	/^    int deviceId;                       \/**< deviceId Id of the device to buid kernel for *\/$/;"	m	struct:appsdk::buildProgramData
+deviceType	CLUtil.hpp	/^        std::string deviceType;        \/**< Cmd Line Option- set device type(cpu|gpu) *\/$/;"	m	class:appsdk::CLCommandArgs
+deviceVersion	CLUtil.hpp	/^        char* deviceVersion;                \/**< deviceVersion device Version of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+devices	CLUtil.hpp	/^    devices;              \/**< devices array of device to build kernel for *\/$/;"	m	struct:appsdk::buildProgramData
+displayDevices	CLUtil.hpp	/^static int displayDevices(cl_platform_id platform, cl_device_type deviceType)$/;"	f	namespace:appsdk
+displayPlatformAndDevices	CLUtil.hpp	/^static int displayPlatformAndDevices(cl_platform_id platform,$/;"	f	namespace:appsdk
+doubleFpConfig	CLUtil.hpp	/^        doubleFpConfig; \/**< doubleFpConfig doubleFpConfig of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+driverVersion	CLUtil.hpp	/^        char* driverVersion;                \/**< driverVersion driver Version of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+dumpBinary	CLUtil.hpp	/^        std::string dumpBinary;        \/**< Cmd Line Option- Dump Binary with name *\/$/;"	m	class:appsdk::CLCommandArgs
+enableDeviceId	CLUtil.hpp	/^        bool enableDeviceId;           \/**< If deviceId used *\/$/;"	m	class:appsdk::CLCommandArgs
+enablePlatform	CLUtil.hpp	/^        bool enablePlatform;           \/**< If platformId Used *\/$/;"	m	class:appsdk::CLCommandArgs
+endianLittle	CLUtil.hpp	/^        cl_bool endianLittle;               \/**< endianLittle endian Little of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+errCorrectionSupport	CLUtil.hpp	/^        cl_bool errCorrectionSupport;       \/**< errCorrectionSupport errCorrectionSupport of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+execCapabilities	CLUtil.hpp	/^        execCapabilities;\/**< execCapabilities exec Capabilities of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+extensions	CLUtil.hpp	/^        char* extensions;                   \/**< extensions extensions of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+flags	CLUtil.hpp	/^        std::string flags;             \/**< Cmd Line Option- compiler flags *\/$/;"	m	class:appsdk::CLCommandArgs
+flagsFileName	CLUtil.hpp	/^    flagsFileName;          \/**< flagFileName name of the file of flags *\/$/;"	m	struct:appsdk::buildProgramData
+flagsFileName	CLUtil.hpp	/^    std::string flagsFileName;      \/**< flagFileName flags file for the kernel *\/$/;"	m	struct:appsdk::bifData
+flagsStr	CLUtil.hpp	/^    std::string flagsStr;               \/**< flagsStr flags string *\/$/;"	m	struct:appsdk::buildProgramData
+flagsStr	CLUtil.hpp	/^    std::string flagsStr;           \/**< flagsStr flags string *\/$/;"	m	struct:appsdk::bifData
+generateBinaryImage	CLUtil.hpp	/^static int generateBinaryImage(const bifData &binaryData)$/;"	f	namespace:appsdk
+getDevices	CLUtil.hpp	/^static int getDevices(cl_context &context, cl_device_id **devices, int deviceId,$/;"	f	namespace:appsdk
+getExactVerStr	CLUtil.hpp	/^inline std::string getExactVerStr(std::string clVerStr)$/;"	f	namespace:appsdk
+getLocalThreads	CLUtil.hpp	/^static size_t getLocalThreads(size_t globalThreads, size_t maxWorkItemSize)$/;"	f	namespace:appsdk
+getOpenCLErrorCodeStr	CLUtil.hpp	/^static const char* getOpenCLErrorCodeStr(T input)$/;"	f	namespace:appsdk
+getOpenCLErrorCodeStr	CLUtil.hpp	/^static const char* getOpenCLErrorCodeStr(std::string input)$/;"	f	namespace:appsdk
+getPlatform	CLUtil.hpp	/^static int getPlatform(cl_platform_id &platform, int platformId,$/;"	f	namespace:appsdk
+globalMemCacheSize	CLUtil.hpp	/^        cl_ulong globalMemCacheSize;        \/**< globalMemCacheSize globalMem CacheSize of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+globalMemCachelineSize	CLUtil.hpp	/^        cl_uint globalMemCachelineSize;     \/**< globalMemCachelineSize globalMem Cacheline Size of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+globalMemSize	CLUtil.hpp	/^        cl_ulong globalMemSize;             \/**< globalMemSize globalMem Size of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+globleMemCacheType	CLUtil.hpp	/^        globleMemCacheType; \/**< globleMemCacheType globleMem CacheType of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+gpu	CLUtil.hpp	/^        bool gpu;                      \/**< If GPU used *\/$/;"	m	class:appsdk::CLCommandArgs
+hostUnifiedMem	CLUtil.hpp	/^        cl_bool hostUnifiedMem;             \/**< hostUnifiedMem hostUnifiedMem of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+image2dMaxHeight	CLUtil.hpp	/^        size_t image2dMaxHeight;            \/**< image2dMaxHeight image 2dMax Height of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+image2dMaxWidth	CLUtil.hpp	/^        size_t image2dMaxWidth;             \/**< image2dMaxWidth image 2dMax Width of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+image3dMaxDepth	CLUtil.hpp	/^        size_t image3dMaxDepth;             \/**< image3dMaxDepth image 3dMax Depth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+image3dMaxHeight	CLUtil.hpp	/^        size_t image3dMaxHeight;            \/**< image3dMaxHeight image 3dMax Height of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+image3dMaxWidth	CLUtil.hpp	/^        size_t image3dMaxWidth;             \/**< image3dMaxWidth image3d MaxWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+imageSupport	CLUtil.hpp	/^        cl_bool imageSupport;               \/**< imageSupport image Support of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+initialize	CLUtil.hpp	/^        int initialize()$/;"	f	class:appsdk::CLCommandArgs
+isAmdPlatform	CLUtil.hpp	/^        bool isAmdPlatform()$/;"	f	class:appsdk::CLCommandArgs
+isComplierFlagsSpecified	CLUtil.hpp	/^        bool isComplierFlagsSpecified()$/;"	f	class:appsdk::CLCommandArgs
+isDeviceIdEnabled	CLUtil.hpp	/^        bool isDeviceIdEnabled()$/;"	f	class:appsdk::CLCommandArgs
+isDumpBinaryEnabled	CLUtil.hpp	/^        bool isDumpBinaryEnabled()$/;"	f	class:appsdk::CLCommandArgs
+isLoadBinaryEnabled	CLUtil.hpp	/^        bool isLoadBinaryEnabled()$/;"	f	class:appsdk::CLCommandArgs
+isPlatformEnabled	CLUtil.hpp	/^        bool isPlatformEnabled()$/;"	f	class:appsdk::CLCommandArgs
+isThereGPU	CLUtil.hpp	/^        bool isThereGPU()$/;"	f	class:appsdk::CLCommandArgs
+kernelName	CLUtil.hpp	/^    std::string kernelName;             \/**< kernelName name of the kernel *\/$/;"	m	struct:appsdk::buildProgramData
+kernelName	CLUtil.hpp	/^    std::string kernelName;         \/**< kernelName name of the kernel *\/$/;"	m	struct:appsdk::bifData
+kernelWorkGroupSize	CLUtil.hpp	/^        size_t kernelWorkGroupSize;         \/**< kernelWorkGroupSize Supported WorkGroup size as per OpenCL Runtime*\/$/;"	m	class:appsdk::KernelWorkGroupInfo
+loadBinary	CLUtil.hpp	/^        std::string loadBinary;        \/**< Cmd Line Option- Load Binary with name *\/$/;"	m	class:appsdk::CLCommandArgs
+localMemSize	CLUtil.hpp	/^        cl_ulong localMemSize;              \/**< localMemSize localMem Size of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+localMemType	CLUtil.hpp	/^        localMemType;\/**< localMemType local MemType of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+localMemoryUsed	CLUtil.hpp	/^        cl_ulong localMemoryUsed;           \/**< localMemoryUsed amount of local memory used by kernel *\/$/;"	m	class:appsdk::KernelWorkGroupInfo
+maxClockFrequency	CLUtil.hpp	/^        cl_uint maxClockFrequency;          \/**< maxClockFrequency max Clock Frequency of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxComputeUnits	CLUtil.hpp	/^        cl_uint maxComputeUnits;            \/**< maxComputeUnits maxComputeUnits of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxConstArgs	CLUtil.hpp	/^        cl_uint maxConstArgs;               \/**< maxConstArgs max ConstArgs of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxConstBufSize	CLUtil.hpp	/^        cl_ulong maxConstBufSize;           \/**< maxConstBufSize maxConst BufSize of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxMemAllocSize	CLUtil.hpp	/^        cl_ulong maxMemAllocSize;           \/**< maxMemAllocSize max Mem Alloc Size of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxParameterSize	CLUtil.hpp	/^        size_t maxParameterSize;            \/**< maxParameterSize maxParameterSize of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxReadImageArgs	CLUtil.hpp	/^        cl_uint maxReadImageArgs;           \/**< maxReadImageArgs max ReadImage Args of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxSamplers	CLUtil.hpp	/^        size_t maxSamplers;                 \/**< maxSamplers maxSamplers of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxWorkGroupSize	CLUtil.hpp	/^        size_t maxWorkGroupSize;            \/**< maxWorkGroupSize max WorkGroup Size of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxWorkItemDims	CLUtil.hpp	/^        cl_uint maxWorkItemDims;            \/**< maxWorkItemDims maxWorkItemDimensions VendorId of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxWorkItemSizes	CLUtil.hpp	/^        size_t* maxWorkItemSizes;           \/**< maxWorkItemSizes maxWorkItemSizes of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+maxWriteImageArgs	CLUtil.hpp	/^        cl_uint maxWriteImageArgs;          \/**< maxWriteImageArgs max Write Image Args of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+memBaseAddressAlign	CLUtil.hpp	/^        cl_uint memBaseAddressAlign;        \/**< memBaseAddressAlign memBase AddressAlign of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+minDataTypeAlignSize	CLUtil.hpp	/^        cl_uint minDataTypeAlignSize;       \/**< minDataTypeAlignSize minDataType AlignSize of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+multiDevice	CLUtil.hpp	/^        bool multiDevice;              \/**< Cmd Line Option- if MultiGPU *\/$/;"	m	class:appsdk::CLCommandArgs
+name	CLUtil.hpp	/^        char* name;                         \/**< name name of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+nativeCharVecWidth	CLUtil.hpp	/^        cl_uint nativeCharVecWidth;         \/**< nativeCharVecWidth native Char VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+nativeDoubleVecWidth	CLUtil.hpp	/^        cl_uint nativeDoubleVecWidth;       \/**< nativeDoubleVecWidth native Double VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+nativeFloatVecWidth	CLUtil.hpp	/^        cl_uint nativeFloatVecWidth;        \/**< nativeFloatVecWidth native Float VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+nativeHalfVecWidth	CLUtil.hpp	/^        cl_uint nativeHalfVecWidth;         \/**< nativeHalfVecWidth native Half VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+nativeIntVecWidth	CLUtil.hpp	/^        cl_uint nativeIntVecWidth;          \/**< nativeIntVecWidth nativeIntVecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+nativeLongVecWidth	CLUtil.hpp	/^        cl_uint nativeLongVecWidth;         \/**< nativeLongVecWidth nativeLongVecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+nativeShortVecWidth	CLUtil.hpp	/^        cl_uint nativeShortVecWidth;        \/**< nativeShortVecWidth nativeShortVecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+openclCVersion	CLUtil.hpp	/^        char* openclCVersion;               \/**< openclCVersion opencl C Version of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+parseCommandLine	CLUtil.hpp	/^        int parseCommandLine(int argc, char **argv)$/;"	f	class:appsdk::CLCommandArgs
+platform	CLUtil.hpp	/^        cl_platform_id platform;            \/**< platform platform of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+platformId	CLUtil.hpp	/^        unsigned int platformId;       \/**< Cmd Line Option- platform number *\/$/;"	m	class:appsdk::CLCommandArgs
+preferredCharVecWidth	CLUtil.hpp	/^        cl_uint preferredCharVecWidth;      \/**< preferredCharVecWidth preferred Char VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+preferredDoubleVecWidth	CLUtil.hpp	/^        cl_uint preferredDoubleVecWidth;    \/**< preferredDoubleVecWidth preferred Double VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+preferredFloatVecWidth	CLUtil.hpp	/^        cl_uint preferredFloatVecWidth;     \/**< preferredFloatVecWidth preferredFloatVecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+preferredHalfVecWidth	CLUtil.hpp	/^        cl_uint preferredHalfVecWidth;      \/**< preferredHalfVecWidth preferred Half VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+preferredIntVecWidth	CLUtil.hpp	/^        cl_uint preferredIntVecWidth;       \/**< preferredIntVecWidth preferred Int VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+preferredLongVecWidth	CLUtil.hpp	/^        cl_uint preferredLongVecWidth;      \/**< preferredLongVecWidth preferred Long VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+preferredShortVecWidth	CLUtil.hpp	/^        cl_uint preferredShortVecWidth;     \/**< preferredShortVecWidth preferred Short VecWidth of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+profileType	CLUtil.hpp	/^        char* profileType;                  \/**< profileType profile Type of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+queueProperties	CLUtil.hpp	/^        queueProperties;\/**< queueProperties queueProperties of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+setDeviceInfo	CLUtil.hpp	/^        int setDeviceInfo(cl_device_id deviceId)$/;"	f	class:appsdk::SDKDeviceInfo
+setKernelWorkGroupInfo	CLUtil.hpp	/^        int setKernelWorkGroupInfo(cl_kernel &kernel,cl_device_id &deviceId)$/;"	f	class:appsdk::KernelWorkGroupInfo
+singleFpConfig	CLUtil.hpp	/^        singleFpConfig; \/**< singleFpConfig singleFpConfig of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+timerResolution	CLUtil.hpp	/^        size_t timerResolution;             \/**< timerResolution timerResolution of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+validateDeviceId	CLUtil.hpp	/^static int validateDeviceId(int deviceId, int deviceCount)$/;"	f	namespace:appsdk
+validatePlatformAndDeviceOptions	CLUtil.hpp	/^        int validatePlatformAndDeviceOptions()$/;"	f	class:appsdk::CLCommandArgs
+venderId	CLUtil.hpp	/^        cl_uint venderId;                   \/**< vendorId VendorId of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+vendorName	CLUtil.hpp	/^        char* vendorName;                   \/**< venderName vender Name of device*\/$/;"	m	class:appsdk::SDKDeviceInfo
+waitForEventAndRelease	CLUtil.hpp	/^static int waitForEventAndRelease(cl_event *event)$/;"	f	namespace:appsdk
+~SDKDeviceInfo	CLUtil.hpp	/^        ~SDKDeviceInfo()$/;"	f	class:appsdk::SDKDeviceInfo
+OPENCV_UTIL_H_	OpenCVUtil.hpp	19;"	d
+OpenCVCommandArgs	OpenCVUtil.hpp	/^OpenCVCommandArgs::OpenCVCommandArgs() : SDKCmdArgsParser()$/;"	f	class:appsdk::OpenCVCommandArgs
+OpenCVCommandArgs	OpenCVUtil.hpp	/^class OpenCVCommandArgs : public SDKCmdArgsParser$/;"	c	namespace:appsdk
+appsdk	OpenCVUtil.hpp	/^namespace appsdk$/;"	n
+initialize	OpenCVUtil.hpp	/^int OpenCVCommandArgs::initialize()$/;"	f	class:appsdk::OpenCVCommandArgs
+iterations	OpenCVUtil.hpp	/^  int iterations;  \/*!<Number of iterations for kernel execution.*\/$/;"	m	class:appsdk::OpenCVCommandArgs
+parseCommandLine	OpenCVUtil.hpp	/^int OpenCVCommandArgs::parseCommandLine(int argc, char**argv)$/;"	f	class:appsdk::OpenCVCommandArgs
+version	OpenCVUtil.hpp	/^  bool version;            \/**< Cmd Line Option- if version *\/$/;"	m	class:appsdk::OpenCVCommandArgs
+~OpenCVCommandArgs	OpenCVUtil.hpp	/^OpenCVCommandArgs::~OpenCVCommandArgs()$/;"	f	class:appsdk::OpenCVCommandArgs
+BitMapHeader	SDKBitMap.hpp	/^} BitMapHeader;$/;"	t	namespace:appsdk	typeref:struct:appsdk::__anon2
+BitMapInfoHeader	SDKBitMap.hpp	/^} BitMapInfoHeader;$/;"	t	namespace:appsdk	typeref:struct:appsdk::__anon3
+ColorPalette	SDKBitMap.hpp	/^typedef uchar4 ColorPalette;$/;"	t	namespace:appsdk
+SDKBITMAP_H_	SDKBitMap.hpp	17;"	d
+SDKBitMap	SDKBitMap.hpp	/^        SDKBitMap()$/;"	f	class:appsdk::SDKBitMap
+SDKBitMap	SDKBitMap.hpp	/^        SDKBitMap(const SDKBitMap& rhs)$/;"	f	class:appsdk::SDKBitMap
+SDKBitMap	SDKBitMap.hpp	/^        SDKBitMap(const char * filename)$/;"	f	class:appsdk::SDKBitMap
+SDKBitMap	SDKBitMap.hpp	/^class SDKBitMap : public BitMapHeader, public BitMapInfoHeader$/;"	c	namespace:appsdk
+appsdk	SDKBitMap.hpp	/^namespace appsdk$/;"	n
+bitMapID	SDKBitMap.hpp	/^static const short bitMapID = 19778;$/;"	v
+bitsPerPixel	SDKBitMap.hpp	/^    short bitsPerPixel;$/;"	m	struct:appsdk::__anon3
+clrImportant	SDKBitMap.hpp	/^    int clrImportant;$/;"	m	struct:appsdk::__anon3
+clrUsed	SDKBitMap.hpp	/^    int clrUsed;$/;"	m	struct:appsdk::__anon3
+colorIndex	SDKBitMap.hpp	/^        int colorIndex(uchar4 color)    \/**< get a color index *\/$/;"	f	class:appsdk::SDKBitMap
+colors_	SDKBitMap.hpp	/^        ColorPalette * colors_;         \/**< Color Data *\/$/;"	m	class:appsdk::SDKBitMap
+compression	SDKBitMap.hpp	/^    unsigned compression;$/;"	m	struct:appsdk::__anon3
+getHeight	SDKBitMap.hpp	/^        getHeight(void) const$/;"	f	class:appsdk::SDKBitMap
+getNumChannels	SDKBitMap.hpp	/^        int getNumChannels()$/;"	f	class:appsdk::SDKBitMap
+getPixels	SDKBitMap.hpp	/^        uchar4 * getPixels(void) const$/;"	f	class:appsdk::SDKBitMap
+getWidth	SDKBitMap.hpp	/^        getWidth(void) const$/;"	f	class:appsdk::SDKBitMap
+height	SDKBitMap.hpp	/^    int height;$/;"	m	struct:appsdk::__anon3
+id	SDKBitMap.hpp	/^    short id;$/;"	m	struct:appsdk::__anon2
+imageSize	SDKBitMap.hpp	/^    unsigned imageSize;$/;"	m	struct:appsdk::__anon3
+isLoaded	SDKBitMap.hpp	/^        isLoaded(void) const$/;"	f	class:appsdk::SDKBitMap
+isLoaded_	SDKBitMap.hpp	/^        bool isLoaded_;                 \/**< If Bitmap loaded *\/$/;"	m	class:appsdk::SDKBitMap
+load	SDKBitMap.hpp	/^        load(const char * filename)$/;"	f	class:appsdk::SDKBitMap
+numColors_	SDKBitMap.hpp	/^        int numColors_;                 \/**< Number of colors *\/$/;"	m	class:appsdk::SDKBitMap
+offset	SDKBitMap.hpp	/^    int offset;$/;"	m	struct:appsdk::__anon2
+operator =	SDKBitMap.hpp	/^        SDKBitMap& operator=(const SDKBitMap& rhs)$/;"	f	class:appsdk::SDKBitMap
+pixels_	SDKBitMap.hpp	/^        uchar4 * pixels_;               \/**< Pixel Data *\/$/;"	m	class:appsdk::SDKBitMap
+planes	SDKBitMap.hpp	/^    short planes;$/;"	m	struct:appsdk::__anon3
+releaseResources	SDKBitMap.hpp	/^        void releaseResources(void)     \/**< Release Resources *\/$/;"	f	class:appsdk::SDKBitMap
+reserved1	SDKBitMap.hpp	/^    short reserved1;$/;"	m	struct:appsdk::__anon2
+reserved2	SDKBitMap.hpp	/^    short reserved2;$/;"	m	struct:appsdk::__anon2
+size	SDKBitMap.hpp	/^    int size;$/;"	m	struct:appsdk::__anon2
+sizeInfo	SDKBitMap.hpp	/^    int sizeInfo;$/;"	m	struct:appsdk::__anon3
+uchar4	SDKBitMap.hpp	/^} uchar4;$/;"	t	namespace:appsdk	typeref:struct:appsdk::__anon1
+w	SDKBitMap.hpp	/^    unsigned char w;$/;"	m	struct:appsdk::__anon1
+width	SDKBitMap.hpp	/^    int width;$/;"	m	struct:appsdk::__anon3
+write	SDKBitMap.hpp	/^        write(const char * filename)$/;"	f	class:appsdk::SDKBitMap
+write	SDKBitMap.hpp	/^        write(const char * filename, int width, int height, unsigned int *ptr)$/;"	f	class:appsdk::SDKBitMap
+x	SDKBitMap.hpp	/^    unsigned char x;$/;"	m	struct:appsdk::__anon1
+xPelsPerMeter	SDKBitMap.hpp	/^    int xPelsPerMeter;$/;"	m	struct:appsdk::__anon3
+y	SDKBitMap.hpp	/^    unsigned char y;$/;"	m	struct:appsdk::__anon1
+yPelsPerMeter	SDKBitMap.hpp	/^    int yPelsPerMeter;$/;"	m	struct:appsdk::__anon3
+z	SDKBitMap.hpp	/^    unsigned char z;$/;"	m	struct:appsdk::__anon1
+~SDKBitMap	SDKBitMap.hpp	/^        ~SDKBitMap()$/;"	f	class:appsdk::SDKBitMap
+GETCWD	SDKFile.hpp	30;"	d
+GETCWD	SDKFile.hpp	35;"	d
+SDKFILE_HPP_	SDKFile.hpp	17;"	d
+SDKFile	SDKFile.hpp	/^        SDKFile(): source_("") {}$/;"	f	class:appsdk::SDKFile
+SDKFile	SDKFile.hpp	/^class SDKFile$/;"	c	namespace:appsdk
+appsdk	SDKFile.hpp	/^namespace appsdk$/;"	n
+getCurrentDir	SDKFile.hpp	/^static std::string getCurrentDir()$/;"	f	namespace:appsdk
+open	SDKFile.hpp	/^        bool open(const char* fileName)$/;"	f	class:appsdk::SDKFile
+readBinaryFromFile	SDKFile.hpp	/^        int readBinaryFromFile(const char* fileName)$/;"	f	class:appsdk::SDKFile
+replaceNewlineWithSpaces	SDKFile.hpp	/^        void replaceNewlineWithSpaces()$/;"	f	class:appsdk::SDKFile
+source	SDKFile.hpp	/^        const std::string&  source() const$/;"	f	class:appsdk::SDKFile
+source_	SDKFile.hpp	/^        std::string     source_;    \/\/!< source code of the CL program$/;"	m	class:appsdk::SDKFile
+writeBinaryToFile	SDKFile.hpp	/^        int writeBinaryToFile(const char* fileName, const char* binary, size_t numBytes)$/;"	f	class:appsdk::SDKFile
+~SDKFile	SDKFile.hpp	/^        ~SDKFile() {};$/;"	f	class:appsdk::SDKFile
+CondVar	SDKThread.hpp	/^        CondVar::CondVar()$/;"	f	class:appsdk::CondVar
+CondVar	SDKThread.hpp	/^class EXPORT CondVar$/;"	c	namespace:appsdk
+CondVarImpl	SDKThread.hpp	/^        CondVarImpl() : _count(0xFFFFFFFF), _maxThreads(0xFFFFFFFF)$/;"	f	class:appsdk::CondVarImpl
+CondVarImpl	SDKThread.hpp	/^class CondVarImpl$/;"	c	namespace:appsdk
+EXPORT	SDKThread.hpp	35;"	d
+EXPORT	SDKThread.hpp	39;"	d
+PRINT_ERROR_MSG	SDKThread.hpp	51;"	d
+PRINT_ERROR_MSG	SDKThread.hpp	55;"	d
+SDKThread	SDKThread.hpp	/^        SDKThread() : _tid(0), _data(0)$/;"	f	class:appsdk::SDKThread
+SDKThread	SDKThread.hpp	/^class EXPORT SDKThread$/;"	c	namespace:appsdk
+ThreadLock	SDKThread.hpp	/^        ThreadLock()$/;"	f	class:appsdk::ThreadLock
+ThreadLock	SDKThread.hpp	/^class EXPORT ThreadLock$/;"	c	namespace:appsdk
+_SDK_THREAD_H	SDKThread.hpp	17;"	d
+_WIN32_WINNT	SDKThread.hpp	21;"	d
+__argsToThreadFunc	SDKThread.hpp	/^typedef struct __argsToThreadFunc$/;"	s	namespace:appsdk
+_condVar	SDKThread.hpp	/^        pthread_cond_t _condVar;$/;"	m	class:appsdk::CondVarImpl
+_condVarImpl	SDKThread.hpp	/^        CondVarImpl* _condVarImpl;$/;"	m	class:appsdk::CondVar
+_condVarLock	SDKThread.hpp	/^        CRITICAL_SECTION _condVarLock;$/;"	m	class:appsdk::CondVarImpl
+_condVarLock	SDKThread.hpp	/^        pthread_mutex_t _condVarLock;$/;"	m	class:appsdk::CondVarImpl
+_count	SDKThread.hpp	/^        unsigned int _count;$/;"	m	class:appsdk::CondVarImpl
+_critsecWaitSetProtection	SDKThread.hpp	/^        CRITICAL_SECTION _critsecWaitSetProtection;$/;"	m	class:appsdk::CondVarImpl
+_cs	SDKThread.hpp	/^        CRITICAL_SECTION _cs;$/;"	m	class:appsdk::ThreadLock
+_data	SDKThread.hpp	/^        void *_data;$/;"	m	class:appsdk::SDKThread
+_deqWaitSet	SDKThread.hpp	/^        std::deque<HANDLE> _deqWaitSet;$/;"	m	class:appsdk::CondVarImpl
+_lock	SDKThread.hpp	/^        pthread_mutex_t _lock;$/;"	m	class:appsdk::ThreadLock
+_lockHeldByCallingThread	SDKThread.hpp	/^        BOOL _lockHeldByCallingThread()$/;"	f	class:appsdk::CondVarImpl
+_maxThreads	SDKThread.hpp	/^        unsigned int _maxThreads;$/;"	m	class:appsdk::CondVarImpl
+_nLockCount	SDKThread.hpp	/^        int _nLockCount;$/;"	m	class:appsdk::CondVarImpl
+_pop	SDKThread.hpp	/^        HANDLE _pop()$/;"	f	class:appsdk::CondVarImpl
+_push	SDKThread.hpp	/^        HANDLE _push()$/;"	f	class:appsdk::CondVarImpl
+_tid	SDKThread.hpp	/^        HANDLE _tid;$/;"	m	class:appsdk::SDKThread
+_tid	SDKThread.hpp	/^        pthread_t _tid;$/;"	m	class:appsdk::SDKThread
+appsdk	SDKThread.hpp	/^namespace appsdk$/;"	n
+argsToThreadFunc	SDKThread.hpp	/^} argsToThreadFunc;$/;"	t	namespace:appsdk	typeref:struct:appsdk::__argsToThreadFunc
+beginSynchronized	SDKThread.hpp	/^        void beginSynchronized()$/;"	f	class:appsdk::CondVarImpl
+broadcast	SDKThread.hpp	/^        BOOL broadcast()$/;"	f	class:appsdk::CondVarImpl
+create	SDKThread.hpp	/^        bool create(threadFunc func, void* arg)$/;"	f	class:appsdk::SDKThread
+data	SDKThread.hpp	/^    void* data;$/;"	m	struct:appsdk::__argsToThreadFunc
+destroy	SDKThread.hpp	/^        bool CondVar::destroy()$/;"	f	class:appsdk::CondVar
+destroy	SDKThread.hpp	/^        bool destroy()$/;"	f	class:appsdk::CondVarImpl
+endSynchronized	SDKThread.hpp	/^        int endSynchronized()$/;"	f	class:appsdk::CondVarImpl
+func	SDKThread.hpp	/^    threadFunc func;$/;"	m	struct:appsdk::__argsToThreadFunc
+getData	SDKThread.hpp	/^        void* getData()$/;"	f	class:appsdk::SDKThread
+getID	SDKThread.hpp	/^        unsigned int getID()$/;"	f	class:appsdk::SDKThread
+init	SDKThread.hpp	/^        bool CondVar::init(unsigned int maxThreadCount)$/;"	f	class:appsdk::CondVar
+init	SDKThread.hpp	/^        bool init(unsigned int maxThreadCount)$/;"	f	class:appsdk::CondVarImpl
+isLocked	SDKThread.hpp	/^        bool isLocked()$/;"	f	class:appsdk::ThreadLock
+join	SDKThread.hpp	/^        bool join()$/;"	f	class:appsdk::SDKThread
+lock	SDKThread.hpp	/^        void lock()$/;"	f	class:appsdk::ThreadLock
+syncThreads	SDKThread.hpp	/^        void CondVar::syncThreads()$/;"	f	class:appsdk::CondVar
+syncThreads	SDKThread.hpp	/^        void syncThreads()$/;"	f	class:appsdk::CondVarImpl
+threadFunc	SDKThread.hpp	/^typedef void* (*threadFunc)(void*);$/;"	t	namespace:appsdk
+tryLock	SDKThread.hpp	/^        bool tryLock()$/;"	f	class:appsdk::ThreadLock
+unlock	SDKThread.hpp	/^        void unlock()$/;"	f	class:appsdk::ThreadLock
+wait	SDKThread.hpp	/^        DWORD wait(DWORD dwMillisecondsTimeout = INFINITE, BOOL bAlertable = FALSE)$/;"	f	class:appsdk::CondVarImpl
+win32ThreadFunc	SDKThread.hpp	/^unsigned _stdcall win32ThreadFunc(void* args)$/;"	f	namespace:appsdk
+~CondVar	SDKThread.hpp	/^        CondVar::~CondVar()$/;"	f	class:appsdk::CondVar
+~CondVarImpl	SDKThread.hpp	/^        ~CondVarImpl()$/;"	f	class:appsdk::CondVarImpl
+~SDKThread	SDKThread.hpp	/^        ~SDKThread()$/;"	f	class:appsdk::SDKThread
+~ThreadLock	SDKThread.hpp	/^        ~ThreadLock()$/;"	f	class:appsdk::ThreadLock
+ALIGNED_FREE	SDKUtil.hpp	102;"	d
+AddOption	SDKUtil.hpp	/^        int AddOption(Option* op)$/;"	f	class:appsdk::SDKCmdArgsParser
+CA_ARG_DOUBLE	SDKUtil.hpp	/^    CA_ARG_DOUBLE,$/;"	e	enum:appsdk::CmdArgsEnum
+CA_ARG_FLOAT	SDKUtil.hpp	/^    CA_ARG_FLOAT,$/;"	e	enum:appsdk::CmdArgsEnum
+CA_ARG_INT	SDKUtil.hpp	/^    CA_ARG_INT,$/;"	e	enum:appsdk::CmdArgsEnum
+CA_ARG_STRING	SDKUtil.hpp	/^    CA_ARG_STRING,$/;"	e	enum:appsdk::CmdArgsEnum
+CA_NO_ARGUMENT	SDKUtil.hpp	/^    CA_NO_ARGUMENT$/;"	e	enum:appsdk::CmdArgsEnum
+CHECK_ALLOCATION	SDKUtil.hpp	76;"	d
+CHECK_ERROR	SDKUtil.hpp	84;"	d
+CmdArgsEnum	SDKUtil.hpp	/^enum CmdArgsEnum$/;"	g	namespace:appsdk
+DeleteOption	SDKUtil.hpp	/^        int DeleteOption(Option* op)$/;"	f	class:appsdk::SDKCmdArgsParser
+FREE	SDKUtil.hpp	92;"	d
+Option	SDKUtil.hpp	/^struct Option$/;"	s	namespace:appsdk
+SDKCmdArgsParser	SDKUtil.hpp	/^        SDKCmdArgsParser (void)$/;"	f	class:appsdk::SDKCmdArgsParser
+SDKCmdArgsParser	SDKUtil.hpp	/^class SDKCmdArgsParser$/;"	c	namespace:appsdk
+SDKTimer	SDKUtil.hpp	/^        SDKTimer()$/;"	f	class:appsdk::SDKTimer
+SDKTimer	SDKUtil.hpp	/^class SDKTimer$/;"	c	namespace:appsdk
+SDKUTIL_HPP_	SDKUtil.hpp	19;"	d
+SDK_EXPECTED_FAILURE	SDKUtil.hpp	67;"	d
+SDK_FAILURE	SDKUtil.hpp	66;"	d
+SDK_SUCCESS	SDKUtil.hpp	65;"	d
+SDK_VERSION_BUILD	SDKUtil.hpp	72;"	d
+SDK_VERSION_MAJOR	SDKUtil.hpp	69;"	d
+SDK_VERSION_MINOR	SDKUtil.hpp	70;"	d
+SDK_VERSION_REVISION	SDKUtil.hpp	73;"	d
+SDK_VERSION_SUB_MINOR	SDKUtil.hpp	71;"	d
+Timer	SDKUtil.hpp	/^        struct Timer$/;"	s	class:appsdk::SDKTimer
+_aligned_free	SDKUtil.hpp	44;"	d
+_aligned_malloc	SDKUtil.hpp	43;"	d
+_argc	SDKUtil.hpp	/^        int _argc;                  \/**< number of arguments *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+_argv	SDKUtil.hpp	/^        char ** _argv;              \/**< array of char* holding CmdLine Options *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+_clocks	SDKUtil.hpp	/^            long long _clocks;  \/**< _clocks number of ticks at end*\/$/;"	m	struct:appsdk::SDKTimer::Timer
+_description	SDKUtil.hpp	/^    std::string  _description;$/;"	m	struct:appsdk::Option
+_freq	SDKUtil.hpp	/^            long long _freq;    \/**< _freq frequency*\/$/;"	m	struct:appsdk::SDKTimer::Timer
+_lVersion	SDKUtil.hpp	/^    std::string  _lVersion;$/;"	m	struct:appsdk::Option
+_numArgs	SDKUtil.hpp	/^        int _numArgs;               \/**< number of arguments *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+_options	SDKUtil.hpp	/^        Option * _options;          \/**< struct option object *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+_sVersion	SDKUtil.hpp	/^    std::string  _sVersion;$/;"	m	struct:appsdk::Option
+_seed	SDKUtil.hpp	/^        int _seed;                  \/**< seed value *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+_start	SDKUtil.hpp	/^            long long _start;   \/**< _start start point ticks*\/$/;"	m	struct:appsdk::SDKTimer::Timer
+_timers	SDKUtil.hpp	/^        std::vector<Timer*> _timers;      \/**< _timers vector to Timer objects *\/$/;"	m	class:appsdk::SDKTimer
+_type	SDKUtil.hpp	/^    CmdArgsEnum  _type;$/;"	m	struct:appsdk::Option
+_usage	SDKUtil.hpp	/^    std::string  _usage;$/;"	m	struct:appsdk::Option
+_value	SDKUtil.hpp	/^    void *       _value;$/;"	m	struct:appsdk::Option
+appsdk	SDKUtil.hpp	/^namespace appsdk$/;"	n
+build	SDKUtil.hpp	/^    int build;      \/**< SDK build number *\/$/;"	m	struct:appsdk::sdkVersionStr
+compare	SDKUtil.hpp	/^static bool compare(const double *refData, const double *data,$/;"	f	namespace:appsdk
+compare	SDKUtil.hpp	/^static bool compare(const float *refData, const float *data,$/;"	f	namespace:appsdk
+createTimer	SDKUtil.hpp	/^        int createTimer()$/;"	f	class:appsdk::SDKTimer
+error	SDKUtil.hpp	/^static void error(std::string errorMsg)$/;"	f	namespace:appsdk
+expectedError	SDKUtil.hpp	/^static void expectedError(const char* errorMsg)$/;"	f	namespace:appsdk
+expectedError	SDKUtil.hpp	/^static void expectedError(std::string errorMsg)$/;"	f	namespace:appsdk
+fileToString	SDKUtil.hpp	/^static int fileToString(std::string &fileName, std::string &str)$/;"	f	namespace:appsdk
+fillConstant	SDKUtil.hpp	/^int fillConstant($/;"	f	namespace:appsdk
+fillPos	SDKUtil.hpp	/^int fillPos($/;"	f	namespace:appsdk
+fillRandom	SDKUtil.hpp	/^int fillRandom($/;"	f	namespace:appsdk
+getPath	SDKUtil.hpp	/^static std::string getPath()$/;"	f	namespace:appsdk
+getSdkVerStr	SDKUtil.hpp	/^static std::string getSdkVerStr()$/;"	f	namespace:appsdk
+help	SDKUtil.hpp	/^        void help(void)$/;"	f	class:appsdk::SDKCmdArgsParser
+isArgSet	SDKUtil.hpp	/^        bool isArgSet(std::string str, bool shortVer = false)$/;"	f	class:appsdk::SDKCmdArgsParser
+isPowerOf2	SDKUtil.hpp	/^int isPowerOf2(T val)$/;"	f	namespace:appsdk
+major	SDKUtil.hpp	/^    int major;      \/**< SDK major release number *\/$/;"	m	struct:appsdk::sdkVersionStr
+match	SDKUtil.hpp	/^        int match(char ** argv, int argc)$/;"	f	class:appsdk::SDKCmdArgsParser
+minor	SDKUtil.hpp	/^    int minor;      \/**< SDK minor release number *\/$/;"	m	struct:appsdk::sdkVersionStr
+name	SDKUtil.hpp	/^            std::string name;   \/**< name name of time object*\/$/;"	m	struct:appsdk::SDKTimer::Timer
+name	SDKUtil.hpp	/^        std::string name;                       \/**< Name of the Sample *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+parse	SDKUtil.hpp	/^        int parse(char ** p_argv, int p_argc)$/;"	f	class:appsdk::SDKCmdArgsParser
+printArray	SDKUtil.hpp	/^void printArray($/;"	f	namespace:appsdk
+printStatistics	SDKUtil.hpp	/^static void printStatistics(std::string *statsStr, std::string * stats, int n)$/;"	f	namespace:appsdk
+quiet	SDKUtil.hpp	/^        bool quiet;                 \/**< Cmd Line Option- if Quiet *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+readTimer	SDKUtil.hpp	/^        double readTimer(int handle)$/;"	f	class:appsdk::SDKTimer
+resetTimer	SDKUtil.hpp	/^        int resetTimer(int handle)$/;"	f	class:appsdk::SDKTimer
+revision	SDKUtil.hpp	/^    int revision;   \/**< SDK revision number *\/$/;"	m	struct:appsdk::sdkVersionStr
+roundToPowerOf2	SDKUtil.hpp	/^T roundToPowerOf2(T val)$/;"	f	namespace:appsdk
+sampleVerStr	SDKUtil.hpp	/^		std::string sampleVerStr;   \/**< Sample version string *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+sdkVerStr	SDKUtil.hpp	/^        sdkVersionStr sdkVerStr;     \/**< SDK version string *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+sdkVerStr	SDKUtil.hpp	/^} sdkVerStr;$/;"	v	typeref:struct:appsdk::sdkVersionStr
+sdkVersionStr	SDKUtil.hpp	/^     inline sdkVersionStr()$/;"	f	struct:appsdk::sdkVersionStr
+sdkVersionStr	SDKUtil.hpp	/^static struct sdkVersionStr$/;"	s	namespace:appsdk
+startTimer	SDKUtil.hpp	/^        int startTimer(int handle)$/;"	f	class:appsdk::SDKTimer
+stopTimer	SDKUtil.hpp	/^        int stopTimer(int handle)$/;"	f	class:appsdk::SDKTimer
+strComparei	SDKUtil.hpp	/^static bool strComparei(std::string a, std::string b)$/;"	f	namespace:appsdk
+subminor	SDKUtil.hpp	/^    int subminor;   \/**< SDK sub-minor release number *\/$/;"	m	struct:appsdk::sdkVersionStr
+timing	SDKUtil.hpp	/^        bool timing;                \/**< Cmd Line Option- if Timing *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+toString	SDKUtil.hpp	/^std::string toString(T t, std::ios_base & (*r)(std::ios_base&) = std::dec)$/;"	f	namespace:appsdk
+totalTime	SDKUtil.hpp	/^        double totalTime;                 \/** total time taken *\/$/;"	m	class:appsdk::SDKTimer
+usage	SDKUtil.hpp	/^        void usage()$/;"	f	class:appsdk::SDKCmdArgsParser
+verify	SDKUtil.hpp	/^        bool verify;                \/**< Cmd Line Option- if verify *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+version	SDKUtil.hpp	/^        bool version;                           \/**< Cmd Line Option- if version *\/$/;"	m	class:appsdk::SDKCmdArgsParser
+~SDKCmdArgsParser	SDKUtil.hpp	/^        ~SDKCmdArgsParser ()$/;"	f	class:appsdk::SDKCmdArgsParser
+~SDKTimer	SDKUtil.hpp	/^        ~SDKTimer()$/;"	f	class:appsdk::SDKTimer
+main	Source.cpp	/^int main(int argc, char **argv){$/;"	f
+pyrDownsample	Source.cpp	/^void pyrDownsample(int *in, int w, int h, int *out, int nw, int nh){$/;"	f
+smoothX	Source.cpp	/^void smoothX(int *in, int *out, int w, int h){$/;"	f
+smoothY	Source.cpp	/^void smoothY(int *in, int *out, int w, int h){$/;"	f
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_PROGRAM_VERSION	5.7	//
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/

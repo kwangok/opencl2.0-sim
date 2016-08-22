@@ -82,7 +82,6 @@ line: 	HEADER INFO COLON line_info
 	| HEADER WARNING { printf("GPGPU-Sim: ptxas %s\n", $2); }
 	;
 
-/* deicide: Add gmem */
 line_info: function_name
 	| function_info { ptxinfo_addinfo(); }
 	| gmem_info
@@ -95,7 +94,6 @@ function_info: info
 	| function_info COMMA info
 	;
 
-/* deicide: Add gmem */
 gmem_info: INT_OPERAND BYTES GMEM
 	| INT_OPERAND BYTES GMEM COMMA info
 	;

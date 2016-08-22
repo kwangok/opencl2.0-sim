@@ -44,24 +44,32 @@ RandomRepl::RandomRepl(const Params *p)
 {
 }
 
-BaseSetAssoc::BlkType*
+CacheBlk*
 RandomRepl::accessBlock(Addr addr, bool is_secure, Cycles &lat, int master_id)
 {
     return BaseSetAssoc::accessBlock(addr, is_secure, lat, master_id);
 }
 
-BaseSetAssoc::BlkType*
-RandomRepl::findVictim(Addr addr) const
+CacheBlk*
+RandomRepl::findVictim(Addr addr)
 {
-    BlkType *blk = BaseSetAssoc::findVictim(addr);
+    CacheBlk *blk = BaseSetAssoc::findVictim(addr);
+    unsigned set = extractSet(addr);
 
     // if all blocks are valid, pick a replacement at random
-    if (blk->isValid()) {
+    if (blk && blk->isValid()) {
         // find a random index within the bounds of the set
         int idx = random_mt.random<int>(0, assoc - 1);
+        blk = sets[set].blks[idx];
+        // Enforce allocation limit
+        while (blk->way >= allocAssoc) {
+            idx = (idx + 1) % assoc;
+            blk = sets[set].blks[idx];
+        }
+
         assert(idx < assoc);
         assert(idx >= 0);
-        blk = sets[extractSet(addr)].blks[idx];
+        assert(blk->way < allocAssoc);
 
         DPRINTF(CacheRepl, "set %x: selecting blk %x for replacement\n",
                 blk->set, regenerateBlkAddr(blk->tag, blk->set));
@@ -77,7 +85,7 @@ RandomRepl::insertBlock(PacketPtr pkt, BlkType *blk)
 }
 
 void
-RandomRepl::invalidate(BlkType *blk)
+RandomRepl::invalidate(CacheBlk *blk)
 {
     BaseSetAssoc::invalidate(blk);
 }

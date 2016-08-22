@@ -55,7 +55,7 @@ Tick
 PioPort::recvAtomic(PacketPtr pkt)
 {
     // @todo: We need to pay for this and not just zero it out
-    pkt->firstWordDelay = pkt->lastWordDelay = 0;
+    pkt->headerDelay = pkt->payloadDelay = 0;
 
     const Tick delay(pkt->isRead() ? device->read(pkt) : device->write(pkt));
     assert(pkt->isResponse() || pkt->isError());
@@ -91,18 +91,6 @@ PioDevice::getSlavePort(const std::string &if_name, PortID idx)
         return pioPort;
     }
     return MemObject::getSlavePort(if_name, idx);
-}
-
-unsigned int
-PioDevice::drain(DrainManager *dm)
-{
-    unsigned int count;
-    count = pioPort.drain(dm);
-    if (count)
-        setDrainState(Drainable::Draining);
-    else
-        setDrainState(Drainable::Drained);
-    return count;
 }
 
 BasicPioDevice::BasicPioDevice(const Params *p, Addr size)

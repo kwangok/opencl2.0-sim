@@ -215,13 +215,11 @@ void gpgpu_ptxinfo_load_from_string( const char *p_for_info, unsigned source_num
     char extra_flags[1024];
     extra_flags[0]=0;
 
-/*
-#if CUDART_VERSION >= 3000 && CUDART_VERSION <= 5000
+#if 1
+    snprintf(extra_flags,1024,"--gpu-name=sm_35 -c");
+#elif CUDART_VERSION >= 3000
     snprintf(extra_flags,1024,"--gpu-name=sm_20");
-#elif CUDART_VERSION >= 5050
-    snprintf(extra_flags,1024,"--gpu-name=sm_35");
 #endif
-*/
 
     snprintf(extra_flags,1024,"--gpu-name=sm_35");
     snprintf(commandline,1024,"ptxas %s -v -c %s --output-file  /dev/null 2> %s",

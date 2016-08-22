@@ -162,10 +162,12 @@ ptx_reg_t ptx_thread_info::get_operand_value( const operand_info &op, operand_in
 			 // deicide: Get PC for kernel function
 			 // result.u64 = op.get_symbol()->get_pc()->get_start_PC();
 			 result.u64 = (unsigned long long)(op.get_symbol()->get_pc());
-		 } else {
-            const char *name = op.name().c_str();
-            printf("GPGPU-Sim PTX: ERROR ** get_operand_value : unknown operand type for %s\n", name );
-            assert(0);
+         } else {
+            // const char *name = op.name().c_str();
+            fprintf(stderr, "GPGPU-Sim PTX: WARNING ** get_operand_value : unknown operand type");
+			// deicide: TEST
+			result.u64 = op.get_symbol()->get_address();
+            // assert(0);
          }
 
          if(op.get_operand_lohi() == 1) 
@@ -1895,7 +1897,7 @@ ptx_reg_t sexd( ptx_reg_t x, unsigned from_width, unsigned to_width, int to_sign
    case 16:if ( x.get_bit(15) ) x.mask_or(0xFFFFFFFF,0xFFFF0000);break;
    case 32: if ( x.get_bit(31) ) x.mask_or(0xFFFFFFFF,0x00000000);break;
    case 64: break;
-   default: assert(0);
+   default: assert(0); break;
    }
    return x;
 }
@@ -2587,8 +2589,10 @@ void decode_space( memory_space_t &space, ptx_thread_info *thread, const operand
       else if( ti.is_param_local() ) {
          space = param_space_local;
       } else {
-         printf("GPGPU-Sim PTX: ERROR ** cannot resolve .param space for '%s'\n", s->name().c_str() );
-         abort(); 
+         fprintf(stderr, "GPGPU-Sim PTX: ERROR ** cannot resolve .param space for '%s'\n", s->name().c_str() );
+		 // deicide: TEST
+		 space = param_space_kernel;
+         // abort(); 
       }
    }
    switch ( space.get_type() ) {
@@ -4143,8 +4147,8 @@ void sad_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    ptx_reg_t a, b, c, d;
    const operand_info &dst  = pI->dst();
    const operand_info &src1 = pI->src1();
-   const operand_info &src2 = pI->src1();
-   const operand_info &src3 = pI->src1();
+   const operand_info &src2 = pI->src2();
+   const operand_info &src3 = pI->src3();
 
    unsigned i_type = pI->get_type();
    a = thread->get_operand_value(src1, dst, i_type, thread, 1);
@@ -4679,16 +4683,26 @@ void slct_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 
    switch ( i_type ) {
    case B16_TYPE:
-   case U16_TYPE:              d.u16 = t?a.u16:b.u16; break;
+   case S16_TYPE:
+   case U16_TYPE:
+	   d.u16 = t ? a.u16 : b.u16;
+	   break;
    case F32_TYPE:
    case B32_TYPE:
-   case U32_TYPE: d.u32 = t?a.u32:b.u32; break;
-   case S32_TYPE: d.u32 = t?a.u32:b.u32; break;
+   case S32_TYPE:
+   case U32_TYPE:
+	   d.u32 = t ? a.u32 : b.u32;
+	   break;
    case F64_TYPE:
    case FF64_TYPE:
    case B64_TYPE:
-   case U64_TYPE: d.u64 = t?a.u64:b.u64; break;
-   default: assert(0); break;
+   case S64_TYPE:
+   case U64_TYPE:
+	   d.u64 = t ? a.u64 : b.u64;
+	   break;
+   default:
+	   assert(0);
+	   break;
    }
 
    thread->set_operand_value(dst,d, i_type, thread, pI);

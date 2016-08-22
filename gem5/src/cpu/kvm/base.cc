@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 ARM Limited
+ * Copyright (c) 2012, 2015 ARM Limited
  * All rights reserved
  *
  * The license below extends only to copyright in the software and shall
@@ -78,7 +78,6 @@ BaseKvmCPU::BaseKvmCPU(BaseKvmCPUParams *params)
       activeInstPeriod(0),
       perfControlledByTimer(params->usePerfOverflow),
       hostFactor(params->hostFactor),
-      drainManager(NULL),
       ctrInsts(0)
 {
     if (pageSize == -1)
@@ -118,8 +117,6 @@ BaseKvmCPU::init()
     // initialize CPU, including PC
     if (FullSystem && !switchedOut())
         TheISA::initCPU(tc, tc->contextId());
-
-    mmio_req.setThreadContext(tc->contextId(), 0);
 }
 
 void
@@ -261,7 +258,7 @@ BaseKvmCPU::regStats()
 }
 
 void
-BaseKvmCPU::serializeThread(std::ostream &os, ThreadID tid)
+BaseKvmCPU::serializeThread(CheckpointOut &cp, ThreadID tid) const
 {
     if (DTRACE(Checkpoint)) {
         DPRINTF(Checkpoint, "KVM: Serializing thread %i:\n", tid);
@@ -270,26 +267,25 @@ BaseKvmCPU::serializeThread(std::ostream &os, ThreadID tid)
 
     assert(tid == 0);
     assert(_status == Idle);
-    thread->serialize(os);
+    thread->serialize(cp);
 }
 
 void
-BaseKvmCPU::unserializeThread(Checkpoint *cp, const std::string &section,
-                              ThreadID tid)
+BaseKvmCPU::unserializeThread(CheckpointIn &cp, ThreadID tid)
 {
     DPRINTF(Checkpoint, "KVM: Unserialize thread %i:\n", tid);
 
     assert(tid == 0);
     assert(_status == Idle);
-    thread->unserialize(cp, section);
+    thread->unserialize(cp);
     threadContextDirty = true;
 }
 
-unsigned int
-BaseKvmCPU::drain(DrainManager *dm)
+DrainState
+BaseKvmCPU::drain()
 {
     if (switchedOut())
-        return 0;
+        return DrainState::Drained;
 
     DPRINTF(Drain, "BaseKvmCPU::drain\n");
     switch (_status) {
@@ -299,10 +295,8 @@ BaseKvmCPU::drain(DrainManager *dm)
         // of a different opinion. This may happen when the CPU been
         // notified of an event that hasn't been accepted by the vCPU
         // yet.
-        if (!archIsDrained()) {
-            drainManager = dm;
-            return 1;
-        }
+        if (!archIsDrained())
+            return DrainState::Draining;
 
         // The state of the CPU is consistent, so we don't need to do
         // anything special to drain it. We simply de-schedule the
@@ -321,7 +315,7 @@ BaseKvmCPU::drain(DrainManager *dm)
         // switch CPUs or checkpoint the CPU.
         syncThreadContext();
 
-        return 0;
+        return DrainState::Drained;
 
       case RunningServiceCompletion:
         // The CPU has just requested a service that was handled in
@@ -330,22 +324,18 @@ BaseKvmCPU::drain(DrainManager *dm)
         // update the register state ourselves instead of letting KVM
         // handle it, but that would be tricky. Instead, we enter KVM
         // and let it do its stuff.
-        drainManager = dm;
-
         DPRINTF(Drain, "KVM CPU is waiting for service completion, "
                 "requesting drain.\n");
-        return 1;
+        return DrainState::Draining;
 
       case RunningService:
         // We need to drain since the CPU is waiting for service (e.g., MMIOs)
-        drainManager = dm;
-
         DPRINTF(Drain, "KVM CPU is waiting for service, requesting drain.\n");
-        return 1;
+        return DrainState::Draining;
 
       default:
         panic("KVM: Unhandled CPU state in drain()\n");
-        return 0;
+        return DrainState::Drained;
     }
 }
 
@@ -513,7 +503,7 @@ BaseKvmCPU::totalOps() const
 }
 
 void
-BaseKvmCPU::dump()
+BaseKvmCPU::dump() const
 {
     inform("State dumping not implemented.");
 }
@@ -535,18 +525,26 @@ BaseKvmCPU::tick()
 
       case RunningServiceCompletion:
       case Running: {
-          EventQueue *q = curEventQueue();
-          Tick ticksToExecute(q->nextTick() - curTick());
+          const uint64_t nextInstEvent(
+              !comInstEventQueue[0]->empty() ?
+              comInstEventQueue[0]->nextTick() : UINT64_MAX);
+          // Enter into KVM and complete pending IO instructions if we
+          // have an instruction event pending.
+          const Tick ticksToExecute(
+              nextInstEvent > ctrInsts ?
+              curEventQueue()->nextTick() - curTick() : 0);
 
           // We might need to update the KVM state.
           syncKvmState();
 
           // Setup any pending instruction count breakpoints using
-          // PerfEvent.
-          setupInstStop();
+          // PerfEvent if we are going to execute more than just an IO
+          // completion.
+          if (ticksToExecute > 0)
+              setupInstStop();
 
           DPRINTF(KvmRun, "Entering KVM...\n");
-          if (drainManager) {
+          if (drainState() == DrainState::Draining) {
               // Force an immediate exit from KVM after completing
               // pending operations. The architecture-specific code
               // takes care to run until it is in a state where it can
@@ -818,14 +816,14 @@ BaseKvmCPU::getAndFormatOneReg(uint64_t id) const
         ss << value;                             \
     }  break
 
-#define HANDLE_ARRAY(len)                       \
-    case KVM_REG_SIZE_U ## len: {               \
-        uint8_t value[len / 8];                 \
-        getOneReg(id, value);                   \
-        ss << "[" << value[0];                  \
-        for (int i = 1; i < len  / 8; ++i)      \
-            ss << ", " << value[i];             \
-        ss << "]";                              \
+#define HANDLE_ARRAY(len)                               \
+    case KVM_REG_SIZE_U ## len: {                       \
+        uint8_t value[len / 8];                         \
+        getOneReg(id, value);                           \
+        ccprintf(ss, "[0x%x", value[0]);                \
+        for (int i = 1; i < len  / 8; ++i)              \
+            ccprintf(ss, ", 0x%x", value[i]);           \
+        ccprintf(ss, "]");                              \
       } break
 
     switch (id & KVM_REG_SIZE_MASK) {
@@ -995,7 +993,8 @@ BaseKvmCPU::doMMIOAccess(Addr paddr, void *data, int size, bool write)
     ThreadContext *tc(thread->getTC());
     syncThreadContext();
 
-    mmio_req.setPhys(paddr, size, Request::UNCACHEABLE, dataMasterId());
+    Request mmio_req(paddr, size, Request::UNCACHEABLE, dataMasterId());
+    mmio_req.setThreadContext(tc->contextId(), 0);
     // Some architectures do need to massage physical addresses a bit
     // before they are inserted into the memory system. This enables
     // APIC accesses on x86 and m5ops where supported through a MMIO
@@ -1192,7 +1191,7 @@ BaseKvmCPU::setupCounters()
 bool
 BaseKvmCPU::tryDrain()
 {
-    if (!drainManager)
+    if (drainState() != DrainState::Draining)
         return false;
 
     if (!archIsDrained()) {
@@ -1203,8 +1202,7 @@ BaseKvmCPU::tryDrain()
     if (_status == Idle || _status == Running) {
         DPRINTF(Drain,
                 "tryDrain: CPU transitioned into the Idle state, drain done\n");
-        drainManager->signalDrainDone();
-        drainManager = NULL;
+        signalDrainDone();
         return true;
     } else {
         DPRINTF(Drain, "tryDrain: CPU not ready.\n");

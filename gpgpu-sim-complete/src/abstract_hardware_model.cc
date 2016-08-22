@@ -36,9 +36,14 @@
 #include "option_parser.h"
 #include <algorithm>
 
+#include "gpu/gpgpu-sim/cuda_gpu.hh"
 #include "stream_manager.h"
 
 #define DEVICE_STREAM
+
+extern gpgpu_sim *g_the_gpu;
+
+#include "gpu/gpgpu-sim/cuda_gpu.hh"
 
 extern gpgpu_sim *g_the_gpu;
 
@@ -95,8 +100,8 @@ void gpgpu_functional_sim_config::ptx_set_tex_cache_linesize(unsigned linesize)
    m_texcache_linesize = linesize;
 }
 
-gpgpu_t::gpgpu_t( const gpgpu_functional_sim_config &config, int _sharedMemDelay )
-    : sharedMemDelay(_sharedMemDelay), m_function_model_config(config)
+gpgpu_t::gpgpu_t( const gpgpu_functional_sim_config &config, CudaGPU *cuda_gpu )
+	: gem5CudaGPU(cuda_gpu), m_function_model_config(config)
 {
    m_global_mem = NULL; // Accesses to global memory should go through gem5-gpu
    m_tex_mem = new memory_space_impl<8192>("tex",64*1024);
@@ -106,6 +111,12 @@ gpgpu_t::gpgpu_t( const gpgpu_functional_sim_config &config, int _sharedMemDelay
 
    if(m_function_model_config.get_ptx_inst_debug_to_file() != 0) 
       ptx_inst_debug_file = fopen(m_function_model_config.get_ptx_inst_debug_file(), "w");
+
+   if(gem5CudaGPU) {
+       sharedMemDelay = gem5CudaGPU->getSharedMemDelay();
+   } else {
+       sharedMemDelay = 1;
+   }
 }
 
 address_type line_size_based_tag_func(new_addr_type address, new_addr_type line_size)
@@ -568,8 +579,33 @@ kernel_info_t::kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *
     m_num_cores_running=0;
     m_uid = m_next_uid++;
     m_param_mem = new memory_space_impl<8192>("param",64*1024);
-	// deicide: Must initialize this or something terrible will happen
+	// Initial for parent kernel
 	m_parent_kernel = NULL;
+	m_use_last_cta = false;
+}
+
+// deicide: Handle for CTA padding in OpenCL 2.0
+kernel_info_t::kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *entry, dim3 lastBlockDim )
+{
+	m_last_block_dim = lastBlockDim;
+
+    m_kernel_entry=entry;
+    m_grid_dim=gridDim;
+    m_block_dim=blockDim;
+    m_next_cta.x=0;
+    m_next_cta.y=0;
+    m_next_cta.z=0;
+    m_next_tid=m_next_cta;
+    m_num_cores_running=0;
+    m_uid = m_next_uid++;
+    m_param_mem = new memory_space_impl<8192>("param",64*1024);
+	// Initial for parent kernel
+	m_parent_kernel = NULL;
+	// m_last_cta = false;
+	m_use_last_cta = true;
+	m_real_block_dim.x = (m_next_cta.x == (gridDim.x - 1)) ? lastBlockDim.x : blockDim.x;
+	m_real_block_dim.y = (m_next_cta.y == (gridDim.y - 1)) ? lastBlockDim.y : blockDim.y;
+	m_real_block_dim.z = (m_next_cta.z == (gridDim.z - 1)) ? lastBlockDim.z : blockDim.z;
 }
 
 kernel_info_t::~kernel_info_t()
@@ -753,118 +789,158 @@ void simt_stack::print (FILE *fout) const
     }
 }
 
-void simt_stack::update( simt_mask_t &thread_done, addr_vector_t &next_pc, address_type recvg_pc, op_type next_inst_op )
+void simt_stack::update(simt_mask_t &thread_done, addr_vector_t &next_pc, address_type recvg_pc, op_type next_inst_op, unsigned next_inst_size, address_type next_inst_pc)
 {
-    assert(m_stack.size() > 0);
+#define TEST 1
+	assert(m_stack.size() > 0);
+	
+	assert( next_pc.size() == m_warp_size );
 
-    assert( next_pc.size() == m_warp_size );
+	simt_mask_t  top_active_mask = m_stack.back().m_active_mask;
+	address_type top_recvg_pc = m_stack.back().m_recvg_pc;
+	address_type top_pc = m_stack.back().m_pc; // the pc of the instruction just executed
+	stack_entry_type top_type = m_stack.back().m_type;
+#if TEST
+	assert(top_pc == next_inst_pc);
+#endif
+	assert(top_active_mask.any());
 
-    simt_mask_t  top_active_mask = m_stack.back().m_active_mask;
-    address_type top_recvg_pc = m_stack.back().m_recvg_pc;
-    address_type top_pc = m_stack.back().m_pc; // the pc of the instruction just executed
-    stack_entry_type top_type = m_stack.back().m_type;
+	const address_type null_pc = -1;
+	bool warp_diverged = false;
+	address_type new_recvg_pc = null_pc;
+#if TEST
+	unsigned num_divergent_paths = 0;
 
-    assert(top_active_mask.any());
+	std::map<address_type,simt_mask_t> divergent_paths;
+#endif
+	while (top_active_mask.any()) {
+		// extract a group of threads with the same next PC among the active threads in the warp
+		address_type tmp_next_pc = null_pc;
+		simt_mask_t tmp_active_mask;
+		for (int i = m_warp_size - 1; i >= 0; i--) {
+			if (top_active_mask.test(i)) { // is this thread active?
+				if (thread_done.test(i)) {
+					top_active_mask.reset(i); // remove completed thread from active mask
+				} else if (tmp_next_pc == null_pc) {
+					tmp_next_pc = next_pc[i];
+					tmp_active_mask.set(i);
+					top_active_mask.reset(i);
+				} else if (tmp_next_pc == next_pc[i]) {
+					tmp_active_mask.set(i);
+					top_active_mask.reset(i);
+				}
+			}
+		}
+		if (tmp_next_pc == null_pc) {
+			assert(!top_active_mask.any()); // all threads done
+			continue;
+		}
+#if TEST
+		divergent_paths[tmp_next_pc] = tmp_active_mask;
+		num_divergent_paths++;
+	}
 
-    const address_type null_pc = -1;
-    bool warp_diverged = false;
-    address_type new_recvg_pc = null_pc;
-    while (top_active_mask.any()) {
+	address_type not_taken_pc = next_inst_pc + next_inst_size;
+	assert(num_divergent_paths <= 2);
+	for (unsigned i = 0; i < num_divergent_paths; ++i) {
+		address_type tmp_next_pc = null_pc;
+		simt_mask_t tmp_active_mask;
+		tmp_active_mask.reset();
+		if (divergent_paths.find(not_taken_pc) != divergent_paths.end()) {
+			assert(i == 0);
+			tmp_next_pc = not_taken_pc;
+			tmp_active_mask = divergent_paths[tmp_next_pc];
+			divergent_paths.erase(tmp_next_pc);
+		} else {
+			std::map<address_type,simt_mask_t>::iterator it = divergent_paths.begin();
+			tmp_next_pc = it->first;
+			// In case it failed
+			assert(divergent_paths.find(tmp_next_pc) != divergent_paths.end());
+			tmp_active_mask = divergent_paths[tmp_next_pc];
+			divergent_paths.erase(tmp_next_pc);
+		}
+#endif
 
-        // extract a group of threads with the same next PC among the active threads in the warp
-        address_type tmp_next_pc = null_pc;
-        simt_mask_t tmp_active_mask;
-        for (int i = m_warp_size - 1; i >= 0; i--) {
-            if ( top_active_mask.test(i) ) { // is this thread active?
-                if (thread_done.test(i)) {
-                    top_active_mask.reset(i); // remove completed thread from active mask
-                } else if (tmp_next_pc == null_pc) {
-                    tmp_next_pc = next_pc[i];
-                    tmp_active_mask.set(i);
-                    top_active_mask.reset(i);
-                } else if (tmp_next_pc == next_pc[i]) {
-                    tmp_active_mask.set(i);
-                    top_active_mask.reset(i);
-                }
-            }
-        }
+		// HANDLE THE SPECIAL CASES FIRST
+		if (next_inst_op == CALL_OPS) {
+			// Since call is not a divergent instruction, all threads should have executed a call instruction
+#if TEST
+			assert(num_divergent_paths == 1);
+#else
+			assert(top_active_mask.any() == false);
+#endif
 
-        if(tmp_next_pc == null_pc) {
-            assert(!top_active_mask.any()); // all threads done
-            continue;
-        }
+			simt_stack_entry new_stack_entry;
+			new_stack_entry.m_pc = tmp_next_pc;
+			new_stack_entry.m_active_mask = tmp_active_mask;
+			new_stack_entry.m_branch_div_cycle = gpu_sim_cycle + gpu_tot_sim_cycle;
+			new_stack_entry.m_type = STACK_ENTRY_TYPE_CALL;
+			m_stack.push_back(new_stack_entry);
+			return;
+		} else if (next_inst_op == RET_OPS && top_type == STACK_ENTRY_TYPE_CALL) {
+			// pop the CALL Entry
+#if TEST
+			assert(num_divergent_paths == 1);
+#else
+			assert(top_active_mask.any() == false);
+#endif
+			m_stack.pop_back();
 
-        // HANDLE THE SPECIAL CASES FIRST
-        if (next_inst_op== CALL_OPS)
-        {
-            // Since call is not a divergent instruction, all threads should have executed a call instruction
-            assert(top_active_mask.any() == false);
+			assert(m_stack.size() > 0);
+			m_stack.back().m_pc = tmp_next_pc; // set the PC of the stack top entry to return PC from  the call stack;
+			// Check if the New top of the stack is reconverging
+			if (tmp_next_pc == m_stack.back().m_recvg_pc && m_stack.back().m_type != STACK_ENTRY_TYPE_CALL)
+			{
+				assert(m_stack.back().m_type == STACK_ENTRY_TYPE_NORMAL);
+				m_stack.pop_back();
+			}
+			return;
+		}
 
-            simt_stack_entry new_stack_entry;
-            new_stack_entry.m_pc = tmp_next_pc;
-            new_stack_entry.m_active_mask = tmp_active_mask;
-            new_stack_entry.m_branch_div_cycle = gpu_sim_cycle+gpu_tot_sim_cycle;
-            new_stack_entry.m_type = STACK_ENTRY_TYPE_CALL;
-            m_stack.push_back(new_stack_entry);
-            return;
+		// discard the new entry if its PC matches with reconvergence PC
+		// that automatically reconverges the entry
+		// If the top stack entry is CALL, don't reconverge.
+		if (tmp_next_pc == top_recvg_pc && (top_type != STACK_ENTRY_TYPE_CALL)) continue;
 
-        } else if(next_inst_op == RET_OPS && top_type==STACK_ENTRY_TYPE_CALL) {
-            // pop the CALL Entry
-            assert(top_active_mask.any() == false);
-            m_stack.pop_back();
+		// this new entry is not converging
+		// if this entry does not include thread from the warp, divergence occurs
+#if TEST
+		if ((num_divergent_paths > 1) && !warp_diverged ) {
+#else
+		if (top_active_mask.any() && !warp_diverged ) {
+#endif
+			warp_diverged = true;
+			// modify the existing top entry into a reconvergence entry in the pdom stack
+			new_recvg_pc = recvg_pc;
+			if (new_recvg_pc != top_recvg_pc) {
+				m_stack.back().m_pc = new_recvg_pc;
+				m_stack.back().m_branch_div_cycle = gpu_sim_cycle + gpu_tot_sim_cycle;
 
-            assert(m_stack.size() > 0);
-            m_stack.back().m_pc=tmp_next_pc;// set the PC of the stack top entry to return PC from  the call stack;
-            // Check if the New top of the stack is reconverging
-            if (tmp_next_pc == m_stack.back().m_recvg_pc && m_stack.back().m_type!=STACK_ENTRY_TYPE_CALL)
-            {
-                assert(m_stack.back().m_type==STACK_ENTRY_TYPE_NORMAL);
-                m_stack.pop_back();
-            }
-            return;
-        }
+				m_stack.push_back(simt_stack_entry());
+			}
+		}
 
-        // discard the new entry if its PC matches with reconvergence PC
-        // that automatically reconverges the entry
-        // If the top stack entry is CALL, dont reconverge.
-        if (tmp_next_pc == top_recvg_pc && (top_type != STACK_ENTRY_TYPE_CALL)) continue;
+		// discard the new entry if its PC matches with reconvergence PC
+		if (warp_diverged && tmp_next_pc == new_recvg_pc) continue;
 
-        // this new entry is not converging
-        // if this entry does not include thread from the warp, divergence occurs
-        if (top_active_mask.any() && !warp_diverged ) {
-            warp_diverged = true;
-            // modify the existing top entry into a reconvergence entry in the pdom stack
-            new_recvg_pc = recvg_pc;
-            if (new_recvg_pc != top_recvg_pc) {
-                m_stack.back().m_pc = new_recvg_pc;
-                m_stack.back().m_branch_div_cycle = gpu_sim_cycle+gpu_tot_sim_cycle;
+		// update the current top of pdom stack
+		m_stack.back().m_pc = tmp_next_pc;
+		m_stack.back().m_active_mask = tmp_active_mask;
+		if (warp_diverged) {
+			m_stack.back().m_calldepth = 0;
+			m_stack.back().m_recvg_pc = new_recvg_pc;
+		} else {
+			m_stack.back().m_recvg_pc = top_recvg_pc;
+		}
 
-                m_stack.push_back(simt_stack_entry());
-            }
-        }
+		m_stack.push_back(simt_stack_entry());
+	}
+	assert(m_stack.size() > 0);
+	m_stack.pop_back();
 
-        // discard the new entry if its PC matches with reconvergence PC
-        if (warp_diverged && tmp_next_pc == new_recvg_pc) continue;
-
-        // update the current top of pdom stack
-        m_stack.back().m_pc = tmp_next_pc;
-        m_stack.back().m_active_mask = tmp_active_mask;
-        if (warp_diverged) {
-            m_stack.back().m_calldepth = 0;
-            m_stack.back().m_recvg_pc = new_recvg_pc;
-        } else {
-            m_stack.back().m_recvg_pc = top_recvg_pc;
-        }
-
-        m_stack.push_back(simt_stack_entry());
-    }
-    assert(m_stack.size() > 0);
-    m_stack.pop_back();
-
-
-    if (warp_diverged) {
-        ptx_file_line_stats_add_warp_divergence(top_pc, 1); 
-    }
+	if (warp_diverged) {
+		ptx_file_line_stats_add_warp_divergence(top_pc, 1); 
+	}
 }
 
 void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
@@ -934,7 +1010,7 @@ void core_t::updateSIMTStack(unsigned warpId, warp_inst_t * inst)
             next_pc.push_back( m_thread[wtid+i]->get_pc() );
         }
     }
-    m_simt_stack[warpId]->update(thread_done,next_pc,inst->reconvergence_pc, inst->op);
+    m_simt_stack[warpId]->update(thread_done, next_pc, inst->reconvergence_pc, inst->op, inst->isize, inst->pc);
 }
 
 //! Get the warp to be executed using the data taken form the SIMT stack

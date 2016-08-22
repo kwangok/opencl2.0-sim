@@ -28,6 +28,8 @@
 
 #include "gpu/gpgpu-sim/cuda_gpu.hh"
 
+#include "gpu/gpgpu-sim/cuda_gpu.hh"
+
 #include "cuda-sim.h"
 
 #include "instructions.h"
@@ -94,6 +96,8 @@ void ptx_opcocde_latency_options (option_parser_t opp) {
 }
 
 static address_type get_converge_point(address_type pc);
+
+void sign_extend( ptx_reg_t &data, unsigned src_size, const operand_info &dst );
 
 void sign_extend( ptx_reg_t &data, unsigned src_size, const operand_info &dst );
 
@@ -663,70 +667,90 @@ void ptx_instruction::set_opcode_and_latency()
        }
        break;
    case MUL_OP:
-       //MUL latency
-       switch(get_type()){
-       case F32_TYPE:
-           latency = fp_latency[2];
-           initiation_interval = fp_init[2];
-           op = ALU_SFU_OP;
-           break;
-       case F64_TYPE:
-       case FF64_TYPE:
-           latency = dp_latency[2];
-           initiation_interval = dp_init[2];
-           op = ALU_SFU_OP;
-           break;
-       case B32_TYPE:
-       case U32_TYPE:
-       case S32_TYPE:
-       default: //Use int settings for default
-           latency = int_latency[2];
-           initiation_interval = int_init[2];
-           op = SFU_OP;
-           break;
-       }
-       break;
+	   //MUL latency
+	   switch(get_type()){
+	   case F32_TYPE:
+		   latency = fp_latency[2];
+		   initiation_interval = fp_init[2];
+		   op = ALU_SFU_OP;
+		   break;
+	   case F64_TYPE:
+	   case FF64_TYPE:
+		   latency = dp_latency[2];
+		   initiation_interval = dp_init[2];
+		   op = ALU_SFU_OP;
+		   break;
+	   case B32_TYPE:
+	   case U32_TYPE:
+	   case S32_TYPE:
+	   default: //Use int settings for default
+		   latency = int_latency[2];
+		   initiation_interval = int_init[2];
+		   op = SFU_OP;
+		   break;
+	   }
+	   break;
    case MAD_OP: case MADP_OP: case MADC_OP:
-       //MAD latency
-       switch(get_type()){
-       case F32_TYPE:
-           latency = fp_latency[3];
-           initiation_interval = fp_init[3];
-           break;
-       case F64_TYPE:
-       case FF64_TYPE:
-           latency = dp_latency[3];
-           initiation_interval = dp_init[3];
-           break;
-       case B32_TYPE:
-       case U32_TYPE:
-       case S32_TYPE:
-       default: //Use int settings for default
-           latency = int_latency[3];
-           initiation_interval = int_init[3];
-           op = SFU_OP;
-           break;
-       }
-       break;
+	   //MAD latency
+	   switch(get_type()){
+	   case F32_TYPE:
+		   latency = fp_latency[3];
+		   initiation_interval = fp_init[3];
+		   break;
+	   case F64_TYPE:
+	   case FF64_TYPE:
+		   latency = dp_latency[3];
+		   initiation_interval = dp_init[3];
+		   break;
+	   case B32_TYPE:
+	   case U32_TYPE:
+	   case S32_TYPE:
+	   default: //Use int settings for default
+		   latency = int_latency[3];
+		   initiation_interval = int_init[3];
+		   op = SFU_OP;
+		   break;
+	   }
+	   break;
    case DIV_OP:
-       // Floating point only
+	   // Floating point only
+	   op = SFU_OP;
+	   switch(get_type()){
+	   case F32_TYPE:
+		   latency = fp_latency[4];
+		   initiation_interval = fp_init[4];
+		   break;
+	   case F64_TYPE:
+	   case FF64_TYPE:
+		   latency = dp_latency[4];
+		   initiation_interval = dp_init[4];
+		   break;
+	   case B32_TYPE:
+	   case U32_TYPE:
+	   case S32_TYPE:
+	   default: //Use int settings for default
+		   latency = int_latency[4];
+		   initiation_interval = int_init[4];
+		   break;
+	   }
+	   break;
+   case REM_OP:
+       // Integer only int div latency
        op = SFU_OP;
        switch(get_type()){
-       case F32_TYPE:
-           latency = fp_latency[4];
-           initiation_interval = fp_init[4];
-           break;
        case F64_TYPE:
        case FF64_TYPE:
-           latency = dp_latency[4];
-           initiation_interval = dp_init[4];
+       case F32_TYPE:
+           panic("REM_OP must be int type, not: %d\n", get_type());
            break;
        case B32_TYPE:
        case U32_TYPE:
        case S32_TYPE:
-       default: //Use int settings for default
            latency = int_latency[4];
            initiation_interval = int_init[4];
+           break;
+       default:
+           panic("Unknown REM_OP type: %d\n", get_type());
            break;
        }
        break;
@@ -1429,6 +1453,22 @@ void ptx_thread_info::ptx_exec_inst( warp_inst_t &inst, unsigned lane_id)
          exit_impl(pI,this);
    }
    
+   unsigned vector_spec = pI->get_vector();
+   if (vector_spec) {
+      if (vector_spec == V2_TYPE) {
+         inst.vectorLength = 2;
+      }
+      else if (vector_spec == V3_TYPE) {
+         inst.vectorLength = 3;
+      }
+      else {
+         assert(vector_spec == V4_TYPE);
+         inst.vectorLength = 4;
+      }
+   } else {
+      inst.vectorLength = 1;
+   }
+
 
 
    const gpgpu_functional_sim_config &config = m_gpu->get_config();
@@ -1718,7 +1758,9 @@ unsigned ptx_sim_init_thread( kernel_info_t &kernel,
    ptx_cta_info *cta_info = NULL;
    memory_space *shared_mem = NULL;
 
-   unsigned cta_size = kernel.threads_per_cta();
+   dim3 cta_dim = kernel.get_cta_dim();
+   unsigned cta_size = cta_dim.x * cta_dim.y * cta_dim.z;
+
    unsigned max_cta_per_sm = num_threads/cta_size; // e.g., 256 / 48 = 5 
    assert( max_cta_per_sm > 0 );
 

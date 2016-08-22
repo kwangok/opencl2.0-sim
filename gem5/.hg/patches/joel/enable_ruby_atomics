@@ -1,5 +1,5 @@
 # HG changeset patch
-# Parent 9b04a2d84cda2bb136e374d7db32c4fea81ebf39
+# Parent 194de81bc8849c9979eeb758577e86ca5c4168f2
 # User Joel Hestness <jthestness@gmail.com>
 Ruby: Enable GPU-like atomic data updates
 
@@ -11,9 +11,9 @@ memory accesses and associated atomic operations.
 Updated to how atomics are handled.
 will be folded into atomic patch
 
-diff -r 9b04a2d84cda src/mem/ruby/system/RubyPort.cc
---- a/src/mem/ruby/system/RubyPort.cc	Tue Feb 10 14:13:56 2015 -0600
-+++ b/src/mem/ruby/system/RubyPort.cc	Tue Feb 10 14:14:20 2015 -0600
+diff -r 194de81bc884 src/mem/ruby/system/RubyPort.cc
+--- a/src/mem/ruby/system/RubyPort.cc	Fri Aug 21 13:56:21 2015 -0500
++++ b/src/mem/ruby/system/RubyPort.cc	Fri Aug 21 13:57:03 2015 -0500
 @@ -43,6 +43,7 @@
  #include "debug/Config.hh"
  #include "debug/Drain.hh"
@@ -22,27 +22,26 @@ diff -r 9b04a2d84cda src/mem/ruby/system/RubyPort.cc
  #include "mem/protocol/AccessPermission.hh"
  #include "mem/ruby/slicc_interface/AbstractController.hh"
  #include "mem/ruby/system/RubyPort.hh"
-@@ -492,7 +493,15 @@
-     DPRINTF(RubyPort, "Hit callback needs response %d\n", needsResponse);
- 
+@@ -460,7 +461,14 @@
+     RubyPort *ruby_port = static_cast<RubyPort *>(&owner);
+     RubySystem *rs = ruby_port->m_ruby_system;
      if (accessPhysMem) {
--        ruby_system->getPhysMem()->access(pkt);
-+        if (pkt->req->isSwap() && pkt->req->isLocked() && pkt->isRead() &&
+-        rs->getPhysMem()->access(pkt);
++        if (pkt->req->isSwap() && pkt->req->isLockedRMW() && pkt->isRead() &&
 +            pkt->isWrite()) {
 +            // Perform the packet's atomic operations on physical memory
-+            AtomicOpRequest::atomicMemoryAccess(
-+                                        pkt, ruby_system->getPhysMem());
++            AtomicOpRequest::atomicMemoryAccess(pkt, rs->getPhysMem());
 +        } else {
-+            ruby_system->getPhysMem()->access(pkt);
++            rs->getPhysMem()->access(pkt);
 +        }
 +
      } else if (needsResponse) {
          pkt->makeResponse();
      }
-diff -r 9b04a2d84cda src/mem/ruby/system/Sequencer.cc
---- a/src/mem/ruby/system/Sequencer.cc	Tue Feb 10 14:13:56 2015 -0600
-+++ b/src/mem/ruby/system/Sequencer.cc	Tue Feb 10 14:14:20 2015 -0600
-@@ -628,6 +628,16 @@
+diff -r 194de81bc884 src/mem/ruby/system/Sequencer.cc
+--- a/src/mem/ruby/system/Sequencer.cc	Fri Aug 21 13:56:21 2015 -0500
++++ b/src/mem/ruby/system/Sequencer.cc	Fri Aug 21 13:57:03 2015 -0500
+@@ -633,6 +633,16 @@
              primary_type = RubyRequestType_Locked_RMW_Read;
          }
          secondary_type = RubyRequestType_ST;

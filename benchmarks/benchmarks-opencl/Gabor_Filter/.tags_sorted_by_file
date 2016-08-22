@@ -1,0 +1,131 @@
+GaborKernel_Init	GaborFilter.cpp	/^void GaborFilter::GaborKernel_Init(int iMu, int iNu, double dSigma, double dF)$/;"	f	class:GaborFilter
+GaborKernel_show	GaborFilter.cpp	/^void GaborFilter::GaborKernel_show(int choice){$/;"	f	class:GaborFilter
+ImagetoRawData	GaborFilter.cpp	/^void GaborFilter::ImagetoRawData(IplImage *input_image,int height,int width)$/;"	f	class:GaborFilter
+LoadImage	GaborFilter.cpp	/^void GaborFilter::LoadImage(const char* filename)$/;"	f	class:GaborFilter
+convolution	GaborFilter.cpp	/^void GaborFilter::convolution()$/;"	f	class:GaborFilter
+cropping	GaborFilter.cpp	/^void GaborFilter::cropping(float* in , float* out){$/;"	f	class:GaborFilter
+kernel_padder	GaborFilter.cpp	/^void GaborFilter::kernel_padder(float* real, float* image , int height , int width)$/;"	f	class:GaborFilter
+normalize	GaborFilter.cpp	/^void GaborFilter::normalize(float* in,float* out,int height,int width){$/;"	f	class:GaborFilter
+normalizeResult	GaborFilter.cpp	/^void GaborFilter::normalizeResult(float* output, int width)$/;"	f	class:GaborFilter
+saveRawtoImage	GaborFilter.cpp	/^void GaborFilter::saveRawtoImage(float* rawImage, const char* file_path, const unsigned int height,const unsigned int width ){	$/;"	f	class:GaborFilter
+transformCLfloat2	GaborFilter.cpp	/^void GaborFilter::transformCLfloat2(float* real, float* image, cl_float2* complex, int height, int width, bool dir)$/;"	f	class:GaborFilter
+F	GaborFilter.h	16;"	d
+GaborFilter	GaborFilter.h	/^class GaborFilter{$/;"	c
+KMAX	GaborFilter.h	15;"	d
+PI	GaborFilter.h	13;"	d
+SIGMA	GaborFilter.h	14;"	d
+_GABORFILTER_H_	GaborFilter.h	2;"	d
+iF	GaborFilter.h	/^		double iF;$/;"	m	class:GaborFilter
+iK	GaborFilter.h	/^		double iK;$/;"	m	class:GaborFilter
+iKmax	GaborFilter.h	/^		double iKmax;$/;"	m	class:GaborFilter
+iPhi	GaborFilter.h	/^		double iPhi;		$/;"	m	class:GaborFilter
+iSigma	GaborFilter.h	/^		double iSigma;$/;"	m	class:GaborFilter
+iWidth	GaborFilter.h	/^		int iWidth;$/;"	m	class:GaborFilter
+img_height	GaborFilter.h	/^		int img_height;$/;"	m	class:GaborFilter
+img_width	GaborFilter.h	/^		int img_width;$/;"	m	class:GaborFilter
+kernel_col	GaborFilter.h	/^		float *kernel_col;$/;"	m	class:GaborFilter
+kernel_row	GaborFilter.h	/^		float *kernel_row;$/;"	m	class:GaborFilter
+mImag	GaborFilter.h	/^        float *mImag;$/;"	m	class:GaborFilter
+mReal	GaborFilter.h	/^		float *mReal;$/;"	m	class:GaborFilter
+out_height	GaborFilter.h	/^		int out_height;$/;"	m	class:GaborFilter
+out_width	GaborFilter.h	/^		int out_width;$/;"	m	class:GaborFilter
+outputCPU	GaborFilter.h	/^		float *outputCPU;$/;"	m	class:GaborFilter
+outputResult	GaborFilter.h	/^		float *outputResult;$/;"	m	class:GaborFilter
+rawImage	GaborFilter.h	/^		float *rawImage;$/;"	m	class:GaborFilter
+CPerfCounter	Time.cpp	/^CPerfCounter::CPerfCounter() : _clocks(0), _start(0)$/;"	f	class:CPerfCounter
+GetElapsedTime	Time.cpp	/^CPerfCounter::GetElapsedTime(void)$/;"	f	class:CPerfCounter
+Reset	Time.cpp	/^CPerfCounter::Reset(void)$/;"	f	class:CPerfCounter
+Start	Time.cpp	/^CPerfCounter::Start(void)$/;"	f	class:CPerfCounter
+Stop	Time.cpp	/^CPerfCounter::Stop(void)$/;"	f	class:CPerfCounter
+~CPerfCounter	Time.cpp	/^CPerfCounter::~CPerfCounter()$/;"	f	class:CPerfCounter
+CPerfCounter	Time.h	/^class CPerfCounter {$/;"	c
+_TIME_H_	Time.h	94;"	d
+_clocks	Time.h	/^    i64 _clocks;$/;"	m	class:CPerfCounter
+_freq	Time.h	/^    i64 _freq;$/;"	m	class:CPerfCounter
+_start	Time.h	/^    i64 _start;$/;"	m	class:CPerfCounter
+i64	Time.h	/^typedef __int64 i64 ;$/;"	t
+i64	Time.h	/^typedef long long i64;$/;"	t
+CV_DO_PRAGMA	cv.h	47;"	d
+CV_DO_PRAGMA	cv.h	53;"	d
+CV_DO_PRAGMA	cv.h	56;"	d
+CV_IMPL	cv.h	75;"	d
+CV_MSG_PRAGMA	cv.h	51;"	d
+CV_MSG_PRAGMA	cv.h	54;"	d
+CV_MSG_PRAGMA	cv.h	57;"	d
+CV_WARNING	cv.h	59;"	d
+__CVMSVCLOC__	cv.h	50;"	d
+__CVSTR1__	cv.h	49;"	d
+__CVSTR2__	cv.h	48;"	d
+__OPENCV_OLD_CV_H__	cv.h	44;"	d
+__OPENCV_OLD_CXCORE_H__	cxcore.h	44;"	d
+__OPENCV_OLD_HIGHGUI_H__	highgui.h	43;"	d
+main	main.cpp	/^int main()$/;"	f
+FFT	shaderHandler.cpp	/^int FFT(int dir,int m,double *x,double *y)$/;"	f
+FFT2D	shaderHandler.cpp	/^int FFT2D(cl_float2 *c,int nx,int ny,int dir)$/;"	f
+LoadCLFile	shaderHandler.cpp	/^void shaderHandler::LoadCLFile(const string filename)$/;"	f	class:shaderHandler
+Run	shaderHandler.cpp	/^void shaderHandler::Run()$/;"	f	class:shaderHandler
+Run2	shaderHandler.cpp	/^void shaderHandler::Run2()$/;"	f	class:shaderHandler
+Run3	shaderHandler.cpp	/^void shaderHandler::Run3()$/;"	f	class:shaderHandler
+RunFFT	shaderHandler.cpp	/^void shaderHandler::RunFFT(cl_mem dst, cl_mem src, cl_mem spin, int direction)$/;"	f	class:shaderHandler
+RunFFT_CPU	shaderHandler.cpp	/^void shaderHandler::RunFFT_CPU()$/;"	f	class:shaderHandler
+RunMultiply	shaderHandler.cpp	/^void shaderHandler::RunMultiply(cl_mem dst, cl_mem kernel)$/;"	f	class:shaderHandler
+RunSepConvolution	shaderHandler.cpp	/^void shaderHandler::RunSepConvolution(cl_mem dst, cl_mem src, cl_mem filter, int dir)$/;"	f	class:shaderHandler
+createBuffer	shaderHandler.cpp	/^void shaderHandler::createBuffer()$/;"	f	class:shaderHandler
+enqueueKernel	shaderHandler.cpp	/^void shaderHandler::enqueueKernel(int nKernel, bool blocking)$/;"	f	class:shaderHandler
+initCL	shaderHandler.cpp	/^void shaderHandler::initCL()$/;"	f	class:shaderHandler
+releaseBuffer	shaderHandler.cpp	/^void shaderHandler::releaseBuffer()$/;"	f	class:shaderHandler
+releaseCL	shaderHandler.cpp	/^void shaderHandler::releaseCL()$/;"	f	class:shaderHandler
+setGabor	shaderHandler.cpp	/^void shaderHandler::setGabor(GaborFilter* _gabor)$/;"	f	class:shaderHandler
+setKernelArgs	shaderHandler.cpp	/^void shaderHandler::setKernelArgs(int nKernel)$/;"	f	class:shaderHandler
+setParam	shaderHandler.cpp	/^void shaderHandler::setParam(shaderParam* _param)$/;"	f	class:shaderHandler
+setWorkSize	shaderHandler.cpp	/^void setWorkSize(size_t* gws, size_t* lws, cl_int x, cl_int y)  $/;"	f
+shaderHandler	shaderHandler.cpp	/^shaderHandler::shaderHandler(void)$/;"	f	class:shaderHandler
+~shaderHandler	shaderHandler.cpp	/^shaderHandler::~shaderHandler(void)$/;"	f	class:shaderHandler
+COLUMNS_BLOCKDIM_X	shaderHandler.h	/^    ROWS_BLOCKDIM_X   = 16, COLUMNS_BLOCKDIM_X = 16,$/;"	m	class:shaderHandler
+COLUMNS_BLOCKDIM_Y	shaderHandler.h	/^    ROWS_BLOCKDIM_Y   = 4,  COLUMNS_BLOCKDIM_Y = 8,$/;"	m	class:shaderHandler
+COLUMNS_HALO_STEPS	shaderHandler.h	/^    ROWS_HALO_STEPS   = 1,  COLUMNS_HALO_STEPS = 1;$/;"	m	class:shaderHandler
+COLUMNS_RESULT_STEPS	shaderHandler.h	/^    ROWS_RESULT_STEPS = 4,  COLUMNS_RESULT_STEPS = 4,$/;"	m	class:shaderHandler
+ROWS_BLOCKDIM_X	shaderHandler.h	/^    ROWS_BLOCKDIM_X   = 16, COLUMNS_BLOCKDIM_X = 16,$/;"	m	class:shaderHandler
+ROWS_BLOCKDIM_Y	shaderHandler.h	/^    ROWS_BLOCKDIM_Y   = 4,  COLUMNS_BLOCKDIM_Y = 8,$/;"	m	class:shaderHandler
+ROWS_HALO_STEPS	shaderHandler.h	/^    ROWS_HALO_STEPS   = 1,  COLUMNS_HALO_STEPS = 1;$/;"	m	class:shaderHandler
+ROWS_RESULT_STEPS	shaderHandler.h	/^    ROWS_RESULT_STEPS = 4,  COLUMNS_RESULT_STEPS = 4,$/;"	m	class:shaderHandler
+_SHADERHANDLER_H	shaderHandler.h	2;"	d
+cl_filter	shaderHandler.h	/^	cl_mem cl_filter;$/;"	m	class:shaderHandler
+cl_filter1D_col	shaderHandler.h	/^	cl_mem cl_filter1D_col;$/;"	m	class:shaderHandler
+cl_filter1D_row	shaderHandler.h	/^	cl_mem cl_filter1D_row;$/;"	m	class:shaderHandler
+cl_input	shaderHandler.h	/^	cl_mem cl_input;$/;"	m	class:shaderHandler
+cl_output	shaderHandler.h	/^	cl_mem cl_output;$/;"	m	class:shaderHandler
+cl_output_sepConvolution	shaderHandler.h	/^	cl_mem cl_output_sepConvolution;$/;"	m	class:shaderHandler
+context	shaderHandler.h	/^	cl_context context;$/;"	m	class:shaderHandler
+counter	shaderHandler.h	/^	CPerfCounter counter;$/;"	m	class:shaderHandler
+devices	shaderHandler.h	/^	std::vector<cl_device_id> devices;$/;"	m	class:shaderHandler
+gabor	shaderHandler.h	/^	GaborFilter* gabor;$/;"	m	class:shaderHandler
+kernels	shaderHandler.h	/^	std::vector<cl_kernel> kernels;$/;"	m	class:shaderHandler
+output	shaderHandler.h	/^	float* output;$/;"	m	class:shaderHandler
+param	shaderHandler.h	/^	shaderParam* param;$/;"	m	class:shaderHandler
+program	shaderHandler.h	/^	cl_program program;$/;"	m	class:shaderHandler
+queue	shaderHandler.h	/^	cl_command_queue queue;$/;"	m	class:shaderHandler
+shaderHandler	shaderHandler.h	/^class shaderHandler$/;"	c
+initParam	shaderParam.cpp	/^void shaderParam::initParam(GaborFilter &gabor)$/;"	f	class:shaderParam
+shaderParam	shaderParam.cpp	/^shaderParam::shaderParam(void)$/;"	f	class:shaderParam
+~shaderParam	shaderParam.cpp	/^shaderParam::~shaderParam(void)$/;"	f	class:shaderParam
+WORK_DIM	shaderParam.h	/^    enum {WORK_DIM=2};$/;"	e	enum:shaderParam::__anon1
+_SHADERPARAM_H_	shaderParam.h	2;"	d
+globalNDWorkSize	shaderParam.h	/^    size_t globalNDWorkSize[WORK_DIM];  \/\/Total number of work items$/;"	m	class:shaderParam
+kernelFile	shaderParam.h	/^    std::string kernelFile; \/\/File that contains all the kernels$/;"	m	class:shaderParam
+kernelNames	shaderParam.h	/^    std::vector<std::string> kernelNames;$/;"	m	class:shaderParam
+localNDWorkSize	shaderParam.h	/^    size_t localNDWorkSize[WORK_DIM];   \/\/Work items in each work-group$/;"	m	class:shaderParam
+nFilterWidth	shaderParam.h	/^    int nFilterWidth;   \/\/Filter size is nFilterWidth X nFilterWidth$/;"	m	class:shaderParam
+nHeight	shaderParam.h	/^    int nHeight;        \/\/Output image height$/;"	m	class:shaderParam
+nInHeight	shaderParam.h	/^    int nInHeight;      \/\/Input  image height$/;"	m	class:shaderParam
+nInWidth	shaderParam.h	/^    int nInWidth;       \/\/Input  image width$/;"	m	class:shaderParam
+nIterations	shaderParam.h	/^    int nIterations;    \/\/Run timing loop for nIterations$/;"	m	class:shaderParam
+nTotalKernels	shaderParam.h	/^    int nTotalKernels;  \/\/kernelNames.size()$/;"	m	class:shaderParam
+nWidth	shaderParam.h	/^	int nWidth;         \/\/Output image width$/;"	m	class:shaderParam
+shaderParam	shaderParam.h	/^class shaderParam$/;"	c
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_PROGRAM_VERSION	5.7	//
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/

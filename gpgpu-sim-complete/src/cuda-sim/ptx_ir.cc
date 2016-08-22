@@ -1097,7 +1097,7 @@ ptx_instruction::ptx_instruction( int opcode,
    m_atomic_spec = 0;
    m_membar_level = 0;
    m_inst_size = 8; // bytes
-   // deicide218: New flag initialization added from here
+   // New flag initialization added from here
    m_shiftamt_option = false;
    m_carry_flag = false;
    m_ftz = false;
@@ -1231,7 +1231,7 @@ ptx_instruction::ptx_instruction( int opcode,
       case HALF_OPTION:
          m_inst_size = 4; // bytes
          break;
-	  case SHFL_OPTION: // deicide218: New options added from here
+	  case SHFL_OPTION: // New options added from here
 	  case SHFR_OPTION:
 		 m_shf_direction = last_ptx_inst_option;
 		 break;

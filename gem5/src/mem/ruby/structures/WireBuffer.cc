@@ -34,7 +34,6 @@
 
 #include "base/cprintf.hh"
 #include "base/stl_helpers.hh"
-#include "mem/ruby/common/Global.hh"
 #include "mem/ruby/structures/WireBuffer.hh"
 #include "mem/ruby/system/System.hh"
 
@@ -58,6 +57,7 @@ WireBuffer::WireBuffer(const Params *p)
     : SimObject(p)
 {
     m_msg_counter = 0;
+    m_ruby_system = p->ruby_system;
 }
 
 void
@@ -73,15 +73,16 @@ void
 WireBuffer::enqueue(MsgPtr message, Cycles latency)
 {
     m_msg_counter++;
-    Cycles current_time = g_system_ptr->curCycle();
+    Cycles current_time = m_ruby_system->curCycle();
     Cycles arrival_time = current_time + latency;
     assert(arrival_time > current_time);
 
-    MessageBufferNode thisNode(arrival_time, m_msg_counter, message);
-    m_message_queue.push_back(thisNode);
+    Message* msg_ptr = message.get();
+    msg_ptr->setLastEnqueueTime(arrival_time);
+    m_message_queue.push_back(message);
     if (m_consumer_ptr != NULL) {
         m_consumer_ptr->
-            scheduleEventAbsolute(g_system_ptr->clockPeriod() * arrival_time);
+            scheduleEventAbsolute(m_ruby_system->clockPeriod() * arrival_time);
     } else {
         panic("No Consumer for WireBuffer! %s\n", *this);
     }
@@ -92,25 +93,16 @@ WireBuffer::dequeue()
 {
     assert(isReady());
     pop_heap(m_message_queue.begin(), m_message_queue.end(),
-        greater<MessageBufferNode>());
+        greater<MsgPtr>());
     m_message_queue.pop_back();
 }
 
 const Message*
 WireBuffer::peek()
 {
-    MessageBufferNode node = peekNode();
-    Message* msg_ptr = node.m_msgptr.get();
+    Message* msg_ptr = m_message_queue.front().get();
     assert(msg_ptr != NULL);
     return msg_ptr;
-}
-
-MessageBufferNode
-WireBuffer::peekNode()
-{
-    assert(isReady());
-    MessageBufferNode req = m_message_queue.front();
-    return req;
 }
 
 void
@@ -121,23 +113,23 @@ WireBuffer::recycle()
     // Wire-like situations because you don't want to deadlock as a result of
     // being stuck behind something if you're not actually supposed to.
     assert(isReady());
-    MessageBufferNode node = m_message_queue.front();
-    pop_heap(m_message_queue.begin(), m_message_queue.end(),
-        greater<MessageBufferNode>());
+    MsgPtr node = m_message_queue.front();
+    pop_heap(m_message_queue.begin(), m_message_queue.end(), greater<MsgPtr>());
 
-    node.m_time = g_system_ptr->curCycle() + Cycles(1);
+    node->setLastEnqueueTime(m_ruby_system->curCycle() + Cycles(1));
     m_message_queue.back() = node;
     push_heap(m_message_queue.begin(), m_message_queue.end(),
-        greater<MessageBufferNode>());
+        greater<MsgPtr>());
     m_consumer_ptr->
-        scheduleEventAbsolute(g_system_ptr->clockPeriod() * node.m_time);
+        scheduleEventAbsolute(m_ruby_system->curCycle() + Cycles(1));
 }
 
 bool
 WireBuffer::isReady()
 {
     return ((!m_message_queue.empty()) &&
-            (m_message_queue.front().m_time <= g_system_ptr->curCycle()));
+            (m_message_queue.front()->getLastEnqueueTime() <=
+                    m_ruby_system->curCycle()));
 }
 
 void
@@ -155,4 +147,3 @@ RubyWireBufferParams::create()
 {
     return new WireBuffer(this);
 }
-

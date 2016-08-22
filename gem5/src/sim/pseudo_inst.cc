@@ -726,7 +726,8 @@ workend(ThreadContext *tc, uint64_t workid, uint64_t threadid)
 void
 gpu(ThreadContext *tc, uint64_t gpusysno, uint64_t call_params)
 {
-    if (gpusysno > 85) {
+// total syscall number
+    if (gpusysno > 115) {
         warn("Ignoring gpu syscall %d\n", gpusysno);
         return;
     }

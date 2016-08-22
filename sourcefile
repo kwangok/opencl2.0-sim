@@ -1,0 +1,23 @@
+#Please see README before source this file
+GEM5GPU_GCC_PATH=/path/to/your/gcc
+GEM5GPU_CUDA_PATH=/path/to/your/cuda
+GEM5GPU_PATH=/path/to/your/gem5-gpu
+OPENCL_PATH=/path/to/your/opencl
+OPENCLORCUDA=OPENCL
+
+export PATH=$GEM5GPU_GCC_PATH/bin:$GEM5GPU_CUDA_PATH/bin:$PATH
+export LD_LIBRARY_PATH=$GEM5GPU_CUDA_PATH/include:$GEM5GPU_GCC_PATH/lib64:$LD_LIBRARY_PATH
+export CUDAHOME=$GEM5GPU_CUDA_PATH
+
+export GEM5GPU_CUDA_OR_OPENCL=$OPENCLORCUDA
+
+#For nvwrapper
+export NVOPENCL_LIBDIR=$OPENCL_PATH
+export GEM5GPU_ROOT=$GEM5GPU_PATH
+
+#For Use PTX file
+#export PTX_SIM_USE_PTX_FILE=1
+
+#For opencv benchmarks
+#opencv pkgconfig path: opencv/lib/pkgconfig
+#export PKG_CONFIG_PATH=/path/to/your/opencv/pkgconfig/path

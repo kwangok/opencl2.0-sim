@@ -29,6 +29,8 @@
 
 #include "gpu/gpgpu-sim/cuda_gpu.hh"
 
+#include "gpu/gpgpu-sim/cuda_gpu.hh"
+
 #include "gpu-sim.h"
 
 #include <stdio.h>
@@ -277,6 +279,9 @@ void shader_core_config::reg_options(class OptionParser * opp)
     option_parser_register(opp, "-gpgpu_shmem_size_PrefShared", OPT_UINT32, &gpgpu_shmem_sizePrefShared,
                  "Size of shared memory per shader core (default 16kB)",
                  "16384");
+    option_parser_register(opp, "-gpgpu_shmem_access_latency", OPT_UINT32, &gpgpu_shmem_access_latency,
+                 "Shared load buffer depth (default 13: Fermi, Maxwell = 21)",
+                 "13");
     option_parser_register(opp, "-gpgpu_shmem_num_banks", OPT_UINT32, &num_shmem_bank, 
                  "Number of banks in the shared memory in each shader core (default 16)",
                  "16");
@@ -340,6 +345,9 @@ void shader_core_config::reg_options(class OptionParser * opp)
     option_parser_register(opp, "-gpgpu_coalesce_arch", OPT_INT32, &gpgpu_coalesce_arch, 
                             "Coalescing arch (default = 13, anything else is off for now)", 
                             "13");
+    option_parser_register(opp, "-gpgpu_cycle_sched_prio", OPT_BOOL, &gpgpu_cycle_sched_prio,
+                            "Whether to cycle the priority of warp schedulers (default=false)",
+                            "0");
     option_parser_register(opp, "-gpgpu_num_sched_per_core", OPT_INT32, &gpgpu_num_sched_per_core, 
                             "Number of warp schedulers per core", 
                             "1");
@@ -368,6 +376,9 @@ void shader_core_config::reg_options(class OptionParser * opp)
                                 "For complete list of prioritization values see shader.h enum scheduler_prioritization_type"
                                 "Default: gto",
                                  "gto");
+    option_parser_register(opp, "-gpgpu_fetch_decode_width", OPT_INT32, &gpgpu_fetch_decode_width,
+                            "Number of instructions to fetch per cycle (default=2)",
+                            "2");
 }
 
 void gpgpu_sim_config::reg_options(option_parser_t opp)
@@ -548,8 +559,8 @@ void gpgpu_sim::set_kernel_done( kernel_info_t *kernel )
 
 void set_ptx_warp_size(const struct core_config * warp_size);
 
-gpgpu_sim::gpgpu_sim( const gpgpu_sim_config &config, int _sharedMemDelay )
-    : gpgpu_t(config, _sharedMemDelay), m_config(config)
+gpgpu_sim::gpgpu_sim( const gpgpu_sim_config &config, CudaGPU *cuda_gpu )
+	: gpgpu_t(config, cuda_gpu), m_config(config)
 { 
     m_shader_config = &m_config.m_shader_config;
     m_memory_config = &m_config.m_memory_config;
@@ -1072,7 +1083,10 @@ void shader_core_ctx::issue_block2core( kernel_info_t &kernel )
     assert( free_cta_hw_id!=(unsigned)-1 );
 
     // determine hardware threads and warps that will be used for this CTA
-    int cta_size = kernel.threads_per_cta();
+    
+    dim3 cta_dim = kernel.get_cta_dim();
+    int cta_size = cta_dim.x * cta_dim.y * cta_dim.z;
+    int real_cta_size = kernel.threads_per_cta();
 
     // hw warp id = hw thread id mod warp size, so we need to find a range 
     // of hardware thread ids corresponding to an integral number of hardware
@@ -1081,7 +1095,7 @@ void shader_core_ctx::issue_block2core( kernel_info_t &kernel )
     if (cta_size%m_config->warp_size)
       padded_cta_size = ((cta_size/m_config->warp_size)+1)*(m_config->warp_size);
     unsigned start_thread = free_cta_hw_id * padded_cta_size;
-    unsigned end_thread  = start_thread +  cta_size;
+    unsigned end_thread  = start_thread + real_cta_size;
 
     // reset the microarchitecture state of the selected hardware thread and warp contexts
     reinit(start_thread, end_thread,false);
@@ -1093,7 +1107,7 @@ void shader_core_ctx::issue_block2core( kernel_info_t &kernel )
     for (unsigned i = start_thread; i<end_thread; i++) {
         m_threadState[i].m_cta_id = free_cta_hw_id;
         unsigned warp_id = i/m_config->warp_size;
-        nthreads_in_block += ptx_sim_init_thread(kernel,&m_thread[i],m_sid,i,cta_size-(i-start_thread),m_config->n_thread_per_shader,this,free_cta_hw_id,warp_id,m_cluster->get_gpu());
+        nthreads_in_block += ptx_sim_init_thread(kernel,&m_thread[i],m_sid,i,real_cta_size-(i-start_thread),m_config->n_thread_per_shader,this,free_cta_hw_id,warp_id,m_cluster->get_gpu());
         m_threadState[i].m_active = true; 
         warps.set( warp_id );
     }
@@ -1249,7 +1263,7 @@ gpgpu_sim::core_cycle_start()
        }
     }
 
-    if (!(gpu_sim_cycle % 20000)) {
+    if (!(gpu_sim_cycle % 2000000)) {
        // deadlock detection 
        if (m_config.gpu_deadlock_detect && gpu_sim_insn == last_gpu_sim_insn) {
           gpu_deadlock = true;

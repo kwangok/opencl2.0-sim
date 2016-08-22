@@ -470,9 +470,9 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    76,    76,    77,    80,    81,    82,    86,    87,    88,
-      91,    92,    94,    95,    99,   100,   103,   104,   105,   106,
-     107,   108,   109,   110,   113
+       0,    76,    76,    77,    80,    81,    82,    85,    86,    87,
+      90,    91,    93,    94,    97,    98,   101,   102,   103,   104,
+     105,   106,   107,   108,   111
 };
 #endif
 
@@ -1279,73 +1279,73 @@ yyreduce:
     break;
 
   case 8:
-#line 87 "ptxinfo.y" /* yacc.c:1646  */
+#line 86 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_addinfo(); }
 #line 1285 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 91 "ptxinfo.y" /* yacc.c:1646  */
+#line 90 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_function((yyvsp[-1].string_value)); }
 #line 1291 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 92 "ptxinfo.y" /* yacc.c:1646  */
+#line 91 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_function((yyvsp[-5].string_value)); }
 #line 1297 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 103 "ptxinfo.y" /* yacc.c:1646  */
+#line 101 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_regs((yyvsp[-1].int_value)); }
 #line 1303 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 104 "ptxinfo.y" /* yacc.c:1646  */
+#line 102 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_lmem(g_declared,g_system); }
 #line 1309 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 105 "ptxinfo.y" /* yacc.c:1646  */
+#line 103 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_smem(g_declared,g_system); }
 #line 1315 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 106 "ptxinfo.y" /* yacc.c:1646  */
+#line 104 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_cmem((yyvsp[-5].int_value),(yyvsp[-1].int_value)); }
 #line 1321 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 107 "ptxinfo.y" /* yacc.c:1646  */
+#line 105 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_lmem((yyvsp[-2].int_value),0); }
 #line 1327 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 108 "ptxinfo.y" /* yacc.c:1646  */
+#line 106 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_smem((yyvsp[-2].int_value),0); }
 #line 1333 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 109 "ptxinfo.y" /* yacc.c:1646  */
+#line 107 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_cmem((yyvsp[-2].int_value),0); }
 #line 1339 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 110 "ptxinfo.y" /* yacc.c:1646  */
+#line 108 "ptxinfo.y" /* yacc.c:1646  */
     { ptxinfo_regs((yyvsp[-1].int_value)); }
 #line 1345 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 113 "ptxinfo.y" /* yacc.c:1646  */
+#line 111 "ptxinfo.y" /* yacc.c:1646  */
     { g_declared=(yyvsp[-3].int_value); g_system=(yyvsp[-1].int_value); }
 #line 1351 "ptxinfo.tab.c" /* yacc.c:1646  */
     break;
@@ -1579,7 +1579,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 115 "ptxinfo.y" /* yacc.c:1906  */
+#line 113 "ptxinfo.y" /* yacc.c:1906  */
 
 
 

@@ -2,6 +2,7 @@ benchmark/*
 
 gem5/full_system_images/*
 gem5/build/*
+gem5/m5out/*
 
 gpgpu-sim-complete/libcuda/cuobjdump_lexer.c
 gpgpu-sim-complete/libcuda/cuobjdump_parser.c

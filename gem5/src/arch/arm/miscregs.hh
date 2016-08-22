@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2014 ARM Limited
+ * Copyright (c) 2010-2015 ARM Limited
  * All rights reserved
  *
  * The license below extends only to copyright in the software and shall
@@ -663,21 +663,23 @@ namespace ArmISA
         MISCREG_CPUMERRSR_EL1,          // 596
         MISCREG_L2MERRSR_EL1,           // 597
         MISCREG_CBAR_EL1,               // 598
+        MISCREG_CONTEXTIDR_EL2,         // 599
 
         // Dummy registers
-        MISCREG_NOP,                    // 599
-        MISCREG_RAZ,                    // 600
-        MISCREG_CP14_UNIMPL,            // 601
-        MISCREG_CP15_UNIMPL,            // 602
-        MISCREG_A64_UNIMPL,             // 603
-        MISCREG_UNKNOWN,                // 604
+        MISCREG_NOP,                    // 600
+        MISCREG_RAZ,                    // 601
+        MISCREG_CP14_UNIMPL,            // 602
+        MISCREG_CP15_UNIMPL,            // 603
+        MISCREG_A64_UNIMPL,             // 604
+        MISCREG_UNKNOWN,                // 605
 
         // GPU fault register
-        MISCREG_GPU_FAULT,              // 605
-        MISCREG_GPU_FAULTADDR,          // 606
-        MISCREG_GPU_FAULTCODE,          // 607
+        MISCREG_GPU_FAULT,              // 606
+        MISCREG_GPU_FAULTADDR,          // 607
+        MISCREG_GPU_FAULTCODE,          // 608
+        MISCREG_GPU_FAULT_RSP,          // 609
 
-        NUM_MISCREGS                    // 608
+        NUM_MISCREGS                    // 610
     };
 
     enum MiscRegInfo {
@@ -1349,6 +1351,7 @@ namespace ArmISA
         "cpumerrsr_el1",
         "l2merrsr_el1",
         "cbar_el1",
+        "contextidr_el2",
 
         // Dummy registers
         "nop",
@@ -1361,7 +1364,8 @@ namespace ArmISA
         // GPU fault registers
         "gpuf",
         "gpufaddr",
-        "gpufcode"
+        "gpufcode",
+        "gpufrsp"
     };
 
     static_assert(sizeof(miscRegName) / sizeof(*miscRegName) == NUM_MISCREGS,
@@ -1856,7 +1860,7 @@ namespace ArmISA
    * May need to increase to more bits if more than 1 GPU is in the system
    */
    BitUnion64(GPUFaultReg)
-      Bitfield<0> inFault;
+      Bitfield<1, 0> inFault;
    EndBitUnion(GPUFaultReg)
 
    BitUnion64(GPUFaultCode)
@@ -1866,6 +1870,9 @@ namespace ArmISA
       Bitfield<3> reserved;
       Bitfield<4> fetch;
    EndBitUnion(GPUFaultCode)
+
+   BitUnion64(GPUFaultRSPReg)
+   EndBitUnion(GPUFaultRSPReg)
 
     // Checks read access permissions to coproc. registers
     bool canReadCoprocReg(MiscRegIndex reg, SCR scr, CPSR cpsr,

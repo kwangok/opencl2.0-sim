@@ -19,7 +19,7 @@ M5OP = m5op_x86
 OPENCL = opencl
 OPENCL_SRCS = opencl_runtime_api.cc
 OPENCL_OBJS = $(OPENCL_SRCS:%.cc=%.o) $(M5OP).o
-OPENCLHOME ?= /usr
+OPENCLHOME ?= .
 
 CXXFLAGS =
 

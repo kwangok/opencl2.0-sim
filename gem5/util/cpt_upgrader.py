@@ -602,6 +602,41 @@ def from_C(cpt):
                 cpt.set(sec, 'intRegs', ' '.join(intRegs))
                 cpt.set(sec, 'ccRegs',  ' '.join(ccRegs))
 
+# Checkpoint version E adds the ARM CONTEXTIDR_EL2 miscreg.
+def from_D(cpt):
+    if cpt.get('root','isa') == 'arm':
+        for sec in cpt.sections():
+            import re
+            # Search for all ISA sections
+            if re.search('.*sys.*\.cpu.*\.isa$', sec):
+                miscRegs = cpt.get(sec, 'miscRegs').split()
+                # CONTEXTIDR_EL2 defaults to 0b11111100000000000001
+                miscRegs[599:599] = [0xFC001]
+                cpt.set(sec, 'miscRegs', ' '.join(str(x) for x in miscRegs))
+
+# Checkpoint version F renames an internal member of Process class.
+def from_E(cpt):
+    import re
+    for sec in cpt.sections():
+        fdm = 'FdMap'
+        fde = 'FDEntry'
+        if re.match('.*\.%s.*' % fdm, sec):
+            rename = re.sub(fdm, fde, sec)
+            split = re.split(fde, rename)
+
+            # rename the section and add the 'mode' field
+            rename_section(cpt, sec, rename)
+            cpt.set(rename, 'mode', "0") # no proper value to set :(
+
+            # add in entries 257 to 1023
+            if split[1] == "0":
+                for x in range(257, 1024):
+                    seq = (split[0], fde, "%s" % x)
+                    section = "".join(seq)
+                    cpt.add_section(section)
+                    cpt.set(section, 'fd', '-1')
+
+
 migrations = []
 migrations.append(from_0)
 migrations.append(from_1)
@@ -616,6 +651,17 @@ migrations.append(from_9)
 migrations.append(from_A)
 migrations.append(from_B)
 migrations.append(from_C)
+migrations.append(from_D)
+migrations.append(from_E)
+
+# http://stackoverflow.com/questions/15069127/python-configparser-module-\
+# rename-a-section
+def rename_section(cp, section_from, section_to):
+    items = cp.items(section_from)
+    cp.add_section(section_to)
+    for item in items:
+        cp.set(section_to, item[0], item[1])
+    cp.remove_section(section_from)
 
 verbose_print = False
 
