@@ -62,7 +62,7 @@ unsigned int registerFatBinaryBottom(GPUSyscallHelper *helper, Addr sim_alloc_pt
 void register_var(Addr sim_deviceAddress, const char* deviceName, int sim_size, int sim_constant, int sim_global, int sim_ext, Addr sim_hostVar);
 
 // Trace running time for CDP kernels
-typdef struct {
+typedef struct {
     Tick start;
     Tick end;
 } kernel_runtime_info;
