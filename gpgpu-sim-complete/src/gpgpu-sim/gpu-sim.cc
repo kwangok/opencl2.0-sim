@@ -29,8 +29,6 @@
 
 #include "gpu/gpgpu-sim/cuda_gpu.hh"
 
-#include "gpu/gpgpu-sim/cuda_gpu.hh"
-
 #include "gpu-sim.h"
 
 #include <stdio.h>
@@ -1274,7 +1272,7 @@ gpgpu_sim::core_cycle_start()
     try_snap_shot(gpu_sim_cycle);
     spill_log_to_file (stdout, 0, gpu_sim_cycle);
 
-    // deicide: CDP
+    // Try to launch a device kernel every cycle
     if (launch_one_device_kernel())
     {
         gem5CudaGPU->tryScheduleChildKernel();

@@ -28,8 +28,6 @@
 
 #include "gpu/gpgpu-sim/cuda_gpu.hh"
 
-#include "gpu/gpgpu-sim/cuda_gpu.hh"
-
 #include <float.h>
 #include "shader.h"
 #include "gpu-sim.h"
@@ -56,9 +54,6 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
     
-
-extern gpgpu_sim *g_the_gpu;
-
 extern gpgpu_sim *g_the_gpu;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1130,6 +1125,11 @@ address_type coalesced_segment(address_type addr, unsigned segment_size_lg2bytes
 }
 
 // Returns numbers of addresses in translated_addrs, each addr points to a 4B (32-bit) word
+// The problem for 8-byte local memory access comes from here. For a local memory access 
+// larger than a word size (4 byte), it will be translated into several non-continuous word
+// addresses, but the original gem5-gpu still treats the translated addresses as continuous,
+// causing a thread overwrite another thread's data.
+
 unsigned shader_core_ctx::translate_local_memaddr( address_type localaddr, unsigned tid, unsigned num_shader, unsigned datasize, new_addr_type* translated_addrs )
 {
    // During functional execution, each thread sees its own memory space for local memory, but these
@@ -1180,10 +1180,7 @@ unsigned shader_core_ctx::translate_local_memaddr( address_type localaddr, unsig
       }
    } else {
       // Sub-4B access, do only one access
-      // deicide
-      // assert(datasize > 0);
-      if (datasize <= 0) datasize = 4;
-      // deicide
+      assert(datasize > 0);
       num_accesses = 1;
       address_type local_word = localaddr/4;
       address_type local_word_offset = localaddr%4;
