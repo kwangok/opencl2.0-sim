@@ -142,7 +142,12 @@ symbol *symbol_table::add_variable( const char *identifier, const type_info *typ
 {
    char buf[1024];
    std::string key(identifier);
-   // deicide: Handle duplicates
+   // If there exists a symbol with the same name (key) as the
+   // about-to-add variable, we'll find it and compare which
+   // one has larger size. If the symbol found in the symbol
+   // table has smaller size, then we'll erase it and add the
+   // about-to-add variable into the symbol table. Otherwise
+   // we do nothing.
    if (m_symbols.find(key) != m_symbols.end())
    {
        symbol *old = m_symbols[key];
@@ -1309,8 +1314,6 @@ ptx_instruction::ptx_instruction( int opcode,
        }
 
        if (m_is_cdp || m_is_printf) m_space_spec = param_space_local;
-
-
    }
 }
 

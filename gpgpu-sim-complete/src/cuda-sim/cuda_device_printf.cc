@@ -70,6 +70,11 @@ int my_cuda_printf(const char *fmtstr, const char *arg_list)
    return ret_value;
 }
 
+/*
+ * Currently the PTX built-in function vprintf is still
+ * in the developing stage and not ready for use.
+ * TODO: Fully implement vprintf
+ */
 void gpgpusim_cuda_vprintf(const ptx_instruction * pI, ptx_thread_info * thread, const function_info * target_func ) 
 {
     char *fmtstr = NULL;

@@ -174,13 +174,13 @@ ptx_thread_info::ptx_thread_info( kernel_info_t &kernel )
    m_gpu = NULL;
    m_last_set_operand_value=ptx_reg_t();
 
-   // deicide: CDP step
+   // CDP built-in functions related stuff
    m_cdp_execution_step = 0;
    m_cdp_execution_substep = 0;
    m_cdp_memory_step = 0;
    m_cdp_memory_substep = 0;
    m_wait_for_cdp = false;
-   // deicide: Local memory stuff
+   // 8-byte local memory accessing stuff
    m_local_load_execution_step = 0;
    m_local_store_execution_step = 0;
    m_local_load_memory_step = 0;
@@ -189,7 +189,7 @@ ptx_thread_info::ptx_thread_info( kernel_info_t &kernel )
    m_wait_for_local_store = false;
    m_current_local_load_PC = (unsigned long long)-1;
    m_current_local_store_PC = (unsigned long long)-1;
-   // deicide: vprintf step
+   // vprintf built-in function stuff
    m_vprintf_execution_step = 0;
    m_vprintf_execution_substep = 0;
    m_vprintf_memory_step = 0;
@@ -264,7 +264,13 @@ unsigned ptx_thread_info::get_builtin( int builtin_id, unsigned dim_mod )
       return m_gridid;
    case LANEID_REG:
       return m_tid.x % m_core->get_warp_size();
-   // deicide: lanemask implementation, not been tested yet
+   // Special register lanemask
+   // More details:
+   // http://docs.nvidia.com/cuda/parallel-thread-execution/#special-registers-lanemask-eq
+   // http://docs.nvidia.com/cuda/parallel-thread-execution/#special-registers-lanemask-le
+   // http://docs.nvidia.com/cuda/parallel-thread-execution/#special-registers-lanemask-lt
+   // http://docs.nvidia.com/cuda/parallel-thread-execution/#special-registers-lanemask-ge
+   // http://docs.nvidia.com/cuda/parallel-thread-execution/#special-registers-lanemask-gt
    case LANEMASK_EQ_REG:
    {
        unsigned mask = 0, position = m_hw_tid % (get_gpu()->wrp_size());

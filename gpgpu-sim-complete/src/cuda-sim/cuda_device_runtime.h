@@ -3,6 +3,9 @@
 
 #define cudaStreamNonBlocking 0x01
 
+/*
+ * This is for future error handling
+ */
 enum cudaError
 {
     cudaSuccess                           =      0,   // No errors

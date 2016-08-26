@@ -436,41 +436,43 @@ public:
    ptx_reg_t m_last_set_operand_value;
    // Carry register
    unsigned CC_CF;
-   // deicide: CDP
+   // CDP
    stream_operation m_device_launch_op; 
    new_addr_type m_param_buffer;
    unsigned m_device_kernel_arg_size;
-   // deicide: For cudaStreamCreateWithFlag
+   // Temp store for cudaStreamCreateWithFlag
    new_addr_type m_child_stream_addr;
    unsigned m_child_stream_flag;
    bool m_wait_for_cdp;
    void * m_cdp_data;
    void * m_cudaGetParameterBufferRet;
    void * m_cudaStreamCreateWithFlagsStream;
+   // Counters & flags for CDP related built-in functions
    int m_cdp_execution_step;
    int m_cdp_execution_substep;
    int m_cdp_memory_step;
    int m_cdp_memory_substep;
-   // deicide: For cudaGetParameterBufferV2
+   // Temp store for cudaGetParameterBufferV2
    unsigned long long m_child_kernel_entry;
    dim3 m_grid_dim;
    dim3 m_block_dim;
    unsigned int m_shared_mem_size;
-   // deicide: For cudaLaunchDeviceV2
+   // Temp store for cudaLaunchDeviceV2
    unsigned long long m_parameter_buffer;
    unsigned long long m_child_stream_hold;
    unsigned m_device_kernel_arg_total_words;
    kernel_info_t * m_device_grid;
-   // deicide: Fro 8 byte local memory access
+   // Counters & flags for 8-byte local memory access
    int m_local_load_execution_step;
    int m_local_store_execution_step;
    int m_local_load_memory_step;
    int m_local_store_memory_step;
    bool m_wait_for_local_load;
    bool m_wait_for_local_store;
-   unsigned long long m_local_long_data;
    unsigned long long m_current_local_load_PC;
    unsigned long long m_current_local_store_PC;
+   // Temp store for 8-byte local memory access
+   unsigned long long m_local_long_data;
    // deicide: For vprintf
    bool m_wait_for_vprintf;
    void * m_vprintf_data;

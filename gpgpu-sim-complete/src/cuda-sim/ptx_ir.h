@@ -273,7 +273,7 @@ private:
    std::string m_name;
    std::string m_decl_location;
 
-   // deicide: Change address size to 64 bit to match with gem5
+   // Change address size to 64 bit to match with gem5
    addr_t m_address;
    function_info *m_function; // used for function symbols
 
@@ -722,7 +722,11 @@ public:
    {
       ptx_reg_t result;
       switch ( m_type ) {
-      // deicide: PTX uses 64 bit for signed integer literal
+      // PTX uses 64 bit for signed integer literal, see:
+      // http://docs.nvidia.com/cuda/parallel-thread-execution/#integer-constants
+      // TODO: To fully support 64-bit literals, how parser
+      // parses constants should be modified and the result
+      // should be passed into larger field of m_value.
       case int_t:         result.s64 = m_value.m_int; break;
       case float_op_t:    result.f32 = m_value.m_float; break;
       case double_op_t:   result.f64 = m_value.m_double; break; 

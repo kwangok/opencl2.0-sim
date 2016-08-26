@@ -1,3 +1,8 @@
+/*
+ * This file is modified based on gpgpu-sim-cdp
+ * More details: https://github.com/gtcasl/gpgpu-sim-cdp
+ */
+
 #include <iostream>
 #include <map>
 
@@ -37,11 +42,9 @@ extern stream_manager *g_stream_manager;
 unsigned long long g_total_param_size = 0;
 unsigned long long g_max_total_param_size = 0;
 
-// deicide
 // For stream finding
 unsigned long long int cta_map_index_head = 0;
 std::map<unsigned long long int, dim3>cta_map;
-// deicide
 
 // For pagetable
 unsigned char
@@ -66,7 +69,6 @@ touchPages(unsigned char *ptr, size_t size)
  * dimension, block dimension, and shared memory size. The maximum size
  * of the parameter buffer is 4KB.
  */
-
 void gpgpusim_cuda_getParameterBufferV2(
 		const ptx_instruction * pI,
 		ptx_thread_info * thread,
@@ -172,6 +174,20 @@ void gpgpusim_cuda_getParameterBufferV2(
             function_info * child_kernel_entry = (function_info*)(thread->m_child_kernel_entry);
             unsigned child_kernel_arg_size = child_kernel_entry->get_args_aligned_size();
 
+            // TODO:
+            // Currently the allocation of parameter buffer relies on
+            // CPU-side system call (posix_memalign), which will not
+            // work in full system simulation. To implement this in a
+            // more general way, one can pre-allocate a large buffer
+            // in a host API call and maintain a ring buffer like 
+            // structure for threads to store their parameter. The
+            // pre-allocation procedure can refer to clBuildProgram
+            // in opencl_runtime_api.cc. In OpenCL 2.0, host API
+            // clCreateCommandQueueWithProperties can handle the
+            // creating of a device-side command queue. This would
+            // be a proper place to put the pre-allocation code.
+            // In CUDA there seems to be no such API, so in this case
+            // one might just pre-allocate the buffer anyway.
             void * param_buffer = NULL;
             int error = posix_memalign((void**)&param_buffer, 128, child_kernel_arg_size);
             if (error) {
@@ -201,8 +217,6 @@ void gpgpusim_cuda_getParameterBufferV2(
             // Set write data
             thread->m_cudaGetParameterBufferRet = malloc(sizeof(unsigned long long));
             *((unsigned long long*)(thread->m_cudaGetParameterBufferRet)) = (unsigned long long)param_buffer;
-            // thread->m_cdp_data = malloc(sizeof(unsigned long long));
-            // *((unsigned long long*)(thread->m_cdp_data)) = (unsigned long long)param_buffer;
         }
 
         thread->m_last_effective_address = ret_param_addr + (thread->m_cdp_execution_substep * sizeof(unsigned int));
@@ -223,7 +237,7 @@ void gpgpusim_cuda_getParameterBufferV2(
 }
 
 /*
- * TODO: Implement cudaLaunchDeviceV2 function
+ * This function implements PTX built-in function cudaLaunchDeviceV2
  *
  * extern __device__ __cudart_builtin__ cudaError_t CUDARTAPI
  * cudaLaunchDeviceV2(void *parameterBuffer, cudaStream_t stream);
@@ -231,7 +245,6 @@ void gpgpusim_cuda_getParameterBufferV2(
  * The first parameter is a pointer to the parameter buffer, and the
  * second parameter is the stream associated with the launch.
  */
-
 void gpgpusim_cuda_launchDeviceV2(
 		const ptx_instruction * pI,
 		ptx_thread_info * thread,
@@ -367,7 +380,7 @@ void gpgpusim_cuda_launchDeviceV2(
 }
 
 /*
- * TODO: Implement cudaStreamCreateWithFlags function
+ * This function implements PTX built-in function cudaStreamCreateWithFlags
  *
  * extern __device__ __cudart_builtin__ cudaError_t CUDARTAPI
  * cudaStreamCreateWithFlags(cudaStream_t * pStream, unsigned int flags);
@@ -427,7 +440,6 @@ void gpgpusim_cuda_streamCreateWithFlags(const ptx_instruction * pI, ptx_thread_
     {
         if (thread->m_cdp_execution_substep != thread->m_cdp_memory_substep) return;
         // Create stream and write back to param0
-        // deicide: 
         // Create cta_map for mapping index and ctaid
         // We don't write the whole stream to the memory, but rather write an index hold for it
         if (thread->m_cdp_execution_substep == 0)
@@ -490,3 +502,4 @@ bool launch_one_device_kernel() {
     }
     return false;
 }
+

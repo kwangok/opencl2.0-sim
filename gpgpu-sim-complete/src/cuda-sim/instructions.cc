@@ -159,15 +159,13 @@ ptx_reg_t ptx_thread_info::get_operand_value( const operand_info &op, operand_in
          } else if ( op.is_local() ) {
             result.u64 = op.get_symbol()->get_address();
          } else if ( op.is_function_address() ) {
-			 // deicide: Get PC for kernel function
-			 // result.u64 = op.get_symbol()->get_pc()->get_start_PC();
+             // PTX ISA version 3.1 and later enables taking the address of kernel entry functions
+             // For more details: http://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-mov
+             // The implementation here stores a function_info pointer as a 64-bit data into memory
 			 result.u64 = (unsigned long long)(op.get_symbol()->get_pc());
          } else {
-            // const char *name = op.name().c_str();
-            fprintf(stderr, "GPGPU-Sim PTX: WARNING ** get_operand_value : unknown operand type");
-			// deicide: TEST
-			result.u64 = op.get_symbol()->get_address();
-            // assert(0);
+             fprintf(stderr, "GPGPU-Sim PTX: WARNING ** get_operand_value : unknown operand type");
+             result.u64 = op.get_symbol()->get_address();
          }
 
          if(op.get_operand_lohi() == 1) 
@@ -399,7 +397,7 @@ void ptx_thread_info::set_operand_value( const operand_info &dst, const ptx_reg_
 		  const symbol *name2 = dst.vec_symbol(1);
 		  if (pI->get_opcode() == SHFL_OP)
 		  {
-			  // deicide218: Handle predicate destination for shfl
+			  // Handle predicate destination for shfl
 			  setValue2.pred = shfl_pval;
 		  }
 		  else
@@ -729,8 +727,8 @@ void addp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide218: Add extended-precision for instruction add
- * TODO: Verify the functionality
+ * Add extended-precision for instruction add
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#extended-precision-arithmetic-instructions-add-cc
  * TODO: Add rounding mode .rm, .rp for .f32, .f64 type
  */
 void add_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
@@ -902,8 +900,8 @@ void add_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide: Add addc instruction
- * TODO: Verify the functionality
+ * Add addc instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#extended-precision-arithmetic-instructions-addc
  */
 void addc_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -1404,7 +1402,10 @@ void bar_sync_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    assert( b.u32 == 0 ); // support for bar.sync a{,b}; where a != 0 not yet implemented
 }
 
-// Added by Dekline
+/*
+ * Add bfe instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#integer-arithmetic-instructions-bfe
+ */
 void bfe_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 {
 	unsigned i_type = pI->get_type();
@@ -1469,8 +1470,8 @@ void bfe_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide: Add bfi instruction
- * TODO: Verify the functionality
+ * Add bfi instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#integer-arithmetic-instructions-bfi
  */
 void bfi_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -1538,8 +1539,8 @@ void bfi_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide: Add bfind instruction
- * TODO: Verify the functionality
+ * Add bfind instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#integer-arithmetic-instructions-bfind
  */
 void bfind_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -1648,8 +1649,8 @@ void breakaddr_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide: Add brev instruction
- * TODO: Verify the functionality
+ * Add brev instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#integer-arithmetic-instructions-brev
  */
 void brev_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -1727,7 +1728,7 @@ void call_impl( const ptx_instruction *pI, ptx_thread_info *thread )
        gpgpusim_cuda_streamCreateWithFlags(pI, thread, target_func);
        return;
    } else if ( fname == "cudaStreamDestroy" ) {
-       // Currently we only support 1 stream, so here it does nothing
+       // TODO: Destroy streams in GPGPU-sim fashion
        return;
    }
 #endif
@@ -2416,7 +2417,7 @@ void cvt_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide: Since now the memory system is replaced with ruby, cvta function is useless now.
+ * Since now the memory system is replaced with ruby, cvta function is useless now.
  */
 void cvta_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 { 
@@ -2434,7 +2435,7 @@ void cvta_impl( const ptx_instruction *pI, ptx_thread_info *thread )
    // unsigned smid = thread->get_hw_sid();
    // unsigned hwtid = thread->get_hw_tid();
 
-   // deicide: cvta is not working cause gem5-gpu has its own memory systme?
+   // cvta is not working 'cause gem5-gpu has its own memory system?
    /*
    if( to_non_generic ) {
       switch( space.get_type() ) {
@@ -2589,10 +2590,9 @@ void decode_space( memory_space_t &space, ptx_thread_info *thread, const operand
       else if( ti.is_param_local() ) {
          space = param_space_local;
       } else {
+         // TODO: Figure out what causes this condition
          fprintf(stderr, "GPGPU-Sim PTX: ERROR ** cannot resolve .param space for '%s'\n", s->name().c_str() );
-		 // deicide: TEST
 		 space = param_space_kernel;
-         // abort(); 
       }
    }
    switch ( space.get_type() ) {
@@ -2680,11 +2680,10 @@ void ld_exec( const ptx_instruction *pI, ptx_thread_info *thread )
              thread->set_vector_operand_values(dst,data1,data2,data2,data2);
        }
    }
-   // deicide: Handle 8 byte local access
+   // Handle 8 byte local access
    if ((space.get_type() == local_space || space.get_type() == param_space_local) &&
        (type == B64_TYPE || type == U64_TYPE || type == S64_TYPE))
    {
-       // deicide
        if (thread->m_current_local_load_PC != (unsigned long long)-1)
        {
            if (thread->m_current_local_load_PC != pI->get_PC())
@@ -2700,7 +2699,6 @@ void ld_exec( const ptx_instruction *pI, ptx_thread_info *thread )
        {
            thread->m_current_local_load_PC = pI->get_PC();
        }
-       // deicide
        thread->m_last_memory_space = space;
        if (thread->m_local_load_execution_step > 2) return;
        if (thread->m_local_load_execution_step != thread->m_local_load_memory_step) return;
@@ -2718,7 +2716,6 @@ void ld_exec( const ptx_instruction *pI, ptx_thread_info *thread )
        thread->m_last_memory_space = space;
        thread->m_last_effective_address = addr;
    }
-   // deicide
 }
 
 void ld_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
@@ -2800,8 +2797,11 @@ void mad24_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide218: Revised version of mad
- * TODO: Verify the functionality
+ * Revised version of mad
+ * More details:
+ * http://docs.nvidia.com/cuda/parallel-thread-execution/#integer-arithmetic-instructions-mad
+ * http://docs.nvidia.com/cuda/parallel-thread-execution/#extended-precision-arithmetic-instructions-mad-cc
+ * http://docs.nvidia.com/cuda/parallel-thread-execution/#floating-point-instructions-mad
  * TODO: Add rounding mode .rm, .rp for .f32, .f64 type
  */
 void mad_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
@@ -3156,8 +3156,8 @@ void madp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide218: Add madc instruction
- * TODO: Verify the functionality
+ * Add madc instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#extended-precision-arithmetic-instructions-madc
  */
 void madc_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -3820,8 +3820,8 @@ void prefetch_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_
 void prefetchu_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }
 
 /*
- * deicide218: Add shfl instruction
- * TODO: Verify the functionality
+ * Add shfl instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-shfl
  */
 void shfl_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -3919,7 +3919,6 @@ void shfl_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 				pval = 0;
 				d.u32 = (unsigned)-1;
 			}
-			// TODO: Should we use ptxplus convention for pval? (i.e. reverse the pval value)
 			(*t)->set_operand_value(dst, d, pI->get_type(), (*t), pI, pval);
 		}
 		first_in_warp = true;
@@ -3927,8 +3926,8 @@ void shfl_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide: Add prmt instruction
- * TODO: Verify the functionality
+ * Add prmt instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-prmt
  */
 void prmt_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -4194,8 +4193,7 @@ void selp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 	*/
    d = (!(c.pred & 0x0001))?a:b;
 
-   // deicide: The type of d should be the same as a, b
-   // thread->set_operand_value(dst,d, PRED_TYPE, thread, pI);
+   // The type of d should be the same as a, b
    thread->set_operand_value(dst, d, i_type, thread, pI);
 }
 
@@ -4449,8 +4447,8 @@ void set_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /* 
- * deicide: Add shf instruction.
- * TODO: Verify the functionality.
+ * Add shf instruction.
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#logic-and-shift-instructions-shf
  */
 void shf_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -4800,11 +4798,10 @@ void st_impl( const ptx_instruction *pI, ptx_thread_info *thread )
        }
    }
    data = thread->get_operand_value(src1, dst, type, thread, 1);
-   // deicide: Handle 8 byte local access
+   // Handle 8 byte local access
    if ((space.get_type() == local_space || space.get_type() == param_space_local) &&
        (type == B64_TYPE || type == U64_TYPE || type == S64_TYPE))
    {
-       // deicide
        if (thread->m_current_local_store_PC != (unsigned long long)-1)
        {
            if (thread->m_current_local_store_PC != pI->get_PC())
@@ -4817,7 +4814,6 @@ void st_impl( const ptx_instruction *pI, ptx_thread_info *thread )
        {
            thread->m_current_local_store_PC = pI->get_PC();
        }
-       // deicide
        thread->m_last_memory_space = space;
        if (thread->m_local_store_execution_step > 2) return;
        if (thread->m_local_store_execution_step != thread->m_local_store_memory_step) return;
@@ -4836,12 +4832,11 @@ void st_impl( const ptx_instruction *pI, ptx_thread_info *thread )
        thread->m_last_memory_space = space;
        thread->m_last_effective_address = addr;
    }
-   // deicide
 }
 
 /*
- * deicide218: Add extended-precision for instruction sub
- * TODO: Verify the functionality
+ * Add extended-precision for instruction sub
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#extended-precision-arithmetic-instructions-sub-cc
  * TODO: Add rounding mode .rm, .rp for .f32, .f64 type
  */
 void sub_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
@@ -5061,8 +5056,8 @@ void sub_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide: Add subc instruction
- * TODO: Verify the functionality
+ * Add subc instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#extended-precision-arithmetic-instructions-subc
  */
 void subc_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -5690,8 +5685,8 @@ void xor_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide: Add testp instruction
- * TODO: Verify the functionality
+ * Add testp instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#floating-point-instructions-testp
  */
 void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread ) 
 {
@@ -5780,8 +5775,8 @@ void testp_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 }
 
 /*
- * deicide: Add copysign instruction
- * TODO: Verify the functionality
+ * Add copysign instruction
+ * More details: http://docs.nvidia.com/cuda/parallel-thread-execution/#floating-point-instructions-copysign
  */
 void copysign_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 {
