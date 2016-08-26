@@ -43,10 +43,6 @@
 
 extern gpgpu_sim *g_the_gpu;
 
-#include "gpu/gpgpu-sim/cuda_gpu.hh"
-
-extern gpgpu_sim *g_the_gpu;
-
 unsigned mem_access_t::sm_next_access_uid = 0;   
 unsigned warp_inst_t::sm_next_uid = 0;
 
@@ -193,15 +189,6 @@ void warp_inst_t::generate_mem_accesses()
     // In gem5-gpu, global, const and local references go through the gem5-gpu LSQ
     if( space.get_type() == global_space || space.get_type() == const_space || space.get_type() == local_space || space.get_type() == param_space_local)
         return;
-
-    // deicide
-    if (m_is_cdp || m_is_printf)
-    {
-        fprintf(stderr, "CDP memory accesses belong to param_space_local\n");
-        space = local_space;
-        return;
-    }
-    // deicide
 
     const size_t starting_queue_size = m_accessq.size();
 
@@ -584,7 +571,7 @@ kernel_info_t::kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *
 	m_use_last_cta = false;
 }
 
-// deicide: Handle for CTA padding in OpenCL 2.0
+// Handle for CTA padding in OpenCL 2.0
 kernel_info_t::kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *entry, dim3 lastBlockDim )
 {
 	m_last_block_dim = lastBlockDim;
@@ -624,7 +611,9 @@ std::string kernel_info_t::name() const
 extern unsigned long long g_total_param_size;
 extern stream_manager * g_stream_manager;
 
-// CDP extensions
+// CDP extensions start
+// The following codes are porting from gpgpu-sim-cdp
+// More details: https://github.com/gtcasl/gpgpu-sim-cdp
 void kernel_info_t::set_parent(kernel_info_t * parent, dim3 parent_ctaid, dim3 parent_tid)
 {
 	m_parent_kernel = parent;
@@ -719,6 +708,7 @@ void kernel_info_t::destory_cta_streams()
 {
 }
 #endif
+// CDP extensions end
 
 simt_stack::simt_stack( unsigned wid, unsigned warpSize)
 {
@@ -950,6 +940,8 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
             if (warpId == (unsigned (-1)))
                 warpId = inst.warp_id();
             unsigned tid = m_warp_size * warpId + t;
+            // If the thread is still waiting for the result of previous step
+            // of a PTX built-in function, skip it.
             if (m_thread[tid]->m_wait_for_cdp)
             {
                 if (inst.m_is_cdp == 1)

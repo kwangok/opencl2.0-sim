@@ -27,8 +27,6 @@
 
 #include "gpu/gpgpu-sim/cuda_gpu.hh"
 
-#include "gpu/gpgpu-sim/cuda_gpu.hh"
-
 #include "stream_manager.h"
 #include "gpgpusim_entrypoint.h"
 #include "cuda-sim/cuda-sim.h"
@@ -91,7 +89,7 @@ void CUstream_st::record_next_done()
     m_pending=false;
 }
 
-// deicide: Cancel the stream operation when GPU is full
+// Cancel the stream operation when GPU is full
 void CUstream_st::cancel_next()
 {
     m_pending = false;
@@ -171,8 +169,7 @@ void stream_operation::do_operation( gpgpu_sim *gpu )
                 gpu->gem5CudaGPU->beginRunning(launchTime, m_stream);
             }
         } else {
-            // deicide: Cancel stream operation if GPU is full
-            // TODO: Model timing
+            // Cancel stream operation if GPU is full
             m_stream->cancel_next();
         }
         break;
@@ -257,7 +254,6 @@ bool stream_manager::register_finished_kernel(unsigned grid_uid)
 		kernel_info_t *kernel = stream->front().get_kernel();
 		assert( grid_uid == kernel->get_uid() );
 
-		// TODO: Check if all children are finished
 		if(kernel->is_finished()) {
 			std::ofstream kernel_stat("kernel_stat.txt", std::ofstream::out | std::ofstream::app);
 			kernel_stat<< " kernel " << grid_uid << ": " << kernel->name();

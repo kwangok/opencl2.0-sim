@@ -172,7 +172,7 @@ public:
 //      m_param_mem=NULL;
 //   }
 	kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *entry );
-	// deicide: Handle for CTA padding in OpenCL 2.0
+	// Constructor that handles for CTA padding in OpenCL 2.0
 	kernel_info_t( dim3 gridDim, dim3 blockDim, class function_info *entry, dim3 lastBlockDim );
 	~kernel_info_t();
 
@@ -195,6 +195,12 @@ public:
 		return m_grid_dim.x * m_grid_dim.y * m_grid_dim.z;
 	}
 
+    // This function will return the size of the CTA that this kernel 
+    // is about to execute. In OpenCL 2.0, because the global size
+    // need not be divisble by local size, we'll handle this case by
+    // returning a varying CTA size (m_real_block_dim in this case)
+    // during kernel execution rather than returning a static CTA
+    // size (m_block_dim in this case).
 	size_t threads_per_cta() const
 	{
 		if (m_use_last_cta)
@@ -204,6 +210,7 @@ public:
 	} 
 
 	dim3 get_grid_dim() const { return m_grid_dim; }
+    // This function can be used to get the static CTA size.
 	dim3 get_cta_dim() const { return m_block_dim; }
 
 	void increment_cta_id() 
@@ -272,7 +279,6 @@ private:
 	dim3 m_block_dim;
 	dim3 m_next_cta;
 	dim3 m_next_tid;
-	// deicide
 	dim3 m_real_block_dim;
 	dim3 m_last_block_dim;
 	bool m_use_last_cta;
@@ -289,7 +295,9 @@ public:
 	address_type get_inst_base_vaddr() { return m_inst_text_base_vaddr; };
 	void set_inst_base_vaddr(address_type addr) { m_inst_text_base_vaddr = addr; };
 
-// TODO: Members and methods for CDP
+// Members and methods for CDP start
+// The following codes are porting from gpgpu-sim-cdp
+// More details: https://github.com/gtcasl/gpgpu-sim-cdp
 public:
 	// Parent and child kernel management for CDP
 	void set_parent(kernel_info_t * parent, dim3 parent_ctaid, dim3 parent_tid);
@@ -330,12 +338,13 @@ private:
 	std::map<struct stream_group_id, struct CUstream_st *, stream_group_id_comp> m_cta_streams;
 #endif
 
-// TODO: How to simulate clock?
+// How to simulate clock?
 public:
 	unsigned long long launch_cycle;
 	unsigned long long start_cycle;
 	unsigned long long end_cycle;
 	unsigned m_launch_latency;
+// Members and methods for CDP end
 };
 
 struct core_config {
@@ -908,7 +917,6 @@ public:
         m_mem_accesses_created=false;
         m_cache_hit=false;
         m_is_printf=false;
-        // deicide: CDP
         m_is_cdp=0;
     }
     virtual ~warp_inst_t(){
@@ -1030,7 +1038,13 @@ public:
         return m_warp_active_mask[n] && m_per_scalar_thread_valid && 
             (m_per_scalar_thread[n].callback.function!=NULL);
     }
-    // deicide: Check each entry of memreqaddr
+    // TODO:
+    // The issue here is that this function will fail at the assertion
+    // during the PTX built-in function execution, and I haven't yet
+    // figured out what might cause m_per_scalar_thread_valid to be
+    // unset. The current version is a way to workaround by returning
+    // a specific value indicating an invalid address (-1), and leave
+    // it to the caller to bypass this case.
     new_addr_type get_addr( unsigned n, int index = 0 ) const
     {
         // assert( m_per_scalar_thread_valid );
@@ -1105,7 +1119,6 @@ protected:
 
 public:
     bool m_is_printf;
-    // deicide: CDP
     int m_is_cdp;
     int m_is_long_local_access;
 };
@@ -1157,7 +1170,10 @@ class core_t {
         kernel_info_t * get_kernel_info(){ return m_kernel;}
         unsigned get_warp_size() const { return m_warp_size; }
         void writeRegister(const warp_inst_t &inst, unsigned warpSize, unsigned lane_id, char* data);
-        // deicide: For CDP
+        // This is for PTX built-in function's execution. As some of
+        // the temp store & flags of built-in functions are in the 
+        // class ptx_thread_info, we'll need this getter to get the
+        // data from corresponding ptx_thread_info instance.
         class ptx_thread_info * ptx_thread_lookup(unsigned hw_tid)
         {
             assert(hw_tid < (m_warp_count * m_warp_size));

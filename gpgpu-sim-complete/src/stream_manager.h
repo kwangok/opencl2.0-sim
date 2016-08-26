@@ -187,9 +187,9 @@ public:
     struct CUstream_st *get_stream() { return m_stream; }
     void set_stream( CUstream_st *stream ) { m_stream = stream; }
 
-    // For handling the gem5 thread context
+    // Handling gem5 thread context
     void setThreadContext(ThreadContext *_tc) { tc = _tc; }
-    // deicide: CDP
+    // CDP
     stream_operation_type get_type() { return m_type; }
     void set_type(stream_operation_type type) { m_type = type; }
 
@@ -215,7 +215,7 @@ private:
 
     Tick launchTime;
 
-    // The gem5 thread context executing this stream
+    // gem5 thread context executing this stream
     ThreadContext *tc;
 };
 
@@ -286,7 +286,7 @@ public:
     void print( FILE *fp );
     unsigned get_uid() const { return m_uid; }
 
-    // For handling the gem5 thread context
+    // Handling the gem5 thread context
     void setThreadContext(ThreadContext *_tc) { tc = _tc; }
     ThreadContext *getThreadContext() { return tc; }
 #ifdef DEVICE_STREAM
@@ -301,7 +301,7 @@ private:
     std::list<stream_operation> m_operations;
     bool m_pending; // front operation has started but not yet completed
 
-    // The gem5 thread context executing this stream
+    // gem5 thread context executing this stream
     ThreadContext *tc;
 #ifdef DEVICE_STREAM
 	stream_type m_type;
@@ -320,9 +320,9 @@ public:
     bool concurrent_streams_empty();
     bool empty_protected();
     bool empty();
-    // deicide: Checking child stream status
+    // Checking child stream status
     bool childStreamEmpty();
-    // deicide: Checking host kernel status
+    // Checking host kernel status
     bool hostKernelDone();
     void print( FILE *fp);
     void push( stream_operation op );
@@ -341,7 +341,6 @@ private:
     bool m_service_stream_zero;
 
 #ifdef DEVICE_STREAM
-	// TODO: Multiple device streams
 	CUstream_st m_device_stream_zero;
 	std::list<CUstream_st *> m_device_streams;
 #endif
