@@ -69,6 +69,7 @@ typedef struct {
 
 map<int, kernel_runtime_info> CDP_runtime_info;
 
+// TODO: Flexible constructor for streamTickEvent
 CudaGPU::CudaGPU(const Params *p) :
     ClockedObject(p), _params(p), streamTickEvent({this, this, this, this, this, this, this, this, this, this, this, this, this, this, this, this}),
     clkDomain((SrcClockDomain*)p->clk_domain),
@@ -331,6 +332,7 @@ void CudaGPU::streamTick() {
     DPRINTF(CudaGPUTick, "Stream Tick\n");
 
     int i;
+    // Find a streamTickEvent that hasn't been scheduled and schedule it
     for (i = 0; i < MAX_CONCURRENT_STREAMS; ++i)
     {
         if (runningStream[i] == NULL && stream_schedule_tick[i] == curTick() && !streamTickEvent[i].scheduled())
@@ -358,6 +360,7 @@ void CudaGPU::streamTick() {
 
 void CudaGPU::scheduleStreamEvent() {
     int i;
+    // Find a streamTickEvent that hasn't been scheduled and schedule it
     for (i = 0; i < MAX_CONCURRENT_STREAMS; ++i)
     {
         // if (runningStream[i] == NULL && !streamScheduled[i]) break;
@@ -395,6 +398,7 @@ void CudaGPU::beginRunning(Tick stream_queued_time, struct CUstream_st *_stream)
         Stats::reset();
     }
     numKernelsStarted++;
+    // If it's a device kernel launch, then don't re-schedule all other wrapper events
     if (_stream->getType() == stream_device)
     {
         // Intentionally does nothing
@@ -437,7 +441,7 @@ void CudaGPU::processFinishKernelEvent(int grid_id)
     bool isDeviceStream = (stream->getType() == stream_device) ? true : false;
     if (!streamManager->register_finished_kernel(grid_id))
     {
-        fprintf(stderr, "Child kernels are still running, don't finish kernel uid = %d\n", grid_id);
+        DPRINTF(CudaGPU, "Child kernels are still running, don't finish kernel uid = %d\n", grid_id);
     }
 
     try {
@@ -788,13 +792,15 @@ void CudaGPU::registerDeviceMemory(ThreadContext *tc, Addr vaddr, size_t size)
         if (FullSystem) {
             page_paddr = TheISA::vtophys(tc, page_vaddr);
         } else {
-            // deicide
+            // Translation can only fail when calling cudaGetParameterBuffer to allocate GPU memory.
+            // Currently we simply allocate memory to get the translation to work, but this is not
+            // gonna work in full system simulation. A better way to deal with this is to 
+            // pre-allocate memory in host and maintain a ring buffer like structure to reuse it.
             if (!(tc->getProcessPtr()->pTable->translate(page_vaddr, page_paddr)))
             {
                 tc->getProcessPtr()->allocateMem(page_vaddr, TheISA::PageBytes);
             }
             tc->getProcessPtr()->pTable->translate(page_vaddr, page_paddr);
-            // deicide
         }
         pageTable.insert(page_vaddr, page_paddr);
     }

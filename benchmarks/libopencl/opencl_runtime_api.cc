@@ -1294,7 +1294,7 @@ clBuildProgram(cl_program           program,
 
         // The return from the upcall: If true, the simulator needs the GPU
         // local memory pages to be mapped, so touch them.
-        // deicide: Currently we always touch local memory pages
+        // Currently we always touch local memory pages
         if (1 || map_local) {
             touchPages(alloc_ptr, allocate_local);
         }

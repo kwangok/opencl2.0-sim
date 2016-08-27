@@ -225,7 +225,7 @@ CudaCore::handleRetry()
             instPort.sendTimingReq(retry_pkt);
         }
     } else {
-        // panic("Access should never fail on a retry!");
+        panic("Access should never fail on a retry!");
     }
 }
 
@@ -263,8 +263,8 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
     bool completed = false;
 
     int size = inst.data_size;
+    // TODO: Set data_size for PTX built-in functions
     if (inst.is_load() || inst.is_store()) {
-        // deicide
         if (inst.m_is_cdp)
         {
             // fprintf(stderr, "CDP data size = %d\n", size);
@@ -280,9 +280,6 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
     }
     size *= inst.vectorLength;
 
-    // deicide
-    if (!inst.m_is_cdp && !inst.m_is_printf) assert(size <= 16);
-    // deicide
     //
     if (inst.op == BARRIER_OP || inst.op == MEMORY_BARRIER_OP) {
         if (inst.active_count() != inst.warp_size()) {
@@ -326,23 +323,23 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
 
     for (int lane = 0; lane < warpSize; lane++) {
         if (inst.active(lane)) {
-            // deicide
-            Addr addr = 0;
-            if (!inst.m_is_cdp && !inst.m_is_printf)
-            {
-                addr = inst.get_addr(lane);
-            }
-            // deicide
-
+            Addr addr = inst.get_addr(lane);
             PacketPtr pkt;
+
+            // TODO: The following codes handle the memory request for CDP-related
+            // PTX built-in functions, and all memory steps can relate to an
+            // execution step with the same value in cuda_device_runtime.cc.
+            // However, for some reason, there exists unknown condition that a
+            // CDP-related warp instruction has an invalid target address.
+            // Currently this is handled by translating the target address to check
+            // if it's valid.
             if (inst.m_is_cdp == 4) {
                 ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane);
                 if (thread->m_wait_for_cdp) continue;
                 if (thread->m_cdp_memory_step == 0)
                 {
                     if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -357,16 +354,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
 
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
@@ -378,8 +378,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 else if (thread->m_cdp_memory_step == 1)
                 {
                     if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -394,16 +393,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
 
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
@@ -416,8 +418,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Write return value
                     if (thread->m_cdp_execution_step <= thread->m_cdp_memory_step) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -432,16 +433,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
 
                     RequestPtr req = new Request(asid, addr, sizeof(cudaError_t), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
@@ -461,8 +465,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Read stream pointer
                     if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -477,16 +480,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
 
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
@@ -499,8 +505,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Read stream creating flag
                     if (thread->m_cdp_execution_step <= thread->m_cdp_memory_step) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -515,16 +520,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
 
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
@@ -537,8 +545,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Write stream hold to target address
                     if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -553,16 +560,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
 
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
@@ -586,8 +596,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Write return value
                     if (thread->m_cdp_execution_step <= thread->m_cdp_memory_step) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -602,16 +611,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
 
                     RequestPtr req = new Request(asid, addr, sizeof(cudaError_t), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
@@ -634,8 +646,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Read child kernel entry pointer
                     if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -650,16 +661,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
                     pkt = new Packet(req, MemCmd::ReadReq);
@@ -671,8 +685,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Read grid dimension
                     if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -687,16 +700,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
                     pkt = new Packet(req, MemCmd::ReadReq);
@@ -708,8 +724,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Read block dimension
                     if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -724,16 +739,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
                     pkt = new Packet(req, MemCmd::ReadReq);
@@ -745,8 +763,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Read shared memory size
                     if (thread->m_cdp_execution_step <= thread->m_cdp_memory_step) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -761,16 +778,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
                     pkt = new Packet(req, MemCmd::ReadReq);
@@ -782,8 +802,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     // Write return value (parameter buffer pointer)
                     if (thread->m_cdp_execution_substep <= thread->m_cdp_memory_substep) continue;
-                    // deicide
-                    if ((addr = inst.get_addr(lane)) == (new_addr_type)-1)
+                    if (addr == (new_addr_type)-1)
                     {
                         continue;
                     }
@@ -798,16 +817,19 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         assert(num_addrs == 1);
                         if (expected_addr != addr)
                         {
-                            fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                            DPRINTF(CudaCoreAccess,
+                                    "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                    thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                             continue;
                         }
                     }
                     else if (thread->m_cdp_expected_address != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                         continue;
                     }
-                    // deicide
                     RequestPtr req = new Request(asid, addr, sizeof(unsigned int), flags,
                             dataMasterId, inst.pc, id, inst.warp_id());
                     pkt = new Packet(req, MemCmd::WriteReq);
@@ -844,14 +866,10 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     continue;
                 }
-                // deicide
-                if (inst.get_addr(lane) == (new_addr_type)-1)
+                if (addr == (new_addr_type)-1)
                 {
                     continue;
                 }
-                // deicide
-                addr = inst.get_addr(lane);
-                // deicide
                 if (inst.space.get_type() == local_space || inst.space.get_type() == param_space_local)
                 {
                     new_addr_type expected_addr;
@@ -863,13 +881,17 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     assert(num_addrs == 1);
                     if (expected_addr != addr)
                     {
-                        fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                         continue;
                     }
                 }
                 else if (thread->m_cdp_expected_address != addr)
                 {
-                    fprintf(stderr, "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
+                    DPRINTF(CudaCoreAccess,
+                            "Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                            thread->get_hw_sid(), thread-> get_hw_tid(), thread->m_cdp_expected_address, addr, __LINE__);
                     continue;
                 }
                 RequestPtr req;
@@ -877,20 +899,17 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 {
                     if (thread->m_vprintf_memory_substep == 0 || thread->m_vprintf_memory_substep == 1)
                     {
-                        // addr = inst.get_addr(lane);
                         req = new Request(asid, addr, sizeof(unsigned int), flags,
                                     dataMasterId, inst.pc, id, inst.warp_id());
                     }
                     else
                     {
-                        // addr = thread->m_fmtstr_addr + (thread->m_cdp_memory_substep - 2) * 4;
                         req = new Request(asid, addr, sizeof(char), flags,
                                     dataMasterId, inst.pc, id, inst.warp_id());
                     }
                 }
                 else if (thread->m_vprintf_memory_step == 1)
                 {
-                    // addr = inst.get_addr(lane);
                     req = new Request(asid, addr, sizeof(unsigned int), flags,
                                 dataMasterId, inst.pc, id, inst.warp_id());
                 }
@@ -926,7 +945,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     panic("Unhandled cache operator (%d) on load\n",
                           inst.cache_op);
                 }
-                // deicide: Handle 8 byte local memory access
+                // Handle 8 byte local memory load
                 RequestPtr req;
                 if ((inst.space.get_type() == local_space || inst.space.get_type() == param_space_local) &&
                     size > 4)
@@ -945,7 +964,6 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         continue;
                     }
                     addr = inst.get_addr(lane, thread->m_local_load_memory_step);
-                    // deicide
                     new_addr_type expected_addr;
                     unsigned num_addrs;
                     num_addrs = shaderImpl->translate_local_memaddr(
@@ -956,10 +974,11 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     assert(num_addrs == 1);
                     if (expected_addr != addr)
                     {
-                        fprintf(stderr, "PC = 0x%llx: Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", inst.pc, thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
+                        DPRINTF(CudaCoreAccess,
+                                "PC = 0x%llx: Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                inst.pc, thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                         continue;
                     }
-                    // deicide
                     req = new Request(asid, addr, sizeof(unsigned int), flags,
                                     dataMasterId, inst.pc, id, inst.warp_id());
                 }
@@ -968,7 +987,6 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     req = new Request(asid, addr, size, flags,
                                     dataMasterId, inst.pc, id, inst.warp_id());
                 }
-                // deicide
                 pkt = new Packet(req, MemCmd::ReadReq);
                 if (inst.isatomic()) {
                     assert(flags.isSet(Request::MEM_SWAP));
@@ -1004,7 +1022,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     panic("Unhandled cache operator (%d) on store\n",
                           inst.cache_op);
                 }
-                // deicide: Handle 8 byte local memory access
+                // Handle 8 byte local memory store
                 RequestPtr req;
                 if ((inst.space.get_type() == local_space || inst.space.get_type() == param_space_local) &&
                     size > 4)
@@ -1023,7 +1041,6 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         continue;
                     }
                     addr = inst.get_addr(lane, thread->m_local_store_memory_step);
-                    // deicide
                     new_addr_type expected_addr;
                     unsigned num_addrs;
                     num_addrs = shaderImpl->translate_local_memaddr(
@@ -1034,15 +1051,11 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     assert(num_addrs == 1);
                     if (expected_addr != addr)
                     {
-                        // deicide
-                        if (thread->get_hw_sid() == 12 && thread->get_hw_tid() == 197)
-                        {
-                            fprintf(stderr, "PC = 0x%llx: Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n", inst.pc, thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
-                        }
-                        // deicide
+                        DPRINTF(CudaCoreAccess,
+                                "PC = 0x%llx: Unmateched address for hw_sid = %u, hw_tid = %u, expected addr = 0x%llx, addr = 0x%lx at line: %d\n",
+                                inst.pc, thread->get_hw_sid(), thread-> get_hw_tid(), expected_addr, addr, __LINE__);
                         continue;
                     }
-                    // deicide
                     req = new Request(asid, addr, sizeof(unsigned int), flags,
                                     dataMasterId, inst.pc, id, inst.warp_id());
 
@@ -1073,7 +1086,6 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                     DPRINTF(CudaCoreAccess, "Send store from lane %d address 0x%llx: data = %d\n",
                             lane, pkt->req->getVaddr(), *(int*)inst.get_data(lane));
                 }
-                // deicide
             } else if (inst.op == BARRIER_OP || inst.op == MEMORY_BARRIER_OP) {
                 assert(!inst.isatomic());
                 // Setup Fence packet
@@ -1106,7 +1118,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                 return true;
             } else {
                 completed = true;
-                // deicide: Here we really commits the loads/stores for CDP/vprintf/8 byte local accesses
+                // Here we really commits the memory accesses for PTX built-in functions and /8 byte local memory accesses
                 ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane);
                 if (inst.m_is_cdp == 1) {
                     if (thread->m_cdp_memory_step == 0) {
@@ -1125,8 +1137,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         free(thread->m_cdp_data);
                         thread->m_cdp_memory_step = 4;
                         thread->m_wait_for_cdp = false;
-                        
-                        // deicide: Reset step
+                        // Reset step
                         thread->m_cdp_execution_step = 0;
                         thread->m_cdp_execution_substep = 0;
                         thread->m_cdp_memory_step = 0;
@@ -1149,7 +1160,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         if (thread->m_cdp_memory_substep == 2)
                         {
                             free(thread->m_cudaGetParameterBufferRet);
-                            // deicide: Reset step
+                            // Reset step
                             thread->m_cdp_execution_step = 0;
                             thread->m_cdp_execution_substep = 0;
                             thread->m_cdp_memory_step = 0;
@@ -1168,7 +1179,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         free(thread->m_cdp_data);
                         thread->m_cdp_memory_step = 3;
                         thread->m_wait_for_cdp = false;
-                        // deicide: Reset step
+                        // Reset step
                         thread->m_cdp_execution_step = 0;
                         thread->m_cdp_execution_substep = 0;
                         thread->m_cdp_memory_step = 0;
@@ -1182,7 +1193,7 @@ CudaCore::executeMemOp(const warp_inst_t &inst)
                         free(thread->m_vprintf_data);
                         thread->m_vprintf_memory_step = 2;
                         thread->m_wait_for_vprintf = false;
-                        // deicide: Reset step
+                        // Reset step
                         thread->m_vprintf_execution_step = 0;
                         thread->m_vprintf_execution_substep = 0;
                         thread->m_vprintf_memory_step = 0;
@@ -1249,7 +1260,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 pkt->writeData(data);
                 if (thread->m_cdp_memory_substep == 0)
                 {
-                    // deicide: Reset address
+                    // Read lo word
                     thread->m_parameter_buffer = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_parameter_buffer |= temp;
@@ -1257,6 +1268,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 }
                 else if (thread->m_cdp_memory_substep == 1)
                 {
+                    // Read hi word
                     unsigned long long temp = *((unsigned int*)data);
                     temp = temp << 32;
                     thread->m_parameter_buffer |= temp;
@@ -1283,6 +1295,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 pkt->writeData(data);
                 if (thread->m_cdp_memory_substep == 0)
                 {
+                    // Read lo word
                     thread->m_child_stream_hold = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_child_stream_hold |= temp;
@@ -1290,6 +1303,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 }
                 else if (thread->m_cdp_memory_substep == 1)
                 {
+                    // Read hi word
                     unsigned long long temp = *((unsigned int*)data);
                     temp = temp << 32;
                     thread->m_child_stream_hold |= temp;
@@ -1320,7 +1334,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 pkt->writeData(data);
                 if (thread->m_cdp_memory_substep == 0)
                 {
-                    // deicide: Reset data
+                    // Read lo word
                     thread->m_child_stream_addr = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_child_stream_addr |= temp;
@@ -1328,6 +1342,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 }
                 else if (thread->m_cdp_memory_substep == 1)
                 {
+                    // Read hi word
                     unsigned long long temp = *((unsigned int*)data);
                     temp = temp << 32;
                     thread->m_child_stream_addr |= temp;
@@ -1364,7 +1379,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 pkt->writeData(data);
                 if (thread->m_cdp_memory_substep == 0)
                 {
-                    // deicide: Reset address
+                    // Read lo word
                     thread->m_child_kernel_entry = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_child_kernel_entry |= temp;
@@ -1372,6 +1387,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 }
                 else if (thread->m_cdp_memory_substep == 1)
                 {
+                    // Read hi word
                     unsigned long long temp = *((unsigned int*)data);
                     temp = temp << 32;
                     thread->m_child_kernel_entry |= temp;
@@ -1458,7 +1474,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 pkt->writeData(data);
                 if (thread->m_vprintf_memory_substep == 0)
                 {
-                    // deicide: Reset data
+                    // Read lo word
                     thread->m_fmtstr_addr = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_fmtstr_addr |= temp;
@@ -1466,6 +1482,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 }
                 else if (thread->m_vprintf_memory_substep == 1)
                 {
+                    // Read hi word
                     unsigned long long temp = *((unsigned int*)data);
                     temp = temp << 32;
                     thread->m_fmtstr_addr |= temp;
@@ -1490,7 +1507,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 pkt->writeData(data);
                 if (thread->m_vprintf_memory_substep == 0)
                 {
-                    // deicide: Reset data
+                    // Read lo word
                     thread->m_arg_list_addr = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_arg_list_addr |= temp;
@@ -1498,6 +1515,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 }
                 else if (thread->m_vprintf_memory_substep == 1)
                 {
+                    // Read hi word
                     unsigned long long temp = *((unsigned int*)data);
                     temp = temp << 32;
                     thread->m_arg_list_addr |= temp;
@@ -1539,6 +1557,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 ptx_thread_info * thread = shaderImpl->ptx_thread_lookup(inst.warp_id() * warpSize + lane_id);
                 if (thread->m_local_load_memory_step == 0)
                 {
+                    // Read lo word
                     thread->m_local_long_data = 0llu;
                     unsigned long long temp = *((unsigned int*)data);
                     thread->m_local_long_data |= temp;
@@ -1547,6 +1566,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                 }
                 else if (thread->m_local_load_memory_step == 1)
                 {
+                    // Read hi word
                     unsigned long long temp = *((unsigned int*)data);
                     temp = temp << 32;
                     thread->m_local_long_data |= temp;
@@ -1554,7 +1574,7 @@ CudaCore::recvLSQDataResp(PacketPtr pkt, int lane_id)
                     *((unsigned long long*)data) = thread->m_local_long_data;
                     thread->m_wait_for_local_load = false;
 
-                    // deicide
+                    // Reset step
                     thread->m_local_load_execution_step = 0;
                     thread->m_local_load_memory_step = 0;
                     thread->m_current_local_load_PC = (unsigned long long)-1;

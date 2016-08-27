@@ -473,7 +473,7 @@ public:
    unsigned long long m_current_local_store_PC;
    // Temp store for 8-byte local memory access
    unsigned long long m_local_long_data;
-   // deicide: For vprintf
+   // For vprintf
    bool m_wait_for_vprintf;
    void * m_vprintf_data;
    int m_vprintf_execution_step;

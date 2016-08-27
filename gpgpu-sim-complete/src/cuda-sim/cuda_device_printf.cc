@@ -106,37 +106,18 @@ void gpgpusim_cuda_vprintf(const ptx_instruction * pI, ptx_thread_info * thread,
             thread->m_last_effective_address = from_addr;
             thread->m_last_memory_space = local_space;
             thread->m_vprintf_execution_substep = 1;
-            // deicide
-            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
-            {
-                fprintf(stderr, "vprintf step 0 substep 0 sent read request to addr 0x%lx, thread address = %p\n", thread->m_last_effective_address, thread);
-            }
-            // deicide
         }
         else if (thread->m_vprintf_execution_substep == 1)
         {
             thread->m_last_effective_address = from_addr + 4;
             thread->m_last_memory_space = local_space;
             thread->m_vprintf_execution_substep = 2;
-            // deicide
-            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
-            {
-                fprintf(stderr, "vprintf step 0 substep 1 sent read request to addr 0x%lx, thread address = %p\n", thread->m_last_effective_address, thread);
-            }
-            // deicide
         }
         else
         {
             if (thread->m_vprintf_execution_substep == 2) (thread->m_fmtstr).clear();
             thread->m_last_effective_address = thread->m_fmtstr_addr + (thread->m_fmtstr).size();
             thread->m_last_memory_space = global_space;
-            // deicide
-            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
-            {
-                fprintf(stderr, "fmtstr address = 0x%llx\n", thread->m_fmtstr_addr);
-                fprintf(stderr, "vprintf step 0 substep %d sent read request to addr 0x%lx, thread address = %p\n", thread->m_vprintf_execution_substep, thread->m_last_effective_address, thread);
-            }
-            // deicide
             thread->m_vprintf_execution_substep++;
         }
     }
@@ -145,17 +126,6 @@ void gpgpusim_cuda_vprintf(const ptx_instruction * pI, ptx_thread_info * thread,
         if (thread->m_vprintf_execution_substep != thread->m_vprintf_memory_substep) return;
         if (thread->m_vprintf_execution_substep == 0)
         {
-            // deicide
-            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
-            {
-                fprintf(stderr, "fmtstr:\n");
-                std::vector<char>::iterator it;
-                for (it = (thread->m_fmtstr).begin(); it != (thread->m_fmtstr).end(); ++it)
-                {
-                    fprintf(stderr, "%c", *it);
-                }
-            }
-            // deicide
             thread->m_last_effective_address = from_addr;
             thread->m_last_memory_space = local_space;
             thread->m_vprintf_execution_substep = 1;
@@ -169,12 +139,6 @@ void gpgpusim_cuda_vprintf(const ptx_instruction * pI, ptx_thread_info * thread,
         else
         {
             if (thread->m_vprintf_execution_substep == 2) (thread->m_arg_list).clear();
-            // deicide
-            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
-            {
-                fprintf(stderr, "local_mem_framesize = %d\n", thread->get_finfo()->local_mem_framesize());
-            }
-            // deicide
             if (thread->m_arg_list.size() >= thread->get_finfo()->local_mem_framesize())
             {
                 // Print out content
@@ -209,12 +173,6 @@ void gpgpusim_cuda_vprintf(const ptx_instruction * pI, ptx_thread_info * thread,
                 return;
             }
             thread->m_last_effective_address = thread->m_arg_list_addr + (thread->m_arg_list).size();
-            // deicide
-            if (thread->get_hw_tid() == 64 && thread->get_hw_sid() == 1)
-            {
-                fprintf(stderr, "vprintf step 1 substep %d sent read request to addr 0x%lx, thread address = %p\n", thread->m_vprintf_execution_substep, thread->m_last_effective_address, thread);
-            }
-            // deicide
             // thread->m_last_memory_space = global_space;
             thread->m_last_memory_space = local_space;
             thread->m_vprintf_execution_substep++;

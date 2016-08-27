@@ -652,8 +652,6 @@ public:
    }
    enum _memory_space_t get_type() const
    {
-       // deicide: TEST
-       if (m_type == param_space_local) return local_space;
        return m_type;
    }
    unsigned get_bank() const { return m_bank; }

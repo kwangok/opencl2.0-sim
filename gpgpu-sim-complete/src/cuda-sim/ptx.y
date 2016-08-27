@@ -280,7 +280,7 @@ ptr_space_spec: GLOBAL_DIRECTIVE { add_ptr_spec(global_space); }
               | LOCAL_DIRECTIVE  { add_ptr_spec(local_space); }
               | SHARED_DIRECTIVE { add_ptr_spec(shared_space); }
 			  | CONST_DIRECTIVE { add_ptr_spec(const_space); } // Added by Yi-Chang
-			  | WEAK_DIRECTIVE ptr_space_spec // deicide
+			  | WEAK_DIRECTIVE ptr_space_spec
 
 ptr_align_spec: ALIGN_DIRECTIVE INT_OPERAND
 
@@ -359,7 +359,7 @@ addressable_spec: CONST_DIRECTIVE {  add_space_spec(const_space,$1); }
 	| SHARED_DIRECTIVE 	  {  add_space_spec(shared_space,0); }
 	| SURF_DIRECTIVE 	  {  add_space_spec(surf_space,0); }
 	| TEX_DIRECTIVE 	  {  add_space_spec(tex_space,0); }
-    | WEAK_DIRECTIVE addressable_spec // deicide
+    | WEAK_DIRECTIVE addressable_spec
 	;
 
 type_spec: scalar_type 
@@ -465,7 +465,7 @@ option: type_spec
 	| CV_OPTION { add_option(CV_OPTION); }
 	| WB_OPTION { add_option(WB_OPTION); }
 	| WT_OPTION { add_option(WT_OPTION); }
-	| SHFL_OPTION { add_option(SHFL_OPTION); } /* deicide218: New options added from here */
+	| SHFL_OPTION { add_option(SHFL_OPTION); } /* New options added from here */
 	| SHFR_OPTION { add_option(SHFR_OPTION); }
 	| CLAMP_OPTION { add_option(CLAMP_OPTION); }
 	| WRAP_OPTION { add_option(WRAP_OPTION); }
@@ -483,8 +483,6 @@ option: type_spec
 	| ECR_OPTION { add_option(ECR_OPTION); }
 	| RC16_OPTION { add_option(RC16_OPTION); }
 	;
-
-/* deicide218: testp instructions */
 
 testp_operation_spec: TESTP_FINITE { add_option(TESTP_FINITE); }
 	| TESTP_INFINITE { add_option(TESTP_INFINITE); }

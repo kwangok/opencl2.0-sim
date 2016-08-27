@@ -316,7 +316,7 @@ class CudaGPU : public ClockedObject
     // struct CUstream_st *runningDeviceStream;
     int runningTID;
 
-    // deicide: For device kernel
+    // For device kernel. TODO: May not need this
     int deviceKernelCount;
 
     void beginStreamOperation(struct CUstream_st *_stream) {
@@ -351,7 +351,7 @@ class CudaGPU : public ClockedObject
         runningTID = runningTC->threadId();
     }
     void endStreamOperation() {
-        // deicide: Check if all sub operations are done
+        // Don't clean up if there's still pending/running child kernels
         if (!streamManager->childStreamEmpty()) return;
         if (deviceKernelCount == 0)
         {
@@ -369,16 +369,15 @@ class CudaGPU : public ClockedObject
             if (_stream == runningStream[i])
                 runningStream[i] = NULL;
         }
-        // if (runningDeviceStreamsKernelCount[_stream] == 0)
         if (_stream->empty())
         {
             runningDeviceStreamsKernelCount.erase(_stream);
         }
-        // deicide: Check if all sub operations are done
+        // Don't clean up if there's still pending/running child kernels
         if (!streamManager->childStreamEmpty()) return;
         if (deviceKernelCount == 0)
         {
-            // deicide: Check if host launched kernel is still running
+            // Don't clean up if host launched kernel is still running
             if (_stream->getType() == stream_device)
             {
                 if (!streamManager->hostKernelDone())
@@ -388,7 +387,6 @@ class CudaGPU : public ClockedObject
                 }
             }
             runningStream[0] = NULL;
-            // runningDeviceStream = NULL;
             runningTC = NULL;
             runningTID = -1;
         }

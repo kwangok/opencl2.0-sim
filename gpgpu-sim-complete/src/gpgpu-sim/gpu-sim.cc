@@ -79,7 +79,7 @@ class  gpgpu_sim_wrapper {};
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-// deicide: For checking child stream progress
+// For checking child stream progress
 extern stream_manager * g_stream_manager;
 
 bool g_interactive_debugger_enabled=false;
