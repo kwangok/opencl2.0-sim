@@ -38,21 +38,17 @@ unsigned CUstream_st::sm_next_stream_uid = 0;
 
 CUstream_st::CUstream_st() 
 {
-#ifdef DEVICE_STREAM
 	m_type = stream_host;
-#endif
     m_pending = false;
     m_uid = sm_next_stream_uid++;
 }
 
-#ifdef DEVICE_STREAM
 CUstream_st::CUstream_st(stream_type type)
 {
 	m_type = type;
 	m_pending = false;
 	m_uid = sm_next_stream_uid++;
 }
-#endif
 
 bool CUstream_st::empty()
 {
@@ -155,9 +151,7 @@ void stream_operation::do_operation( gpgpu_sim *gpu )
             printf("memcpy from symbol\n");
 		gpu->gem5CudaGPU->memcpy_from_symbol(m_host_address_dst, m_symbol, m_cnt, m_offset, m_stream);
         break;
-#ifdef DEVICE_STREAM
     case stream_child_kernel_launch:
-#endif
     case stream_kernel_launch:
         if( gpu->can_start_kernel() ) {
         	gpu->set_cache_config(m_kernel->name());
@@ -203,9 +197,7 @@ void stream_operation::print( FILE *fp ) const
     switch( m_type ) {
     case stream_event: fprintf(fp,"event"); break;
     case stream_kernel_launch: fprintf(fp,"kernel"); break;
-#ifdef DEVICE_STREAM
     case stream_child_kernel_launch: fprintf(fp,"child kernel"); break;
-#endif
     case stream_memcpy_device_to_device: fprintf(fp,"memcpy device-to-device"); break;
     case stream_memcpy_device_to_host: fprintf(fp,"memcpy device-to-host"); break;
     case stream_memcpy_host_to_device: fprintf(fp,"memcpy host-to-device"); break;
@@ -221,9 +213,7 @@ stream_manager::stream_manager( gpgpu_sim *gpu, bool cuda_launch_blocking )
     m_gpu = gpu;
     m_service_stream_zero = false;
     m_cuda_launch_blocking = cuda_launch_blocking;
-#ifdef DEVICE_STREAM
     m_device_stream_zero.setType(stream_device);
-#endif
 }
 
 bool stream_manager::operation( bool * sim)
@@ -296,7 +286,6 @@ stream_operation stream_manager::front()
 				m_grid_id_to_stream[grid_id] = &m_stream_zero;
 			}
 		}
-#ifdef DEVICE_STREAM
 		// TODO: Multiple device streams
 		else if (!m_device_stream_zero.empty() && !m_device_stream_zero.busy())
 		{
@@ -309,7 +298,6 @@ stream_operation stream_manager::front()
                 assert(m_grid_id_to_stream[grid_id] != NULL);
 			}
 		}
-#endif
 		else
 		{
 			m_service_stream_zero = false;
@@ -317,9 +305,7 @@ stream_operation stream_manager::front()
     }
 	else
 	{
-#ifdef DEVICE_STREAM
         bool done = false;
-#endif
         std::list<struct CUstream_st*>::iterator s;
         for (s = m_streams.begin();s != m_streams.end(); ++s)
 		{
@@ -327,9 +313,7 @@ stream_operation stream_manager::front()
             if (!stream->busy() && !stream->empty())
 			{
                 result = stream->next();
-#ifdef DEVICE_STREAM
                 done = true;
-#endif
                 if (result.is_kernel())
 				{
                     unsigned grid_id = result.get_kernel()->get_uid();
@@ -338,7 +322,6 @@ stream_operation stream_manager::front()
                 break;
             }
         }
-#ifdef DEVICE_STREAM
         if (!done)
         {
             for (s = m_device_streams.begin(); s != m_device_streams.end(); ++s)
@@ -358,7 +341,6 @@ stream_operation stream_manager::front()
                 }
             }
         }
-#endif
     }
     return result;
 }
@@ -376,12 +358,10 @@ bool stream_manager::ready()
 		{
 			ready = true;
         }
-#ifdef DEVICE_STREAM
 		else if (!m_device_stream_zero.empty() && !m_device_stream_zero.busy())
 		{
 			ready = true;
 		}
-#endif
 		else
 		{
             m_service_stream_zero = false;
@@ -398,7 +378,6 @@ bool stream_manager::ready()
                 ready = true;
             }
         }
-#ifdef DEVICE_STREAM
 		for (s = m_device_streams.begin(); s != m_device_streams.end(); ++s)
 		{
 			CUstream_st *stream = *s;
@@ -407,7 +386,6 @@ bool stream_manager::ready()
 				ready = true;
 			}
 		}
-#endif
     }
     return ready;
 }
@@ -456,7 +434,6 @@ bool stream_manager::concurrent_streams_empty()
             result = false;
         }
     }
-#ifdef DEVICE_STREAM
     for (s = m_device_streams.begin(); s != m_device_streams.end(); ++s)
     {
         struct CUstream_st *stream = *s;
@@ -465,7 +442,6 @@ bool stream_manager::concurrent_streams_empty()
             result = false;
         }
     }
-#endif
     return result;
 }
 
@@ -476,10 +452,8 @@ bool stream_manager::empty_protected()
         result = false;
     if ( !m_stream_zero.empty() )
         result = false;
-#ifdef DEVICE_STREAM
 	if ( !m_device_stream_zero.empty() )
 		result = false;
-#endif
     return result;
 }
 
@@ -490,14 +464,11 @@ bool stream_manager::empty()
         result = false;
     if ( !m_stream_zero.empty() ) 
         result = false;
-#ifdef DEVICE_STREAM
     if ( !m_device_stream_zero.empty() ) 
         result = false;
-#endif
     return result;
 }
 
-#ifdef DEVICE_STREAM
 bool stream_manager::childStreamEmpty()
 {
     std::list<struct CUstream_st *>::iterator s;
@@ -532,7 +503,6 @@ bool stream_manager::hostKernelDone()
     }
     return true;
 }
-#endif
 
 
 void stream_manager::print( FILE *fp)
@@ -550,14 +520,12 @@ void stream_manager::print_impl( FILE *fp)
     }
     if( !m_stream_zero.empty() ) 
         m_stream_zero.print(fp);
-#ifdef DEVICE_STREAM
     for (s = m_device_streams.begin(); s!=m_device_streams.end(); ++s) {
         struct CUstream_st *stream = *s;
         if (!stream->empty()) stream->print(fp);
     }
     if (!m_device_stream_zero.empty()) 
         m_device_stream_zero.print(fp);
-#endif
 }
 
 void stream_manager::push( stream_operation op )
@@ -567,7 +535,6 @@ void stream_manager::push( stream_operation op )
     if( stream && (!m_cuda_launch_blocking || op.get_type() == stream_child_kernel_launch) ) {
         stream->push(op);
     } else {
-#ifdef DEVICE_STREAM
         if (op.get_type() == stream_child_kernel_launch)
         {
             op.set_stream(&m_device_stream_zero);
@@ -575,12 +542,9 @@ void stream_manager::push( stream_operation op )
         }
         else
         {
-#endif
             op.set_stream(&m_stream_zero);
             m_stream_zero.push(op);
-#ifdef DEVICE_STREAM
         }
-#endif
     }
     if(g_debug_execution >= 3)
        print_impl(stdout);

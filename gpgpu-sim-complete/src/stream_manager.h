@@ -46,8 +46,6 @@
 //    unsigned m_pending_streams;
 //};
 
-#define DEVICE_STREAM
-
 enum stream_operation_type {
     stream_no_op,
     stream_memcpy_host_to_device,
@@ -58,9 +56,7 @@ enum stream_operation_type {
     stream_kernel_launch,
     stream_event,
     stream_memset,
-#ifdef DEVICE_STREAM
     stream_child_kernel_launch
-#endif
 }; 
 
 class stream_operation {
@@ -262,19 +258,15 @@ private:
    bool m_needs_unblock;
 };
 
-#ifdef DEVICE_STREAM
 enum stream_type {
 	stream_host,
 	stream_device
 };
-#endif
 
 struct CUstream_st {
 public:
 	CUstream_st();
-#ifdef DEVICE_STREAM
 	CUstream_st(stream_type type);
-#endif
     bool empty();
     bool busy();
     void synchronize();
@@ -289,10 +281,8 @@ public:
     // Handling the gem5 thread context
     void setThreadContext(ThreadContext *_tc) { tc = _tc; }
     ThreadContext *getThreadContext() { return tc; }
-#ifdef DEVICE_STREAM
 	void setType(stream_type type) { m_type = type; }
 	stream_type getType() { return m_type; }
-#endif
 
 private:
     unsigned m_uid;
@@ -303,9 +293,7 @@ private:
 
     // gem5 thread context executing this stream
     ThreadContext *tc;
-#ifdef DEVICE_STREAM
 	stream_type m_type;
-#endif
 };
 
 class stream_manager {
@@ -327,9 +315,7 @@ public:
     void print( FILE *fp);
     void push( stream_operation op );
     bool operation(bool * sim);
-#ifdef DEVICE_STREAM
 	CUstream_st * findStream(unsigned grid_id) { return m_grid_id_to_stream[grid_id]; }
-#endif
 private:
     void print_impl( FILE *fp);
 
@@ -340,10 +326,8 @@ private:
     CUstream_st m_stream_zero;
     bool m_service_stream_zero;
 
-#ifdef DEVICE_STREAM
 	CUstream_st m_device_stream_zero;
 	std::list<CUstream_st *> m_device_streams;
-#endif
 };
 
 #endif
