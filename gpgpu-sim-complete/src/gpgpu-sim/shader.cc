@@ -715,6 +715,7 @@ void shader_core_ctx::issue_warp( register_set& pipe_reg_set, const warp_inst_t*
     **pipe_reg = *next_inst; // static instruction information
     (*pipe_reg)->issue( active_mask, warp_id, gpu_tot_sim_cycle + gpu_sim_cycle, m_warp[warp_id].get_dynamic_warp_id() ); // dynamic instruction information
     m_stats->shader_cycle_distro[2+(*pipe_reg)->active_count()]++;
+    m_gpu->gem5CudaGPU->getCudaCore(m_sid)->record_warp_occupancy((*pipe_reg)->active_count());
     func_exec_inst( **pipe_reg );
 
     updateSIMTStack(warp_id,*pipe_reg);
@@ -957,12 +958,21 @@ void scheduler_unit::cycle()
     }
 
     // issue stall statistics:
-    if( !valid_inst ) 
+    if( !valid_inst )
+    {
         m_stats->shader_cycle_distro[0]++; // idle or control hazard
-    else if( !ready_inst ) 
+        m_shader->get_gpu()->gem5CudaGPU->getCudaCore(m_shader->get_sid())->record_stalls(0);
+    }
+    else if( !ready_inst )
+    {
         m_stats->shader_cycle_distro[1]++; // waiting for RAW hazards (possibly due to memory) 
-    else if( !issued_inst ) 
+        m_shader->get_gpu()->gem5CudaGPU->getCudaCore(m_shader->get_sid())->record_stalls(1);
+    }
+    else if( !issued_inst )
+    {
         m_stats->shader_cycle_distro[2]++; // pipeline stalled
+        m_shader->get_gpu()->gem5CudaGPU->getCudaCore(m_shader->get_sid())->record_stalls(2);
+    }
 }
 
 void scheduler_unit::do_on_warp_issued( unsigned warp_id,

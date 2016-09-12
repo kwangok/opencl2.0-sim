@@ -1818,6 +1818,17 @@ CudaCore::regStats()
         .name(name() + ".kernels_completed")
         .desc("Number of kernels completed")
         ;
+
+    stalledCycles
+        .init(3)
+        .name(name() + ".stalled_cycles")
+        .desc("Stalled cycles: 0: Idle or control hazard, 2: RAW hazard, 3: Pipeline stall")
+        ;
+    warpOccupancy
+        .init(33)
+        .name(name() + ".warp_occupancy")
+        .desc("Warp occupancy")
+        ;
 }
 
 void
@@ -1908,6 +1919,21 @@ CudaCore::record_block_commit(unsigned hw_cta_id)
     }
 }
 
+void
+CudaCore::record_warp_occupancy(int number_of_threads)
+{
+    assert(number_of_threads > 0 && number_of_threads <= 32);
+    warpOccupancy[number_of_threads]++;
+    cudaGPU->record_total_warp_occupancy(number_of_threads);
+}
+
+void
+CudaCore::record_stalls(int stall_type)
+{
+    assert(stall_type >= 0 && stall_type < 3);
+    stalledCycles[stall_type]++;
+}
+
 void CudaCore::printCTAStats(std::ostream& out)
 {
     std::map<unsigned, std::vector<Tick> >::iterator iter =
@@ -1923,3 +1949,4 @@ void CudaCore::printCTAStats(std::ostream& out)
         out << curTick() << "\n";
     }
 }
+

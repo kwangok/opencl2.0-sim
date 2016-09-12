@@ -859,6 +859,12 @@ Addr CudaGPU::allocateGPUMemory(size_t size)
     return base_vaddr;
 }
 
+void CudaGPU::record_total_warp_occupancy(int number_of_threads)
+{
+    assert(number_of_threads > 0 && number_of_threads <= 32);
+    totalWarpOccupancy[number_of_threads]++;
+}
+
 void CudaGPU::regStats()
 {
     numKernelsStarted
@@ -867,6 +873,11 @@ void CudaGPU::regStats()
     numKernelsCompleted
         .name(name() + ".kernels_completed")
         .desc("Number of kernels completed");
+    totalWarpOccupancy
+        .init(33)
+        .name(name() + ".total_warp_occupancy")
+        .desc("Warp occupancy")
+        ;
 }
 
 GPGPUSimComponentWrapper *GPGPUSimComponentWrapperParams::create() {

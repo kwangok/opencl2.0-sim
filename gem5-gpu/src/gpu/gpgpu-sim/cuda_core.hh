@@ -340,6 +340,8 @@ class CudaCore : public MemObject
     Stats::Scalar instInstances;
     Stats::Formula instPerCycle;
     Stats::Scalar numKernelsCompleted;
+    Stats::Vector stalledCycles;
+    Stats::Vector warpOccupancy;
     void regStats();
 
     void record_ld(memory_space_t space);
@@ -347,6 +349,8 @@ class CudaCore : public MemObject
     void record_inst(int inst_type);
     void record_block_issue(unsigned hw_cta_id);
     void record_block_commit(unsigned hw_cta_id);
+    void record_warp_occupancy(int number_of_threads);
+    void record_stalls(int stall_type);
     void printCTAStats(std::ostream& out);
 };
 

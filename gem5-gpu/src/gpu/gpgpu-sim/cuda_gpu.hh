@@ -631,6 +631,8 @@ class CudaGPU : public ClockedObject
     /// Statistics for this GPU
     Stats::Scalar numKernelsStarted;
     Stats::Scalar numKernelsCompleted;
+    Stats::Vector totalWarpOccupancy;
+    void record_total_warp_occupancy(int number_of_threads);
     void regStats();
 };
 
