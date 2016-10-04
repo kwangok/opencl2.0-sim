@@ -78,8 +78,8 @@
 //#include "../../gpgpu-sim/src/gem5/gpu_syscalls.hh"
 struct gpusyscall;
 typedef struct gpusyscall gpusyscall_t;
-typedef uint64_t (*cudaFunc_t)(ThreadContext *, gpusyscall_t *);
-extern cudaFunc_t gpgpu_funcs[];
+typedef uint64_t (*gpuFunc_t)(ThreadContext *, gpusyscall_t *);
+extern gpuFunc_t gpgpu_funcs[];
 
 using namespace std;
 

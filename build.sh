@@ -1,9 +1,6 @@
 #!/bin/sh
 
-cd libopencl
-./build.sh
-
-cd ../benchmarks/libopencl
+cd benchmarks/libopencl
 make
 
 cd ../../gpgpu-sim/cuda-sim
